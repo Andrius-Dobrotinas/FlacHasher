@@ -11,12 +11,18 @@ namespace FlacHasher
 
         public Hasher(string encoderExecutablePath, IHashComputer hashComputer)
         {
+            if (string.IsNullOrEmpty(encoderExecutablePath)) throw new ArgumentNullException(nameof(encoderExecutablePath), "The value is either null or empty");
+
+            if (hashComputer == null) throw new ArgumentNullException(nameof(hashComputer));
+
             this.encoderExecutablePath = encoderExecutablePath;
             this.hashComputer = hashComputer;
         }
 
         public byte[] ComputerHash(string sourceFilePath)
         {
+            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentNullException(nameof(sourceFilePath), "The value is either null or empty");
+
             var processSettings = new ProcessStartInfo
             {
                 FileName = encoderExecutablePath,
