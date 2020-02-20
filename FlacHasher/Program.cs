@@ -34,15 +34,8 @@ namespace FlacHasher
             encoder.Start();
 
             var hashComputer = new Sha256HashComputer();
-
-            byte[] hash;
-
-            using (var waveData = new MemoryStream())
-            {
-                encoder.StandardOutput.BaseStream.CopyTo(waveData);
-
-                hash = hashComputer.ComputeHash(waveData);
-            }
+            
+            byte[] hash = hashComputer.ComputeHash(encoder.StandardOutput.BaseStream);
 
             Console.WriteLine(BitConverter.ToString(hash));
         }

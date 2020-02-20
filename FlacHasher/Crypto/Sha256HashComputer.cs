@@ -3,7 +3,7 @@ using System.IO;
 
 namespace FlacHasher.Crypto
 {
-    public class Sha256HashComputer
+    public class Sha256HashComputer : IHashComputer
     {
         public byte[] ComputeHash(Stream data)
         {
