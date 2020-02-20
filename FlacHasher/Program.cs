@@ -1,7 +1,5 @@
 ﻿using FlacHasher.Crypto;
 using System;
-using System.Diagnostics;
-using System.IO;
 
 namespace FlacHasher
 {
@@ -10,32 +8,11 @@ namespace FlacHasher
         static void Main(string[] args)
         {
             var encoderExecutablePath = @"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe";
-            var filePath = @"c:\01 - Hex Me.flac";
+            var sourceFilePath = @"c:\01 - Hex Me.flac";
 
-            var processSettings = new ProcessStartInfo
-            {
-                FileName = encoderExecutablePath,
-                RedirectStandardOutput = true,
-                RedirectStandardError = false,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                ErrorDialog = false
-            };
+            var hasher = new Hasher(encoderExecutablePath, new Sha256HashComputer());
 
-            processSettings.ArgumentList.Add(FlacOptions.Decode);
-            processSettings.ArgumentList.Add(FlacOptions.WriteToSdtOut);
-            processSettings.ArgumentList.Add(filePath);
-
-            var encoder = new Process
-            {
-                StartInfo = processSettings
-            };
-
-            encoder.Start();
-
-            var hashComputer = new Sha256HashComputer();
-            
-            byte[] hash = hashComputer.ComputeHash(encoder.StandardOutput.BaseStream);
+            byte[] hash = hasher.ComputerHash(sourceFilePath);
 
             Console.WriteLine(BitConverter.ToString(hash));
         }
