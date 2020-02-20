@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FlacHasher.Crypto;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -32,17 +33,18 @@ namespace FlacHasher
 
             encoder.Start();
 
+            var hashComputer = new Sha256HashComputer();
+
+            byte[] hash;
+
             using (var waveData = new MemoryStream())
             {
                 encoder.StandardOutput.BaseStream.CopyTo(waveData);
 
-                using (var algorithm = System.Security.Cryptography.SHA256.Create())
-                {
-                    var hash = algorithm.ComputeHash(waveData);
-
-                    Console.WriteLine(BitConverter.ToString(hash));
-                }
+                hash = hashComputer.ComputeHash(waveData);
             }
+
+            Console.WriteLine(BitConverter.ToString(hash));
         }
     }
 }
