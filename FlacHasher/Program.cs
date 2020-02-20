@@ -1,11 +1,14 @@
 ﻿using FlacHasher.Crypto;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace FlacHasher
 {
     class Program
     {
+        private const string optionName_stdOut = "--stdout";
+
         static int Main(string[] args)
         {
             var encoderExecutable = new FileInfo(@"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe");
@@ -26,7 +29,18 @@ namespace FlacHasher
 
             byte[] hash = hasher.ComputerHash(sourceFile.FullName);
 
-            Console.WriteLine(BitConverter.ToString(hash));
+            var outputToStdOut = args.Contains(optionName_stdOut);
+            if (outputToStdOut)
+            {
+                Console.OpenStandardOutput().Write(hash, 0, hash.Length);
+                Console.Error.Write("\r\n");
+            }
+            else
+            {
+                Console.WriteLine(BitConverter.ToString(hash));
+            }
+
+            Console.Error.WriteLine("Done!");
 
             return 0;
         }
