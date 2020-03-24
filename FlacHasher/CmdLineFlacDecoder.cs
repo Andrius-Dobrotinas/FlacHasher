@@ -4,11 +4,13 @@ using System.IO;
 
 namespace FlacHasher
 {
-    public class FlacDecoder : IAudioDecoder
+    // TODO: Flac.exe can also take input via stdin. See if I want to go that way.
+
+    public class CmdLineFlacDecoder : IAudioDecoder
     {
         private readonly FileInfo encoderExecutableFile;
 
-        public FlacDecoder(FileInfo encoderExecutablePath)
+        public CmdLineFlacDecoder(FileInfo encoderExecutablePath)
         {
             if (encoderExecutablePath == null) throw new ArgumentNullException(nameof(encoderExecutablePath));
 
