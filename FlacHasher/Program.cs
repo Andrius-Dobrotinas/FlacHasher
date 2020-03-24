@@ -26,7 +26,8 @@ namespace FlacHasher
                 return -1;
             }
 
-            var hasher = new Hasher(encoderExecutable.FullName, new Sha256HashComputer());
+            var decoder = new AudioDecoder(encoderExecutable.FullName);
+            var hasher = new Hasher(decoder, new Sha256HashComputer());
 
             byte[] hash = hasher.ComputerHash(sourceFile.FullName);
 
