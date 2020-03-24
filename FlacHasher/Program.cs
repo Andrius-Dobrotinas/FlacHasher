@@ -32,6 +32,16 @@ namespace FlacHasher
             byte[] hash = hasher.ComputerHash(sourceFile);
 
             var formatTheHash = args.Contains(optionName_formatOutput);
+            
+            OutputHash(hash, formatTheHash);
+
+            Console.Error.WriteLine("Done!");
+
+            return 0;
+        }
+
+        private static void OutputHash(byte[] hash, bool formatTheHash)
+        {
             if (formatTheHash)
             {
                 Console.OpenStandardOutput().Write(hash, 0, hash.Length);
@@ -41,10 +51,6 @@ namespace FlacHasher
             {
                 Console.WriteLine(BitConverter.ToString(hash));
             }
-
-            Console.Error.WriteLine("Done!");
-
-            return 0;
         }
     }
 }
