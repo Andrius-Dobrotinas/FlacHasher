@@ -6,20 +6,20 @@ namespace FlacHasher
 {
     public class AudioDecoder : IAudioDecoder
     {
-        private readonly string encoderExecutablePath;
+        private readonly FileInfo encoderExecutableFile;
 
-        public AudioDecoder(string encoderExecutablePath)
+        public AudioDecoder(FileInfo encoderExecutablePath)
         {
-            if (string.IsNullOrEmpty(encoderExecutablePath)) throw new ArgumentNullException(nameof(encoderExecutablePath), "The value is either null or empty");
+            if (encoderExecutablePath == null) throw new ArgumentNullException(nameof(encoderExecutablePath));
 
-            this.encoderExecutablePath = encoderExecutablePath;
+            this.encoderExecutableFile = encoderExecutablePath;
         }
 
         public Stream Decode(FileInfo sourceFile)
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
-            var processSettings = GetProcessSettings(encoderExecutablePath);
+            var processSettings = GetProcessSettings(encoderExecutableFile);
 
             processSettings.ArgumentList.Add(FlacOptions.Decode);
             processSettings.ArgumentList.Add(FlacOptions.WriteToSdtOut);
@@ -36,11 +36,11 @@ namespace FlacHasher
             return process.StandardOutput.BaseStream;
         }
 
-        private static ProcessStartInfo GetProcessSettings(string encoderExecutablePath)
+        private static ProcessStartInfo GetProcessSettings(FileInfo encoderExecutablePath)
         {
             return new ProcessStartInfo
             {
-                FileName = encoderExecutablePath,
+                FileName = encoderExecutablePath.FullName,
                 RedirectStandardOutput = true,
                 RedirectStandardError = false,
                 UseShellExecute = false,
