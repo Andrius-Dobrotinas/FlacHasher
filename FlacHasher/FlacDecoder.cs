@@ -4,11 +4,11 @@ using System.IO;
 
 namespace FlacHasher
 {
-    public class AudioDecoder : IAudioDecoder
+    public class FlacDecoder : IAudioDecoder
     {
         private readonly FileInfo encoderExecutableFile;
 
-        public AudioDecoder(FileInfo encoderExecutablePath)
+        public FlacDecoder(FileInfo encoderExecutablePath)
         {
             if (encoderExecutablePath == null) throw new ArgumentNullException(nameof(encoderExecutablePath));
 
