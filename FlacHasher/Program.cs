@@ -8,7 +8,7 @@ namespace FlacHasher
     class Program
     {
         private const string newLine = "\r\n";
-        private const string optionName_stdOut = "--stdout";
+        private const string optionName_formatOutput = "--format";
 
         static int Main(string[] args)
         {
@@ -31,8 +31,8 @@ namespace FlacHasher
 
             byte[] hash = hasher.ComputerHash(sourceFile);
 
-            var outputToStdOut = args.Contains(optionName_stdOut);
-            if (outputToStdOut)
+            var formatTheHash = args.Contains(optionName_formatOutput);
+            if (formatTheHash)
             {
                 Console.OpenStandardOutput().Write(hash, 0, hash.Length);
                 Console.Error.Write(newLine);
