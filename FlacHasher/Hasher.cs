@@ -15,9 +15,9 @@ namespace FlacHasher
             this.hashComputer = hashComputer ?? throw new ArgumentNullException(nameof(hashComputer));
         }
 
-        public byte[] ComputerHash(string sourceFilePath)
+        public byte[] ComputerHash(FileInfo sourceFile)
         {
-            Stream decodedData = decoder.Decode(sourceFilePath);
+            Stream decodedData = decoder.Decode(sourceFile);
 
             return hashComputer.ComputeHash(decodedData);
         }

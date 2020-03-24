@@ -15,16 +15,16 @@ namespace FlacHasher
             this.encoderExecutablePath = encoderExecutablePath;
         }
 
-        public Stream Decode(string sourceFilePath)
+        public Stream Decode(FileInfo sourceFile)
         {
-            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentNullException(nameof(sourceFilePath), "The value is either null or empty");
+            if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
             var processSettings = GetProcessSettings(encoderExecutablePath);
 
             processSettings.ArgumentList.Add(FlacOptions.Decode);
             processSettings.ArgumentList.Add(FlacOptions.WriteToSdtOut);
 
-            processSettings.ArgumentList.Add(sourceFilePath);
+            processSettings.ArgumentList.Add(sourceFile.FullName);
 
             var process = new Process
             {

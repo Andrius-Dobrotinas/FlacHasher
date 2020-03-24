@@ -5,6 +5,6 @@ namespace FlacHasher
 {
     public interface IAudioDecoder
     {
-        Stream Decode(string sourceFilePath);
+        Stream Decode(FileInfo sourceFile);
     }
 }

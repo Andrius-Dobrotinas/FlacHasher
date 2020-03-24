@@ -29,7 +29,7 @@ namespace FlacHasher
             var decoder = new AudioDecoder(encoderExecutable.FullName);
             var hasher = new Hasher(decoder, new Sha256HashComputer());
 
-            byte[] hash = hasher.ComputerHash(sourceFile.FullName);
+            byte[] hash = hasher.ComputerHash(sourceFile);
 
             var outputToStdOut = args.Contains(optionName_stdOut);
             if (outputToStdOut)
