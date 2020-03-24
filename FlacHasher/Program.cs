@@ -7,6 +7,7 @@ namespace FlacHasher
 {
     class Program
     {
+        private const string newLine = "\r\n";
         private const string optionName_stdOut = "--stdout";
 
         static int Main(string[] args)
@@ -33,7 +34,7 @@ namespace FlacHasher
             if (outputToStdOut)
             {
                 Console.OpenStandardOutput().Write(hash, 0, hash.Length);
-                Console.Error.Write("\r\n");
+                Console.Error.Write(newLine);
             }
             else
             {
