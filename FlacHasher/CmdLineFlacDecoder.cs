@@ -6,7 +6,7 @@ namespace FlacHasher
 {
     // TODO: Flac.exe can also take input via stdin. See if I want to go that way.
 
-    public class CmdLineFlacDecoder : IAudioDecoder
+    public class CmdLineFlacDecoder : IFileReader
     {
         private readonly FileInfo encoderExecutableFile;
 
@@ -17,7 +17,7 @@ namespace FlacHasher
             this.encoderExecutableFile = encoderExecutablePath;
         }
 
-        public Stream Decode(FileInfo sourceFile)
+        public Stream Read(FileInfo sourceFile)
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
