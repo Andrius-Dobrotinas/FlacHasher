@@ -6,11 +6,11 @@ namespace FlacHasher.FileReading.Flac
 {
     // TODO: Flac.exe can also take input via stdin. See if I want to go that way.
 
-    public class CmdLineFlacDecoder : IFileReader
+    public class CmdLineDecoder : IFileReader
     {
         private readonly FileInfo encoderExecutableFile;
 
-        public CmdLineFlacDecoder(FileInfo encoderExecutablePath)
+        public CmdLineDecoder(FileInfo encoderExecutablePath)
         {
             if (encoderExecutablePath == null) throw new ArgumentNullException(nameof(encoderExecutablePath));
 
@@ -23,8 +23,8 @@ namespace FlacHasher.FileReading.Flac
 
             var processSettings = GetProcessSettings(encoderExecutableFile);
 
-            processSettings.ArgumentList.Add(FlacOptions.Decode);
-            processSettings.ArgumentList.Add(FlacOptions.WriteToSdtOut);
+            processSettings.ArgumentList.Add(DecoderOptions.Decode);
+            processSettings.ArgumentList.Add(DecoderOptions.WriteToSdtOut);
 
             processSettings.ArgumentList.Add(sourceFile.FullName);
 
