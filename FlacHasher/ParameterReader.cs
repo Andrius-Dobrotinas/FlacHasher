@@ -11,7 +11,7 @@ namespace FlacHasher
             if (!arguments.ContainsKey(ArgumentNames.Decoder))
             {
                 // TODO: exception type
-                throw new Exception("The decoder executable file has not been specified.");
+                throw new Exception($"The decoder executable file has not been specified. Use {ArgumentNames.Decoder}= option");
             }
 
             var decoderPath = arguments[ArgumentNames.Decoder];
@@ -20,7 +20,7 @@ namespace FlacHasher
             if (!arguments.ContainsKey(ArgumentNames.Input))
             {
                 // TODO: exception type
-                throw new Exception("The input file has not been specified");
+                throw new Exception($"The input file has not been specified. Use {ArgumentNames.Input}= option");
             }
 
             var inputFilePath = arguments[ArgumentNames.Input];
