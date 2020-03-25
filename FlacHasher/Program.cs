@@ -8,8 +8,6 @@ namespace FlacHasher
 {
     class Program
     {
-        private const string newLine = "\r\n";
-
         static int Main(string[] args)
         {
             var argDictionary = ParseArguments(args);
@@ -44,7 +42,7 @@ namespace FlacHasher
             if (formatTheHash)
             {
                 Console.OpenStandardOutput().Write(hash, 0, hash.Length);
-                Console.Error.Write(newLine);
+                Console.Error.WriteLine();
             }
             else
             {
