@@ -6,20 +6,20 @@ namespace FlacHasher
 {
     public class FileHasher
     {
-        private readonly IFileReader decoder;
+        private readonly IFileReader reader;
         private readonly IHashComputer hashComputer;
 
-        public FileHasher(IFileReader decoder, IHashComputer hashComputer)
+        public FileHasher(IFileReader reader, IHashComputer hashComputer)
         {
-            this.decoder = decoder ?? throw new ArgumentNullException(nameof(decoder));
+            this.reader = reader ?? throw new ArgumentNullException(nameof(reader));
             this.hashComputer = hashComputer ?? throw new ArgumentNullException(nameof(hashComputer));
         }
 
         public byte[] ComputerHash(FileInfo sourceFile)
         {
-            Stream decodedData = decoder.Read(sourceFile);
+            Stream contents = reader.Read(sourceFile);
 
-            return hashComputer.ComputeHash(decodedData);
+            return hashComputer.ComputeHash(contents);
         }
     }
 }

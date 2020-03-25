@@ -11,7 +11,7 @@ namespace FlacHasher
             if (!arguments.ContainsKey(ArgumentNames.Decoder))
             {
                 // TODO: exception type
-                throw new Exception("The encoder executable file has not been specified");
+                throw new Exception("The decoder executable file has not been specified.");
             }
 
             var decoderPath = arguments[ArgumentNames.Decoder];

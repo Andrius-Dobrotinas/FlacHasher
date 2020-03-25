@@ -8,20 +8,20 @@ namespace FlacHasher.FileReading.Flac
 
     public class CmdLineDecoder : IFileReader
     {
-        private readonly FileInfo encoderExecutableFile;
+        private readonly FileInfo decoderExecutableFile;
 
-        public CmdLineDecoder(FileInfo encoderExecutablePath)
+        public CmdLineDecoder(FileInfo decoderExecutableFile)
         {
-            if (encoderExecutablePath == null) throw new ArgumentNullException(nameof(encoderExecutablePath));
+            if (decoderExecutableFile == null) throw new ArgumentNullException(nameof(decoderExecutableFile));
 
-            this.encoderExecutableFile = encoderExecutablePath;
+            this.decoderExecutableFile = decoderExecutableFile;
         }
 
         public Stream Read(FileInfo sourceFile)
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
-            var processSettings = GetProcessSettings(encoderExecutableFile);
+            var processSettings = GetProcessSettings(decoderExecutableFile);
 
             processSettings.ArgumentList.Add(DecoderOptions.Decode);
             processSettings.ArgumentList.Add(DecoderOptions.WriteToSdtOut);
