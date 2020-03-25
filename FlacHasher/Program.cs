@@ -1,6 +1,7 @@
-﻿using FlacHasher.Crypto;
+﻿using FlacHasher.CommandLine;
+using FlacHasher.Crypto;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FlacHasher
@@ -8,31 +9,29 @@ namespace FlacHasher
     class Program
     {
         private const string newLine = "\r\n";
-        private const string optionName_formatOutput = "--format";
 
         static int Main(string[] args)
         {
-            var encoderExecutable = new FileInfo(@"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe");
-            if (!encoderExecutable.Exists)
+            var argDictionary = ParseArguments(args);
+
+            Parameters arguments;
+            try
             {
-                Console.WriteLine("The encoder executable file doesn't exist");
+                arguments = ParameterReader.GetParameters(argDictionary);
+            }
+            catch (Exception e) //TODO: the type
+            {
+                Console.Error.WriteLine(e.Message);
                 return -1;
             }
 
-            var sourceFile = new FileInfo(@"c:\01 - Hex Me.flac");
-            if (!sourceFile.Exists)
-            {
-                Console.WriteLine("The source file doesn't exist");
-                return -1;
-            }
-
-            var decoder = new CmdLineFlacDecoder(encoderExecutable);
+            var decoder = new CmdLineFlacDecoder(arguments.Decoder);
             var hasher = new Hasher(decoder, new Sha256HashComputer());
 
-            byte[] hash = hasher.ComputerHash(sourceFile);
+            byte[] hash = hasher.ComputerHash(arguments.InputFile);
 
-            var formatTheHash = args.Contains(optionName_formatOutput);
-            
+            var formatTheHash = arguments.FormatOutput;
+
             OutputHash(hash, formatTheHash);
 
             Console.Error.WriteLine("Done!");
@@ -51,6 +50,16 @@ namespace FlacHasher
             {
                 Console.WriteLine(BitConverter.ToString(hash));
             }
+        }
+
+        private static IDictionary<string, string> ParseArguments(string[] args)
+        {
+            var argParser = new ArgumentParser();
+
+            return args.Select(argParser.ParseArgument)
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.Value);
         }
     }
 }
