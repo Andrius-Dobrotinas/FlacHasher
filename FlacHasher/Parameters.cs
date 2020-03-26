@@ -6,6 +6,6 @@ namespace FlacHasher
     {
         public FileInfo Decoder { get; set; }
         public FileInfo InputFile { get; set; }
-        public bool FormatOutput { get; set; }
+        public string OutputFormat { get; set; }
     }
 }

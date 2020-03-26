@@ -2,6 +2,7 @@
 using FlacHasher.Crypto;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace FlacHasher
@@ -10,12 +11,12 @@ namespace FlacHasher
     {
         static int Main(string[] args)
         {
-            var argDictionary = ParseArguments(args);
+            var arguments = ParseArguments(args);
 
-            Parameters arguments;
+            Parameters parameters;
             try
             {
-                arguments = ParameterReader.GetParameters(argDictionary);
+                parameters = ParameterReader.GetParameters(arguments);
             }
             catch (Exception e) //TODO: the type
             {
@@ -23,30 +24,29 @@ namespace FlacHasher
                 return -1;
             }
 
-            var decoder = new FileReading.Flac.CmdLineDecoder(arguments.Decoder);
+            var decoder = new FileReading.Flac.CmdLineDecoder(parameters.Decoder);
             var hasher = new FileHasher(decoder, new Sha256HashComputer());
 
-            byte[] hash = hasher.ComputerHash(arguments.InputFile);
+            byte[] hash = hasher.ComputerHash(parameters.InputFile);
 
-            var formatTheHash = arguments.FormatOutput;
-
-            OutputHash(hash, formatTheHash);
+            OutputHash(hash, parameters.OutputFormat, parameters.InputFile);
 
             Console.Error.WriteLine("Done!");
 
             return 0;
         }
 
-        private static void OutputHash(byte[] hash, bool formatTheHash)
+        private static void OutputHash(byte[] hash, string format, FileInfo sourceFile)
         {
-            if (formatTheHash)
+            if (string.IsNullOrEmpty(format))
             {
                 Console.OpenStandardOutput().Write(hash, 0, hash.Length);
                 Console.Error.WriteLine();
             }
             else
             {
-                Console.WriteLine(BitConverter.ToString(hash));
+                string formattedOutput = OutputFormatter.GetFormattedString(format, hash, sourceFile);
+                Console.WriteLine(formattedOutput);
             }
         }
 

@@ -32,9 +32,9 @@ namespace FlacHasher
                 InputFile = inputFile,
             };
 
-            if (arguments.ContainsKey(ArgumentNames.FormatOutput))
+            if (arguments.ContainsKey(ArgumentNames.OutputFormat))
             {
-                args.FormatOutput = true;
+                args.OutputFormat = arguments[ArgumentNames.OutputFormat];
             }
 
             return args;

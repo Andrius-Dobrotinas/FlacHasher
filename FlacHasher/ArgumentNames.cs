@@ -2,7 +2,7 @@
 {
     public static class ArgumentNames
     {
-        public const string FormatOutput = "--format";
+        public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
         public const string Input = "--input";
     }
