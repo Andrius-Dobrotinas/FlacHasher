@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <StartupObject></StartupObject>
+    <RootNamespace>FlacHasher</RootNamespace>
+    <AssemblyName>FlacHasher.Cmd</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
