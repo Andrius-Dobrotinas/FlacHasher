@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Cmd
             {
                 parameters = ParameterReader.GetParameters(arguments);
             }
-            catch (Exception e) //TODO: the type
+            catch (CmdLineArgNotFoundException e)
             {
                 Console.Error.WriteLine(e.Message);
                 return -1;

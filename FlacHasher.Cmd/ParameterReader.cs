@@ -10,8 +10,7 @@ namespace Andy.FlacHash.Cmd
         {
             if (!arguments.ContainsKey(ArgumentNames.Decoder))
             {
-                // TODO: exception type
-                throw new Exception($"The decoder executable file has not been specified. Use {ArgumentNames.Decoder}= option");
+                throw new CmdLineArgNotFoundException($"The decoder executable file has not been specified. Use {ArgumentNames.Decoder}= option");
             }
 
             var decoderPath = arguments[ArgumentNames.Decoder];
@@ -19,8 +18,7 @@ namespace Andy.FlacHash.Cmd
 
             if (!arguments.ContainsKey(ArgumentNames.Input))
             {
-                // TODO: exception type
-                throw new Exception($"The input file has not been specified. Use {ArgumentNames.Input}= option");
+                throw new CmdLineArgNotFoundException($"The input file has not been specified. Use {ArgumentNames.Input}= option");
             }
 
             var inputFilePath = arguments[ArgumentNames.Input];
