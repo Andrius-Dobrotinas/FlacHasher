@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.CommandLine
+namespace Andy.FlacHash.Cmd.CommandLine
 {
     public class ArgumentParser
     {

@@ -1,11 +1,11 @@
-﻿using Andy.FlacHash.CommandLine;
+﻿using Andy.FlacHash.Cmd.CommandLine;
 using Andy.FlacHash.Crypto;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.Cmd
 {
     class Program
     {

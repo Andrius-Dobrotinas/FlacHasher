@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.Cmd
 {
     public class OutputFormatter
     {

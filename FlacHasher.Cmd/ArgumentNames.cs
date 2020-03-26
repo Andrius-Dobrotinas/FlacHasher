@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash
+﻿namespace Andy.FlacHash.Cmd
 {
     public static class ArgumentNames
     {
