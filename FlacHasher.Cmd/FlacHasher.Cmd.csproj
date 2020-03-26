@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <StartupObject></StartupObject>
     <RootNamespace>Andy.FlacHash.Cmd</RootNamespace>
-    <AssemblyName>FlacHasher.Cmd</AssemblyName>
+    <AssemblyName>FlacHasherCmd</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
