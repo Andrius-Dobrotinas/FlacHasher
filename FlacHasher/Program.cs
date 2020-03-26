@@ -24,7 +24,7 @@ namespace FlacHasher
                 return -1;
             }
 
-            var decoder = new FileReading.Flac.CmdLineDecoder(parameters.Decoder);
+            var decoder = new Input.Flac.CmdLineDecoder(parameters.Decoder);
             var hasher = new FileHasher(decoder, new Sha256HashComputer());
 
             byte[] hash = hasher.ComputerHash(parameters.InputFile);

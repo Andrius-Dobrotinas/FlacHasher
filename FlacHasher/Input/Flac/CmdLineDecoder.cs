@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace FlacHasher.FileReading.Flac
+namespace FlacHasher.Input.Flac
 {
     // TODO: Flac.exe can also take input via stdin. See if I want to go that way.
 
