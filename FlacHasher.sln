@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHasher.Cmd", "FlacHasher.Cmd\FlacHasher.Cmd.csproj", "{BF8E272D-0A42-473A-90D9-6B38C6467E8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher.Cmd", "FlacHasher.Cmd\FlacHasher.Cmd.csproj", "{BF8E272D-0A42-473A-90D9-6B38C6467E8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHash", "FlacHash\FlacHash.csproj", "{3E204436-7086-4D39-8470-F5CC8437F633}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{BF8E272D-0A42-473A-90D9-6B38C6467E8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF8E272D-0A42-473A-90D9-6B38C6467E8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF8E272D-0A42-473A-90D9-6B38C6467E8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E204436-7086-4D39-8470-F5CC8437F633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E204436-7086-4D39-8470-F5CC8437F633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E204436-7086-4D39-8470-F5CC8437F633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E204436-7086-4D39-8470-F5CC8437F633}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
