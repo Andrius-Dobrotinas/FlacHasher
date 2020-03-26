@@ -1,4 +1,4 @@
-﻿namespace FlacHasher
+﻿namespace Andy.FlacHash
 {
     public static class ArgumentNames
     {

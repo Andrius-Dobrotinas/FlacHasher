@@ -1,8 +1,8 @@
-﻿using FlacHasher.Crypto;
+﻿using Andy.FlacHash.Crypto;
 using System;
 using System.IO;
 
-namespace FlacHasher
+namespace Andy.FlacHash
 {
     public class FileHasher
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace FlacHasher
+namespace Andy.FlacHash
 {
     public class ParameterReader
     {

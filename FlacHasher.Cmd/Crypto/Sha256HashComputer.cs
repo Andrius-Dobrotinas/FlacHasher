@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace FlacHasher.Crypto
+namespace Andy.FlacHash.Crypto
 {
     public class Sha256HashComputer : IHashComputer
     {

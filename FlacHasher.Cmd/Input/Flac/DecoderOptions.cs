@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FlacHasher.Input.Flac
+namespace Andy.FlacHash.Input.Flac
 {
     public static class DecoderOptions
     {
