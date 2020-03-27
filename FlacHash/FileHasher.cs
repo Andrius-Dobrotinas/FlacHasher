@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Andy.FlacHash
 {
-    public class FileHasher
+    public class FileHasher : IFileHasher
     {
         private readonly IFileReader reader;
         private readonly IHashComputer hashComputer;

@@ -26,10 +26,14 @@ namespace Andy.FlacHash.Cmd
 
             var decoder = new Input.Flac.CmdLineDecoder(parameters.Decoder);
             var hasher = new FileHasher(decoder, new Sha256HashComputer());
+            var multiHasher = new MultipleFileHasher(hasher);
 
-            byte[] hash = hasher.ComputerHash(parameters.InputFile);
+            var hashes = multiHasher.ComputeHashes(parameters.InputFiles);
 
-            OutputHash(hash, parameters.OutputFormat, parameters.InputFile);
+            foreach(var entry in hashes)
+            {
+                OutputHash(entry.Hash, parameters.OutputFormat, entry.File);
+            };
 
             Console.Error.WriteLine("Done!");
 

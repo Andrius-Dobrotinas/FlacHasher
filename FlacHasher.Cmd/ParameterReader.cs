@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Andy.FlacHash.Cmd
 {
@@ -22,12 +23,21 @@ namespace Andy.FlacHash.Cmd
             }
 
             var inputFilePath = arguments[ArgumentNames.Input];
-            var inputFile = new FileInfo(inputFilePath);
+
+            var inputFiles = inputFilePath
+                .Split(';')
+                .Select(path => new FileInfo(path))
+                .ToArray();
+
+            if (inputFiles.Length == 0)
+            {
+                throw new CmdLineArgNotFoundException("At least one input file must be specified");
+            }
 
             var args = new Parameters
             {
                 Decoder = decoder,
-                InputFile = inputFile,
+                InputFiles = inputFiles,
             };
 
             if (arguments.ContainsKey(ArgumentNames.OutputFormat))
