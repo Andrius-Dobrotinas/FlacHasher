@@ -27,9 +27,33 @@ namespace Andy.FlacHash.Cmd
             var decoder = new Input.Flac.CmdLineDecoder(parameters.Decoder);
             var hasher = new FileHasher(decoder, new Sha256HashComputer());
             var multiHasher = new MultipleFileHasher(hasher);
+            var directoryHasher = new DirectoryHasher(multiHasher);
 
-            var hashes = multiHasher.ComputeHashes(parameters.InputFiles);
+            IList<FileHashResult> hashes;
 
+            if (parameters.InputFiles.Any())
+            {
+                hashes = multiHasher
+                    .ComputeHashes(parameters.InputFiles)
+                    .ToArray();
+            }
+            else
+            {
+                hashes = new FileHashResult[0];
+            }
+
+            if (parameters.InputDirectories.Any())
+            {
+                var fileSearchPattern = $"*.{parameters.TargetFileExtension}";
+                var hashes2 = parameters.InputDirectories
+                    .SelectMany(
+                        directory => directoryHasher.ComputeHashes(directory, fileSearchPattern))
+                    .ToArray(); // TODO save dir info and group results by dirs for outputting
+
+                hashes = hashes.Concat(hashes2).ToArray();
+            }            
+
+            // TODO: maybe it's better to output each hash as it's computed?
             foreach(var entry in hashes)
             {
                 OutputHash(entry.Hash, parameters.OutputFormat, entry.File);

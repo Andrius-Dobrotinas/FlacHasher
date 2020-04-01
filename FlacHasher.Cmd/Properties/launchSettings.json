@@ -7,6 +7,10 @@
     "FlacHasher-MultipleFiles": {
       "commandName": "Project",
       "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\";\"C:\\temp\\03 - Nirvana - Return Of The Rat.flac\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
+    },
+    "FlacHasher-Directory": {
+      "commandName": "Project",
+      "commandLineArgs": "--input=\"C:\\temp\\dinorj\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
     }
   }
 }
