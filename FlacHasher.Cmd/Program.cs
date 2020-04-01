@@ -44,12 +44,7 @@ namespace Andy.FlacHash.Cmd
 
             if (parameters.InputDirectories.Any())
             {
-                var fileSearchPattern = $"*.{parameters.TargetFileExtension}";
-                var hashes2 = parameters.InputDirectories
-                    .SelectMany(
-                        directory => directoryHasher.ComputeHashes(directory, fileSearchPattern))
-                    .ToArray(); // TODO save dir info and group results by dirs for outputting
-
+                var hashes2 = DoADirectory(directoryHasher, parameters.InputDirectories, parameters.TargetFileExtension);
                 hashes = hashes.Concat(hashes2).ToArray();
             }            
 
@@ -62,6 +57,16 @@ namespace Andy.FlacHash.Cmd
             Console.Error.WriteLine("Done!");
 
             return 0;
+        }
+
+        private static IList<FileHashResult> DoADirectory(DirectoryHasher directoryHasher, IEnumerable<DirectoryInfo> inputDirectories, string fileExtension)
+        {
+            var fileSearchPattern = $"*.{fileExtension}";
+            
+            return inputDirectories
+                .SelectMany(
+                    directory => directoryHasher.ComputeHashes(directory, fileSearchPattern))
+                .ToArray(); // TODO save dir info and group results by dirs for outputting
         }
 
         private static void OutputHash(byte[] hash, string format, FileInfo sourceFile)
