@@ -85,7 +85,7 @@ namespace Andy.FlacHash.Cmd
 
         private static IDictionary<string, string> ParseArguments(string[] args)
         {
-            var argParser = new ArgumentParser();
+            var argParser = new ArgumentParser('=');
 
             return args.Select(argParser.ParseArgument)
                 .ToDictionary(

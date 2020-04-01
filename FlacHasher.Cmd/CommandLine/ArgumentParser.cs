@@ -5,9 +5,16 @@ namespace Andy.FlacHash.Cmd.CommandLine
 {
     public class ArgumentParser
     {
+        private readonly char separator;
+
+        public ArgumentParser(char separator)
+        {
+            this.separator = separator;
+        }
+
         public KeyValuePair<string, string> ParseArgument(string argument)
         {
-            var separatorIndex = argument.IndexOf('=');
+            var separatorIndex = argument.IndexOf(separator);
             if (separatorIndex == -1)
             {
                 return new KeyValuePair<string, string>(argument, null);
