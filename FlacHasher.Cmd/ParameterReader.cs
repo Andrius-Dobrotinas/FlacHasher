@@ -8,9 +8,32 @@ namespace Andy.FlacHash.Cmd
     public class ParameterReader
     {
         /// <summary>
-        /// Extracts parameters from the dictionary and validates them making sure the correct combination of said parameters is provided
+        /// Extracts parameters from the dictionary and validates the values making sure all mandatory parameters are provided, and their combinations are correct combinations (for parameters that are optional/mandatory based on the presence of other parameters.
         /// </summary>
+        /// <exception cref="CmdLineArgNotFoundException">When a mandatory parameter is not provided</exception>
         public static Parameters GetParameters(IDictionary<string, string> arguments)
+        {
+            var decoder = GetDecoder(arguments);
+
+            var inputFilesAndDirs = GetInput(arguments);
+
+            var args = new Parameters
+            {
+                Decoder = decoder,
+                InputFiles = inputFilesAndDirs.Item1,
+                InputDirectories = inputFilesAndDirs.Item2,
+                TargetFileExtension = inputFilesAndDirs.Item3
+            };
+
+            if (arguments.ContainsKey(ArgumentNames.OutputFormat))
+            {
+                args.OutputFormat = arguments[ArgumentNames.OutputFormat];
+            }
+
+            return args;
+        }
+
+        private static FileInfo GetDecoder(IDictionary<string, string> arguments)
         {
             if (!arguments.ContainsKey(ArgumentNames.Decoder))
             {
@@ -18,11 +41,37 @@ namespace Andy.FlacHash.Cmd
             }
 
             var decoderPath = arguments[ArgumentNames.Decoder];
-            var decoder = new FileInfo(decoderPath);
+            return new FileInfo(decoderPath);
+        }
 
+        private static Tuple<IReadOnlyCollection<FileInfo>, IReadOnlyCollection<DirectoryInfo>, string> GetInput(IDictionary<string, string> arguments)
+        {
+            var inputFilesAndDirs = GetInputFilesAndDirs(arguments);
+
+            string fileExtension;
+
+            if (inputFilesAndDirs.Item2.Any())
+            {
+                if (!arguments.ContainsKey(ArgumentNames.FileExtension) || string.IsNullOrEmpty(arguments[ArgumentNames.Input]))
+                {
+                    throw new CmdLineArgNotFoundException($"At least one directory was specified as input, but no file extension has been specified. Use {ArgumentNames.FileExtension}= option");
+                }
+
+                fileExtension = arguments[ArgumentNames.FileExtension];
+            }
+            else
+            {
+                fileExtension = null;
+            }
+
+            return new Tuple<IReadOnlyCollection<FileInfo>, IReadOnlyCollection<DirectoryInfo>, string>(inputFilesAndDirs.Item1, inputFilesAndDirs.Item2, fileExtension);
+        }
+
+        private static Tuple<IReadOnlyCollection<FileInfo>, IReadOnlyCollection<DirectoryInfo>> GetInputFilesAndDirs(IDictionary<string, string> arguments)
+        {
             if (!arguments.ContainsKey(ArgumentNames.Input))
             {
-                throw new CmdLineArgNotFoundException($"The input file has not been specified. Use {ArgumentNames.Input}= option");
+                throw new CmdLineArgNotFoundException($"The input file/directory has not been specified. Use {ArgumentNames.Input}= option");
             }
 
             var inputPathString = arguments[ArgumentNames.Input];
@@ -34,29 +83,7 @@ namespace Andy.FlacHash.Cmd
                 throw new CmdLineArgNotFoundException("At least one input file must be specified");
             }
 
-            var args = new Parameters
-            {
-                Decoder = decoder,
-                InputFiles = filesAndDirs.Item1,
-                InputDirectories = filesAndDirs.Item2
-            };
-
-            if (args.InputDirectories.Any())
-            {
-                if (!arguments.ContainsKey(ArgumentNames.FileExtension) || string.IsNullOrEmpty(arguments[ArgumentNames.Input]))
-                {
-                    throw new CmdLineArgNotFoundException($"At least one directory was specified as input, but not no file extension has been specified. Use {ArgumentNames.FileExtension}= option");
-                }
-
-                args.TargetFileExtension = arguments[ArgumentNames.FileExtension];
-            }
-
-            if (arguments.ContainsKey(ArgumentNames.OutputFormat))
-            {
-                args.OutputFormat = arguments[ArgumentNames.OutputFormat];
-            }
-
-            return args;
+            return filesAndDirs;
         }
 
         private static Tuple<IReadOnlyCollection<FileInfo>, IReadOnlyCollection<DirectoryInfo>> GetInputFilesAndDirs(IEnumerable<string> paths)
