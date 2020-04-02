@@ -9,19 +9,26 @@ namespace Andy.FlacHash.Cmd
 {
     class Program
     {
+        const int ReturnValue_ArgumentNotFound = -1;
+        const int ReturnValue_ArgumentError = -2;
+
         static int Main(string[] args)
         {
-            var arguments = ParseArguments(args);
-
             Parameters parameters;
             try
             {
+                var arguments = ParseArguments(args);
                 parameters = ParameterReader.GetParameters(arguments);
             }
             catch (CmdLineArgNotFoundException e)
             {
                 Console.Error.WriteLine(e.Message);
-                return -1;
+                return ReturnValue_ArgumentNotFound;
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.Message);
+                return ReturnValue_ArgumentError;
             }
 
             var decoder = new Input.Flac.CmdLineDecoder(parameters.Decoder);
