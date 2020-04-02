@@ -9,9 +9,6 @@ namespace Andy.FlacHash.Cmd
 {
     class Program
     {
-        const int ReturnValue_ArgumentNotFound = -1;
-        const int ReturnValue_ArgumentError = -2;
-
         static int Main(string[] args)
         {
             Parameters parameters;
@@ -23,12 +20,12 @@ namespace Andy.FlacHash.Cmd
             catch (CmdLineArgNotFoundException e)
             {
                 Console.Error.WriteLine(e.Message);
-                return ReturnValue_ArgumentNotFound;
+                return (int)ReturnValue.ArgumentNotFound;
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine(e.Message);
-                return ReturnValue_ArgumentError;
+                return (int)ReturnValue.ArgumentError;
             }
 
             var decoder = new Input.Flac.CmdLineDecoder(parameters.Decoder);
@@ -53,23 +50,23 @@ namespace Andy.FlacHash.Cmd
             {
                 var hashes2 = DoADirectory(directoryHasher, parameters.InputDirectories, parameters.TargetFileExtension);
                 hashes = hashes.Concat(hashes2).ToArray();
-            }            
+            }
 
             // TODO: maybe it's better to output each hash as it's computed?
-            foreach(var entry in hashes)
+            foreach (var entry in hashes)
             {
                 OutputHash(entry.Hash, parameters.OutputFormat, entry.File);
             };
 
             Console.Error.WriteLine("Done!");
 
-            return 0;
+            return (int)ReturnValue.Success;
         }
 
         private static IList<FileHashResult> DoADirectory(DirectoryHasher directoryHasher, IEnumerable<DirectoryInfo> inputDirectories, string fileExtension)
         {
             var fileSearchPattern = $"*.{fileExtension}";
-            
+
             return inputDirectories
                 .SelectMany(
                     directory => directoryHasher.ComputeHashes(directory, fileSearchPattern))
