@@ -5,5 +5,6 @@
         Success = 0,
         ArgumentNotFound = -1,
         ArgumentError = -2,
+        ExecutionFailure = -100
     }
 }
