@@ -30,8 +30,8 @@ namespace Andy.FlacHash.Input.Flac
 
             var processSettings = ExternalProcess.CmdLineProcessSettingsFactory.GetProcessSettings(decoderExecutableFile);
 
-            processSettings.ArgumentList.Add(DecoderOptions.Decode);
-            processSettings.ArgumentList.Add(DecoderOptions.WriteToSdtOut);
+            processSettings.ArgumentList.Add(CmdLineDecoderOptions.Decode);
+            processSettings.ArgumentList.Add(CmdLineDecoderOptions.WriteToSdtOut);
 
             processSettings.ArgumentList.Add(sourceFile.FullName);
 
