@@ -64,6 +64,8 @@ namespace Andy.FlacHash.Input.Flac
 
         private static ProcessStartInfo GetProcessSettings(FileInfo encoderExecutablePath)
         {
+            if (encoderExecutablePath == null) throw new ArgumentNullException(nameof(encoderExecutablePath));
+
             return new ProcessStartInfo
             {
                 FileName = encoderExecutablePath.FullName,
