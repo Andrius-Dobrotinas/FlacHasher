@@ -19,62 +19,23 @@ namespace Andy.FlacHash.Input.Flac
 
         public Stream Read(FileInfo sourceFile)
         {
-            using (var process = GetProcess(sourceFile, decoderExecutableFile))
-            {
-                process.Start();
+            var processSettings = GetProcessSettings(sourceFile, decoderExecutableFile);
 
-                var hashStream = new MemoryStream();
-                process.StandardOutput.BaseStream.CopyTo(hashStream);
-
-                if (!process.HasExited)
-                {
-                    // Should exit right away, this is just in case
-                    process.WaitForExit(1000);
-                    process.Kill(true);
-                }
-
-                if (process.ExitCode != 0)
-                {
-                    using (var reader = new StreamReader(process.StandardError.BaseStream))
-                    {
-                        throw new Exception($"Somethn' went wron': {reader.ReadToEnd()}"); // TODO: exception type
-                    }                    
-                }
-
-                return hashStream;
-            }
+            return ExternalProcess.ProcessRunner.RunAndReadOutput(processSettings);
         }
 
-        private static Process GetProcess(FileInfo sourceFile, FileInfo decoderExecutableFile)
+        private static ProcessStartInfo GetProcessSettings(FileInfo sourceFile, FileInfo decoderExecutableFile)
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
-            var processSettings = GetProcessSettings(decoderExecutableFile);
+            var processSettings = ExternalProcess.CmdLineProcessSettingsFactory.GetProcessSettings(decoderExecutableFile);
 
             processSettings.ArgumentList.Add(DecoderOptions.Decode);
             processSettings.ArgumentList.Add(DecoderOptions.WriteToSdtOut);
 
             processSettings.ArgumentList.Add(sourceFile.FullName);
 
-            return new Process
-            {
-                StartInfo = processSettings
-            };
-        }
-
-        private static ProcessStartInfo GetProcessSettings(FileInfo encoderExecutablePath)
-        {
-            if (encoderExecutablePath == null) throw new ArgumentNullException(nameof(encoderExecutablePath));
-
-            return new ProcessStartInfo
-            {
-                FileName = encoderExecutablePath.FullName,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                ErrorDialog = false
-            };
+            return processSettings;
         }
     }
 }
