@@ -16,7 +16,7 @@ namespace Andy.FlacHash.ExternalProcess
                 FileName = encoderExecutablePath.FullName,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                UseShellExecute = false,
+                UseShellExecute = false, // Required in order to redirect streams
                 CreateNoWindow = true,
                 ErrorDialog = false
             };
