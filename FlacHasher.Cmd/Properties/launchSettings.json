@@ -19,6 +19,10 @@
     "FlacHasher-NonExistentInput": {
       "commandName": "Project",
       "commandLineArgs": "--input=\"c:\\does not exist\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\""
+    },
+    "FlacHasher-DuplicateArgs": {
+      "commandName": "Project",
+      "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\" --input=\"C:\\temp\\03 - Nirvana - Return Of The Rat.flac\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\""
     }
   }
 }
