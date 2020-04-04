@@ -9,6 +9,7 @@ namespace Andy.FlacHash.Cmd
     {
         /// <summary>
         /// Extracts parameters from the dictionary and validates the values making sure all mandatory parameters are provided, and their combinations are correct combinations (for parameters that are optional/mandatory based on the presence of other parameters.
+        /// The presence of input files/dirs is checked as well
         /// </summary>
         /// <exception cref="CmdLineArgNotFoundException">When a mandatory parameter is not provided</exception>
         public static Parameters GetParameters(IDictionary<string, string> arguments)
@@ -102,6 +103,9 @@ namespace Andy.FlacHash.Cmd
             return new Tuple<IReadOnlyCollection<FileInfo>, IReadOnlyCollection<DirectoryInfo>>(files, dirs);
         }
 
+        /// <summary>
+        /// Throws an exception if file/directory doesn't exist
+        /// </summary>
         private static bool IsDirectory(string path)
         {
             return (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory;

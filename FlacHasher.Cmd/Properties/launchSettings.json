@@ -15,6 +15,10 @@
     "FlacHasher-MultipleFilesAndDirectory": {
       "commandName": "Project",
       "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\";\"C:\\temp\\03 - Nirvana - Return Of The Rat.flac\";\"C:\\temp\\dinorj\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
+    },
+    "FlacHasher-NonExistentInput": {
+      "commandName": "Project",
+      "commandLineArgs": "--input=\"c:\\does not exist\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\""
     }
   }
 }
