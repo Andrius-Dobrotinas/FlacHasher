@@ -12,7 +12,7 @@ namespace Andy.FlacHash.ExternalProcess
         public string ProcessErrorOutput { get; }
 
         public ExecutionException(int exitCode, string processErrorOutput)
-            : base("The process exited with an error")
+            : base($"The process exited with code {exitCode}. See {nameof(ProcessErrorOutput)} for details.")
         {
             ExitCode = exitCode;
             ProcessErrorOutput = processErrorOutput;

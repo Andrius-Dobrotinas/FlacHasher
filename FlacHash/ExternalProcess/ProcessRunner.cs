@@ -45,7 +45,7 @@ namespace Andy.FlacHash.ExternalProcess
                         {
                             processErrorOutput = null;
                         }
-                        throw new ExecutionException(process.ExitCode, processErrorOutput); // TODO: exception type
+                        throw new ExecutionException(process.ExitCode, processErrorOutput);
                     }
                 }
 

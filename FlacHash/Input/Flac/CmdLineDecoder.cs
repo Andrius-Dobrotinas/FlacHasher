@@ -21,7 +21,16 @@ namespace Andy.FlacHash.Input.Flac
         {
             var processSettings = GetProcessSettings(sourceFile, decoderExecutableFile);
 
-            return ExternalProcess.ProcessRunner.RunAndReadOutput(processSettings);
+            try
+            {
+                return ExternalProcess.ProcessRunner.RunAndReadOutput(processSettings);
+            }
+            catch(ExternalProcess.ExecutionException e)
+            {
+                var message = $"Failed to read the input file. FLAC process exited with error code {e.ExitCode}.\nFLAC error output: {e.ProcessErrorOutput}";
+
+                throw new InputReadException(message);
+            }
         }
 
         private static ProcessStartInfo GetProcessSettings(FileInfo sourceFile, FileInfo decoderExecutableFile)

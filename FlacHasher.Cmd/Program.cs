@@ -60,6 +60,12 @@ namespace Andy.FlacHash.Cmd
                     OutputHash(entry.Hash, parameters.OutputFormat, entry.File);
                 };
             }
+            catch (Input.InputReadException e)
+            {
+                Console.WriteLine(e.Message);
+
+                return (int)ReturnValue.InputReadFailure;
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
