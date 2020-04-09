@@ -53,26 +53,25 @@ namespace Andy.FlacHash.Cmd
                 var multiHasher = new MultipleFileHasher(hasher);
                 var directoryHasher = new DirectoryHasher(multiHasher);
 
-                IList<FileHashResult> hashes;
+                IEnumerable<FileHashResult> hashes;
 
                 if (parameters.InputFiles.Any())
                 {
                     hashes = multiHasher
-                        .ComputeHashes(parameters.InputFiles)
-                        .ToArray();
+                        .ComputeHashes(parameters.InputFiles);
                 }
                 else
                 {
-                    hashes = new FileHashResult[0];
+                    hashes = Enumerable.Empty<FileHashResult>();
                 }
 
                 if (parameters.InputDirectories.Any())
                 {
                     var hashes2 = DoADirectory(directoryHasher, parameters.InputDirectories, parameters.TargetFileExtension);
-                    hashes = hashes.Concat(hashes2).ToArray();
+                    hashes = hashes.Concat(hashes2);
                 }
 
-                // TODO: maybe it's better to output each hash as it's computed?
+                // The hashes should be computed on this enumeration, and therefore will be output as they're computed
                 foreach (var entry in hashes)
                 {
                     OutputHash(entry.Hash, outputFomat, entry.File);
@@ -102,14 +101,13 @@ namespace Andy.FlacHash.Cmd
             return (int)ReturnValue.Success;
         }
 
-        private static IList<FileHashResult> DoADirectory(DirectoryHasher directoryHasher, IEnumerable<DirectoryInfo> inputDirectories, string fileExtension)
+        private static IEnumerable<FileHashResult> DoADirectory(DirectoryHasher directoryHasher, IEnumerable<DirectoryInfo> inputDirectories, string fileExtension)
         {
             var fileSearchPattern = $"*.{fileExtension}";
 
             return inputDirectories
                 .SelectMany(
-                    directory => directoryHasher.ComputeHashes(directory, fileSearchPattern))
-                .ToArray(); // TODO save dir info and group results by dirs for outputting
+                    directory => directoryHasher.ComputeHashes(directory, fileSearchPattern));
         }
 
         private static void OutputHash(byte[] hash, string format, FileInfo sourceFile)

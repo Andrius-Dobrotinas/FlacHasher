@@ -23,5 +23,15 @@ namespace Andy.FlacHash
                     Hash = hasher.ComputerHash(file)
                 });
         }
+
+        //public IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files, Action<FileInfo, byte[]> hashCalculatedCallback)
+        //{
+        //    return files.Select(
+        //        file => new FileHashResult
+        //        {
+        //            File = file,
+        //            Hash = hasher.ComputerHash(file)
+        //        });
+        //}
     }
 }
