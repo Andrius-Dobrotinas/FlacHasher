@@ -117,7 +117,7 @@ namespace Andy.FlacHash.Cmd
             if (string.IsNullOrEmpty(format))
             {
                 Console.OpenStandardOutput().Write(hash, 0, hash.Length);
-                Console.Error.WriteLine();
+                Console.Error.WriteLine(); // This is so next message is printed on the next line. Check whether this is actually ok
             }
             else
             {
