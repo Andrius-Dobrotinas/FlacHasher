@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Cmd
         public static string GetFormattedString(string format, byte[] hash, FileInfo file)
         {
             return format
-                .Replace("{hash}", BitConverter.ToString(hash), StringComparison.InvariantCulture)
+                .Replace("{hash}", BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant(), StringComparison.InvariantCulture)
                 .Replace("{name}", file.Name, StringComparison.InvariantCulture)
                 .Replace("{path}", file.FullName, StringComparison.InvariantCulture);
         }
