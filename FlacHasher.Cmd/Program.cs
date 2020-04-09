@@ -44,7 +44,7 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
-                var decoderFile = GetADecoder(settings, parameters);
+                var decoderFile = GetDecoderOrThrow(settings, parameters);
                 var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
 
                 var outputFomat = GetOutputFormat(settings, parameters);
@@ -126,7 +126,7 @@ namespace Andy.FlacHash.Cmd
             }
         }
 
-        private static FileInfo GetADecoder(Settings settings, Parameters cmdlineArguments)
+        private static FileInfo GetDecoderOrThrow(Settings settings, Parameters cmdlineArguments)
         {
             return cmdlineArguments.Decoder ?? settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
         }
