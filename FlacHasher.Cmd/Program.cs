@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Cmd
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Failed reading a settings file. {e.Message}");
+                Console.WriteLine($"Failure reading a settings file. {e.Message}");
                 return (int)ReturnValue.SettingsReadingFailure;
             }
 
