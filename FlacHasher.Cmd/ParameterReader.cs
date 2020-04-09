@@ -36,13 +36,13 @@ namespace Andy.FlacHash.Cmd
 
         private static FileInfo GetDecoder(IDictionary<string, string> arguments)
         {
-            if (!arguments.ContainsKey(ArgumentNames.Decoder))
+            if (arguments.ContainsKey(ArgumentNames.Decoder))
             {
-                throw new CmdLineArgNotFoundException($"The decoder executable file has not been specified. Use {ArgumentNames.Decoder}= option");
+                var decoderPath = arguments[ArgumentNames.Decoder];
+                return new FileInfo(decoderPath);
             }
 
-            var decoderPath = arguments[ArgumentNames.Decoder];
-            return new FileInfo(decoderPath);
+            return null;
         }
 
         private static Tuple<IReadOnlyCollection<FileInfo>, IReadOnlyCollection<DirectoryInfo>, string> GetInput(IDictionary<string, string> arguments)

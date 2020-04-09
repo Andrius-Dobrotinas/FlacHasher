@@ -9,13 +9,27 @@ namespace Andy.FlacHash.Cmd
 {
     class Program
     {
+        const string settingsFileName = "settings.cfg";
+
         static int Main(string[] args)
         {
+            Settings settings;
+            try
+            {
+                var settingsFile = new FileInfo(settingsFileName);
+                settings = SettingsProvider.GetSettings(settingsFile);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed reading a settings file. {e.Message}");
+                return (int)ReturnValue.SettingsReadFailure;
+            }
+
             Parameters parameters;
             try
             {
-                var arguments = ParseArguments(args);
-                parameters = ParameterReader.GetParameters(arguments);
+                var argumentDictionary = ParseArguments(args);
+                parameters = ParameterReader.GetParameters(argumentDictionary);
             }
             catch (CmdLineArgNotFoundException e)
             {
@@ -30,7 +44,8 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
-                var decoder = new Input.Flac.CmdLineDecoder(parameters.Decoder);
+                var decoderFile = GetADecoder(settings, parameters);
+                var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher);
                 var directoryHasher = new DirectoryHasher(multiHasher);
@@ -59,6 +74,12 @@ namespace Andy.FlacHash.Cmd
                 {
                     OutputHash(entry.Hash, parameters.OutputFormat, entry.File);
                 };
+            }
+            catch (ConfigurationException e)
+            {
+                Console.WriteLine(e.Message);
+
+                return (int)ReturnValue.SettingsReadFailure;
             }
             catch (Input.InputReadException e)
             {
@@ -100,6 +121,11 @@ namespace Andy.FlacHash.Cmd
                 string formattedOutput = OutputFormatter.GetFormattedString(format, hash, sourceFile);
                 Console.WriteLine(formattedOutput);
             }
+        }
+
+        private static FileInfo GetADecoder(Settings settings, Parameters cmdlineArguments)
+        {
+            return cmdlineArguments.Decoder ?? settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
         }
 
         private static IDictionary<string, string> ParseArguments(string[] args)
