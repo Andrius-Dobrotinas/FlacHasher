@@ -46,6 +46,9 @@ namespace Andy.FlacHash.Cmd
             {
                 var decoderFile = GetADecoder(settings, parameters);
                 var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
+
+                var outputFomat = GetOutputFormat(settings, parameters);
+
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher);
                 var directoryHasher = new DirectoryHasher(multiHasher);
@@ -72,7 +75,7 @@ namespace Andy.FlacHash.Cmd
                 // TODO: maybe it's better to output each hash as it's computed?
                 foreach (var entry in hashes)
                 {
-                    OutputHash(entry.Hash, parameters.OutputFormat, entry.File);
+                    OutputHash(entry.Hash, outputFomat, entry.File);
                 };
             }
             catch (ConfigurationException e)
@@ -126,6 +129,15 @@ namespace Andy.FlacHash.Cmd
         private static FileInfo GetADecoder(Settings settings, Parameters cmdlineArguments)
         {
             return cmdlineArguments.Decoder ?? settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
+        }
+
+        private static string GetOutputFormat(Settings settings, Parameters cmdlineArguments)
+        {
+            if (!string.IsNullOrEmpty(cmdlineArguments.OutputFormat))
+                return cmdlineArguments.OutputFormat;
+            
+            // Output format is not required
+            return settings.OutputFormat;
         }
 
         private static IDictionary<string, string> ParseArguments(string[] args)

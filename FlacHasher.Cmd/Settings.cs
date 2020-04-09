@@ -7,5 +7,6 @@ namespace Andy.FlacHash.Cmd
     public class Settings
     {
         public FileInfo Decoder { get; set; }
+        public string OutputFormat { get; set; }
     }
 }

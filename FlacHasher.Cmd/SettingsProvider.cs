@@ -11,23 +11,35 @@ namespace Andy.FlacHash.Cmd
             string defaultSectionName)
         {
             FileInfo decoder = null;
+            string outputFormat = null;
+
             if (settings.ContainsKey(defaultSectionName))
             {
                 var defaultSection = settings[defaultSectionName];
 
-                if (defaultSection.ContainsKey(nameof(Settings.Decoder)))
-                {
-                    var decoderPath = defaultSection[nameof(Settings.Decoder)];
-
-                    if (!string.IsNullOrEmpty(decoderPath))
-                        decoder = new FileInfo(decoderPath);
-                }
+                decoder = GetFile(defaultSection, nameof(Settings.Decoder));
+                outputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat));
             }
 
             return new Settings
             {
-                Decoder = decoder
+                Decoder = decoder,
+                OutputFormat = outputFormat
             };
+        }
+
+        private static FileInfo GetFile(IDictionary<string, string> section, string key)
+        {
+            var path = GetValue(section, key);
+
+            return string.IsNullOrEmpty(path) ? null : new FileInfo(path);
+        }
+
+        private static string GetValue(IDictionary<string, string> section, string key)
+        {
+            return section.ContainsKey(key) 
+                ? section[key]
+                : null;
         }
 
         public static Settings GetSettings(FileInfo settingsFile)
