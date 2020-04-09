@@ -79,7 +79,7 @@ namespace Andy.FlacHash.Cmd
             {
                 Console.WriteLine(e.Message);
 
-                return (int)ReturnValue.SettingsReadingFailure;
+                return (int)ReturnValue.ConfigurationError;
             }
             catch (Input.InputReadingException e)
             {
