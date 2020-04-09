@@ -29,7 +29,7 @@ namespace Andy.FlacHash.Input.Flac
             {
                 var message = $"Failed to read the input file. FLAC process exited with error code {e.ExitCode}.\nFLAC error output: {e.ProcessErrorOutput}";
 
-                throw new InputReadException(message);
+                throw new InputReadingException(message);
             }
         }
 

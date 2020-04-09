@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Cmd
             catch (Exception e)
             {
                 Console.WriteLine($"Failed reading a settings file. {e.Message}");
-                return (int)ReturnValue.SettingsReadFailure;
+                return (int)ReturnValue.SettingsReadingFailure;
             }
 
             Parameters parameters;
@@ -79,13 +79,13 @@ namespace Andy.FlacHash.Cmd
             {
                 Console.WriteLine(e.Message);
 
-                return (int)ReturnValue.SettingsReadFailure;
+                return (int)ReturnValue.SettingsReadingFailure;
             }
-            catch (Input.InputReadException e)
+            catch (Input.InputReadingException e)
             {
                 Console.WriteLine(e.Message);
 
-                return (int)ReturnValue.InputReadFailure;
+                return (int)ReturnValue.InputReadingFailure;
             }
             catch (Exception e)
             {
