@@ -44,32 +44,16 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
-                var decoderFile = GetDecoderOrThrow(settings, parameters);
+                FileInfo decoderFile = GetDecoderOrThrow(settings, parameters);
+                string outputFomat = GetOutputFormat(settings, parameters);
+                IList<FileInfo> inputFiles = GetInputFiles(parameters, settings);
+
                 var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
-
-                var outputFomat = GetOutputFormat(settings, parameters);
-
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher);
-                var directoryHasher = new DirectoryHasher(multiHasher);
 
-                IEnumerable<FileHashResult> hashes;
-
-                if (parameters.InputFiles.Any())
-                {
-                    hashes = multiHasher
-                        .ComputeHashes(parameters.InputFiles);
-                }
-                else
-                {
-                    hashes = Enumerable.Empty<FileHashResult>();
-                }
-
-                if (parameters.InputDirectories.Any())
-                {
-                    var hashes2 = DoADirectory(directoryHasher, parameters.InputDirectories, parameters.TargetFileExtension);
-                    hashes = hashes.Concat(hashes2);
-                }
+                IEnumerable<FileHashResult> hashes = multiHasher
+                        .ComputeHashes(inputFiles);
 
                 // The hashes should be computed on this enumeration, and therefore will be output as they're computed
                 foreach (var entry in hashes)
@@ -101,15 +85,6 @@ namespace Andy.FlacHash.Cmd
             return (int)ReturnValue.Success;
         }
 
-        private static IEnumerable<FileHashResult> DoADirectory(DirectoryHasher directoryHasher, IEnumerable<DirectoryInfo> inputDirectories, string fileExtension)
-        {
-            var fileSearchPattern = $"*.{fileExtension}";
-
-            return inputDirectories
-                .SelectMany(
-                    directory => directoryHasher.ComputeHashes(directory, fileSearchPattern));
-        }
-
         private static void OutputHash(byte[] hash, string format, FileInfo sourceFile)
         {
             if (string.IsNullOrEmpty(format))
@@ -126,16 +101,41 @@ namespace Andy.FlacHash.Cmd
 
         private static FileInfo GetDecoderOrThrow(Settings settings, Parameters cmdlineArguments)
         {
-            return cmdlineArguments.Decoder ?? settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
+            if (cmdlineArguments.Decoder != null)
+                return new FileInfo(cmdlineArguments.Decoder);
+
+            return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
         }
 
         private static string GetOutputFormat(Settings settings, Parameters cmdlineArguments)
         {
-            if (!string.IsNullOrEmpty(cmdlineArguments.OutputFormat))
+            if (string.IsNullOrEmpty(cmdlineArguments.OutputFormat) == false)
                 return cmdlineArguments.OutputFormat;
             
-            // Output format is not required
+            // Output format is not mandatory
             return settings.OutputFormat;
+        }
+
+        private static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, Settings settings)
+        {
+            if (cmdlineArguments.InputFiles != null)
+            {
+                return cmdlineArguments.InputFiles
+                    .Select(path => new FileInfo(path))
+                    .ToArray();
+            }
+            if (cmdlineArguments.InputDirectory != null)
+            {
+                var fileExtension = cmdlineArguments.TargetFileExtension;
+
+                // TODO: define default extension in code, somewhere with a decoder?..
+                if (String.IsNullOrEmpty(fileExtension))
+                    throw new Exception("Target file exception must be specified when scanning a directory");
+
+                DirectoryScanner.GetFiles(new DirectoryInfo(fileExtension), fileExtension);
+            }
+
+            throw new Exception("No input files or directory have been specified");
         }
 
         private static IDictionary<string, string> ParseArguments(string[] args)

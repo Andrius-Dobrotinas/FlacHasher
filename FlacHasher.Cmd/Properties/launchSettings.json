@@ -10,11 +10,11 @@
     },
     "FlacHasher-Directory": {
       "commandName": "Project",
-      "commandLineArgs": "--input=\"C:\\temp\\dinorj\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
+      "commandLineArgs": "--inputDir=\"C:\\temp\\dinorj\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
     },
-    "FlacHasher-MultipleFilesAndDirectory": {
+    "FlacHasher-FileAndDirectory": {
       "commandName": "Project",
-      "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\";\"C:\\temp\\03 - Nirvana - Return Of The Rat.flac\";\"C:\\temp\\dinorj\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
+      "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\" --inputDir=\"C:\\temp\\dinorj\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
     },
     "FlacHasher-NonExistentInput": {
       "commandName": "Project",
