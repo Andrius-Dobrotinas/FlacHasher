@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Cmd
             try
             {
                 FileInfo decoderFile = GetDecoderOrThrow(settings, parameters);
-                string outputFomat = GetOutputFormat(settings, parameters);
+                string outputFomat = OutputFormatResolver.GetOutputFormat(settings, parameters);
                 IList<FileInfo> inputFiles = GetInputFiles(parameters, settings);
 
                 var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
@@ -105,15 +105,6 @@ namespace Andy.FlacHash.Cmd
                 return new FileInfo(cmdlineArguments.Decoder);
 
             return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
-        }
-
-        private static string GetOutputFormat(Settings settings, Parameters cmdlineArguments)
-        {
-            if (string.IsNullOrEmpty(cmdlineArguments.OutputFormat) == false)
-                return cmdlineArguments.OutputFormat;
-            
-            // Output format is not mandatory
-            return settings.OutputFormat;
         }
 
         private static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, Settings settings)
