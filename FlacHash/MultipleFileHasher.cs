@@ -5,6 +5,11 @@ using System.Linq;
 
 namespace Andy.FlacHash
 {
+    public interface IMultipleFileHasher
+    {
+        IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files);
+    }
+
     public class MultipleFileHasher : IMultipleFileHasher
     {
         private readonly IFileHasher hasher;

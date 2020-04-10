@@ -4,6 +4,11 @@ using System.IO;
 
 namespace Andy.FlacHash
 {
+    public interface IFileHasher
+    {
+        byte[] ComputerHash(FileInfo sourceFile);
+    }
+
     public class FileHasher : IFileHasher
     {
         private readonly Input.IFileReader reader;
