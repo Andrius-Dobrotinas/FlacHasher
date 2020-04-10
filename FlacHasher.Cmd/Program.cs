@@ -44,9 +44,9 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
-                FileInfo decoderFile = GetDecoderOrThrow(settings, parameters);
+                FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
-                IList<FileInfo> inputFiles = GetInputFiles(parameters, settings);
+                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters, settings);
 
                 var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
@@ -97,36 +97,6 @@ namespace Andy.FlacHash.Cmd
                 string formattedOutput = OutputFormatter.GetFormattedString(format, hash, sourceFile);
                 Console.WriteLine(formattedOutput);
             }
-        }
-
-        private static FileInfo GetDecoderOrThrow(Settings settings, Parameters cmdlineArguments)
-        {
-            if (cmdlineArguments.Decoder != null)
-                return new FileInfo(cmdlineArguments.Decoder);
-
-            return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
-        }
-
-        private static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, Settings settings)
-        {
-            if (cmdlineArguments.InputFiles != null)
-            {
-                return cmdlineArguments.InputFiles
-                    .Select(path => new FileInfo(path))
-                    .ToArray();
-            }
-            if (cmdlineArguments.InputDirectory != null)
-            {
-                var fileExtension = cmdlineArguments.TargetFileExtension;
-
-                // TODO: define default extension in code, somewhere with a decoder?..
-                if (String.IsNullOrEmpty(fileExtension))
-                    throw new Exception("Target file exception must be specified when scanning a directory");
-
-                DirectoryScanner.GetFiles(new DirectoryInfo(fileExtension), fileExtension);
-            }
-
-            throw new Exception("No input files or directory have been specified");
         }
 
         private static IDictionary<string, string> ParseArguments(string[] args)
