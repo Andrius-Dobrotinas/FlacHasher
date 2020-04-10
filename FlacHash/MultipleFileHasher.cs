@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Andy.FlacHash
 {
-    public class MultipleFileHasher
+    public class MultipleFileHasher : IMultipleFileHasher
     {
         private readonly IFileHasher hasher;
 
