@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Configuration", "Configurat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Configuration.Tests", "Configuration.Tests\Configuration.Tests.csproj", "{9A549E72-1821-4B84-A8CC-1D5CC77CCC97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHasher.Cmd.Tests", "FlacHasher.Cmd.Tests\FlacHasher.Cmd.Tests.csproj", "{3A43EB28-D672-4FDC-9E3A-79F690D0EC4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher.Cmd.Tests", "FlacHasher.Cmd.Tests\FlacHasher.Cmd.Tests.csproj", "{3A43EB28-D672-4FDC-9E3A-79F690D0EC4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHash.Tests", "FlacHash.Tests\FlacHash.Tests.csproj", "{95453BD0-CCCA-4790-BB19-9DF4A9BC7DD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{3A43EB28-D672-4FDC-9E3A-79F690D0EC4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A43EB28-D672-4FDC-9E3A-79F690D0EC4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A43EB28-D672-4FDC-9E3A-79F690D0EC4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95453BD0-CCCA-4790-BB19-9DF4A9BC7DD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95453BD0-CCCA-4790-BB19-9DF4A9BC7DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95453BD0-CCCA-4790-BB19-9DF4A9BC7DD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95453BD0-CCCA-4790-BB19-9DF4A9BC7DD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
