@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Cmd
             try
             {
                 FileInfo decoderFile = GetDecoderOrThrow(settings, parameters);
-                string outputFomat = OutputFormatResolver.GetOutputFormat(settings, parameters);
+                string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 IList<FileInfo> inputFiles = GetInputFiles(parameters, settings);
 
                 var decoder = new Input.Flac.CmdLineDecoder(decoderFile);

@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Andy.FlacHash.Cmd
 {
-    public class OutputFormatResolverTests
+    public class ExecutionParameterResolver_OutputFormat_Tests
     {
         [TestCase("Cmdline value", "Settings value")]
         [TestCase("Cmdline value", "")]
@@ -12,7 +12,7 @@ namespace Andy.FlacHash.Cmd
             var settings = new Settings { OutputFormat = settingsValue };
             var cmdLineArguments = new Parameters { OutputFormat = cmdLineArgValue };
 
-            var result = OutputFormatResolver.GetOutputFormat(settings, cmdLineArguments);
+            var result = ExecutionParameterResolver.ResolveOutputFormat(settings, cmdLineArguments);
 
             Assert.AreEqual(cmdLineArgValue, result);
         }
@@ -27,7 +27,7 @@ namespace Andy.FlacHash.Cmd
             var settings = new Settings { OutputFormat = settingsValue };
             var cmdLineArguments = new Parameters { OutputFormat = cmdLineArgValue };
 
-            var result = OutputFormatResolver.GetOutputFormat(settings, cmdLineArguments);
+            var result = ExecutionParameterResolver.ResolveOutputFormat(settings, cmdLineArguments);
 
             Assert.AreEqual(null, result);
         }
@@ -39,7 +39,7 @@ namespace Andy.FlacHash.Cmd
             var settings = new Settings { OutputFormat = settingsValue };
             var cmdLineArguments = new Parameters { OutputFormat = null };
 
-            var result = OutputFormatResolver.GetOutputFormat(settings, cmdLineArguments);
+            var result = ExecutionParameterResolver.ResolveOutputFormat(settings, cmdLineArguments);
 
             Assert.AreEqual(settingsValue, result);
         }
@@ -50,7 +50,7 @@ namespace Andy.FlacHash.Cmd
             var settings = new Settings { OutputFormat = null };
             var cmdLineArguments = new Parameters { OutputFormat = "" };
 
-            var result = OutputFormatResolver.GetOutputFormat(settings, cmdLineArguments);
+            var result = ExecutionParameterResolver.ResolveOutputFormat(settings, cmdLineArguments);
 
             Assert.AreEqual(null, result);
         }
