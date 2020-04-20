@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.Configuration
+namespace Andy.Configuration.Ini
 {
     public class InvalidSectionDeclaration : Exception
     {

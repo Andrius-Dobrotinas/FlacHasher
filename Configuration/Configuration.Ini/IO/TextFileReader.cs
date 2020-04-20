@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Andy.IO
+namespace Andy.Configuration.Ini.IO
 {
     public interface ITextFileReader
     {

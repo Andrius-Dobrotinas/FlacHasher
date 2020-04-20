@@ -5,7 +5,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <RootNamespace>Andy.Configuration</RootNamespace>
+    <RootNamespace>Andy.Configuration.Ini</RootNamespace>
+
+    <AssemblyName>Configuration.Ini.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
