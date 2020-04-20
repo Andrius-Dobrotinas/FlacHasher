@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Cmd
         public static Settings GetSettings(FileInfo settingsFile)
         {
             var iniReader = new Configuration.Ini.IniFileReader(
-                new IO.TextFileReader(),
+                new Configuration.Ini.IO.TextFileReader(),
                 new Configuration.Ini.IniParser(
                     new Configuration.Ini.EntryParser()));
 

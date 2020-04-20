@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Andy.Configuration</RootNamespace>
+    <RootNamespace>Andy.Configuration.Ini</RootNamespace>
+    <AssemblyName>Configuration.Ini</AssemblyName>
   </PropertyGroup>
 
 </Project>

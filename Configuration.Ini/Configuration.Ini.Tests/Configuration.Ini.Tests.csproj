@@ -5,7 +5,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <RootNamespace>Andy.Configuration</RootNamespace>
+    <RootNamespace>Andy.Configuration.Ini</RootNamespace>
+
+    <AssemblyName>Configuration.Ini.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Configuration\Configuration.csproj" />
+    <ProjectReference Include="..\Configuration.Ini\Configuration.Ini.csproj" />
   </ItemGroup>
 
 </Project>
