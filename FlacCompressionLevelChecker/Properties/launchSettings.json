@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Default": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" \"c:\\01 - Hex Me.flac\""
+    }
+  }
+}
