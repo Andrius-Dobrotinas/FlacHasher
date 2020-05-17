@@ -8,22 +8,19 @@ namespace Andy.FlacHash
     class Program
     {
         const uint maxCompressionLevel = 8;
+
         static void Main(string[] args)
         {
             var flacExe = new FileInfo(args[0]);
-            var file = new FileInfo(args[1]);
-
-            var originalSize = file.Length;
+            var sourceFile = new FileInfo(args[1]);
 
             IFileReader reader = new Input.Flac.CmdLineDecoder(flacExe);
-            var encoder = new CmdLineFlacEncoder(flacExe, maxCompressionLevel);
+            IAudioEncoder encoder = new CmdLineFlacEncoder(flacExe, maxCompressionLevel);
+            var recoder = new AudioFileEncoder(reader, encoder);
 
-            using (Stream rawAudio = reader.Read(file))
+            using (MemoryStream recodedAudio = recoder.Encode(sourceFile))
             {
-                rawAudio.Seek(0, SeekOrigin.Begin);
-
-                using (MemoryStream encodedAudio = encoder.Encode(rawAudio))
-                    Console.WriteLine($"{file.FullName}: original size: {originalSize}, level 8 size: {encodedAudio.Length}");
+                Console.WriteLine($"{sourceFile.FullName}: original size: {sourceFile.Length}, level {maxCompressionLevel} size: {recodedAudio.Length}");
             }
         }
     }
