@@ -10,7 +10,7 @@ namespace Andy.FlacHash.ExternalProcess
         /// <summary>
         /// Runs an process and returns the contents of its output stream
         /// </summary>
-        public static Stream RunAndReadOutput(ProcessStartInfo processSettings)
+        public static MemoryStream RunAndReadOutput(ProcessStartInfo processSettings)
         {
             // TODO: possibly create a new type for settings for this method. It's better for this method to redirect the streams
 
