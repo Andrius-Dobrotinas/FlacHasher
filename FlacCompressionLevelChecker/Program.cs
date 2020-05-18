@@ -12,12 +12,13 @@ namespace Andy.FlacHash
         {
             var flacExe = new FileInfo(args[0]);
             var sourceFile = new FileInfo(args[1]);
+            var compressionLevel = uint.Parse(args[2]);
 
-            var recoder = new CmdLineFlacRecoder(flacExe, maxCompressionLevel);
+            var recoder = new CmdLineFlacRecoder(flacExe, compressionLevel);
 
             using (MemoryStream recodedAudio = recoder.Encode(sourceFile))
             {
-                Console.WriteLine($"{sourceFile.FullName}: original size: {sourceFile.Length}, level {maxCompressionLevel} size: {recodedAudio.Length}");
+                Console.WriteLine($"{sourceFile.FullName}: compressed to level {compressionLevel}: {sourceFile.Length == recodedAudio.Length}");
             }
         }
     }
