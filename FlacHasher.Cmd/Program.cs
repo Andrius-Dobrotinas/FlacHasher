@@ -1,4 +1,4 @@
-﻿using Andy.FlacHash.Cmd.CommandLine;
+﻿using Andy.Cmd;
 using Andy.FlacHash.Crypto;
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace Andy.FlacHash.Cmd
             Parameters parameters;
             try
             {
-                var argumentDictionary = ParseArguments(args);
+                var argumentDictionary = ArgumentSplitter.GetArguments(args);
                 parameters = ParameterReader.GetParameters(argumentDictionary);
             }
             catch (CmdLineArgNotFoundException e)
@@ -46,7 +46,7 @@ namespace Andy.FlacHash.Cmd
             {
                 FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
-                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters, settings);
+                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
                 var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
@@ -97,16 +97,6 @@ namespace Andy.FlacHash.Cmd
                 string formattedOutput = OutputFormatter.GetFormattedString(format, hash, sourceFile);
                 Console.WriteLine(formattedOutput);
             }
-        }
-
-        private static IDictionary<string, string> ParseArguments(string[] args)
-        {
-            var argParser = new ArgumentParser('=');
-
-            return args.Select(argParser.ParseArgument)
-                .ToDictionary(
-                    x => x.Key,
-                    x => x.Value);
         }
     }
 }

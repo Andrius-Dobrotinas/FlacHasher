@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Cmd.CommandLine
+namespace Andy.Cmd
 {
     public class ArgumentParser
     {
@@ -12,7 +12,7 @@ namespace Andy.FlacHash.Cmd.CommandLine
             this.separator = separator;
         }
 
-        public KeyValuePair<string, string> ParseArgument(string argument)
+        public KeyValuePair<string, string> Parse(string argument)
         {
             var separatorIndex = argument.IndexOf(separator);
             if (separatorIndex == -1)

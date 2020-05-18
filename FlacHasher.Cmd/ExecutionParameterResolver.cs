@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Cmd
             return null;
         }
 
-        public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, Settings settings)
+        public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments)
         {
             if (cmdlineArguments.InputFiles != null)
             {

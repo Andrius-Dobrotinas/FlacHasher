@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Configuration.Ini.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacCompressionLevelChecker", "FlacCompressionLevelChecker\FlacCompressionLevelChecker.csproj", "{9D16EEEC-A352-49B4-AB31-F3BF5C72AAAF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmd", "Andy.Cmd\Cmd.csproj", "{A23CFC93-D168-4BBD-AAC8-9716AEEE0000}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{9D16EEEC-A352-49B4-AB31-F3BF5C72AAAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D16EEEC-A352-49B4-AB31-F3BF5C72AAAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D16EEEC-A352-49B4-AB31-F3BF5C72AAAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A23CFC93-D168-4BBD-AAC8-9716AEEE0000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A23CFC93-D168-4BBD-AAC8-9716AEEE0000}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A23CFC93-D168-4BBD-AAC8-9716AEEE0000}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A23CFC93-D168-4BBD-AAC8-9716AEEE0000}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
