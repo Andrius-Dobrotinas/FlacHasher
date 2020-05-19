@@ -1,4 +1,5 @@
-﻿using Andy.FlacHash.Audio.Compression;
+﻿using Andy.Cmd;
+using Andy.FlacHash.Audio.Compression;
 using System;
 using System.IO;
 
@@ -10,9 +11,11 @@ namespace Andy.FlacHash
 
         static void Main(string[] args)
         {
-            var flacExe = new FileInfo(args[0]);
-            var sourceFile = new FileInfo(args[1]);
-            var compressionLevel = uint.Parse(args[2]);
+            FileInfo flacExe;
+            FileInfo sourceFile;
+            uint compressionLevel;
+
+            GetParameters(args, out flacExe, out sourceFile, out compressionLevel);
 
             var recoder = new CmdLineFlacRecoder(flacExe, compressionLevel);
 
@@ -20,6 +23,23 @@ namespace Andy.FlacHash
             {
                 Console.WriteLine($"{sourceFile.FullName}: compressed to level {compressionLevel}: {sourceFile.Length == recodedAudio.Length}");
             }
+        }
+
+        static void GetParameters(
+            string[] args,
+            out FileInfo flacExec,
+            out FileInfo sourceFile,
+            out uint compressionLevel)
+        {
+            var argumentDictionary = ArgumentSplitter.GetArguments(args);
+            var @params = ParameterReader.GetParameters(argumentDictionary);
+
+            if (string.IsNullOrEmpty(@params.SourceFile))
+                throw new Exception("Source file not provided");
+
+            sourceFile = new FileInfo(@params.SourceFile);
+            flacExec = new FileInfo(@params.FlacExec);            
+            compressionLevel = @params.CompressionLevel ?? maxCompressionLevel;
         }
     }
 }
