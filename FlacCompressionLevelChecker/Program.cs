@@ -9,7 +9,24 @@ namespace Andy.FlacHash
     {
         const uint maxCompressionLevel = 8;
 
-        static void Main(string[] args)
+        static int Main(string[] args)
+        {
+            try
+            {
+                DoIt(args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An error has occured:");
+                Console.WriteLine(e.Message);
+
+                return -1;
+            }
+
+            return 0;
+        }
+
+        static void DoIt(string[] args)
         {
             FileInfo flacExe;
             FileInfo sourceFile;
