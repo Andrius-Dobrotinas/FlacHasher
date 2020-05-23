@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Andy.FlacHash.Win</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

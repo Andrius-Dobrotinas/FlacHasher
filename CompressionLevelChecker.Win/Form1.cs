@@ -12,7 +12,7 @@ namespace Andy.FlacHash.Win
 
     public partial class MainForm : Form
     {
-        private readonly WellIsIt wellIsIt;
+        private readonly CompressedSizeService compressionService;
         private readonly UI.FileOpenDialog openFileDialog;
 
         private System.IO.FileInfo file;
@@ -20,10 +20,10 @@ namespace Andy.FlacHash.Win
         public MainForm(
             uint maxCompressionLevel,
             uint selectedCompressionLevel,
-            WellIsIt wellIsIt,
+            CompressedSizeService compressionService,
             UI.FileOpenDialog openFileDialog)
         {
-            this.wellIsIt = wellIsIt ?? throw new ArgumentNullException(nameof(wellIsIt));
+            this.compressionService = compressionService ?? throw new ArgumentNullException(nameof(compressionService));
             this.openFileDialog = openFileDialog ?? throw new ArgumentNullException(nameof(openFileDialog));
 
             InitializeComponent();
@@ -39,9 +39,9 @@ namespace Andy.FlacHash.Win
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            var result = wellIsIt(file, (uint)Trackbar_CompressionLevel.Value);
+            long fileSize = compressionService.GetCompressedSize(file, (uint)Trackbar_CompressionLevel.Value);
 
-            ProcessResult(result);
+            ProcessResult(fileSize);
         }
 
         private void BtnSelectFile_Click(object sender, EventArgs e)
@@ -62,9 +62,11 @@ namespace Andy.FlacHash.Win
             Lbl_File.Text = file.Name;
         }
 
-        private void ProcessResult(Tuple<long, long> result)
+        private void ProcessResult(long compressedFileSize)
         {
-            Lbl_Result.Text = $"Equal: {result.Item1 == result.Item2}. Source: {result.Item1}, Result: {result.Item2}";
+            long origFileSize = file.Length;
+
+            Lbl_Result.Text = $"Equal: {origFileSize == compressedFileSize}. Source: {origFileSize}, Compressed: {compressedFileSize}";
         }
     }
 }

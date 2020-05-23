@@ -1,18 +1,16 @@
-using Andy.FlacHash.Audio.Compression;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win
 {
     static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
+        private const uint defaultCompressionLevel = 8;
+        private const uint maxCompressionLevel = 8;
+
         [STAThread]
         static void Main()
         {
@@ -20,19 +18,11 @@ namespace Andy.FlacHash.Win
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            uint maxCompressionLevel = 8;
-
+            // todo: read this from something like a settings file, or something
             FileInfo flacExe = new FileInfo(@"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe");
 
-            WellIsIt wellIsIt = (sourceFile, compressionLevel) =>
-            {
-                var recoder = new CmdLineFlacRecoder(flacExe, compressionLevel);
-
-                using (MemoryStream recodedAudio = recoder.Encode(sourceFile))
-                {
-                    return new Tuple<long, long>(sourceFile.Length, recodedAudio.Length);
-                }
-            };
+            var compressionService = new CompressedSizeService(
+                new CmdLineFlacEncoderFactory(flacExe));
 
             using (var dialog = BuildOpenFileDialog())
             {
@@ -40,8 +30,8 @@ namespace Andy.FlacHash.Win
 
                 using (var form = new MainForm(
                     maxCompressionLevel,
-                    6,
-                    wellIsIt,
+                    defaultCompressionLevel,
+                    compressionService,
                     dialogWrapper))
                 {
                     Application.Run(form);
