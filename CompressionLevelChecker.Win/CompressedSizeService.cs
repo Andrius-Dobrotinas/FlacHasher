@@ -4,11 +4,16 @@ using System.IO;
 
 namespace Andy.FlacHash.Win
 {
-    public class CompressedSizeService
+    public interface ICompressedSizeService
     {
-        private readonly CmdLineFlacEncoderFactory recoderFactory;
+        long GetCompressedSize(FileInfo sourceFile, uint compressionLevel);
+    }
 
-        public CompressedSizeService(CmdLineFlacEncoderFactory recoderFactory)
+    public class CompressedSizeService : ICompressedSizeService
+    {
+        private readonly ICmdLineFlacEncoderFactory recoderFactory;
+
+        public CompressedSizeService(ICmdLineFlacEncoderFactory recoderFactory)
         {
             this.recoderFactory = recoderFactory;
         }

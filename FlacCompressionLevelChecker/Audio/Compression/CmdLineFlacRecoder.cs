@@ -6,7 +6,12 @@ using System.IO;
 
 namespace Andy.FlacHash.Audio.Compression
 {
-    public class CmdLineFlacRecoder
+    public interface ICmdLineFlacRecoder
+    {
+        MemoryStream Encode(FileInfo sourceFile);
+    }
+
+    public class CmdLineFlacRecoder : ICmdLineFlacRecoder
     {
         private class EncoderFlags
         {

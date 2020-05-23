@@ -12,7 +12,7 @@ namespace Andy.FlacHash.Win
 
     public partial class MainForm : Form
     {
-        private readonly CompressedSizeService compressionService;
+        private readonly CompressionLevelInferrer compressionService;
         private readonly UI.FileOpenDialog openFileDialog;
 
         private System.IO.FileInfo file;
@@ -20,7 +20,7 @@ namespace Andy.FlacHash.Win
         public MainForm(
             uint maxCompressionLevel,
             uint selectedCompressionLevel,
-            CompressedSizeService compressionService,
+            CompressionLevelInferrer compressionService,
             UI.FileOpenDialog openFileDialog)
         {
             this.compressionService = compressionService ?? throw new ArgumentNullException(nameof(compressionService));
@@ -39,9 +39,11 @@ namespace Andy.FlacHash.Win
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            long fileSize = compressionService.GetCompressedSize(file, (uint)Trackbar_CompressionLevel.Value);
+            Lbl_Result.Text = "Checking...";
 
-            ProcessResult(fileSize);
+            Range<uint> compressionLevels = compressionService.InferCompressionLevel(file, (uint)Trackbar_CompressionLevel.Value);
+
+            ProcessResult(compressionLevels);
         }
 
         private void BtnSelectFile_Click(object sender, EventArgs e)
@@ -62,11 +64,12 @@ namespace Andy.FlacHash.Win
             Lbl_File.Text = file.Name;
         }
 
-        private void ProcessResult(long compressedFileSize)
+        private void ProcessResult(Range<uint> compressionLevels)
         {
-            long origFileSize = file.Length;
-
-            Lbl_Result.Text = $"Equal: {origFileSize == compressedFileSize}. Source: {origFileSize}, Compressed: {compressedFileSize}";
+            if (compressionLevels.IsSingleValue)
+                Lbl_Result.Text = $"File compression level: {compressionLevels.MaxValue}";
+            else
+                Lbl_Result.Text = $"File compression level seems to be between: {compressionLevels.MinValue} and {compressionLevels.MaxValue}. The file might have metadata that the encoder omits";
         }
     }
 }

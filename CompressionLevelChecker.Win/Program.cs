@@ -9,7 +9,10 @@ namespace Andy.FlacHash.Win
     static class Program
     {
         private const uint defaultCompressionLevel = 8;
+
+        // todo: these values must be stored somewhere else
         private const uint maxCompressionLevel = 8;
+        private const uint minCompressionLevel = 0;
 
         [STAThread]
         static void Main()
@@ -21,8 +24,13 @@ namespace Andy.FlacHash.Win
             // todo: read this from something like a settings file, or something
             FileInfo flacExe = new FileInfo(@"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe");
 
-            var compressionService = new CompressedSizeService(
+            CompressedSizeService compressionService = new CompressedSizeService(
                 new CmdLineFlacEncoderFactory(flacExe));
+
+            var serviz = new CompressionLevelInferrer(
+                compressionService,
+                minCompressionLevel,
+                maxCompressionLevel);
 
             using (var dialog = BuildOpenFileDialog())
             {
@@ -31,7 +39,7 @@ namespace Andy.FlacHash.Win
                 using (var form = new MainForm(
                     maxCompressionLevel,
                     defaultCompressionLevel,
-                    compressionService,
+                    serviz,
                     dialogWrapper))
                 {
                     Application.Run(form);

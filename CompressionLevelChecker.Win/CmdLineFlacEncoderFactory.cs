@@ -5,7 +5,12 @@ using System.IO;
 
 namespace Andy.FlacHash.Win
 {
-    public class CmdLineFlacEncoderFactory
+    public interface ICmdLineFlacEncoderFactory
+    {
+        ICmdLineFlacRecoder Build(uint compressionLevel);
+    }
+
+    public class CmdLineFlacEncoderFactory : ICmdLineFlacEncoderFactory
     {
         private readonly FileInfo flacExe;
 
@@ -14,7 +19,7 @@ namespace Andy.FlacHash.Win
             this.flacExe = flacExe;
         }
 
-        public CmdLineFlacRecoder Build(uint compressionLevel)
+        public ICmdLineFlacRecoder Build(uint compressionLevel)
         {
             return new CmdLineFlacRecoder(flacExe, compressionLevel);
         }
