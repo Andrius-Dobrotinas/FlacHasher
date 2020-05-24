@@ -25,7 +25,7 @@ namespace Andy.FlacHash.Win
             FileInfo flacExe = new FileInfo(@"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe");
 
             CompressedSizeService compressionService = new CompressedSizeService(
-                new CmdLineFlacEncoderFactory(flacExe));
+                new Audio.Compression.CmdLineFlacRecoder(flacExe));
 
             var serviz = new CompressionLevelInferrer(
                 compressionService,

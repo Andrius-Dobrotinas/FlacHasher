@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Audio.Compression
 {
     public interface ICmdLineFlacRecoder
     {
-        MemoryStream Encode(FileInfo sourceFile);
+        MemoryStream Encode(FileInfo sourceFile, uint compressionLevel);
     }
 
     public class CmdLineFlacRecoder : ICmdLineFlacRecoder
@@ -19,20 +19,18 @@ namespace Andy.FlacHash.Audio.Compression
         }
 
         private readonly FileInfo decoderExecutableFile;
-        private readonly uint compressionLevel;
 
-        public CmdLineFlacRecoder(FileInfo encoderExecutableFile, uint compressionLevel)
+        public CmdLineFlacRecoder(FileInfo encoderExecutableFile)
         {
             this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
+        }
 
+        public MemoryStream Encode(FileInfo sourceFile, uint compressionLevel)
+        {
+            // todo: take the min/max values from a single place
             if (compressionLevel > 8) throw new ArgumentOutOfRangeException(
                 "FLAC Compression level must be between 0 and 8");
 
-            this.compressionLevel = compressionLevel;
-        }
-
-        public MemoryStream Encode(FileInfo sourceFile)
-        {
             var processSettings = GetProcessSettings(decoderExecutableFile, compressionLevel, sourceFile);
 
             try

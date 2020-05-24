@@ -11,18 +11,16 @@ namespace Andy.FlacHash.Win
 
     public class CompressedSizeService : ICompressedSizeService
     {
-        private readonly ICmdLineFlacEncoderFactory recoderFactory;
+        private readonly Audio.Compression.ICmdLineFlacRecoder encoder;
 
-        public CompressedSizeService(ICmdLineFlacEncoderFactory recoderFactory)
+        public CompressedSizeService(Audio.Compression.ICmdLineFlacRecoder encoder)
         {
-            this.recoderFactory = recoderFactory;
+            this.encoder = encoder;
         }
 
         public long GetCompressedSize(FileInfo sourceFile, uint compressionLevel)
         {
-            var recoder = recoderFactory.Build(compressionLevel);
-
-            using (MemoryStream recodedAudio = recoder.Encode(sourceFile))
+            using (MemoryStream recodedAudio = encoder.Encode(sourceFile, compressionLevel))
             {
                 return recodedAudio.Length;
             }

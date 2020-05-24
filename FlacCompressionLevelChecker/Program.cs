@@ -34,9 +34,9 @@ namespace Andy.FlacHash
 
             GetParameters(args, out flacExe, out sourceFile, out compressionLevel);
 
-            var recoder = new CmdLineFlacRecoder(flacExe, compressionLevel);
+            var recoder = new CmdLineFlacRecoder(flacExe);
 
-            using (MemoryStream recodedAudio = recoder.Encode(sourceFile))
+            using (MemoryStream recodedAudio = recoder.Encode(sourceFile, compressionLevel))
             {
                 Console.WriteLine($"{sourceFile.FullName}: compressed to level {compressionLevel}: {sourceFile.Length == recodedAudio.Length}");
             }
