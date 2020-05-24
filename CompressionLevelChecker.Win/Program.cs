@@ -29,6 +29,7 @@ namespace Andy.FlacHash.Win
 
             var serviz = new CompressionLevelInferrer(
                 compressionService,
+                new FileInfoSizeGetter(),
                 minCompressionLevel,
                 maxCompressionLevel);
 

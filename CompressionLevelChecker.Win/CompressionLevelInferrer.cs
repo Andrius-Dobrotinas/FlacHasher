@@ -7,19 +7,23 @@ namespace Andy.FlacHash.Win
     public class CompressionLevelInferrer
     {
         private readonly ICompressedSizeService encoder;
+        private readonly IFileInfoSizeGetter fileSizeGetter;
         private readonly uint minCompressionLevel;
         private readonly uint maxCompressionLevel;
 
         public CompressionLevelInferrer(
             ICompressedSizeService encoder,
+            IFileInfoSizeGetter fileSizeGetter,
             uint minCompressionLevel,
             uint maxCompressionLevel)
         {
             this.encoder = encoder ?? throw new ArgumentNullException(nameof(encoder));
+            this.fileSizeGetter = fileSizeGetter ?? throw new ArgumentNullException(nameof(fileSizeGetter));
+
             this.minCompressionLevel = minCompressionLevel;
 
-            if (maxCompressionLevel <= minCompressionLevel)
-                throw new ArgumentOutOfRangeException($"{maxCompressionLevel} can't be smaller than {minCompressionLevel}");
+            if (maxCompressionLevel < minCompressionLevel)
+                throw new ArgumentOutOfRangeException("Max compression level cannot be lower than Min");
 
             this.maxCompressionLevel = maxCompressionLevel;
         }
@@ -33,6 +37,12 @@ namespace Andy.FlacHash.Win
             FileInfo sourceFile,
             uint targetCompressionLevel)
         {
+            if (targetCompressionLevel > maxCompressionLevel)
+                throw new ArgumentOutOfRangeException(nameof(targetCompressionLevel), "Target compression level cannot be greater than max level");
+
+            if (targetCompressionLevel < minCompressionLevel)
+                throw new ArgumentOutOfRangeException(nameof(targetCompressionLevel), "Target compression level cannot be lower than min level");
+
             return InferCompressionLevel(sourceFile, targetCompressionLevel, 0);
         }        
 
@@ -41,19 +51,20 @@ namespace Andy.FlacHash.Win
             uint targetCompressionLevel,
             uint lastAttemptedCompressionLevel)
         {
-            var size = encoder.GetCompressedSize(sourceFile, targetCompressionLevel);
+            var recodedSize = encoder.GetCompressedSize(sourceFile, targetCompressionLevel);
+            long originalSize = fileSizeGetter.GetSize(sourceFile);
 
-            switch (CompareSize(sourceFile.Length, size))
+            switch (CompareSize(originalSize, recodedSize))
             {
                 case NumberDifference.Greater:
                     {
                         // compression levels exhausted. metadata in a file (if the encoder doesn't handle it properly) could interfere with numbers
                         if (targetCompressionLevel == minCompressionLevel)
-                            return new Range<uint>(targetCompressionLevel, minCompressionLevel - 1);
+                            return new Range<uint>(targetCompressionLevel, minCompressionLevel + 1);
 
                         uint nextCompresionLevel = targetCompressionLevel - 1;
                         if (nextCompresionLevel == lastAttemptedCompressionLevel)
-                            return new Range<uint>(targetCompressionLevel, lastAttemptedCompressionLevel);
+                            return new Range<uint>(lastAttemptedCompressionLevel, targetCompressionLevel);
 
                         return InferCompressionLevel(sourceFile, nextCompresionLevel, targetCompressionLevel);
                     }
