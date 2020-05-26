@@ -4,14 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Andy.FlacHash.Audio.Compression
+namespace Andy.FlacHash.Audio.Compression.File
 {
-    public interface ICmdLineFlacRecoder
-    {
-        MemoryStream Encode(FileInfo sourceFile, uint compressionLevel);
-    }
-
-    public class CmdLineFlacRecoder : ICmdLineFlacRecoder
+    public class CmdLineFlacRecoder : IAudioFileEncoder
     {
         private class EncoderFlags
         {

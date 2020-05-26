@@ -1,5 +1,5 @@
 ﻿using Andy.Cmd;
-using Andy.FlacHash.Audio.Compression;
+using Andy.FlacHash.Audio.Compression.File;
 using System;
 using System.IO;
 

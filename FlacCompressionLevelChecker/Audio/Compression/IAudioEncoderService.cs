@@ -4,8 +4,8 @@ using System.IO;
 
 namespace Andy.FlacHash.Audio.Compression
 {
-    public interface IAudioEncoderService
+    public interface IAudioEncoder
     {
-        MemoryStream Encode(Stream content);
+        MemoryStream Encode(Stream wavAudio, uint compressionLevel);
     }
 }

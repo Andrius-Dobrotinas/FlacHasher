@@ -11,9 +11,9 @@ namespace Andy.FlacHash.Win
 
     public class CompressedSizeService : ICompressedSizeService
     {
-        private readonly Audio.Compression.ICmdLineFlacRecoder encoder;
+        private readonly Audio.Compression.File.IAudioFileEncoder encoder;
 
-        public CompressedSizeService(Audio.Compression.ICmdLineFlacRecoder encoder)
+        public CompressedSizeService(Audio.Compression.File.IAudioFileEncoder encoder)
         {
             this.encoder = encoder;
         }

@@ -14,19 +14,13 @@ namespace Andy.FlacHash.Audio.Compression
         }
 
         private readonly FileInfo decoderExecutableFile;
-        private readonly uint compressionLevel;
 
-        public CmdLineFlacEncoder(FileInfo encoderExecutableFile, uint compressionLevel)
+        public CmdLineFlacEncoder(FileInfo encoderExecutableFile)
         {
             this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
-
-            if (compressionLevel > 8) throw new ArgumentOutOfRangeException(
-                "FLAC Compression level must be between 0 and 8");
-
-            this.compressionLevel = compressionLevel;
         }
 
-        public MemoryStream Encode(Stream wavAudio)
+        public MemoryStream Encode(Stream wavAudio, uint compressionLevel)
         {
             var processSettings = GetProcessSettings(decoderExecutableFile, compressionLevel);
 
