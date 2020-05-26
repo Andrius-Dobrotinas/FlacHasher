@@ -10,26 +10,59 @@ namespace Andy.FlacHash.Win
 {
     public delegate Tuple<long, long> WellIsIt(System.IO.FileInfo sourceFile, uint compressionLevel);
 
+    public class MetadataOptionsGroup
+    {
+        private readonly RadioButton preserve;
+        private readonly RadioButton discard;
+
+        public MetadataOptionsGroup(RadioButton preserve, RadioButton discard)
+        {
+            this.preserve = preserve;
+            this.discard = discard;
+        }
+
+        public MetadataMode GetSelectedMode()
+        {
+            if (preserve.Checked) return MetadataMode.Preserve;
+            if (discard.Checked) return MetadataMode.Discard;
+
+            throw new Exception("No option is selected");
+        }
+    }
+
     public partial class MainForm : Form
     {
-        private readonly CompressionLevelInferrer compressionService;
+        private readonly CompressionLevelService compressionService;
         private readonly UI.FileOpenDialog openFileDialog;
 
+        private readonly MetadataOptionsGroup metadataOptionsGroup;
         private System.IO.FileInfo file;
 
         public MainForm(
             uint maxCompressionLevel,
             uint selectedCompressionLevel,
-            CompressionLevelInferrer compressionService,
+            CompressionLevelService compressionService,
             UI.FileOpenDialog openFileDialog)
         {
             this.compressionService = compressionService ?? throw new ArgumentNullException(nameof(compressionService));
             this.openFileDialog = openFileDialog ?? throw new ArgumentNullException(nameof(openFileDialog));
 
             InitializeComponent();
+            ExtraInitComponents();
 
             Trackbar_CompressionLevel.Maximum = (int)maxCompressionLevel;
             Trackbar_CompressionLevel.Value = (int)selectedCompressionLevel;
+
+            metadataOptionsGroup = new MetadataOptionsGroup(
+                this.Opt_Metadata_Keep,
+                this.Opt_Metadata_Discard);
+        }
+
+        private void ExtraInitComponents()
+        {
+            this.BtnSelectFile.Click += new System.EventHandler(this.BtnSelectFile_Click);
+            this.Trackbar_CompressionLevel.ValueChanged += new System.EventHandler(this.Trackbar_CompressionLevel_ValueChanged);
+            this.Opt_Metadata_Keep.Checked = true;
         }
 
         private void Trackbar_CompressionLevel_ValueChanged(object sender, EventArgs e)
@@ -41,7 +74,9 @@ namespace Andy.FlacHash.Win
         {
             Lbl_Result.Text = "Checking...";
 
-            Range<uint> compressionLevels = compressionService.InferCompressionLevel(file, (uint)Trackbar_CompressionLevel.Value);
+            var metadataMode = metadataOptionsGroup.GetSelectedMode();
+
+            Range<uint> compressionLevels = compressionService.InferCompressionLevel(file, (uint)Trackbar_CompressionLevel.Value, metadataMode);
 
             ProcessResult(compressionLevels);
         }

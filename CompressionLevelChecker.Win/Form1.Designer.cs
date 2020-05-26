@@ -35,8 +35,12 @@
             this.Group_CompressionLevel = new System.Windows.Forms.GroupBox();
             this.Lbl_CompressionLevel = new System.Windows.Forms.Label();
             this.Trackbar_CompressionLevel = new System.Windows.Forms.TrackBar();
+            this.Group_DecodingMode = new System.Windows.Forms.GroupBox();
+            this.Opt_Metadata_Discard = new System.Windows.Forms.RadioButton();
+            this.Opt_Metadata_Keep = new System.Windows.Forms.RadioButton();
             this.Group_CompressionLevel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Trackbar_CompressionLevel)).BeginInit();
+            this.Group_DecodingMode.SuspendLayout();
             this.SuspendLayout();
             // 
             // BtnSelectFile
@@ -47,13 +51,12 @@
             this.BtnSelectFile.TabIndex = 1;
             this.BtnSelectFile.Text = "Select A File";
             this.BtnSelectFile.UseVisualStyleBackColor = true;
-            this.BtnSelectFile.Click += new System.EventHandler(this.BtnSelectFile_Click);
             this.BtnSelectFile.Click += new System.EventHandler(this.ClearResult);
             // 
             // Lbl_Result
             // 
             this.Lbl_Result.AutoSize = true;
-            this.Lbl_Result.Location = new System.Drawing.Point(12, 175);
+            this.Lbl_Result.Location = new System.Drawing.Point(12, 222);
             this.Lbl_Result.Name = "Lbl_Result";
             this.Lbl_Result.Size = new System.Drawing.Size(35, 13);
             this.Lbl_Result.TabIndex = 2;
@@ -61,7 +64,7 @@
             // 
             // Btn_Go
             // 
-            this.Btn_Go.Location = new System.Drawing.Point(15, 138);
+            this.Btn_Go.Location = new System.Drawing.Point(15, 185);
             this.Btn_Go.Name = "Btn_Go";
             this.Btn_Go.Size = new System.Drawing.Size(242, 24);
             this.Btn_Go.TabIndex = 6;
@@ -100,20 +103,53 @@
             // 
             // Trackbar_CompressionLevel
             // 
+            this.Trackbar_CompressionLevel.LargeChange = 1;
             this.Trackbar_CompressionLevel.Location = new System.Drawing.Point(6, 13);
             this.Trackbar_CompressionLevel.Name = "Trackbar_CompressionLevel";
-            this.Trackbar_CompressionLevel.Size = new System.Drawing.Size(211, 25);
+            this.Trackbar_CompressionLevel.Size = new System.Drawing.Size(211, 45);
             this.Trackbar_CompressionLevel.TabIndex = 6;
-            this.Trackbar_CompressionLevel.LargeChange = 1;
-            this.Trackbar_CompressionLevel.ValueChanged += new System.EventHandler(this.Trackbar_CompressionLevel_ValueChanged);
             this.Trackbar_CompressionLevel.ValueChanged += new System.EventHandler(this.ClearResult);
+            // 
+            // Group_DecodingMode
+            // 
+            this.Group_DecodingMode.Controls.Add(this.Opt_Metadata_Discard);
+            this.Group_DecodingMode.Controls.Add(this.Opt_Metadata_Keep);
+            this.Group_DecodingMode.Location = new System.Drawing.Point(16, 139);
+            this.Group_DecodingMode.Name = "Group_DecodingMode";
+            this.Group_DecodingMode.Size = new System.Drawing.Size(241, 47);
+            this.Group_DecodingMode.TabIndex = 9;
+            this.Group_DecodingMode.TabStop = false;
+            this.Group_DecodingMode.Text = "Recoding Mode";
+            // 
+            // Opt_Metadata_Discard
+            // 
+            this.Opt_Metadata_Discard.AutoSize = true;
+            this.Opt_Metadata_Discard.Location = new System.Drawing.Point(83, 19);
+            this.Opt_Metadata_Discard.Name = "Opt_Metadata_Discard";
+            this.Opt_Metadata_Discard.Size = new System.Drawing.Size(112, 17);
+            this.Opt_Metadata_Discard.TabIndex = 1;
+            this.Opt_Metadata_Discard.TabStop = true;
+            this.Opt_Metadata_Discard.Text = "Audio Stream Only";
+            this.Opt_Metadata_Discard.UseVisualStyleBackColor = true;
+            // 
+            // Opt_Metadata_Keep
+            // 
+            this.Opt_Metadata_Keep.AutoSize = true;
+            this.Opt_Metadata_Keep.Location = new System.Drawing.Point(6, 19);
+            this.Opt_Metadata_Keep.Name = "Opt_Metadata_Keep";
+            this.Opt_Metadata_Keep.Size = new System.Drawing.Size(53, 17);
+            this.Opt_Metadata_Keep.TabIndex = 0;
+            this.Opt_Metadata_Keep.TabStop = true;
+            this.Opt_Metadata_Keep.Text = "Direct";
+            this.Opt_Metadata_Keep.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(270, 210);
+            this.ClientSize = new System.Drawing.Size(270, 252);
+            this.Controls.Add(this.Group_DecodingMode);
             this.Controls.Add(this.Group_CompressionLevel);
             this.Controls.Add(this.Lbl_File);
             this.Controls.Add(this.Btn_Go);
@@ -124,6 +160,8 @@
             this.Group_CompressionLevel.ResumeLayout(false);
             this.Group_CompressionLevel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Trackbar_CompressionLevel)).EndInit();
+            this.Group_DecodingMode.ResumeLayout(false);
+            this.Group_DecodingMode.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -137,6 +175,9 @@
         private System.Windows.Forms.GroupBox Group_CompressionLevel;
         private System.Windows.Forms.Label Lbl_CompressionLevel;
         private System.Windows.Forms.TrackBar Trackbar_CompressionLevel;
+        private System.Windows.Forms.GroupBox Group_DecodingMode;
+        private System.Windows.Forms.RadioButton Opt_Metadata_Discard;
+        private System.Windows.Forms.RadioButton Opt_Metadata_Keep;
     }
 }
 

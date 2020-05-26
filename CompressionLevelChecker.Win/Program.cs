@@ -24,24 +24,17 @@ namespace Andy.FlacHash.Win
             // todo: read this from something like a settings file, or something
             FileInfo flacExe = new FileInfo(@"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe");
 
-            CompressedSizeService compressionService = new CompressedSizeService(
-                new Audio.Compression.File.CmdLineFlacRecoder(flacExe));
-
-            var serviz = new CompressionLevelInferrer(
-                compressionService,
-                new FileInfoSizeGetter(),
-                minCompressionLevel,
-                maxCompressionLevel);
+            CompressionLevelService mainService = BuildComponents(flacExe);
 
             using (var dialog = BuildOpenFileDialog())
             {
-                var dialogWrapper = new UI.FileOpenDialog(dialog);
+                var fileOpenDialog = new UI.FileOpenDialog(dialog);
 
                 using (var form = new MainForm(
                     maxCompressionLevel,
                     defaultCompressionLevel,
-                    serviz,
-                    dialogWrapper))
+                    mainService,
+                    fileOpenDialog))
                 {
                     Application.Run(form);
                 };
@@ -57,6 +50,31 @@ namespace Andy.FlacHash.Win
                 Filter = "FLAC|*.flac;*.fla",
                 Title = "Select a file"
             };
+        }
+
+        private static CompressionLevelService BuildComponents(FileInfo flacExe)
+        {
+            Audio.Compression.File.IAudioFileEncoder encoder_MetadataPreserved = new Audio.Compression.File.CmdLineFlacRecoder(flacExe);
+
+            Audio.Compression.File.IAudioFileEncoder encoder_MetadataDiscarded = new Audio.Compression.File.AudioFileEncoder(
+                new Andy.FlacHash.Input.Flac.CmdLineDecoder(flacExe),
+                new Audio.Compression.CmdLineFlacEncoder(flacExe));
+
+            IFileInfoSizeGetter fileSize = new FileInfoSizeGetter();
+
+            var service_MetadataPreserved = new CompressionLevelInferrer(
+                new CompressedSizeService(encoder_MetadataPreserved),
+                fileSize,
+                minCompressionLevel,
+                maxCompressionLevel);
+
+            var service_MetadataDiscarded = new CompressionLevelInferrer(
+                new CompressedSizeService(encoder_MetadataDiscarded),
+                fileSize,
+                minCompressionLevel,
+                maxCompressionLevel);
+
+            return new CompressionLevelService(service_MetadataPreserved, service_MetadataDiscarded);
         }
     }
 }
