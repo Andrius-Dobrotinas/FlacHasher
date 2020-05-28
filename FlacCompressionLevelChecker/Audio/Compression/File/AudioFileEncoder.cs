@@ -19,6 +19,8 @@ namespace Andy.FlacHash.Audio.Compression.File
         {
             using (Stream rawAudio = fileReader.Read(sourceFile))
             {
+
+                // TODO
                 rawAudio.Seek(0, SeekOrigin.Begin);
 
                 return encoder.Encode(rawAudio, compressionLevel);

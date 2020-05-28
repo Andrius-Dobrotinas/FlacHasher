@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Andy.FlacHash.Win</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" />
+    <ProjectReference Include="..\FlacHash\FlacHash.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="settings.cfg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
