@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btn_chooseDir = new System.Windows.Forms.Button();
             this.dirBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.list_files = new System.Windows.Forms.ListBox();
             this.btn_go = new System.Windows.Forms.Button();
             this.list_results = new System.Windows.Forms.ListBox();
+            this.ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
             // 
             // btn_chooseDir
@@ -76,6 +78,12 @@
             this.list_results.Name = "list_results";
             this.list_results.Size = new System.Drawing.Size(566, 121);
             this.list_results.TabIndex = 4;
+            this.list_results.MouseDown += new System.Windows.Forms.MouseEventHandler(this.list_results_MouseDown);
+            // 
+            // ctxMenu_results
+            // 
+            this.ctxMenu_results.Name = "ctxMenu_results";
+            this.ctxMenu_results.Size = new System.Drawing.Size(61, 4);
             // 
             // FormX
             // 
@@ -99,5 +107,6 @@
         private System.Windows.Forms.ListBox list_files;
         private System.Windows.Forms.Button btn_go;
         private System.Windows.Forms.ListBox list_results;
+        private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
     }
 }

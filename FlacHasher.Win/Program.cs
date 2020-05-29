@@ -29,7 +29,20 @@ namespace Andy.FlacHash.Cmd
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormX(settings.Decoder));
+
+            using (var saveFileDialog = new SaveFileDialog
+            {
+                AddExtension = true,
+                CheckPathExists = true,
+                Filter = "TEXT|*.txt|ANY|*.*",
+                Title = "Save As"
+            })
+            {
+                Application.Run(
+                    new FormX(
+                        settings.Decoder,
+                        saveFileDialog));
+            }
         }
 
         public static IEnumerable<FileHashResult> DoIt(FileInfo decoderFile, IEnumerable<FileInfo> inputFiles)
