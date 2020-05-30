@@ -14,18 +14,20 @@ namespace Andy.FlacHash.Win
     public partial class FormX : Form
     {
         private readonly FileInfo decoderFile;
-        private readonly SaveFileDialog saveFileDialog;
+        private readonly ResultsWrapper results;
+        private readonly HashWriter hashWriter;
         private readonly string sourceFileFilter = "*.flac";
 
-        public FormX(FileInfo decoderFile, SaveFileDialog saveFileDialog)
+        public FormX(FileInfo decoderFile, HashWriter hashWriter)
         {
             InitializeComponent();
 
+            this.results = new ResultsWrapper(this.list_results);
+
             this.decoderFile = decoderFile;
-            this.saveFileDialog = saveFileDialog;
+            this.hashWriter = hashWriter;
 
             this.list_files.DisplayMember = nameof(FileInfo.Name);
-            this.list_results.DisplayMember = nameof(FileHashResultListItem.Hash);
 
             dirBrowser.ShowNewFolderButton = false;
 
@@ -41,7 +43,7 @@ namespace Andy.FlacHash.Win
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
-        {            
+        {
             var result = dirBrowser.ShowDialog();
             if (result != DialogResult.OK) return;
 
@@ -51,7 +53,7 @@ namespace Andy.FlacHash.Win
                 .FindFiles(path, sourceFileFilter)
                 .ToArray();
 
-            list_files.Items.AddRange(files);   
+            list_files.Items.AddRange(files);
         }
 
         private void list_results_MouseDown(object sender, MouseEventArgs e)
@@ -63,21 +65,10 @@ namespace Andy.FlacHash.Win
 
         private void SaveHashes()
         {
-            var result = saveFileDialog.ShowDialog();
-            if (result != DialogResult.OK) return;
+            var hashes = results.GetFaceValues();
 
-            var hashes = GetHashes();
-
-            IOUtil.WriteToFile(new FileInfo(saveFileDialog.FileName), hashes);
-
-            MessageBox.Show("Hashes saved!");
-        }
-
-        private IEnumerable<string> GetHashes()
-        {
-            return list_results.Items
-                .Cast<FileHashResultListItem>()
-                .Select(x => x.Hash);
+            if (hashWriter.SaveHashes(hashes) == true)
+                MessageBox.Show("Hashes saved!");
         }
 
         private void Btn_Go_Click(object sender, EventArgs e)
@@ -96,25 +87,19 @@ namespace Andy.FlacHash.Win
 
             foreach (var result in results)
             {
+                var resultRepresentation = OutputFormatter.GetFormattedString("{hash}", result.Hash, result.File);
+
                 //update the UI (on the UI thread)
-                this.Invoke(new Action(() => AddResult(result)));
+                this.Invoke(
+                    new Action(
+                        () => this.results.AddResult(result, resultRepresentation)));
             }
         }
 
-        private void AddResult(FileHashResult result)
+        public class FileHashResultListItem : IListItem
         {
-            list_results.Items.Add(
-                new FileHashResultListItem
-                {
-                    File = result.File,
-                    Hash = OutputFormatter.GetFormattedString("{hash}", result.Hash, result.File)
-                });
-        }
-
-        public class FileHashResultListItem
-        {
-            public FileInfo File { get; set; }
-            public string Hash { get; set; }
+            public FileHashResult Result { get; set; }
+            public string FaceValue { get; set; }
         }
     }
 }
