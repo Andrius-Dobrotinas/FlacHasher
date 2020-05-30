@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash.Cmd
+﻿namespace Andy.FlacHash.Win
 {
     partial class FormX
     {

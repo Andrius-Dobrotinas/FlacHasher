@@ -1,3 +1,4 @@
+using Andy.FlacHash.Cmd;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Win
 {
     static class Program
     {

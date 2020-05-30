@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Andy.FlacHash.Cmd;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,12 +9,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Win
 {
     public partial class FormX : Form
     {
         private readonly FileInfo decoderFile;
         private readonly SaveFileDialog saveFileDialog;
+        private readonly string sourceFileFilter = "*.flac";
 
         public FormX(FileInfo decoderFile, SaveFileDialog saveFileDialog)
         {
@@ -23,22 +25,33 @@ namespace Andy.FlacHash.Cmd
             this.saveFileDialog = saveFileDialog;
 
             this.list_files.DisplayMember = nameof(FileInfo.Name);
-            this.list_results.DisplayMember = "Hash";
+            this.list_results.DisplayMember = nameof(FileHashResultListItem.Hash);
+
+            dirBrowser.ShowNewFolderButton = false;
 
             BuildResultsCtxMenu();
         }
 
-        private void BtnChooseDir_Click(object sender, EventArgs e)
+        private void BuildResultsCtxMenu()
         {
-            dirBrowser.ShowNewFolderButton = false;
-            var result = dirBrowser.ShowDialog();
-            var path = dirBrowser.SelectedPath;
+            ctxMenu_results.Items.Add(
+                "Save to a File...",
+                null,
+                new EventHandler((sender, e) => SaveHashes()));
+        }
 
-            var files = Directory.GetFiles(path, "*.flac", SearchOption.TopDirectoryOnly)
-                .Select(x => new FileInfo(x))
+        private void BtnChooseDir_Click(object sender, EventArgs e)
+        {            
+            var result = dirBrowser.ShowDialog();
+            if (result != DialogResult.OK) return;
+
+            var path = new DirectoryInfo(dirBrowser.SelectedPath);
+
+            var files = IOUtil
+                .FindFiles(path, sourceFileFilter)
                 .ToArray();
 
-            list_files.Items.AddRange(files);            
+            list_files.Items.AddRange(files);   
         }
 
         private void list_results_MouseDown(object sender, MouseEventArgs e)
@@ -53,30 +66,18 @@ namespace Andy.FlacHash.Cmd
             var result = saveFileDialog.ShowDialog();
             if (result != DialogResult.OK) return;
 
-            var hashes = list_results.Items
-                .Cast<FileHashResultListItem>()
-                .Select(x => x.Hash);
+            var hashes = GetHashes();
 
-            using (var outputStream = saveFileDialog.OpenFile())
-            using (var writer = new StreamWriter(outputStream))
-            {
-                foreach (var hash in hashes)
-                    writer.WriteLine(hash);
-            }
+            IOUtil.WriteToFile(new FileInfo(saveFileDialog.FileName), hashes);
 
             MessageBox.Show("Hashes saved!");
         }
 
-        private void BuildResultsCtxMenu()
+        private IEnumerable<string> GetHashes()
         {
-            var ttsi = new ToolStripButton("Save As...");
-            ttsi.Image = null;
-            ttsi.Click += new EventHandler((sender, e) => SaveHashes());
-
-            ctxMenu_results.Items.Add(
-                "Save As...",
-                null,
-                new EventHandler((sender, e) => SaveHashes()));
+            return list_results.Items
+                .Cast<FileHashResultListItem>()
+                .Select(x => x.Hash);
         }
 
         private void Btn_Go_Click(object sender, EventArgs e)
@@ -85,19 +86,24 @@ namespace Andy.FlacHash.Cmd
 
             Task.Factory.StartNew(() =>
             {
-                IEnumerable<FileHashResult> results = Program.DoIt(decoderFile, files);
-
-                foreach (var result in results)
-                {
-                    //update the UI (on the UI thread)
-                    this.list_results.Invoke(new Action(() => AddResult(result)));
-                }
+                CalcHashesAndUpdateUI(files);
             });
+        }
+
+        private void CalcHashesAndUpdateUI(IEnumerable<FileInfo> files)
+        {
+            IEnumerable<FileHashResult> results = Program.DoIt(decoderFile, files);
+
+            foreach (var result in results)
+            {
+                //update the UI (on the UI thread)
+                this.Invoke(new Action(() => AddResult(result)));
+            }
         }
 
         private void AddResult(FileHashResult result)
         {
-            this.list_results.Items.Add(
+            list_results.Items.Add(
                 new FileHashResultListItem
                 {
                     File = result.File,
