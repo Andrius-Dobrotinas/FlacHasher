@@ -14,15 +14,18 @@ namespace Andy.FlacHash.Win
     public partial class FormX : Form
     {
         private readonly FileInfo decoderFile;
-        private readonly ResultsWrapper results;
+        private readonly ResultsWrapper<FileHashResult> results;
         private readonly HashWriter hashWriter;
         private readonly string sourceFileFilter = "*.flac";
 
-        public FormX(FileInfo decoderFile, HashWriter hashWriter)
+        public FormX(
+            FileInfo decoderFile,
+            HashWriter hashWriter,
+            IFaceValueFactory<FileHashResult> resultListFaceValueFactory)
         {
             InitializeComponent();
 
-            this.results = new ResultsWrapper(this.list_results);
+            this.results = new ResultsWrapper<FileHashResult>(this.list_results, resultListFaceValueFactory);
 
             this.decoderFile = decoderFile;
             this.hashWriter = hashWriter;
@@ -43,7 +46,7 @@ namespace Andy.FlacHash.Win
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
-        {
+        {            
             var result = dirBrowser.ShowDialog();
             if (result != DialogResult.OK) return;
 
@@ -87,18 +90,16 @@ namespace Andy.FlacHash.Win
 
             foreach (var result in results)
             {
-                var resultRepresentation = OutputFormatter.GetFormattedString("{hash}", result.Hash, result.File);
-
                 //update the UI (on the UI thread)
                 this.Invoke(
                     new Action(
-                        () => this.results.AddResult(result, resultRepresentation)));
+                        () => this.results.AddResult(result)));
             }
         }
 
-        public class FileHashResultListItem : IListItem
+        public class FileHashResultListItem<T> : IListItem
         {
-            public FileHashResult Result { get; set; }
+            public T Result { get; set; }
             public string FaceValue { get; set; }
         }
     }

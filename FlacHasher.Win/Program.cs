@@ -10,6 +10,7 @@ namespace Andy.FlacHash.Win
     static class Program
     {
         const string settingsFileName = "settings.cfg";
+        const string hashRepresentationFormat = "{hash}";
 
         [STAThread]
         static void Main()
@@ -41,7 +42,8 @@ namespace Andy.FlacHash.Win
                 Application.Run(
                     new FormX(
                         settings.Decoder,
-                        new HashWriter(saveFileDialog)));
+                        new HashWriter(saveFileDialog),
+                        new HashFaceValueFactory(hashRepresentationFormat)));
             }
         }
 
