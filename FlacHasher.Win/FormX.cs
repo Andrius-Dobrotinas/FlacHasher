@@ -79,6 +79,8 @@ namespace Andy.FlacHash.Win
         {
             var files = list_files.Items.Cast<FileInfo>();
 
+            results.Clear();
+
             Task.Factory.StartNew(() =>
             {
                 CalcHashesAndUpdateUI(files);

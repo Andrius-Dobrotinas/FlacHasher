@@ -28,6 +28,11 @@ namespace Andy.FlacHash.Win
                 });
         }
 
+        public void Clear()
+        {
+            list_results.Items.Clear();
+        }
+
         public IEnumerable<string> GetFaceValues()
         {
             return list_results.Items
