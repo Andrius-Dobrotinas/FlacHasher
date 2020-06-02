@@ -56,6 +56,7 @@ namespace Andy.FlacHash.Win
                 .FindFiles(path, sourceFileFilter)
                 .ToArray();
 
+            list_files.Items.Clear();
             list_files.Items.AddRange(files);
         }
 
