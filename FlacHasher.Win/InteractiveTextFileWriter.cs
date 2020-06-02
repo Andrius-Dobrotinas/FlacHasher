@@ -4,16 +4,19 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win
 {
-    public class HashWriter
+    public class InteractiveTextFileWriter
     {
         private readonly SaveFileDialog saveFileDialog;
 
-        public HashWriter(SaveFileDialog saveFileDialog)
+        public InteractiveTextFileWriter(SaveFileDialog saveFileDialog)
         {
             this.saveFileDialog = saveFileDialog;
         }
 
-        public bool SaveHashes(IEnumerable<string> hashes)
+        /// <summary>
+        /// Asks a user where which file to write data to and then writes it
+        /// </summary>
+        public bool GetFileAndSave(IEnumerable<string> hashes)
         {
             var result = saveFileDialog.ShowDialog();
             if (result != DialogResult.OK) return false;

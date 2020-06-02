@@ -15,20 +15,20 @@ namespace Andy.FlacHash.Win
     {
         private readonly IMultipleFileHasher hasher;
         private readonly ResultsWrapper<FileHashResult> results;
-        private readonly HashWriter hashWriter;
+        private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly string sourceFileFilter = "*.flac";
 
         public FormX(
-            IMultipleFileHasher hasher,
-            HashWriter hashWriter,
+            IMultipleFileHasher hashCalc,
+            InteractiveTextFileWriter hashWriter,
             IFaceValueFactory<FileHashResult> resultListFaceValueFactory)
         {
             InitializeComponent();
 
             this.results = new ResultsWrapper<FileHashResult>(this.list_results, resultListFaceValueFactory);
 
-            this.hasher = hasher;
-            this.hashWriter = hashWriter;
+            this.hasher = hashCalc;
+            this.hashFileWriter = hashWriter;
 
             this.list_files.DisplayMember = nameof(FileInfo.Name);
 
@@ -70,7 +70,7 @@ namespace Andy.FlacHash.Win
         {
             var hashes = results.GetFaceValues();
 
-            if (hashWriter.SaveHashes(hashes) == true)
+            if (hashFileWriter.GetFileAndSave(hashes) == true)
                 MessageBox.Show("Hashes saved!");
         }
 

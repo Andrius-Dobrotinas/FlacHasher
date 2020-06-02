@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Win
                 Application.Run(
                     new FormX(
                         BuildHasher(settings.Decoder),
-                        new HashWriter(saveFileDialog),
+                        new InteractiveTextFileWriter(saveFileDialog),
                         new HashFaceValueFactory(hashRepresentationFormat)));
             }
         }
