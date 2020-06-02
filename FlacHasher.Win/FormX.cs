@@ -13,13 +13,13 @@ namespace Andy.FlacHash.Win
 {
     public partial class FormX : Form
     {
-        private readonly FileInfo decoderFile;
+        private readonly IMultipleFileHasher hasher;
         private readonly ResultsWrapper<FileHashResult> results;
         private readonly HashWriter hashWriter;
         private readonly string sourceFileFilter = "*.flac";
 
         public FormX(
-            FileInfo decoderFile,
+            IMultipleFileHasher hasher,
             HashWriter hashWriter,
             IFaceValueFactory<FileHashResult> resultListFaceValueFactory)
         {
@@ -27,7 +27,7 @@ namespace Andy.FlacHash.Win
 
             this.results = new ResultsWrapper<FileHashResult>(this.list_results, resultListFaceValueFactory);
 
-            this.decoderFile = decoderFile;
+            this.hasher = hasher;
             this.hashWriter = hashWriter;
 
             this.list_files.DisplayMember = nameof(FileInfo.Name);
@@ -46,7 +46,7 @@ namespace Andy.FlacHash.Win
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
-        {            
+        {
             var result = dirBrowser.ShowDialog();
             if (result != DialogResult.OK) return;
 
@@ -86,7 +86,7 @@ namespace Andy.FlacHash.Win
 
         private void CalcHashesAndUpdateUI(IEnumerable<FileInfo> files)
         {
-            IEnumerable<FileHashResult> results = Program.DoIt(decoderFile, files);
+            IEnumerable<FileHashResult> results = hasher.ComputeHashes(files);
 
             foreach (var result in results)
             {

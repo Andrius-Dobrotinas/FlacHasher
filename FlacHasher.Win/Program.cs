@@ -41,19 +41,17 @@ namespace Andy.FlacHash.Win
             {
                 Application.Run(
                     new FormX(
-                        settings.Decoder,
+                        BuildHasher(settings.Decoder),
                         new HashWriter(saveFileDialog),
                         new HashFaceValueFactory(hashRepresentationFormat)));
             }
         }
 
-        public static IEnumerable<FileHashResult> DoIt(FileInfo decoderFile, IEnumerable<FileInfo> inputFiles)
+        private static IMultipleFileHasher BuildHasher(FileInfo decoderFile)
         {
             var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
             var hasher = new FileHasher(decoder, new Crypto.Sha256HashComputer());
-            var multiHasher = new MultipleFileHasher(hasher);
-
-            return multiHasher.ComputeHashes(inputFiles);
+            return new MultipleFileHasher(hasher);
         }
     }
 }
