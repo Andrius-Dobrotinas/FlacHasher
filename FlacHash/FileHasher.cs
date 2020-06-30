@@ -22,11 +22,12 @@ namespace Andy.FlacHash
 
         public byte[] ComputerHash(FileInfo sourceFile)
         {
-            Stream contents = reader.Read(sourceFile);
+            using (Stream contents = reader.Read(sourceFile))
+            {
+                contents.Seek(0, SeekOrigin.Begin);
 
-            contents.Seek(0, SeekOrigin.Begin);
-
-            return hashComputer.ComputeHash(contents);
+                return hashComputer.ComputeHash(contents);
+            }
         }
     }
 }
