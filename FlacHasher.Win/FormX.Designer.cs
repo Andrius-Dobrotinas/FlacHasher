@@ -35,6 +35,7 @@
             this.btn_go = new System.Windows.Forms.Button();
             this.list_results = new System.Windows.Forms.ListBox();
             this.ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // btn_chooseDir
@@ -85,11 +86,19 @@
             this.ctxMenu_results.Name = "ctxMenu_results";
             this.ctxMenu_results.Size = new System.Drawing.Size(61, 4);
             // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(15, 162);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(115, 22);
+            this.progressBar.TabIndex = 5;
+            // 
             // FormX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(715, 296);
+            this.Controls.Add(this.progressBar);
             this.Controls.Add(this.list_results);
             this.Controls.Add(this.btn_go);
             this.Controls.Add(this.list_files);
@@ -108,5 +117,6 @@
         private System.Windows.Forms.Button btn_go;
         private System.Windows.Forms.ListBox list_results;
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
+        private System.Windows.Forms.ProgressBar progressBar;
     }
 }

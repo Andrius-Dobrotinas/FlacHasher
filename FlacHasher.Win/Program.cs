@@ -1,4 +1,5 @@
 using Andy.FlacHash.Cmd;
+using Andy.FlacHash.Win.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,19 +40,28 @@ namespace Andy.FlacHash.Win
                 Title = "Save As"
             })
             {
+                var services = BuildHasher(settings.Decoder);
                 Application.Run(
                     new FormX(
-                        BuildHasher(settings.Decoder),
+                        services.Item1,
                         new InteractiveTextFileWriter(saveFileDialog),
-                        new HashFaceValueFactory(hashRepresentationFormat)));
+                        new HashFaceValueFactory(hashRepresentationFormat),
+                        services.Item2));
             }
         }
 
-        private static IMultipleFileHasher BuildHasher(FileInfo decoderFile)
+        private static Tuple<IMultipleFileHasher, FileReadProgressReporter> BuildHasher(FileInfo decoderFile)
         {
-            var decoder = new Input.Flac.CmdLineDecoder(decoderFile);
-            var hasher = new FileHasher(decoder, new Crypto.Sha256HashComputer());
-            return new MultipleFileHasher(hasher);
+            var fileReadProgressReporter = new FileReadProgressReporter();
+            var steamFactory = new ProgressReportingReadStreamFactory(fileReadProgressReporter);
+            var decoder = new Input.Flac.CmdLineAudioStreamDecoder(decoderFile);
+            var reader = new DecodingFileReader(steamFactory, decoder);
+
+            var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
+
+            return new Tuple<IMultipleFileHasher, FileReadProgressReporter>(
+                new MultipleFileHasher(hasher),
+                fileReadProgressReporter);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Andy.FlacHash.Cmd;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -21,7 +20,8 @@ namespace Andy.FlacHash.Win
         public FormX(
             IMultipleFileHasher hashCalc,
             InteractiveTextFileWriter hashWriter,
-            IFaceValueFactory<FileHashResult> resultListFaceValueFactory)
+            IFaceValueFactory<FileHashResult> resultListFaceValueFactory,
+            IO.IFileReadProgressWatcher fileReadEventSource)
         {
             InitializeComponent();
 
@@ -35,6 +35,11 @@ namespace Andy.FlacHash.Win
             dirBrowser.ShowNewFolderButton = false;
 
             BuildResultsCtxMenu();
+
+            fileReadEventSource.BytesRead += (len, posish, bytesRead) => {
+                int progress = bytesRead / 1024;
+                this.Invoke(new Action(() => progressBar.Increment(progress)));
+            };
         }
 
         private void BuildResultsCtxMenu()
@@ -81,6 +86,10 @@ namespace Andy.FlacHash.Win
 
             results.Clear();
 
+            // todo: should divide by a much larger number for large total sum so as to make sure the int value doesn't overflow
+            long totalSize = files.Select(file => file.Length).Sum() / 1024;
+            progressBar.Maximum = (int)totalSize;
+
             Task.Factory.StartNew(() =>
             {
                 CalcHashesAndUpdateUI(files);
@@ -97,6 +106,10 @@ namespace Andy.FlacHash.Win
                 this.Invoke(
                     new Action(
                         () => this.results.AddResult(result)));
+
+                this.Invoke(
+                    new Action(
+                        () => this.Text = result.File.Name));
             }
         }
     }

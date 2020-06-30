@@ -45,7 +45,11 @@ namespace Andy.FlacHash.ExternalProcess
                 //the writing operation gets blocked until someone reads the output - when both in and out are redirected... at least with Flac
                 var outputTask = System.Threading.Tasks.Task.Run<MemoryStream>(() => GetStandardOutput(process));
 
-                input.CopyTo(process.StandardInput.BaseStream);
+                var stdin = process.StandardInput.BaseStream;
+                input.CopyTo(stdin);
+
+                //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
+                stdin.Close();
 
                 ProcessExitCode(process);
 
@@ -74,7 +78,9 @@ namespace Andy.FlacHash.ExternalProcess
             {
                 //should exit right away, this is just in case
                 process.WaitForExit(1000);
-                process.Kill(true);
+
+                if (!process.HasExited)
+                    process.Kill(true);
             }
 
             if (process.ExitCode != 0)
