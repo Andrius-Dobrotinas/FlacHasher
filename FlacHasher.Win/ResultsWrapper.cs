@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Win
         public void AddResult(T result)
         {
             list_results.Items.Add(
-                new FormX.FileHashResultListItem<T>
+                new FileHashResultListItem<T>
                 {
                     Result = result,
                     FaceValue = faceValueFactory.GetFaceValue(result)
@@ -36,7 +36,7 @@ namespace Andy.FlacHash.Win
         public IEnumerable<string> GetFaceValues()
         {
             return list_results.Items
-                .Cast<FormX.FileHashResultListItem<T>>()
+                .Cast<FileHashResultListItem<T>>()
                 .Select(x => x.FaceValue);
         }
     }

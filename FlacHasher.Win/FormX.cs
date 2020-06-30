@@ -99,11 +99,5 @@ namespace Andy.FlacHash.Win
                         () => this.results.AddResult(result)));
             }
         }
-
-        public class FileHashResultListItem<T> : IListItem
-        {
-            public T Result { get; set; }
-            public string FaceValue { get; set; }
-        }
     }
 }
