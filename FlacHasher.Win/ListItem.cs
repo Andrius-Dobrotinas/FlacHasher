@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Win
 {
-    public class FileHashResultListItem<T> : IListItem
+    public class ListItem<T> : IListItem<T>
     {
-        public T Result { get; set; }
+        public T Value { get; set; }
         public string FaceValue { get; set; }
     }
 }

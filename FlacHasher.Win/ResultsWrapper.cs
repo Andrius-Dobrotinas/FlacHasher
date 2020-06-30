@@ -5,25 +5,25 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win
 {
-    public class ResultsWrapper<T>
+    public class ResultsWrapper<TValue, TListItem> where TListItem : IListItem<TValue>, new()
     {
         private readonly ListBox list_results;
-        private readonly IFaceValueFactory<T> faceValueFactory;
+        private readonly IFaceValueFactory<TValue> faceValueFactory;
 
-        public ResultsWrapper(ListBox list_results, IFaceValueFactory<T> faceValueFactory)
+        public ResultsWrapper(ListBox list_results, IFaceValueFactory<TValue> faceValueFactory)
         {
             this.list_results = list_results;
-            this.list_results.DisplayMember = nameof(IListItem.FaceValue);
+            this.list_results.DisplayMember = nameof(IListItem<TValue>.FaceValue);
 
             this.faceValueFactory = faceValueFactory;
         }
 
-        public void AddResult(T result)
+        public void AddResult(TValue result)
         {
             list_results.Items.Add(
-                new FileHashResultListItem<T>
+                new TListItem
                 {
-                    Result = result,
+                    Value = result,
                     FaceValue = faceValueFactory.GetFaceValue(result)
                 });
         }
@@ -36,7 +36,7 @@ namespace Andy.FlacHash.Win
         public IEnumerable<string> GetFaceValues()
         {
             return list_results.Items
-                .Cast<FileHashResultListItem<T>>()
+                .Cast<TListItem>()
                 .Select(x => x.FaceValue);
         }
     }

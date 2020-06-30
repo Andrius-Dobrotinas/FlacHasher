@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Win
     public partial class FormX : Form
     {
         private readonly IMultipleFileHasher hasher;
-        private readonly ResultsWrapper<FileHashResult> results;
+        private readonly ResultsWrapper<FileHashResult, ListItem<FileHashResult>> results;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly string sourceFileFilter = "*.flac";
 
@@ -25,7 +25,7 @@ namespace Andy.FlacHash.Win
         {
             InitializeComponent();
 
-            this.results = new ResultsWrapper<FileHashResult>(this.list_results, resultListFaceValueFactory);
+            this.results = new ResultsWrapper<FileHashResult, ListItem<FileHashResult>>(this.list_results, resultListFaceValueFactory);
 
             this.hasher = hashCalc;
             this.hashFileWriter = hashWriter;

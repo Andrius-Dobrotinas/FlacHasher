@@ -3,8 +3,9 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Win
 {
-    public interface IListItem
+    public interface IListItem<TValue>
     {
-        string FaceValue { get; }
+        TValue Value { get; set; }
+        string FaceValue { get; set; }
     }
 }
