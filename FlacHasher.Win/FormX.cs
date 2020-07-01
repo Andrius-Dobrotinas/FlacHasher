@@ -36,7 +36,7 @@ namespace Andy.FlacHash.Win
 
             BuildResultsCtxMenu();
 
-            fileReadEventSource.BytesRead += (len, posish, bytesRead) => {
+            fileReadEventSource.BytesRead += (bytesRead) => {
                 int progress = bytesRead / 1024;
                 this.Invoke(new Action(() => progressBar.Increment(progress)));
             };

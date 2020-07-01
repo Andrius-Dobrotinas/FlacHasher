@@ -7,9 +7,9 @@ namespace Andy.FlacHash.Win.IO
 {
     public class ProgressReportingReadStreamFactory : IReadStreamFactory
     {
-        private readonly FileReadProgressReporter progressReporter;
+        private readonly IProgress<int> progressReporter;
 
-        public ProgressReportingReadStreamFactory(FileReadProgressReporter progressReporter)
+        public ProgressReportingReadStreamFactory(IProgress<int> progressReporter)
         {
             this.progressReporter = progressReporter;
         }
@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Win.IO
         {
             var stream = new ProgressReportingReadOnlyFileStream(sourceFile.FullName);
 
-            stream.BytesRead += new BytesReadHandler(progressReporter.UpdateProgress);
+            stream.BytesRead += new BytesReadHandler(progressReporter.Report);
 
             return stream;
         }

@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Win
 {
-    public class FileReadProgressReporter : IFileReadProgressWatcher
+    public class FileReadProgressReporter : IFileReadProgressWatcher, IProgress<int>
     {
         public event BytesReadHandler BytesRead;
 
-        public void UpdateProgress(long fileSize, long currentPosition, int bytesRead)
+        public void Report(int bytesRead)
         {
-            BytesRead?.Invoke(fileSize, currentPosition, bytesRead);
+            BytesRead?.Invoke(bytesRead);
         }
     }
 }

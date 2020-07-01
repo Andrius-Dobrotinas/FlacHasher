@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Andy.FlacHash.Win.IO
 {
-    public delegate void BytesReadHandler(long fileSize, long currentPosition, int byteCount);
+    public delegate void BytesReadHandler(int byteCount);
 
     public class ProgressReportingReadOnlyFileStream : FileStream
     {
@@ -41,7 +41,7 @@ namespace Andy.FlacHash.Win.IO
 
         private void RaiseBytesReadEvent(int byteCount)
         {
-            BytesRead?.Invoke(Length, Position, byteCount);
+            BytesRead?.Invoke(byteCount);
         }
     }
 }
