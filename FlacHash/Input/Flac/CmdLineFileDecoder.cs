@@ -6,11 +6,11 @@ namespace Andy.FlacHash.Input.Flac
 {
     // TODO: Flac.exe can also take input via stdin. See if I want to go that way.
 
-    public class CmdLineDecoder : IFileReader
+    public class CmdLineFileDecoder : IFileReader
     {
         private readonly FileInfo decoderExecutableFile;
 
-        public CmdLineDecoder(FileInfo decoderExecutableFile)
+        public CmdLineFileDecoder(FileInfo decoderExecutableFile)
         {
             if (decoderExecutableFile == null) throw new ArgumentNullException(nameof(decoderExecutableFile));
 

@@ -5,11 +5,11 @@ using System.IO;
 
 namespace Andy.FlacHash.Input.Flac
 {
-    public class CmdLineAudioStreamDecoder
+    public class CmdLineStreamDecoder
     {
         private readonly FileInfo decoderExecutableFile;
 
-        public CmdLineAudioStreamDecoder(FileInfo decoderExecutableFile)
+        public CmdLineStreamDecoder(FileInfo decoderExecutableFile)
         {
             this.decoderExecutableFile = decoderExecutableFile ?? throw new ArgumentNullException(nameof(decoderExecutableFile));
         }

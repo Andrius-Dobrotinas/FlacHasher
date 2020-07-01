@@ -9,11 +9,11 @@ namespace Andy.FlacHash.Win.IO
     public class DecodingFileReader : IFileReader
     {
         private readonly IReadStreamFactory streamFactory;
-        private readonly CmdLineAudioStreamDecoder decoder;
+        private readonly CmdLineStreamDecoder decoder;
 
         public DecodingFileReader(
             IReadStreamFactory streamFactory,
-            CmdLineAudioStreamDecoder decoder)
+            CmdLineStreamDecoder decoder)
         {
             this.decoder = decoder;
             this.streamFactory = streamFactory;
