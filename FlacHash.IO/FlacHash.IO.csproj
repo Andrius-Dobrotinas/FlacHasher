@@ -3,11 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Andy.FlacHash</RootNamespace>
-    <AssemblyName>FlacHash.Lib</AssemblyName>
+    <AssemblyName>FlacHash.IO</AssemblyName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FlacHash.IO\FlacHash.IO.csproj" />
-  </ItemGroup>
 
 </Project>

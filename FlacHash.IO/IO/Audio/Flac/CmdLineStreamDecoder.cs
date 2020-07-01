@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Andy.FlacHash.Input.Flac
+namespace Andy.FlacHash.IO.Audio.Flac
 {
     public class CmdLineStreamDecoder
     {

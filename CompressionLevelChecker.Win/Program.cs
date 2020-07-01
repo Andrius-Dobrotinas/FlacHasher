@@ -1,3 +1,5 @@
+using Andy.FlacHash.IO.Audio;
+using Andy.FlacHash.IO.Audio.Flac;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,11 +56,11 @@ namespace Andy.FlacHash.Win
 
         private static CompressionLevelService BuildComponents(FileInfo flacExe)
         {
-            Audio.Compression.File.IAudioFileEncoder encoder_MetadataPreserved = new Audio.Compression.File.CmdLineFlacRecoder(flacExe);
+            IAudioFileEncoder encoder_MetadataPreserved = new CmdLineFlacRecoder(flacExe);
 
-            Audio.Compression.File.IAudioFileEncoder encoder_MetadataDiscarded = new Audio.Compression.File.AudioFileEncoder(
-                new Andy.FlacHash.Input.Flac.CmdLineFileDecoder(flacExe),
-                new Audio.Compression.CmdLineFlacEncoder(flacExe));
+            IAudioFileEncoder encoder_MetadataDiscarded = new AudioFileEncoder(
+                new CmdLineFileDecoder(flacExe),
+                new CmdLineFlacEncoder(flacExe));
 
             IFileInfoSizeGetter fileSize = new FileInfoSizeGetter();
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Andy.FlacHash.Audio.Compression
+namespace Andy.FlacHash.IO.Audio.Flac
 {
     public class CmdLineFlacEncoder : IAudioEncoder
     {

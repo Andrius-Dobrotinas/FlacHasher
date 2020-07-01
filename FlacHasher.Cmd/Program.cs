@@ -48,7 +48,7 @@ namespace Andy.FlacHash.Cmd
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
-                var decoder = new Input.Flac.CmdLineFileDecoder(decoderFile);
+                var decoder = new IO.Audio.Flac.CmdLineFileDecoder(decoderFile);
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher);
 
@@ -67,7 +67,7 @@ namespace Andy.FlacHash.Cmd
 
                 return (int)ReturnValue.ConfigurationError;
             }
-            catch (Input.InputReadingException e)
+            catch (IO.InputReadingException e)
             {
                 Console.WriteLine(e.Message);
 

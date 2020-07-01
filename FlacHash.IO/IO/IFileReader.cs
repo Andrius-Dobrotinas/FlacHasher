@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
 
-namespace Andy.FlacHash.Input
+namespace Andy.FlacHash.IO
 {
     public interface IFileReader
     {
         /// <summary>
-        /// Returns the specified file as a stream.
+        /// Returns a specified file as a stream.
         /// </summary>
         Stream Read(FileInfo sourceFile);
     }

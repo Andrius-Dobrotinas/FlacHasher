@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Input.Flac
+namespace Andy.FlacHash.IO.Audio.Flac
 {
     public static class CmdLineDecoderOptions
     {

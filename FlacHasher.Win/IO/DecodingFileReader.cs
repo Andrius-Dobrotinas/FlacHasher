@@ -1,5 +1,5 @@
-﻿using Andy.FlacHash.Input;
-using Andy.FlacHash.Input.Flac;
+﻿using Andy.FlacHash.IO;
+using Andy.FlacHash.IO.Audio.Flac;
 using System;
 using System.Collections.Generic;
 using System.IO;

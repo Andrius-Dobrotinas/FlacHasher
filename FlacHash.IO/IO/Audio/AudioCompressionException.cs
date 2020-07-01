@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Audio.Compression
+namespace Andy.FlacHash.IO.Audio
 {
     public class AudioCompressionException : Exception
     {

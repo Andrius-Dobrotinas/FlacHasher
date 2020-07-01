@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Input
+namespace Andy.FlacHash.IO
 {
     /// <summary>
     /// Indicates that input could not be read

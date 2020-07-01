@@ -19,7 +19,7 @@ namespace Andy.FlacHash.Win
             Settings settings;
             try
             {
-                var settingsFile = new System.IO.FileInfo(settingsFileName);
+                var settingsFile = new FileInfo(settingsFileName);
                 settings = SettingsProvider.GetSettings(settingsFile);
             }
             catch (Exception e)
@@ -54,7 +54,7 @@ namespace Andy.FlacHash.Win
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new ProgressReportingReadStreamFactory(fileReadProgressReporter);
-            var decoder = new Input.Flac.CmdLineStreamDecoder(decoderFile);
+            var decoder = new FlacHash.IO.Audio.Flac.CmdLineStreamDecoder(decoderFile);
             var reader = new DecodingFileReader(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
