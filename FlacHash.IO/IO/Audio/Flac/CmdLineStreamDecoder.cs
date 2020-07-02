@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac
 {
-    public class CmdLineStreamDecoder
+    public class CmdLineStreamDecoder : IAudioDecoder
     {
         private readonly FileInfo decoderExecutableFile;
 

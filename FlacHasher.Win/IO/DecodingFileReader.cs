@@ -1,5 +1,5 @@
 ﻿using Andy.FlacHash.IO;
-using Andy.FlacHash.IO.Audio.Flac;
+using Andy.FlacHash.IO.Audio;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,11 +9,11 @@ namespace Andy.FlacHash.Win.IO
     public class DecodingFileReader : IFileReader
     {
         private readonly IInputStreamFactory inputStreamFactory;
-        private readonly CmdLineStreamDecoder decoder;
+        private readonly IAudioDecoder decoder;
 
         public DecodingFileReader(
             IInputStreamFactory streamFactory,
-            CmdLineStreamDecoder decoder)
+            IAudioDecoder decoder)
         {
             this.decoder = decoder;
             this.inputStreamFactory = streamFactory;
