@@ -8,20 +8,20 @@ namespace Andy.FlacHash.Win.IO
 {
     public class DecodingFileReader : IFileReader
     {
-        private readonly IReadStreamFactory streamFactory;
+        private readonly IInputStreamFactory inputStreamFactory;
         private readonly CmdLineStreamDecoder decoder;
 
         public DecodingFileReader(
-            IReadStreamFactory streamFactory,
+            IInputStreamFactory streamFactory,
             CmdLineStreamDecoder decoder)
         {
             this.decoder = decoder;
-            this.streamFactory = streamFactory;
+            this.inputStreamFactory = streamFactory;
         }
 
         public Stream Read(FileInfo sourceFile)
         {
-            using (var stream = streamFactory.CreateStream(sourceFile))
+            using (var stream = inputStreamFactory.CreateStream(sourceFile))
                 return decoder.Read(stream);
         }
     }

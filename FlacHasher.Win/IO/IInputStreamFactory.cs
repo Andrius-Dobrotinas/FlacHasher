@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Andy.FlacHash.Win.IO
 {
-    public interface IReadStreamFactory
+    public interface IInputStreamFactory
     {
         Stream CreateStream(FileInfo sourceFile);
     }
