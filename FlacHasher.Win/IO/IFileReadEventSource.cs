@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Win.IO
 {
-    public interface IFileReadProgressWatcher
+    public interface IFileReadEventSource
     {
         event BytesReadHandler BytesRead;
     }
