@@ -1,5 +1,4 @@
 using Andy.FlacHash.Cmd;
-using Andy.FlacHash.Win.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,9 +52,9 @@ namespace Andy.FlacHash.Win
         private static Tuple<IMultipleFileHasher, FileReadProgressReporter> BuildHasher(FileInfo decoderFile)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
-            var steamFactory = new FlacHash.IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
-            var decoder = new FlacHash.IO.Audio.Flac.CmdLineStreamDecoder(decoderFile);
-            var reader = new DecodingFileReader(steamFactory, decoder);
+            var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
+            var decoder = new IO.Audio.Flac.CmdLineStreamDecoder(decoderFile);
+            var reader = new IO.Audio.DecodingFileReader(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
 

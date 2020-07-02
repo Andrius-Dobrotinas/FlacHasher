@@ -1,10 +1,8 @@
-﻿using Andy.FlacHash.IO;
-using Andy.FlacHash.IO.Audio;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Andy.FlacHash.Win.IO
+namespace Andy.FlacHash.IO.Audio
 {
     public class DecodingFileReader : IFileReader
     {
