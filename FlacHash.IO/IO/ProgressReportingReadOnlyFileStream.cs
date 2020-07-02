@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Andy.FlacHash.Win.IO
+namespace Andy.FlacHash.IO
 {
     public delegate void BytesReadHandler(int byteCount);
 

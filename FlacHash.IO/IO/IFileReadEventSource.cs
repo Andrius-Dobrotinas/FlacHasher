@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Win.IO
+namespace Andy.FlacHash.IO
 {
     public interface IFileReadEventSource
     {

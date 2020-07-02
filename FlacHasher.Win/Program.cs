@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Win
         private static Tuple<IMultipleFileHasher, FileReadProgressReporter> BuildHasher(FileInfo decoderFile)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
-            var steamFactory = new ProgressReportingReadStreamFactory(fileReadProgressReporter);
+            var steamFactory = new FlacHash.IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
             var decoder = new FlacHash.IO.Audio.Flac.CmdLineStreamDecoder(decoderFile);
             var reader = new DecodingFileReader(steamFactory, decoder);
 

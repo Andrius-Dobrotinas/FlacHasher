@@ -1,4 +1,4 @@
-﻿using Andy.FlacHash.Win.IO;
+﻿using Andy.FlacHash.IO;
 using System;
 using System.Collections.Generic;
 

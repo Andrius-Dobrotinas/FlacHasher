@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Win
             IMultipleFileHasher hashCalc,
             InteractiveTextFileWriter hashWriter,
             IFaceValueFactory<FileHashResult> resultListFaceValueFactory,
-            IO.IFileReadEventSource fileReadEventSource)
+            FlacHash.IO.IFileReadEventSource fileReadEventSource)
         {
             InitializeComponent();
 

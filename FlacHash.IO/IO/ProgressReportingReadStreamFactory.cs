@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Andy.FlacHash.Win.IO
+namespace Andy.FlacHash.IO
 {
     public class ProgressReportingReadStreamFactory : IInputStreamFactory
     {
