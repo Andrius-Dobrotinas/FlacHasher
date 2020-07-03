@@ -60,7 +60,9 @@ namespace Andy.FlacHash.Win
 
             IAudioFileEncoder encoder_MetadataDiscarded = new AudioFileEncoder(
                 new CmdLineFileDecoder(flacExe),
-                new CmdLineFlacEncoder(flacExe));
+                new CmdLineFlacEncoder(
+                    flacExe,
+                    new ExternalProcess.ProcessRunner()));
 
             IFileInfoSizeGetter fileSize = new FileInfoSizeGetter();
 

@@ -53,7 +53,9 @@ namespace Andy.FlacHash.Win
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
-            var decoder = new IO.Audio.Flac.CmdLineStreamDecoder(decoderFile);
+            var decoder = new IO.Audio.Flac.CmdLineStreamDecoder(
+                decoderFile,
+                new ExternalProcess.ProcessRunner());
             var reader = new IO.Audio.DecodingFileReader(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());

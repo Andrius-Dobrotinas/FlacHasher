@@ -5,7 +5,12 @@ using System.IO;
 
 namespace Andy.FlacHash.ExternalProcess
 {
-    public class ProcessRunner
+    public interface IIOProcessRunner
+    {
+        MemoryStream RunAndReadOutput(ProcessStartInfo processSettings, Stream input);
+    }
+
+    public class ProcessRunner : IIOProcessRunner
     {
         /// <summary>
         /// Runs an process and returns the contents of its output stream
@@ -30,7 +35,7 @@ namespace Andy.FlacHash.ExternalProcess
             }
         }
 
-        public static MemoryStream RunAndReadOutput(ProcessStartInfo processSettings, Stream input)
+        public MemoryStream RunAndReadOutput(ProcessStartInfo processSettings, Stream input)
         {
             processSettings.RedirectStandardOutput = true;
             processSettings.RedirectStandardError = true;

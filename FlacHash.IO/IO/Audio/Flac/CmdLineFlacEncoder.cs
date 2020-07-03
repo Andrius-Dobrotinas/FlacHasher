@@ -14,10 +14,14 @@ namespace Andy.FlacHash.IO.Audio.Flac
         }
 
         private readonly FileInfo decoderExecutableFile;
+        private readonly IIOProcessRunner processRunner;
 
-        public CmdLineFlacEncoder(FileInfo encoderExecutableFile)
+        public CmdLineFlacEncoder(FileInfo encoderExecutableFile,
+            IIOProcessRunner processRunner)
         {
             this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
+
+            this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
         public MemoryStream Encode(Stream wavAudio, uint compressionLevel)
@@ -26,7 +30,7 @@ namespace Andy.FlacHash.IO.Audio.Flac
 
             try
             {
-                return ProcessRunner.RunAndReadOutput(processSettings, wavAudio);
+                return processRunner.RunAndReadOutput(processSettings, wavAudio);
             }
             catch (ExecutionException e)
             {

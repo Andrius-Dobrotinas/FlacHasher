@@ -8,10 +8,14 @@ namespace Andy.FlacHash.IO.Audio.Flac
     public class CmdLineStreamDecoder : IAudioDecoder
     {
         private readonly FileInfo decoderExecutableFile;
+        private readonly ExternalProcess.IIOProcessRunner processRunner;
 
-        public CmdLineStreamDecoder(FileInfo decoderExecutableFile)
+        public CmdLineStreamDecoder(FileInfo decoderExecutableFile,
+            ExternalProcess.IIOProcessRunner processRunner)
         {
             this.decoderExecutableFile = decoderExecutableFile ?? throw new ArgumentNullException(nameof(decoderExecutableFile));
+
+            this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
         public Stream Read(Stream wavAudio)
@@ -20,7 +24,7 @@ namespace Andy.FlacHash.IO.Audio.Flac
 
             try
             {
-                return ExternalProcess.ProcessRunner.RunAndReadOutput(processSettings, wavAudio);
+                return processRunner.RunAndReadOutput(processSettings, wavAudio);
             }
             catch (ExternalProcess.ExecutionException e)
             {
