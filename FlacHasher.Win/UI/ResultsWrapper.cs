@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Win.UI
 {
     public class ResultsWrapper<TValue, TListItem> where TListItem : IListItem<TValue>, new()
     {

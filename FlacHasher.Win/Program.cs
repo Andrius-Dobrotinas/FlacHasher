@@ -41,10 +41,10 @@ namespace Andy.FlacHash.Win
             {
                 var services = BuildHasher(settings.Decoder);
                 Application.Run(
-                    new FormX(
+                    new UI.FormX(
                         services.Item1,
                         new InteractiveTextFileWriter(saveFileDialog),
-                        new HashFaceValueFactory(hashRepresentationFormat),
+                        new UI.HashFaceValueFactory(hashRepresentationFormat),
                         services.Item2));
             }
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Win.UI
 {
     public interface IListItem<TValue>
     {

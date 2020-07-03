@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash.Win
+﻿namespace Andy.FlacHash.Win.UI
 {
     partial class FormX
     {
