@@ -56,13 +56,13 @@ namespace Andy.FlacHash.Win
 
         private static CompressionLevelService BuildComponents(FileInfo flacExe)
         {
-            IAudioFileEncoder encoder_MetadataPreserved = new CmdLineFlacRecoder(flacExe);
+            var processRunner = new ExternalProcess.ProcessRunner();
+
+            IAudioFileEncoder encoder_MetadataPreserved = new CmdLineFlacRecoder(flacExe, processRunner);
 
             IAudioFileEncoder encoder_MetadataDiscarded = new AudioFileEncoder(
-                new CmdLineFileDecoder(flacExe),
-                new CmdLineFlacEncoder(
-                    flacExe,
-                    new ExternalProcess.ProcessRunner()));
+                new CmdLineFileDecoder(flacExe, processRunner),
+                new CmdLineFlacEncoder(flacExe, processRunner));
 
             IFileInfoSizeGetter fileSize = new FileInfoSizeGetter();
 

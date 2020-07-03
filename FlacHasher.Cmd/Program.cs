@@ -48,7 +48,10 @@ namespace Andy.FlacHash.Cmd
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
-                var decoder = new IO.Audio.Flac.CmdLineFileDecoder(decoderFile);
+                var decoder = new IO.Audio.Flac.CmdLineFileDecoder(
+                    decoderFile,
+                    new ExternalProcess.ProcessRunner());
+
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher);
 

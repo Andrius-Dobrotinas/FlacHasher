@@ -10,12 +10,17 @@ namespace Andy.FlacHash.ExternalProcess
         MemoryStream RunAndReadOutput(ProcessStartInfo processSettings, Stream input);
     }
 
-    public class ProcessRunner : IIOProcessRunner
+    public interface IOutputOnlyProcessRunner
+    {
+        MemoryStream RunAndReadOutput(ProcessStartInfo processSettings);
+    }
+
+    public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
         /// <summary>
         /// Runs an process and returns the contents of its output stream
         /// </summary>
-        public static MemoryStream RunAndReadOutput(ProcessStartInfo processSettings)
+        public MemoryStream RunAndReadOutput(ProcessStartInfo processSettings)
         {
             // TODO: possibly create a new type for settings for this method. It's better for this method to redirect the streams
 

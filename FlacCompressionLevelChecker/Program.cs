@@ -33,7 +33,9 @@ namespace Andy.FlacHash
 
             GetParameters(args, out flacExe, out sourceFile, out compressionLevel);
 
-            var recoder = new IO.Audio.Flac.CmdLineFlacRecoder(flacExe);
+            var recoder = new IO.Audio.Flac.CmdLineFlacRecoder(
+                flacExe,
+                new ExternalProcess.ProcessRunner());
 
             using (MemoryStream recodedAudio = recoder.Encode(sourceFile, compressionLevel))
             {

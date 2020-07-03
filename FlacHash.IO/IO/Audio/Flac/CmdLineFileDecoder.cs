@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Andy.FlacHash.ExternalProcess;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -9,12 +10,14 @@ namespace Andy.FlacHash.IO.Audio.Flac
     public class CmdLineFileDecoder : IFileReader
     {
         private readonly FileInfo decoderExecutableFile;
+        private readonly IOutputOnlyProcessRunner processRunner;
 
-        public CmdLineFileDecoder(FileInfo decoderExecutableFile)
+        public CmdLineFileDecoder(FileInfo decoderExecutableFile,
+            IOutputOnlyProcessRunner processRunner)
         {
-            if (decoderExecutableFile == null) throw new ArgumentNullException(nameof(decoderExecutableFile));
+            this.decoderExecutableFile = decoderExecutableFile ?? throw new ArgumentNullException(nameof(decoderExecutableFile));
 
-            this.decoderExecutableFile = decoderExecutableFile;
+            this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
         public Stream Read(FileInfo sourceFile)
@@ -23,7 +26,7 @@ namespace Andy.FlacHash.IO.Audio.Flac
 
             try
             {
-                return ExternalProcess.ProcessRunner.RunAndReadOutput(processSettings);
+                return processRunner.RunAndReadOutput(processSettings);
             }
             catch(ExternalProcess.ExecutionException e)
             {

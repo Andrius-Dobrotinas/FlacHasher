@@ -14,10 +14,14 @@ namespace Andy.FlacHash.IO.Audio.Flac
         }
 
         private readonly FileInfo decoderExecutableFile;
+        private readonly IOutputOnlyProcessRunner processRunner;
 
-        public CmdLineFlacRecoder(FileInfo encoderExecutableFile)
+        public CmdLineFlacRecoder(FileInfo encoderExecutableFile,
+            IOutputOnlyProcessRunner processRunner)
         {
             this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
+
+            this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
         public MemoryStream Encode(FileInfo sourceFile, uint compressionLevel)
@@ -30,7 +34,7 @@ namespace Andy.FlacHash.IO.Audio.Flac
 
             try
             {
-                return ProcessRunner.RunAndReadOutput(processSettings);
+                return processRunner.RunAndReadOutput(processSettings);
             }
             catch (ExecutionException e)
             {
