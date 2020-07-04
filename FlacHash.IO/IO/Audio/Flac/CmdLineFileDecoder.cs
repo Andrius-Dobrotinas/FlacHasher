@@ -5,8 +5,6 @@ using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac
 {
-    // TODO: Flac.exe can also take input via stdin. See if I want to go that way.
-
     public class CmdLineFileDecoder : IFileReader
     {
         private readonly FileInfo decoderExecutableFile;
@@ -22,32 +20,32 @@ namespace Andy.FlacHash.IO.Audio.Flac
 
         public Stream Read(FileInfo sourceFile)
         {
-            var processSettings = GetProcessSettings(sourceFile, decoderExecutableFile);
+            if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
+
+            var arguments = GetProcessArguments(sourceFile);
 
             try
             {
-                return processRunner.RunAndReadOutput(processSettings);
+                return processRunner.RunAndReadOutput(
+                    decoderExecutableFile,
+                    arguments);
             }
             catch(ExternalProcess.ExecutionException e)
             {
-                var message = $"Failed to read the input file. FLAC process exited with error code {e.ExitCode}.\nFLAC error output: {e.ProcessErrorOutput}";
+                var message = $"Failed to decode the file. FLAC process exited with error code {e.ExitCode}.\nFLAC error output: {e.ProcessErrorOutput}";
 
                 throw new InputReadingException(message);
             }
         }
 
-        private static ProcessStartInfo GetProcessSettings(FileInfo sourceFile, FileInfo decoderExecutableFile)
+        private static string[] GetProcessArguments(FileInfo sourceFile)
         {
-            if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
-
-            var processSettings = ExternalProcess.CmdLineProcessSettingsFactory.GetProcessSettings(decoderExecutableFile);
-
-            processSettings.ArgumentList.Add(CmdLineDecoderOptions.Decode);
-            processSettings.ArgumentList.Add(CmdLineDecoderOptions.WriteToSdtOut);
-
-            processSettings.ArgumentList.Add(sourceFile.FullName);
-
-            return processSettings;
+            return new string[]
+            {
+                CmdLineDecoderOptions.Decode,
+                CmdLineDecoderOptions.WriteToSdtOut,
+                sourceFile.FullName
+            };
         }
     }
 }

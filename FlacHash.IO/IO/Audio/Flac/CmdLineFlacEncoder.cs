@@ -1,7 +1,6 @@
 ﻿using Andy.FlacHash.ExternalProcess;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac
@@ -26,11 +25,20 @@ namespace Andy.FlacHash.IO.Audio.Flac
 
         public MemoryStream Encode(Stream wavAudio, uint compressionLevel)
         {
-            var processSettings = GetProcessSettings(decoderExecutableFile, compressionLevel);
+            if (wavAudio == null) throw new ArgumentNullException(nameof(wavAudio));
+
+            // todo: take the min/max values from a single place
+            if (compressionLevel > 8) throw new ArgumentOutOfRangeException(
+                "FLAC Compression level must be between 0 and 8");
+
+            var arguments = GetProcessArguments(compressionLevel);
 
             try
             {
-                return processRunner.RunAndReadOutput(processSettings, wavAudio);
+                return processRunner.RunAndReadOutput(
+                    decoderExecutableFile,
+                    arguments,
+                    wavAudio);
             }
             catch (ExecutionException e)
             {
@@ -40,14 +48,13 @@ namespace Andy.FlacHash.IO.Audio.Flac
             }
         }
 
-        private static ProcessStartInfo GetProcessSettings(FileInfo encoderExecutableFile, uint compressionLevel)
+        private static string[] GetProcessArguments(uint compressionLevel)
         {
-            var processSettings = CmdLineProcessSettingsFactory.GetProcessSettings(encoderExecutableFile);
-
-            processSettings.ArgumentList.Add($"-{compressionLevel}");
-            processSettings.ArgumentList.Add(EncoderFlags.Stdout);
-
-            return processSettings;
+            return new string[]
+            {
+                $"-{compressionLevel}",
+                EncoderFlags.Stdout
+            };
         }
     }
 }

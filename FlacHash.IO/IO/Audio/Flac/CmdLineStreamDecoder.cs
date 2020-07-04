@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac
@@ -20,11 +19,11 @@ namespace Andy.FlacHash.IO.Audio.Flac
 
         public Stream Read(Stream wavAudio)
         {
-            var processSettings = GetProcessSettings(decoderExecutableFile);
+            var arguments = GetProcessArguments();
 
             try
             {
-                return processRunner.RunAndReadOutput(processSettings, wavAudio);
+                return processRunner.RunAndReadOutput(decoderExecutableFile, arguments, wavAudio);
             }
             catch (ExternalProcess.ExecutionException e)
             {
@@ -34,14 +33,13 @@ namespace Andy.FlacHash.IO.Audio.Flac
             }
         }
 
-        private static ProcessStartInfo GetProcessSettings(FileInfo decoderExecutableFile)
+        private static string[] GetProcessArguments()
         {
-            var processSettings = ExternalProcess.CmdLineProcessSettingsFactory.GetProcessSettings(decoderExecutableFile);
-
-            processSettings.ArgumentList.Add(CmdLineDecoderOptions.Decode);
-            processSettings.ArgumentList.Add("-"); // read from stdin
-
-            return processSettings;
+            return new string[]
+            {
+                CmdLineDecoderOptions.Decode,
+                "-" // read from stdin
+            };
         }
     }
 }

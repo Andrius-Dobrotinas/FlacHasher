@@ -7,26 +7,61 @@ namespace Andy.FlacHash.ExternalProcess
 {
     public interface IIOProcessRunner
     {
-        MemoryStream RunAndReadOutput(ProcessStartInfo processSettings, Stream input);
+        MemoryStream RunAndReadOutput(
+            FileInfo fileToRun,
+            IEnumerable<string> arguments,
+            Stream input);
     }
 
     public interface IOutputOnlyProcessRunner
     {
-        MemoryStream RunAndReadOutput(ProcessStartInfo processSettings);
+        /// <summary>
+        /// Runs a process and returns the contents of its output stream
+        /// </summary>
+        MemoryStream RunAndReadOutput(
+            FileInfo fileToRun,
+            IEnumerable<string> arguments);
     }
 
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
-        /// <summary>
-        /// Runs an process and returns the contents of its output stream
-        /// </summary>
-        public MemoryStream RunAndReadOutput(ProcessStartInfo processSettings)
+        private static ProcessStartInfo GetStandardProcessSettings(
+            FileInfo fileToRun,
+            IEnumerable<string> arguments)
         {
-            // TODO: possibly create a new type for settings for this method. It's better for this method to redirect the streams
+            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
 
-            if (processSettings.RedirectStandardOutput == false) throw new ArgumentException($"For this to work, process's standard output must be redirected ({nameof(ProcessStartInfo.RedirectStandardOutput)} property)");
+            var settings = GetStandardProcessSettings(fileToRun);
 
-            if (processSettings.RedirectStandardError == false) throw new ArgumentException($"For this to work, process's standard output must be redirected ({nameof(ProcessStartInfo.RedirectStandardError)} property)");
+            foreach (var arg in arguments)
+                settings.ArgumentList.Add(arg);
+
+            return settings;
+        }
+
+        private static ProcessStartInfo GetStandardProcessSettings(FileInfo fileToRun)
+        {
+            if (fileToRun == null) throw new ArgumentNullException(nameof(fileToRun));
+
+            return new ProcessStartInfo
+            {
+                FileName = fileToRun.FullName,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false, // Required for stream redirection to work
+                CreateNoWindow = true,
+                ErrorDialog = false
+            };
+        }
+
+        public MemoryStream RunAndReadOutput(
+            FileInfo fileToRun,
+            IEnumerable<string> arguments)
+        {
+            var processSettings = GetStandardProcessSettings(fileToRun, arguments);
+
+            foreach (var arg in arguments)
+                processSettings.ArgumentList.Add(arg);            
 
             using (var process = new Process { StartInfo = processSettings })
             {
@@ -40,10 +75,14 @@ namespace Andy.FlacHash.ExternalProcess
             }
         }
 
-        public MemoryStream RunAndReadOutput(ProcessStartInfo processSettings, Stream input)
+        public MemoryStream RunAndReadOutput(
+            FileInfo fileToRun,
+            IEnumerable<string> arguments,
+            Stream input)
         {
-            processSettings.RedirectStandardOutput = true;
-            processSettings.RedirectStandardError = true;
+            if (input == null) throw new ArgumentNullException(nameof(input));
+
+            var processSettings = GetStandardProcessSettings(fileToRun, arguments);
             processSettings.RedirectStandardInput = true;
 
             using (var process = new Process { StartInfo = processSettings })
