@@ -1,7 +1,5 @@
-﻿using Andy.FlacHash.ExternalProcess;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac
@@ -14,10 +12,10 @@ namespace Andy.FlacHash.IO.Audio.Flac
         }
 
         private readonly FileInfo decoderExecutableFile;
-        private readonly IOutputOnlyProcessRunner processRunner;
+        private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
 
         public CmdLineFlacRecoder(FileInfo encoderExecutableFile,
-            IOutputOnlyProcessRunner processRunner)
+            ExternalProcess.IOutputOnlyProcessRunner processRunner)
         {
             this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
 
@@ -40,11 +38,9 @@ namespace Andy.FlacHash.IO.Audio.Flac
                     decoderExecutableFile,
                     arguments);
             }
-            catch (ExecutionException e)
+            catch (ExternalProcess.ExecutionException e)
             {
-                var message = $"Failed to re-encode the file. FLAC process exited with error code {e.ExitCode}.\nFLAC error output: {e.ProcessErrorOutput}";
-
-                throw new AudioCompressionException(message);
+                throw new CmdLineCompressionException("Failed to re-encode the file", e);
             }
         }
 

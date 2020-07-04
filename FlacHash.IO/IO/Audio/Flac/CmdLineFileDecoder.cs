@@ -1,6 +1,4 @@
-﻿using Andy.FlacHash.ExternalProcess;
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac
@@ -8,10 +6,10 @@ namespace Andy.FlacHash.IO.Audio.Flac
     public class CmdLineFileDecoder : IFileReader
     {
         private readonly FileInfo decoderExecutableFile;
-        private readonly IOutputOnlyProcessRunner processRunner;
+        private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
 
         public CmdLineFileDecoder(FileInfo decoderExecutableFile,
-            IOutputOnlyProcessRunner processRunner)
+            ExternalProcess.IOutputOnlyProcessRunner processRunner)
         {
             this.decoderExecutableFile = decoderExecutableFile ?? throw new ArgumentNullException(nameof(decoderExecutableFile));
 
@@ -32,9 +30,7 @@ namespace Andy.FlacHash.IO.Audio.Flac
             }
             catch(ExternalProcess.ExecutionException e)
             {
-                var message = $"Failed to decode the file. FLAC process exited with error code {e.ExitCode}.\nFLAC error output: {e.ProcessErrorOutput}";
-
-                throw new InputReadingException(message);
+                throw new CmdLineCompressionException("Failed to decode the file", e);
             }
         }
 

@@ -70,7 +70,7 @@ namespace Andy.FlacHash.Cmd
 
                 return (int)ReturnValue.ConfigurationError;
             }
-            catch (IO.InputReadingException e)
+            catch (IO.IOException e)
             {
                 Console.WriteLine(e.Message);
 

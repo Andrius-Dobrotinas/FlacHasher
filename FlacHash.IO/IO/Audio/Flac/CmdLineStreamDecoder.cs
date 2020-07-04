@@ -27,9 +27,7 @@ namespace Andy.FlacHash.IO.Audio.Flac
             }
             catch (ExternalProcess.ExecutionException e)
             {
-                var message = $"Failed to read the input file. FLAC process exited with error code {e.ExitCode}.\nFLAC error output: {e.ProcessErrorOutput}";
-
-                throw new InputReadingException(message);
+                throw new CmdLineCompressionException("Failed to read the input file", e);
             }
         }
 

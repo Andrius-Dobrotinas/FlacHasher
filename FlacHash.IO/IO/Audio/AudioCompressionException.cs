@@ -2,7 +2,7 @@
 
 namespace Andy.FlacHash.IO.Audio
 {
-    public class AudioCompressionException : Exception
+    public class AudioCompressionException : IOException
     {
         public AudioCompressionException(string msg) : base(msg)
         {
