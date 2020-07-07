@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Win
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
-            var decoder = new IO.Audio.Flac.CmdLineStreamDecoder(
+            var decoder = new IO.Audio.Flac.CmdLine.CmdLineStreamDecoder(
                 decoderFile,
                 new ExternalProcess.ProcessRunner());
             var reader = new IO.Audio.DecodingFileReader(steamFactory, decoder);

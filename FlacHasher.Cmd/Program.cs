@@ -48,7 +48,7 @@ namespace Andy.FlacHash.Cmd
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
-                var decoder = new IO.Audio.Flac.CmdLineFileDecoder(
+                var decoder = new IO.Audio.Flac.CmdLine.CmdLineFileDecoder(
                     decoderFile,
                     new ExternalProcess.ProcessRunner());
 

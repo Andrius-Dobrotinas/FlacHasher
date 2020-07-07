@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Andy.FlacHash.IO.Audio.Flac
+namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
     public class CmdLineFileDecoder : IFileReader
     {

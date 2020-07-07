@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Andy.FlacHash.IO.Audio.Flac
+namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
     public class CmdLineCompressionException : AudioCompressionException
     {
