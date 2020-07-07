@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
-    public class FlacRecoder : IAudioFileEncoder
+    public class FileRecoder : IAudioFileEncoder
     {
         private class EncoderFlags
         {
@@ -14,7 +14,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
 
-        public FlacRecoder(FileInfo encoderExecutableFile,
+        public FileRecoder(FileInfo encoderExecutableFile,
             ExternalProcess.IOutputOnlyProcessRunner processRunner)
         {
             this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));

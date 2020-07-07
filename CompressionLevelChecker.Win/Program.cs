@@ -58,11 +58,11 @@ namespace Andy.FlacHash.Win
         {
             var processRunner = new ExternalProcess.ProcessRunner();
 
-            IAudioFileEncoder encoder_MetadataPreserved = new FlacRecoder(flacExe, processRunner);
+            IAudioFileEncoder encoder_MetadataPreserved = new FileRecoder(flacExe, processRunner);
 
             IAudioFileEncoder encoder_MetadataDiscarded = new AudioFileEncoder(
                 new FileDecoder(flacExe, processRunner),
-                new FlacEncoder(flacExe, processRunner));
+                new StreamEncoder(flacExe, processRunner));
 
             IFileInfoSizeGetter fileSize = new FileInfoSizeGetter();
 

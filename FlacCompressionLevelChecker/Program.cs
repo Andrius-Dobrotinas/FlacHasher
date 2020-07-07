@@ -33,7 +33,7 @@ namespace Andy.FlacHash
 
             GetParameters(args, out flacExe, out sourceFile, out compressionLevel);
 
-            var recoder = new IO.Audio.Flac.CmdLine.FlacRecoder(
+            var recoder = new IO.Audio.Flac.CmdLine.FileRecoder(
                 flacExe,
                 new ExternalProcess.ProcessRunner());
 
