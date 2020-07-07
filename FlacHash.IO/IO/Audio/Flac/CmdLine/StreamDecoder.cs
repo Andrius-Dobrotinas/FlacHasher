@@ -4,12 +4,12 @@ using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
-    public class CmdLineStreamDecoder : IAudioDecoder
+    public class StreamDecoder : IAudioDecoder
     {
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IIOProcessRunner processRunner;
 
-        public CmdLineStreamDecoder(FileInfo decoderExecutableFile,
+        public StreamDecoder(FileInfo decoderExecutableFile,
             ExternalProcess.IIOProcessRunner processRunner)
         {
             this.decoderExecutableFile = decoderExecutableFile ?? throw new ArgumentNullException(nameof(decoderExecutableFile));
@@ -27,7 +27,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             }
             catch (ExternalProcess.ExecutionException e)
             {
-                throw new CmdLineCompressionException("Failed to read the input file", e);
+                throw new FlacCompressionException("Failed to read the input file", e);
             }
         }
 
@@ -35,7 +35,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
         {
             return new string[]
             {
-                CmdLineDecoderOptions.Decode,
+                DecoderOptions.Decode,
                 "-" // read from stdin
             };
         }

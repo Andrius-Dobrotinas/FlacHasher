@@ -4,55 +4,53 @@ using System.IO;
 
 namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
-    public class CmdLineFlacRecoder : IAudioFileEncoder
+    public class FlacEncoder : IAudioEncoder
     {
         private class EncoderFlags
         {
-            public static string Stdout = "--stdout";
+            public static string Stdout = "-";
         }
 
         private readonly FileInfo decoderExecutableFile;
-        private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
+        private readonly ExternalProcess.IIOProcessRunner processRunner;
 
-        public CmdLineFlacRecoder(FileInfo encoderExecutableFile,
-            ExternalProcess.IOutputOnlyProcessRunner processRunner)
+        public FlacEncoder(FileInfo encoderExecutableFile,
+            ExternalProcess.IIOProcessRunner processRunner)
         {
             this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
 
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
-        public MemoryStream Encode(FileInfo sourceFile, uint compressionLevel)
+        public MemoryStream Encode(Stream wavAudio, uint compressionLevel)
         {
-            if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
+            if (wavAudio == null) throw new ArgumentNullException(nameof(wavAudio));
 
             // todo: take the min/max values from a single place
             if (compressionLevel > 8) throw new ArgumentOutOfRangeException(
                 "FLAC Compression level must be between 0 and 8");
 
-            var arguments = GetProcessArguments(compressionLevel, sourceFile);
+            var arguments = GetProcessArguments(compressionLevel);
 
             try
             {
                 return processRunner.RunAndReadOutput(
                     decoderExecutableFile,
-                    arguments);
+                    arguments,
+                    wavAudio);
             }
             catch (ExternalProcess.ExecutionException e)
             {
-                throw new CmdLineCompressionException("Failed to re-encode the file", e);
+                throw new FlacCompressionException("Failed to encode the file", e);
             }
         }
 
-        private static string[] GetProcessArguments(
-            uint compressionLevel,
-            FileInfo sourceFile)
+        private static string[] GetProcessArguments(uint compressionLevel)
         {
             return new string[]
             {
                 $"-{compressionLevel}",
-                EncoderFlags.Stdout,
-                sourceFile.FullName
+                EncoderFlags.Stdout
             };
         }
     }
