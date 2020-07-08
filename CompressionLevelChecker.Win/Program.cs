@@ -10,11 +10,11 @@ namespace Andy.FlacHash.Win
 {
     static class Program
     {
-        private const uint defaultCompressionLevel = 8;
+        private const uint defaultCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Highest;
 
         // todo: these values must be stored somewhere else
-        private const uint maxCompressionLevel = 8;
-        private const uint minCompressionLevel = 0;
+        private const uint maxCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Highest;
+        private const uint minCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Lowest;
 
         [STAThread]
         static void Main()
@@ -34,6 +34,7 @@ namespace Andy.FlacHash.Win
 
                 using (var form = new MainForm(
                     maxCompressionLevel,
+                    minCompressionLevel,
                     defaultCompressionLevel,
                     mainService,
                     fileOpenDialog))

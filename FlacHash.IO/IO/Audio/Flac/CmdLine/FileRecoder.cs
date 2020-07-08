@@ -6,13 +6,13 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
     public class FileRecoder : IAudioFileEncoder
     {
-        private readonly FileInfo decoderExecutableFile;
+        private readonly FileInfo recoderExecutableFile;
         private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
 
-        public FileRecoder(FileInfo encoderExecutableFile,
+        public FileRecoder(FileInfo recoderExecutableFile,
             ExternalProcess.IOutputOnlyProcessRunner processRunner)
         {
-            this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
+            this.recoderExecutableFile = recoderExecutableFile ?? throw new ArgumentNullException(nameof(recoderExecutableFile));
 
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
@@ -21,16 +21,14 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
-            // todo: take the min/max values from a single place
-            if (compressionLevel > 8) throw new ArgumentOutOfRangeException(
-                "FLAC Compression level must be between 0 and 8");
+            CompressionLevelValidation.ValidateCompressionLevel(compressionLevel);
 
             var arguments = GetProcessArguments(compressionLevel, sourceFile);
 
             try
             {
                 return processRunner.RunAndReadOutput(
-                    decoderExecutableFile,
+                    recoderExecutableFile,
                     arguments);
             }
             catch (ExternalProcess.ExecutionException e)

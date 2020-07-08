@@ -6,7 +6,7 @@ namespace Andy.FlacHash
 {
     class Program
     {
-        const uint maxCompressionLevel = 8;
+        const uint maxCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Highest;
 
         static int Main(string[] args)
         {

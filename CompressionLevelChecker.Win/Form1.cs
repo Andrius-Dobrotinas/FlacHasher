@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -40,6 +37,7 @@ namespace Andy.FlacHash.Win
 
         public MainForm(
             uint maxCompressionLevel,
+            uint minCompressionLevel,
             uint selectedCompressionLevel,
             CompressionLevelService compressionService,
             UI.FileOpenDialog openFileDialog)
@@ -51,6 +49,7 @@ namespace Andy.FlacHash.Win
             ExtraInitComponents();
 
             Trackbar_CompressionLevel.Maximum = (int)maxCompressionLevel;
+            Trackbar_CompressionLevel.Minimum = (int)minCompressionLevel;
             Trackbar_CompressionLevel.Value = (int)selectedCompressionLevel;
 
             metadataOptionsGroup = new MetadataOptionsGroup(
