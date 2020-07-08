@@ -6,11 +6,6 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
     public class FileRecoder : IAudioFileEncoder
     {
-        private class EncoderFlags
-        {
-            public static string Stdout = "--stdout";
-        }
-
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
 
@@ -51,7 +46,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             return new string[]
             {
                 $"-{compressionLevel}",
-                EncoderFlags.Stdout,
+                EncoderOptions.Stdout,
                 sourceFile.FullName
             };
         }

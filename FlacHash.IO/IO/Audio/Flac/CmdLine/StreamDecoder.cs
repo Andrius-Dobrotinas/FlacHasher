@@ -36,7 +36,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             return new string[]
             {
                 DecoderOptions.Decode,
-                "-" // read from stdin
+                DecoderOptions.ReadFromStdIn,
             };
         }
     }

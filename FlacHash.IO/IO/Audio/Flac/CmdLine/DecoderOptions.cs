@@ -6,5 +6,6 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
     {
         public const string Decode = "--decode";
         public const string WriteToSdtOut = "--stdout";
+        public const string ReadFromStdIn = "-"; //hardly a documentated feature, discoverd it by semi-accident
     }
 }
