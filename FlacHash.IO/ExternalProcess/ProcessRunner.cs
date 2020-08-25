@@ -25,40 +25,13 @@ namespace Andy.FlacHash.ExternalProcess
 
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
-        private static ProcessStartInfo GetStandardProcessSettings(
+        public MemoryStream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments)
         {
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
 
-            var settings = GetStandardProcessSettings(fileToRun);
-
-            foreach (var arg in arguments)
-                settings.ArgumentList.Add(arg);
-
-            return settings;
-        }
-
-        private static ProcessStartInfo GetStandardProcessSettings(FileInfo fileToRun)
-        {
-            if (fileToRun == null) throw new ArgumentNullException(nameof(fileToRun));
-
-            return new ProcessStartInfo
-            {
-                FileName = fileToRun.FullName,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false, // Required for stream redirection to work
-                CreateNoWindow = true,
-                ErrorDialog = false
-            };
-        }
-
-        public MemoryStream RunAndReadOutput(
-            FileInfo fileToRun,
-            IEnumerable<string> arguments)
-        {
-            var processSettings = GetStandardProcessSettings(fileToRun, arguments);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun);
 
             foreach (var arg in arguments)
                 processSettings.ArgumentList.Add(arg);            
@@ -80,9 +53,11 @@ namespace Andy.FlacHash.ExternalProcess
             IEnumerable<string> arguments,
             Stream input)
         {
+            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
+
             if (input == null) throw new ArgumentNullException(nameof(input));
 
-            var processSettings = GetStandardProcessSettings(fileToRun, arguments);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun);
             processSettings.RedirectStandardInput = true;
 
             using (var process = new Process { StartInfo = processSettings })
