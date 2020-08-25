@@ -6,6 +6,6 @@ namespace Andy.FlacHash.IO.Audio
 {
     public interface IAudioFileEncoder
     {
-        MemoryStream Encode(FileInfo sourceFile, uint compressionLevel);
+        MemoryStream Encode(FileInfo sourceFile, int compressionLevel);
     }
 }

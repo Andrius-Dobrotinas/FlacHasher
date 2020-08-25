@@ -6,9 +6,9 @@ namespace Andy.FlacHash.IO.Audio.Flac
 {
     public static class CompressionLevelValidation
     {
-        public static void ValidateCompressionLevel(uint compressionLevel)
+        public static void ValidateCompressionLevel(int compressionLevel)
         {
-            if (compressionLevel > (uint)CompressionLevel.Highest) throw new ArgumentOutOfRangeException(
+            if (compressionLevel > (int)CompressionLevel.Highest) throw new ArgumentOutOfRangeException(
                 $"FLAC Compression level must be between {CompressionLevel.Lowest} and {CompressionLevel.Highest}");
         }
     }

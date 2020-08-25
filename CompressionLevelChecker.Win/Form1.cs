@@ -75,7 +75,7 @@ namespace Andy.FlacHash.Win
 
             var metadataMode = metadataOptionsGroup.GetSelectedMode();
 
-            Range<uint> compressionLevels = compressionService.InferCompressionLevel(file, (uint)Trackbar_CompressionLevel.Value, metadataMode);
+            Range<int> compressionLevels = compressionService.InferCompressionLevel(file, Trackbar_CompressionLevel.Value, metadataMode);
 
             ProcessResult(compressionLevels);
         }
@@ -98,7 +98,7 @@ namespace Andy.FlacHash.Win
             Lbl_File.Text = file.Name;
         }
 
-        private void ProcessResult(Range<uint> compressionLevels)
+        private void ProcessResult(Range<int> compressionLevels)
         {
             if (compressionLevels.IsSingleValue)
                 Lbl_Result.Text = $"File compression level: {compressionLevels.MaxValue}";

@@ -6,7 +6,7 @@ namespace Andy.FlacHash
 {
     class Program
     {
-        const uint maxCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Highest;
+        const int maxCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Highest;
 
         static int Main(string[] args)
         {
@@ -29,7 +29,7 @@ namespace Andy.FlacHash
         {
             FileInfo flacExe;
             FileInfo sourceFile;
-            uint compressionLevel;
+            int compressionLevel;
 
             GetParameters(args, out flacExe, out sourceFile, out compressionLevel);
 
@@ -47,7 +47,7 @@ namespace Andy.FlacHash
             string[] args,
             out FileInfo flacExec,
             out FileInfo sourceFile,
-            out uint compressionLevel)
+            out int compressionLevel)
         {
             var argumentDictionary = ArgumentSplitter.GetArguments(args);
             var @params = ParameterReader.GetParameters(argumentDictionary);

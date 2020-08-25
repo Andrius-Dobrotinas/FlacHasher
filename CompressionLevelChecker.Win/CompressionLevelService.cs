@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Win
             this.metadataDiscardedService = metadataDiscardedService;
         }
 
-        public Range<uint> InferCompressionLevel(FileInfo sourceFile, uint targetCompressionLevel, MetadataMode metadataMode)
+        public Range<int> InferCompressionLevel(FileInfo sourceFile, int targetCompressionLevel, MetadataMode metadataMode)
         {
             CompressionLevelInferrer service = PickEncoder(metadataMode);
 

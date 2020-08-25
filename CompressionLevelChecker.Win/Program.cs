@@ -10,11 +10,11 @@ namespace Andy.FlacHash.Win
 {
     static class Program
     {
-        private const uint defaultCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Highest;
+        private const int defaultCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Highest;
 
         // todo: these values must be stored somewhere else
-        private const uint maxCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Highest;
-        private const uint minCompressionLevel = (uint)IO.Audio.Flac.CompressionLevel.Lowest;
+        private const int maxCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Highest;
+        private const int minCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Lowest;
 
         [STAThread]
         static void Main()

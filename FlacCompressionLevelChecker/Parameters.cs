@@ -7,6 +7,6 @@ namespace Andy.FlacHash
     {
         public string FlacExec { get; set; }
         public string SourceFile { get; set; }
-        public uint? CompressionLevel { get; set; }
+        public int? CompressionLevel { get; set; }
     }
 }

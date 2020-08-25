@@ -22,7 +22,7 @@ namespace Andy.FlacHash
             {
                 SourceFile = sourceFilePath,
                 FlacExec = Parameter.GetValue(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.FlacExec}"),
-                CompressionLevel = compressioNlevel == null ? (uint?)null : uint.Parse(compressioNlevel)
+                CompressionLevel = compressioNlevel == null ? (int?)null : int.Parse(compressioNlevel)
             };
         }        
     }

@@ -6,7 +6,7 @@ namespace Andy.FlacHash.Win
 {
     public interface ICompressedSizeService
     {
-        long GetCompressedSize(FileInfo sourceFile, uint compressionLevel);
+        long GetCompressedSize(FileInfo sourceFile, int compressionLevel);
     }
 
     public class CompressedSizeService : ICompressedSizeService
@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Win
             this.encoder = encoder;
         }
 
-        public long GetCompressedSize(FileInfo sourceFile, uint compressionLevel)
+        public long GetCompressedSize(FileInfo sourceFile, int compressionLevel)
         {
             using (MemoryStream recodedAudio = encoder.Encode(sourceFile, compressionLevel))
             {

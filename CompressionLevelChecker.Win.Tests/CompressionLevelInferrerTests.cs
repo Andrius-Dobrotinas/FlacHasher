@@ -19,7 +19,7 @@ namespace Andy.FlacHash.Win
             fileSizeGetter = new Mock<IFileInfoSizeGetter>();
         }
 
-        private void CreateTarget(uint minCompressionLevel, uint maxCompressionLevel)
+        private void CreateTarget(int minCompressionLevel, int maxCompressionLevel)
         {
             target = new CompressionLevelInferrer(
                 encoder.Object,
@@ -34,10 +34,10 @@ namespace Andy.FlacHash.Win
             int maxCompressionLevel,
             int targetCompressionLevel)
         {
-            CreateTarget(uint.MinValue, (uint)maxCompressionLevel);
+            CreateTarget(0, maxCompressionLevel);
 
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => target.InferCompressionLevel(new FileInfo("z"), (uint)targetCompressionLevel));
+                () => target.InferCompressionLevel(new FileInfo("z"), targetCompressionLevel));
         }
 
         [TestCase(1, 0)]
@@ -47,20 +47,20 @@ namespace Andy.FlacHash.Win
             int minCompressionLevel,
             int targetCompressionLevel)
         {
-            CreateTarget((uint)minCompressionLevel, uint.MaxValue);
+            CreateTarget(minCompressionLevel, int.MaxValue);
 
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => target.InferCompressionLevel(new FileInfo("y"), (uint)targetCompressionLevel));
+                () => target.InferCompressionLevel(new FileInfo("y"), targetCompressionLevel));
         }
 
         [TestCaseSource(nameof(GetHappyCases))]
         public void When_TargetCompressionLevelIs_Correct__Should_Return_TheLevel_InASingleValueRange(
-            uint targetCompressionLevel,
+            int targetCompressionLevel,
             long fileSize)
         {
-            CreateTarget(uint.MinValue, uint.MaxValue);
+            CreateTarget(0, int.MaxValue);
 
-            var expectedResult = new Range<uint>(targetCompressionLevel);
+            var expectedResult = new Range<int>(targetCompressionLevel);
 
             Setup_OriginalFileSize(fileSize);
             Setup_EncodedSize(fileSize);
@@ -73,15 +73,15 @@ namespace Andy.FlacHash.Win
 
         [TestCaseSource(nameof(Get_WhereFileIsBiggerThanTheTargetCompressionLevel))]
         public void When_TargetCompressionLevelIs_GreaterThanOriginal__Should_KeepGettingRecodedFileSize_Until_CompressionLevelIsFound(
-            uint minCompressionLevel,
-            uint targetCompressionLevel,
-            uint expectedCompressionLevel,
+            int minCompressionLevel,
+            int targetCompressionLevel,
+            int expectedCompressionLevel,
             long origSize,
             IList<long> compressedSizes)
         {
-            CreateTarget(minCompressionLevel, uint.MaxValue);
+            CreateTarget(minCompressionLevel, int.MaxValue);
 
-            var expectedResult = new Range<uint>(expectedCompressionLevel);
+            var expectedResult = new Range<int>(expectedCompressionLevel);
 
             Setup_OriginalFileSize(origSize);
             SetupReturnSequence_EncodedSize(compressedSizes);
@@ -94,15 +94,15 @@ namespace Andy.FlacHash.Win
 
         [TestCaseSource(nameof(Get_WhereFileIsSmallerThanTheTargetCompressionLevel))]
         public void When_TargetCompressionLevelIs_LowerThanOriginal__Should_KeepGettingRecodedFileSize_Until_CompressionLevelIsFound(
-            uint maxCompressionLevel,
-            uint targetCompressionLevel,
-            uint expectedCompressionLevel,
+            int maxCompressionLevel,
+            int targetCompressionLevel,
+            int expectedCompressionLevel,
             long origSize,
             IList<long> compressedSizes)
         {
-            CreateTarget(uint.MinValue, maxCompressionLevel);
+            CreateTarget(0, maxCompressionLevel);
 
-            var expectedResult = new Range<uint>(expectedCompressionLevel);
+            var expectedResult = new Range<int>(expectedCompressionLevel);
 
             Setup_OriginalFileSize(origSize);
             SetupReturnSequence_EncodedSize(compressedSizes);
@@ -117,16 +117,16 @@ namespace Andy.FlacHash.Win
 
         [TestCaseSource(nameof(Get_WhereFileIsSmallerThanTheTargetCompressionLevel_NoExactCompressionLevel))]
         public void When_CantGetTheExactSameCompressedFileSize_And_TargetCompressionLevelIs_LowerThanOriginal__Should_Return_ARangeThatHasClosestCompressionLevelMatches(
-            uint maxCompressionLevel,
-            uint targetCompressionLevel,
+            int maxCompressionLevel,
+            int targetCompressionLevel,
             long origSize,
-            uint expectedMinLevel,
-            uint expectedMaxLevel,
+            int expectedMinLevel,
+            int expectedMaxLevel,
             IList<long> compressedSizes)
         {
-            CreateTarget(uint.MinValue, maxCompressionLevel);
+            CreateTarget(0, maxCompressionLevel);
 
-            var expectedResult = new Range<uint>(expectedMinLevel, expectedMaxLevel);
+            var expectedResult = new Range<int>(expectedMinLevel, expectedMaxLevel);
 
             Setup_OriginalFileSize(origSize);
             SetupReturnSequence_EncodedSize(compressedSizes);
@@ -136,37 +136,19 @@ namespace Andy.FlacHash.Win
             Assert.AreEqual(expectedResult.MaxValue, result.MaxValue, "Max value");
             Assert.AreEqual(expectedResult.MinValue, result.MinValue, "Min value");
         }
-
-        [Test]
-        [Ignore("todo: for this functionality, the type of compression level should be changed to int")]
-        public void When_OriginalFileIsSmallerThanTheHighestCompressionRate__Should_Return_Minus1(
-            uint targetCompressionLevel,
-            long origSize,
-            IList<long> compressedSizes)
-        {
-            CreateTarget(uint.MinValue, 0);
-
-            Setup_OriginalFileSize(origSize);
-            SetupReturnSequence_EncodedSize(compressedSizes);
-
-            var result = target.InferCompressionLevel(new FileInfo("x"), targetCompressionLevel);
-
-            Assert.AreEqual(-1, result.MaxValue, "Max value");
-            Assert.AreEqual(-1, result.MinValue, "Min value");
-        }
-
+        
         [TestCaseSource(nameof(Get_WhereFileIsBiggerThanTheTargetCompressionLevel_NoExactCompressionLevel))]
         public void When_CantGetTheExactSameCompressedFileSize_And_TargetCompressionLevelIs_GreaterThanOriginal__Should_Return_ARangeThatHasClosestCompressionLevelMatches(
-            uint minCompressionLevel,
-            uint targetCompressionLevel,
+            int minCompressionLevel,
+            int targetCompressionLevel,
             long origSize,
-            uint expectedMinLevel,
-            uint expectedMaxLevel,
+            int expectedMinLevel,
+            int expectedMaxLevel,
             IList<long> compressedSizes)
         {
-            CreateTarget(minCompressionLevel, uint.MaxValue);
+            CreateTarget(minCompressionLevel, int.MaxValue);
 
-            var expectedResult = new Range<uint>(expectedMinLevel, expectedMaxLevel);
+            var expectedResult = new Range<int>(expectedMinLevel, expectedMaxLevel);
 
             Setup_OriginalFileSize(origSize);
             SetupReturnSequence_EncodedSize(compressedSizes);
@@ -179,50 +161,50 @@ namespace Andy.FlacHash.Win
 
         private static IEnumerable<TestCaseData> GetHappyCases()
         {
-            yield return new TestCaseData((uint)1, 100);
-            yield return new TestCaseData((uint)0, 50);
-            yield return new TestCaseData((uint)2, 150);
-            yield return new TestCaseData((uint)10, 1000);
+            yield return new TestCaseData(1, 100);
+            yield return new TestCaseData(0, 50);
+            yield return new TestCaseData(2, 150);
+            yield return new TestCaseData(10, 1000);
         }
 
         private static IEnumerable<TestCaseData> Get_WhereFileIsBiggerThanTheTargetCompressionLevel()
         {
             yield return new TestCaseData(
-                (uint)0, //min
-                (uint)10,//target
-                (uint)9, //expected
+                0, //min
+                10,//target
+                9, //expected
                 100,
                 new long[] { 90, 100, 200, 300 }) //don't need any more numbers because the test would fail anyway
                 .SetDescription("2nd attempt is successful");
 
             yield return new TestCaseData(
-                (uint)5, //min
-                (uint)10,//target
-                (uint)9, //expected
+                5, //min
+                10,//target
+                9, //expected
                 400,
                 new long[] { 300, 400, 500, 600 }) //don't need any more numbers because the test would fail anyway
                 .SetDescription("2nd attempt is successful");
 
             yield return new TestCaseData(
-                (uint)5, //min
-                (uint)10,//target
-                (uint)8, //expected
+                5, //min
+                10,//target
+                8, //expected
                 300,
                 new long[] { 100, 200, 300, 400, 500 }) //don't need any more numbers because the test would fail anyway
                 .SetDescription("3rd attempt is successful");
 
             yield return new TestCaseData(
-                (uint)5,//min
-                (uint)7,//target
-                (uint)5,//expected
+                5,//min
+                7,//target
+                5,//expected
                 300,
                 new long[] { 100, 200, 300 }) //last number represents lowest compression level
                 .SetDescription("Last attempt is successful");
 
             yield return new TestCaseData(
-                (uint)1, //min
-                (uint)2, //target
-                (uint)1, //expected
+                1, //min
+                2, //target
+                1, //expected
                 5,
                 new long[] { 2, 5 }) //last number represents lowest compression level
                 .SetDescription("Last attempt is successful");
@@ -231,41 +213,41 @@ namespace Andy.FlacHash.Win
         private static IEnumerable<TestCaseData> Get_WhereFileIsSmallerThanTheTargetCompressionLevel()
         {
             yield return new TestCaseData(
-                (uint)8, //max
-                (uint)2, //target
-                (uint)3, //expected
+                8, //max
+                2, //target
+                3, //expected
                 100,
                 new long[] { 200, 100, 50, 40 }) //don't need any more numbers because the test would fail anyway
                 .SetDescription("2nd attempt is successful");
 
             yield return new TestCaseData(
-                (uint)8, //max
-                (uint)5, //target
-                (uint)6, //expected
+                8, //max
+                5, //target
+                6, //expected
                 400,
                 new long[] { 500, 400, 300, 200 })
                 .SetDescription("2nd attempt is successful");
 
             yield return new TestCaseData(
-                (uint)8, //max
-                (uint)4, //target
-                (uint)6, //expected
+                8, //max
+                4, //target
+                6, //expected
                 300,
                 new long[] { 500, 400, 300, 200, 100 })
                 .SetDescription("3rd attempt is successful");
 
             yield return new TestCaseData(
-                (uint)7, //max
-                (uint)5, //target
-                (uint)7, //expected
+                7, //max
+                5, //target
+                7, //expected
                 300,
                 new long[] { 500, 400, 300 }) //last number represents highest compression level
                 .SetDescription("Last attempt is successful");
 
             yield return new TestCaseData(
-                (uint)8, //max
-                (uint)7, //target
-                (uint)8, //expected
+                8, //max
+                7, //target
+                8, //expected
                 50,
                 new long[] { 100, 50 }) //last number represents highest compression level
                 .SetDescription("Last attempt is successful");
@@ -274,26 +256,26 @@ namespace Andy.FlacHash.Win
         private static IEnumerable<TestCaseData> Get_WhereFileIsBiggerThanTheTargetCompressionLevel_NoExactCompressionLevel()
         {
             yield return new TestCaseData(
-                uint.MinValue,
-                (uint)3, //target level
+                0,
+                3, //target level
                 51, //file size
-                (uint)2, (uint)3, //min/max result
+                2, 3, //min/max result
                 new long[] { 50, 100, 150, 200 })
                 .SetDescription("between 1st and 2nd");
 
             yield return new TestCaseData(
-                uint.MinValue,
-                (uint)4, //target level
+                0,
+                4, //target level
                 399, //file size
-                (uint)2, (uint)3, //min/max result
+                2, 3, //min/max result
                 new long[] { 200, 300, 400, 500, 600 })
                 .SetDescription("between 2nd and 3rd");
 
             yield return new TestCaseData(
-                (uint)0, //min level
-                (uint)5, //target
+                0, //min level
+                5, //target
                 610,
-                (uint)0, (uint)1, //min/max result
+                0, 1, //min/max result
                 new long[] { 100, 200, 300, 400, 500, 600 }) //last number represents highest compression level
                 .SetDescription("between last and one before that");
         }
@@ -301,38 +283,37 @@ namespace Andy.FlacHash.Win
         private static IEnumerable<TestCaseData> Get_WhereFileIsSmallerThanTheTargetCompressionLevel_NoExactCompressionLevel()
         {
             yield return new TestCaseData(
-                uint.MaxValue,
-                (uint)4, //target
+                int.MaxValue,
+                4, //target
                 399, //file size
-                (uint)4, (uint)5, //min/max result
+                4, 5, //min/max result
                 new long[] { 400, 300, 200, 100, 50 })
                 .SetDescription("between 1st and 2nd");
 
             yield return new TestCaseData(
-                uint.MaxValue,
-                (uint)8, //target
+                int.MaxValue,
+                8, //target
                 699, //file size
-                (uint)9, (uint)10, //min/max result
+                9, 10, //min/max result
                 new long[] { 800, 700, 600, 500, 400 })
                 .SetDescription("between 2nd and 3rd");
 
             yield return new TestCaseData(
-                uint.MaxValue,
-                (uint)4, //target
+                int.MaxValue,
+                4, //target
                 399, //file size
-                (uint)6, (uint)7, //min/max result
+                6, 7, //min/max result
                 new long[] { 600, 500, 400, 300, 100 })
                 .SetDescription("between 3rd and 4th");
 
             yield return new TestCaseData(
-                (uint)10,
-                (uint)7, //target
+                10,
+                7, //target
                 50, //file size
-                (uint)9, (uint)10, //min/max result
+                9, 10, //min/max result
                 new long[] { 600, 500, 100, 10 })
                 .SetDescription("between last and last to last");
         }
-
 
         private void Setup_OriginalFileSize(long returnValue)
         {
@@ -349,7 +330,7 @@ namespace Andy.FlacHash.Win
                 .Setup(
                     x => x.GetCompressedSize(
                         It.IsAny<FileInfo>(),
-                        It.IsAny<uint>()))
+                        It.IsAny<int>()))
                 .Returns(returnValue);
         }
 
@@ -359,7 +340,7 @@ namespace Andy.FlacHash.Win
                 .SetupSequence(
                     x => x.GetCompressedSize(
                         It.IsAny<FileInfo>(),
-                        It.IsAny<uint>()));
+                        It.IsAny<int>()));
 
             foreach (var resultSize in returnValues)
                 setup = setup.Returns(resultSize);
@@ -370,8 +351,8 @@ namespace Andy.FlacHash.Win
 
         public struct Range
         {
-            public uint Min { get; set; }
-            public uint Max { get; set; }
+            public int Min { get; set; }
+            public int Max { get; set; }
         }
     }
 }

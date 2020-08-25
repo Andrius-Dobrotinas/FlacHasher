@@ -22,7 +22,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
-        public MemoryStream Encode(Stream wavAudio, uint compressionLevel)
+        public MemoryStream Encode(Stream wavAudio, int compressionLevel)
         {
             if (wavAudio == null) throw new ArgumentNullException(nameof(wavAudio));
             CompressionLevelValidation.ValidateCompressionLevel(compressionLevel);
@@ -42,7 +42,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             }
         }
 
-        private static string[] GetProcessArguments(uint compressionLevel)
+        private static string[] GetProcessArguments(int compressionLevel)
         {
             return new string[]
             {
