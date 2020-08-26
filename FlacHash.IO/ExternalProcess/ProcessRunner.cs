@@ -25,6 +25,9 @@ namespace Andy.FlacHash.ExternalProcess
 
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
+        //todo: inject this value
+        private readonly int timeout = int.MaxValue;
+
         public MemoryStream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments)
@@ -34,7 +37,7 @@ namespace Andy.FlacHash.ExternalProcess
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun);
 
             foreach (var arg in arguments)
-                processSettings.ArgumentList.Add(arg);            
+                processSettings.ArgumentList.Add(arg);
 
             using (var process = new Process { StartInfo = processSettings })
             {
@@ -96,22 +99,17 @@ namespace Andy.FlacHash.ExternalProcess
             return processOutput;
         }
 
-        private static void ProcessExitCode(Process process)
+        private void ProcessExitCode(Process process)
         {
-            if (!process.HasExited)
-            {
-                //should exit right away, this is just in case
-                process.WaitForExit(1000);
-
-                if (!process.HasExited)
-                    process.Kill(true);
-            }
+            //have to stop and wait for process to finish
+            if (process.WaitForExit(timeout) == false)
+                process.Kill(true);
 
             if (process.ExitCode != 0)
             {
                 string processErrorOutput = GetErrorStreamOutput(process);
                 throw new ExecutionException(process.ExitCode, processErrorOutput);
-            }            
+            }
         }
 
         private static string GetErrorStreamOutput(Process process)
