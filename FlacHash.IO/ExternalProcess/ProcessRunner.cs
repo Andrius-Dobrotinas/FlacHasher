@@ -5,24 +5,6 @@ using System.IO;
 
 namespace Andy.FlacHash.ExternalProcess
 {
-    public interface IIOProcessRunner
-    {
-        MemoryStream RunAndReadOutput(
-            FileInfo fileToRun,
-            IEnumerable<string> arguments,
-            Stream input);
-    }
-
-    public interface IOutputOnlyProcessRunner
-    {
-        /// <summary>
-        /// Runs a process and returns the contents of its output stream
-        /// </summary>
-        MemoryStream RunAndReadOutput(
-            FileInfo fileToRun,
-            IEnumerable<string> arguments);
-    }
-
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
         //todo: inject this value
@@ -37,7 +19,7 @@ namespace Andy.FlacHash.ExternalProcess
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun);
 
             foreach (var arg in arguments)
-                processSettings.ArgumentList.Add(arg);
+                processSettings.ArgumentList.Add(arg);            
 
             using (var process = new Process { StartInfo = processSettings })
             {
@@ -109,7 +91,7 @@ namespace Andy.FlacHash.ExternalProcess
             {
                 string processErrorOutput = GetErrorStreamOutput(process);
                 throw new ExecutionException(process.ExitCode, processErrorOutput);
-            }
+            }            
         }
 
         private static string GetErrorStreamOutput(Process process)
