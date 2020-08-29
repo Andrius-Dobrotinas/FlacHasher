@@ -15,6 +15,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly IMultipleFileHasher hasher;
         private readonly ResultsWrapper<FileHashResult, ListItem<FileHashResult>> results;
         private readonly InteractiveTextFileWriter hashFileWriter;
+        private readonly FileSizeProgressBar progressReporter;
         private readonly string sourceFileFilter = "*.flac";
 
         public FormX(
@@ -36,9 +37,10 @@ namespace Andy.FlacHash.Win.UI
 
             BuildResultsCtxMenu();
 
+            progressReporter = new FileSizeProgressBar(progressBar);
+
             fileReadEventSource.BytesRead += (bytesRead) => {
-                int progress = bytesRead / 1024;
-                this.Invoke(new Action(() => progressBar.Increment(progress)));
+                this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
         }
 
@@ -86,9 +88,8 @@ namespace Andy.FlacHash.Win.UI
 
             results.Clear();
 
-            // todo: should divide by a much larger number for large total sum so as to make sure the int value doesn't overflow
-            long totalSize = files.Select(file => file.Length).Sum() / 1024;
-            progressBar.Maximum = (int)totalSize;
+            long totalSize = files.Select(file => file.Length).Sum();
+            progressReporter.SetMaxValue(totalSize);
 
             Task.Factory.StartNew(() =>
             {
