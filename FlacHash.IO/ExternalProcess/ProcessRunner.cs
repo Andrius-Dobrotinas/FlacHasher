@@ -8,7 +8,12 @@ namespace Andy.FlacHash.ExternalProcess
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
         //todo: inject this value
-        private readonly int timeout = int.MaxValue;
+        private readonly int timeout;
+
+        public ProcessRunner(int timeout)
+        {
+            this.timeout = timeout;
+        }
 
         public MemoryStream RunAndReadOutput(
             FileInfo fileToRun,

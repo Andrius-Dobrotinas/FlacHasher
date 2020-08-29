@@ -7,6 +7,7 @@ namespace Andy.FlacHash
     class Program
     {
         const int maxCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Highest;
+        const int processTimeoutSec = 300;
 
         static int Main(string[] args)
         {
@@ -35,7 +36,7 @@ namespace Andy.FlacHash
 
             var recoder = new IO.Audio.Flac.CmdLine.FileRecoder(
                 flacExe,
-                new ExternalProcess.ProcessRunner());
+                new ExternalProcess.ProcessRunner(processTimeoutSec));
 
             using (MemoryStream recodedAudio = recoder.Encode(sourceFile, compressionLevel))
             {

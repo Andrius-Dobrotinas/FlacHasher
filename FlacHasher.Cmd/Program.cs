@@ -10,6 +10,7 @@ namespace Andy.FlacHash.Cmd
     class Program
     {
         const string settingsFileName = "settings.cfg";
+        const int processTimeoutSec = 300; // todo: read this from the settings file
 
         static int Main(string[] args)
         {
@@ -50,7 +51,7 @@ namespace Andy.FlacHash.Cmd
 
                 var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
                     decoderFile,
-                    new ExternalProcess.ProcessRunner());
+                    new ExternalProcess.ProcessRunner(processTimeoutSec));
 
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher);
