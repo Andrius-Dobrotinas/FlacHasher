@@ -78,12 +78,14 @@ namespace Andy.FlacHash.ExternalProcess
             var processOutput = new MemoryStream();
             process.StandardOutput.BaseStream.CopyTo(processOutput);
 
+            processOutput.Seek(0, SeekOrigin.Begin);
+
             return processOutput;
         }
 
         private void ProcessExitCode(Process process)
         {
-            //have to stop and wait for process to finish
+            //have to stop and wait for the process to finish
             if (process.WaitForExit(timeout) == false)
                 process.Kill(true);
 
@@ -91,7 +93,7 @@ namespace Andy.FlacHash.ExternalProcess
             {
                 string processErrorOutput = GetErrorStreamOutput(process);
                 throw new ExecutionException(process.ExitCode, processErrorOutput);
-            }            
+            }
         }
 
         private static string GetErrorStreamOutput(Process process)

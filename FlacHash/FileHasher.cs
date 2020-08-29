@@ -24,8 +24,6 @@ namespace Andy.FlacHash
         {
             using (Stream contents = reader.Read(sourceFile))
             {
-                contents.Seek(0, SeekOrigin.Begin);
-
                 return hashComputer.ComputeHash(contents);
             }
         }
