@@ -20,7 +20,7 @@ namespace Andy.FlacHash.Win.UI
 
         public FormX(
             IMultipleFileHasher hashCalc,
-            InteractiveTextFileWriter hashWriter,
+            InteractiveTextFileWriter hashFileWriter,
             IFaceValueFactory<FileHashResult> resultListFaceValueFactory,
             IO.IFileReadEventSource fileReadEventSource,
             InteractiveDirectoryFileGetter directoryFileGetter)
@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Win.UI
             this.results = new ResultsWrapper<FileHashResult, ListItem<FileHashResult>>(this.list_results, resultListFaceValueFactory);
 
             this.hasher = hashCalc;
-            this.hashFileWriter = hashWriter;
+            this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
 
             this.list_files.DisplayMember = nameof(FileInfo.Name);
@@ -61,7 +61,7 @@ namespace Andy.FlacHash.Win.UI
             list_files.Items.AddRange(files);
         }
 
-        
+
 
         private void list_results_MouseDown(object sender, MouseEventArgs e)
         {
