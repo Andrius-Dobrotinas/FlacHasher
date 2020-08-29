@@ -11,6 +11,7 @@ namespace Andy.FlacHash.Win
     {
         const string settingsFileName = "settings.cfg";
         const string hashRepresentationFormat = "{hash}";
+        const string supportedFileExtensions = "*.flac";
 
         [STAThread]
         static void Main()
@@ -38,6 +39,7 @@ namespace Andy.FlacHash.Win
                 Filter = "TEXT|*.txt|ANY|*.*",
                 Title = "Save As"
             })
+            using (var sourceFileGetter = Build_DirectoryFileGetter(supportedFileExtensions))
             {
                 var services = BuildHasher(settings.Decoder);
                 Application.Run(
@@ -45,7 +47,8 @@ namespace Andy.FlacHash.Win
                         services.Item1,
                         new InteractiveTextFileWriter(saveFileDialog),
                         new UI.HashFaceValueFactory(hashRepresentationFormat),
-                        services.Item2));
+                        services.Item2,
+                        sourceFileGetter));
             }
         }
 
@@ -63,6 +66,16 @@ namespace Andy.FlacHash.Win
             return new Tuple<IMultipleFileHasher, FileReadProgressReporter>(
                 new MultipleFileHasher(hasher),
                 fileReadProgressReporter);
+        }
+
+        private static UI.InteractiveDirectoryFileGetter Build_DirectoryFileGetter(string sourceFileFilter)
+        {
+            var dirBrowser = new FolderBrowserDialog
+            {
+                ShowNewFolderButton = false
+            };
+            
+            return new UI.InteractiveDirectoryFileGetter(dirBrowser, sourceFileFilter);
         }
     }
 }

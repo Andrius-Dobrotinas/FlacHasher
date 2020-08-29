@@ -16,13 +16,14 @@ namespace Andy.FlacHash.Win.UI
         private readonly ResultsWrapper<FileHashResult, ListItem<FileHashResult>> results;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBar progressReporter;
-        private readonly string sourceFileFilter = "*.flac";
+        private readonly InteractiveDirectoryFileGetter directoryFileGetter;
 
         public FormX(
             IMultipleFileHasher hashCalc,
             InteractiveTextFileWriter hashWriter,
             IFaceValueFactory<FileHashResult> resultListFaceValueFactory,
-            FlacHash.IO.IFileReadEventSource fileReadEventSource)
+            IO.IFileReadEventSource fileReadEventSource,
+            InteractiveDirectoryFileGetter directoryFileGetter)
         {
             InitializeComponent();
 
@@ -30,10 +31,9 @@ namespace Andy.FlacHash.Win.UI
 
             this.hasher = hashCalc;
             this.hashFileWriter = hashWriter;
+            this.directoryFileGetter = directoryFileGetter;
 
             this.list_files.DisplayMember = nameof(FileInfo.Name);
-
-            dirBrowser.ShowNewFolderButton = false;
 
             BuildResultsCtxMenu();
 
@@ -54,18 +54,14 @@ namespace Andy.FlacHash.Win.UI
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
-            var result = dirBrowser.ShowDialog();
-            if (result != DialogResult.OK) return;
-
-            var path = new DirectoryInfo(dirBrowser.SelectedPath);
-
-            var files = IOUtil
-                .FindFiles(path, sourceFileFilter)
-                .ToArray();
+            var files = directoryFileGetter.GetFiles();
+            if (files == null) return;
 
             list_files.Items.Clear();
             list_files.Items.AddRange(files);
         }
+
+        
 
         private void list_results_MouseDown(object sender, MouseEventArgs e)
         {

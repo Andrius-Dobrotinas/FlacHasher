@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             this.btn_chooseDir = new System.Windows.Forms.Button();
-            this.dirBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.list_files = new System.Windows.Forms.ListBox();
             this.btn_go = new System.Windows.Forms.Button();
             this.list_results = new System.Windows.Forms.ListBox();
@@ -112,7 +111,6 @@
         #endregion
 
         private System.Windows.Forms.Button btn_chooseDir;
-        private System.Windows.Forms.FolderBrowserDialog dirBrowser;
         private System.Windows.Forms.ListBox list_files;
         private System.Windows.Forms.Button btn_go;
         private System.Windows.Forms.ListBox list_results;
