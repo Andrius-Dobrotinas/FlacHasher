@@ -7,6 +7,20 @@ namespace Andy.FlacHash.ExternalProcess
 {
     internal static class ProcessStartInfoFactory
     {
+        internal static ProcessStartInfo GetStandardProcessSettings(
+            FileInfo fileToRun,
+            IEnumerable<string> arguments)
+        {
+            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
+
+            var settings = GetStandardProcessSettings(fileToRun);
+
+            foreach (var arg in arguments)
+                settings.ArgumentList.Add(arg);
+
+            return settings;
+        }
+
         internal static ProcessStartInfo GetStandardProcessSettings(FileInfo fileToRun)
         {
             if (fileToRun == null) throw new ArgumentNullException(nameof(fileToRun));

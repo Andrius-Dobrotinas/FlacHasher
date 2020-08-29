@@ -14,12 +14,7 @@ namespace Andy.FlacHash.ExternalProcess
             FileInfo fileToRun,
             IEnumerable<string> arguments)
         {
-            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
-
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun);
-
-            foreach (var arg in arguments)
-                processSettings.ArgumentList.Add(arg);            
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments);
 
             using (var process = new Process { StartInfo = processSettings })
             {
@@ -38,11 +33,9 @@ namespace Andy.FlacHash.ExternalProcess
             IEnumerable<string> arguments,
             Stream input)
         {
-            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
-
             if (input == null) throw new ArgumentNullException(nameof(input));
 
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments);
             processSettings.RedirectStandardInput = true;
 
             using (var process = new Process { StartInfo = processSettings })
