@@ -5,6 +5,8 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,6 +19,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBar progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
+        private readonly FileListBoxAdapter fileList;
 
         public FormX(
             IMultipleFileHasher hashCalc,
@@ -33,7 +36,7 @@ namespace Andy.FlacHash.Win.UI
             this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
 
-            this.list_files.DisplayMember = nameof(FileInfo.Name);
+            this.fileList = new FileListBoxAdapter(list_files, nameof(FileInfo.Name));
 
             BuildResultsCtxMenu();
 
@@ -57,11 +60,10 @@ namespace Andy.FlacHash.Win.UI
             var files = directoryFileGetter.GetFiles();
             if (files == null) return;
 
-            list_files.Items.Clear();
-            list_files.Items.AddRange(files);
+            fileList.ReplaceItems(files);
         }
 
-
+        
 
         private void list_results_MouseDown(object sender, MouseEventArgs e)
         {
@@ -80,7 +82,7 @@ namespace Andy.FlacHash.Win.UI
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            var files = list_files.Items.Cast<FileInfo>();
+            var files = fileList.GetItems();
 
             results.Clear();
 
