@@ -19,7 +19,6 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBar progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
-        private readonly FileListBoxAdapter fileList;
 
         public FormX(
             IMultipleFileHasher hashCalc,
@@ -35,8 +34,6 @@ namespace Andy.FlacHash.Win.UI
             this.hasher = hashCalc;
             this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
-
-            this.fileList = new FileListBoxAdapter(list_files, nameof(FileInfo.Name));
 
             BuildResultsCtxMenu();
 
@@ -60,7 +57,7 @@ namespace Andy.FlacHash.Win.UI
             var files = directoryFileGetter.GetFiles();
             if (files == null) return;
 
-            fileList.ReplaceItems(files);
+            list_files.ReplaceItems(files);
         }
 
         
@@ -82,7 +79,7 @@ namespace Andy.FlacHash.Win.UI
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            var files = fileList.GetItems();
+            var files = list_files.GetItems();
 
             results.Clear();
 
