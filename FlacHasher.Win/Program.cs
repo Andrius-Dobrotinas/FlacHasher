@@ -33,20 +33,14 @@ namespace Andy.FlacHash.Win
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            using (var saveFileDialog = new SaveFileDialog
-            {
-                AddExtension = true,
-                CheckPathExists = true,
-                Filter = "TEXT|*.txt|ANY|*.*",
-                Title = "Save As"
-            })
+            using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var sourceFileGetter = Build_DirectoryFileGetter(supportedFileExtensions))
             {
                 var services = BuildHasher(settings.Decoder);
                 Application.Run(
                     new UI.FormX(
                         services.Item1,
-                        new InteractiveTextFileWriter(saveFileDialog),
+                        new InteractiveTextFileWriter(saveHashesToFileDialog),
                         new UI.HashFaceValueFactory(hashRepresentationFormat),
                         services.Item2,
                         sourceFileGetter));
@@ -77,6 +71,17 @@ namespace Andy.FlacHash.Win
             };
             
             return new UI.InteractiveDirectoryFileGetter(dirBrowser, sourceFileFilter);
+        }
+
+        private static SaveFileDialog Build_SaveHashesToFileDialog()
+        {
+            return new SaveFileDialog
+            {
+                AddExtension = true,
+                CheckPathExists = true,
+                Filter = "TEXT|*.txt|ANY|*.*",
+                Title = "Save As"
+            };
         }
     }
 }
