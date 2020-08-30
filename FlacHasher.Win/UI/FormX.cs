@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,6 +16,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
+        private readonly IFaceValueFactory<FileHashResult> resultListFaceValueFactory;
 
         public FormX(
             IMultipleFileHasher hashCalc,
@@ -35,21 +33,13 @@ namespace Andy.FlacHash.Win.UI
             this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
 
-            BuildResultsCtxMenu();
-
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
             fileReadEventSource.BytesRead += (bytesRead) => {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
-        }
 
-        private void BuildResultsCtxMenu()
-        {
-            ctxMenu_results.Items.Add(
-                "Save to a File...",
-                null,
-                new EventHandler((sender, e) => SaveHashes()));
+            ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, SaveHashes);
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
@@ -60,18 +50,9 @@ namespace Andy.FlacHash.Win.UI
             list_files.ReplaceItems(files);
         }
 
-        
-
-        private void list_results_MouseDown(object sender, MouseEventArgs e)
+        private void SaveHashes(IEnumerable<ListItem<FileHashResult>> results)
         {
-            if (e.Button != MouseButtons.Right) return;
-
-            ctxMenu_results.Show(list_results, new Point(e.X, e.Y));
-        }
-
-        private void SaveHashes()
-        {
-            var hashes = results.GetFaceValues();
+            var hashes = results.Select(x => x.FaceValue);
 
             if (hashFileWriter.GetFileAndSave(hashes) == true)
                 MessageBox.Show("Hashes saved!");
@@ -79,9 +60,9 @@ namespace Andy.FlacHash.Win.UI
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            var files = list_files.GetItems();
+            var files = list_files.GetItems().ToList();
 
-            results.Clear();
+            this.results.Clear();
 
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.SetMaxValue(totalSize);

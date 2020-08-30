@@ -78,7 +78,6 @@
             this.list_results.Name = "list_results";
             this.list_results.Size = new System.Drawing.Size(566, 121);
             this.list_results.TabIndex = 4;
-            this.list_results.MouseDown += new System.Windows.Forms.MouseEventHandler(this.list_results_MouseDown);
             // 
             // ctxMenu_results
             // 

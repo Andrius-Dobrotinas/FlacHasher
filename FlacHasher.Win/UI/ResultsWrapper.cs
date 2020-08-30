@@ -32,12 +32,5 @@ namespace Andy.FlacHash.Win.UI
         {
             list_results.Items.Clear();
         }
-
-        public IEnumerable<string> GetFaceValues()
-        {
-            return list_results.Items
-                .Cast<TListItem>()
-                .Select(x => x.FaceValue);
-        }
     }
 }
