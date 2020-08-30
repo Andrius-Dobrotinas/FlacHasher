@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly IMultipleFileHasher hasher;
         private readonly ResultsWrapper<FileHashResult, ListItem<FileHashResult>> results;
         private readonly InteractiveTextFileWriter hashFileWriter;
-        private readonly FileSizeProgressBar progressReporter;
+        private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
 
         public FormX(
@@ -37,7 +37,7 @@ namespace Andy.FlacHash.Win.UI
 
             BuildResultsCtxMenu();
 
-            progressReporter = new FileSizeProgressBar(progressBar);
+            progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
             fileReadEventSource.BytesRead += (bytesRead) => {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));

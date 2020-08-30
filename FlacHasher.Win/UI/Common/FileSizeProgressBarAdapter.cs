@@ -4,11 +4,11 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win.UI
 {
-    public class FileSizeProgressBar
+    public class FileSizeProgressBarAdapter
     {
         private readonly ProgressBar progressBar;
 
-        public FileSizeProgressBar(ProgressBar progressBar)
+        public FileSizeProgressBarAdapter(ProgressBar progressBar)
         {
             this.progressBar = progressBar;
         }
