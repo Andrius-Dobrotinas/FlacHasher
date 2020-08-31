@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win.UI
 {
-    public interface ITypedList<TValue, TListItem> where TListItem : IListItem<TValue>, new()
+    public interface ITypedListBox<TValue, TListItem> where TListItem : IListItem<TValue>, new()
     {
         void AddItem(TValue result);
         void ClearList();
@@ -19,7 +19,7 @@ namespace Andy.FlacHash.Win.UI
     /// The reason it can't be injected via a constructor is so it's WinForms designer-friendly
     /// (generated code doesn't have to be amended with the injection of a dependency).
     /// </summary>
-    public class TypedListBox<TValue, TListItem> : ListBox, ITypedList<TValue, TListItem>
+    public class TypedListBox<TValue, TListItem> : ListBox, ITypedListBox<TValue, TListItem>
          where TListItem : IListItem<TValue>, new()
     {
         public TypedListBox()
