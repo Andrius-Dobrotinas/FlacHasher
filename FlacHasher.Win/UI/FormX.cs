@@ -12,11 +12,9 @@ namespace Andy.FlacHash.Win.UI
     public partial class FormX : Form
     {
         private readonly IMultipleFileHasher hasher;
-        private readonly ResultsWrapper<FileHashResult, ListItem<FileHashResult>> results;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
-        private readonly IFaceValueFactory<FileHashResult> resultListFaceValueFactory;
 
         public FormX(
             IMultipleFileHasher hashCalc,
@@ -27,7 +25,7 @@ namespace Andy.FlacHash.Win.UI
         {
             InitializeComponent();
 
-            this.results = new ResultsWrapper<FileHashResult, ListItem<FileHashResult>>(this.list_results, resultListFaceValueFactory);
+            this.list_results.FaceValueFactory = resultListFaceValueFactory;
 
             this.hasher = hashCalc;
             this.hashFileWriter = hashFileWriter;
@@ -62,7 +60,7 @@ namespace Andy.FlacHash.Win.UI
         {
             var files = list_files.GetItems().ToList();
 
-            this.results.Clear();
+            this.list_results.ClearList();
 
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.SetMaxValue(totalSize);
@@ -82,7 +80,7 @@ namespace Andy.FlacHash.Win.UI
                 //update the UI (on the UI thread)
                 this.Invoke(
                     new Action(
-                        () => this.results.AddResult(result)));
+                        () => this.list_results.AddItem(result)));
 
                 this.Invoke(
                     new Action(

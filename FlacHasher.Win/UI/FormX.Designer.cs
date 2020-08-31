@@ -32,7 +32,7 @@
             this.btn_chooseDir = new System.Windows.Forms.Button();
             this.list_files = new FileList();
             this.btn_go = new System.Windows.Forms.Button();
-            this.list_results = new System.Windows.Forms.ListBox();
+            this.list_results = new FileHashResultList();
             this.ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
@@ -112,7 +112,7 @@
         private System.Windows.Forms.Button btn_chooseDir;
         private FileList list_files;
         private System.Windows.Forms.Button btn_go;
-        private System.Windows.Forms.ListBox list_results;
+        private FileHashResultList list_results;
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
         private System.Windows.Forms.ProgressBar progressBar;
     }
