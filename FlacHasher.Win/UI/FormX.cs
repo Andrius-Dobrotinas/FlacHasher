@@ -19,13 +19,13 @@ namespace Andy.FlacHash.Win.UI
         public FormX(
             IMultipleFileHasher hashCalc,
             InteractiveTextFileWriter hashFileWriter,
-            IFaceValueFactory<FileHashResult> resultListFaceValueFactory,
+            IDisplayValueProducer<FileHashResult> resultListFaceValueFactory,
             IO.IFileReadEventSource fileReadEventSource,
             InteractiveDirectoryFileGetter directoryFileGetter)
         {
             InitializeComponent();
 
-            this.list_results.FaceValueFactory = resultListFaceValueFactory;
+            this.list_results.DisplayValueProducer = resultListFaceValueFactory;
 
             this.hasher = hashCalc;
             this.hashFileWriter = hashFileWriter;
@@ -50,7 +50,7 @@ namespace Andy.FlacHash.Win.UI
 
         private void SaveHashes(IEnumerable<ListItem<FileHashResult>> results)
         {
-            var hashes = results.Select(x => x.FaceValue);
+            var hashes = results.Select(x => x.DisplayValue);
 
             if (hashFileWriter.GetFileAndSave(hashes) == true)
                 MessageBox.Show("Hashes saved!");

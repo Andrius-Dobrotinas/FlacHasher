@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Win.UI
 {
-    public interface IFaceValueFactory<T>
+    public interface IDisplayValueProducer<T>
     {
-        string GetFaceValue(T listItem);
+        string GetDisplayValue(T listItem);
     }
 }

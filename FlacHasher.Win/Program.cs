@@ -41,7 +41,7 @@ namespace Andy.FlacHash.Win
                     new UI.FormX(
                         services.Item1,
                         new InteractiveTextFileWriter(saveHashesToFileDialog),
-                        new UI.HashFaceValueFactory(hashRepresentationFormat),
+                        new UI.HashDisplayValueFactory(hashRepresentationFormat),
                         services.Item2,
                         sourceFileGetter));
             }

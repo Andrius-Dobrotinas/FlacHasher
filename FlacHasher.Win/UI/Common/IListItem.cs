@@ -6,6 +6,6 @@ namespace Andy.FlacHash.Win.UI
     public interface IListItem<TValue>
     {
         TValue Value { get; set; }
-        string FaceValue { get; set; }
+        string DisplayValue { get; set; }
     }
 }
