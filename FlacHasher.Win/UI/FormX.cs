@@ -67,25 +67,34 @@ namespace Andy.FlacHash.Win.UI
 
             Task.Factory.StartNew(() =>
             {
-                CalcHashesAndUpdateUI(files);
+                CalcHashesAndReport(hasher, UpdateUIWithResult_OnUIThread, files);
             });
         }
 
-        private void CalcHashesAndUpdateUI(IEnumerable<FileInfo> files)
+        private static void CalcHashesAndReport(
+            IMultipleFileHasher hasher,
+            Action<FileHashResult> reportResult,
+            IEnumerable<FileInfo> files)
         {
             IEnumerable<FileHashResult> results = hasher.ComputeHashes(files);
 
             foreach (var result in results)
             {
-                //update the UI (on the UI thread)
-                this.Invoke(
-                    new Action(
-                        () => this.list_results.AddItem(result)));
-
-                this.Invoke(
-                    new Action(
-                        () => this.Text = result.File.Name));
+                reportResult(result);
             }
+        }
+
+        void UpdateUIWithResult_OnUIThread(FileHashResult result)
+        {
+            this.Invoke(
+                new Action(
+                    () => UpdateUIWithResult(result)));
+        }
+
+        private void UpdateUIWithResult(FileHashResult result)
+        {
+            this.list_results.AddItem(result);
+            this.Text = result.File.Name;
         }
     }
 }
