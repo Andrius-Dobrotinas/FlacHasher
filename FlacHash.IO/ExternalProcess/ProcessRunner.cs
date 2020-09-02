@@ -7,9 +7,9 @@ namespace Andy.FlacHash.ExternalProcess
 {
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
-        //todo: inject this value
         private readonly int timeout;
 
+        /// <param name="timeout">Time to wait for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
         public ProcessRunner(int timeout)
         {
             this.timeout = timeout;
@@ -25,11 +25,11 @@ namespace Andy.FlacHash.ExternalProcess
             {
                 process.Start();
 
-                var output = GetStandardOutput(process);
+                var outputStream = GetStandardOutput(process);
 
                 ProcessExitCode(process);
 
-                return output;
+                return outputStream;
             }
         }
 
@@ -50,7 +50,7 @@ namespace Andy.FlacHash.ExternalProcess
                 System.Threading.Tasks.Task.Delay(100).Wait(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
 
                 //the writing operation gets blocked until someone reads the output - when both in and out are redirected... at least with Flac
-                var outputTask = System.Threading.Tasks.Task.Run<MemoryStream>(() => GetStandardOutput(process));
+                var outputReadTask = System.Threading.Tasks.Task.Run<MemoryStream>(() => GetStandardOutput(process));
 
                 var stdin = process.StandardInput.BaseStream;
                 input.CopyTo(stdin);
@@ -58,16 +58,23 @@ namespace Andy.FlacHash.ExternalProcess
                 //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
                 stdin.Close();
 
+                var outputStream = GetTaskResult(outputReadTask);
+
                 ProcessExitCode(process);
 
-                try
-                {
-                    return outputTask.Result;
-                }
-                catch (AggregateException e)
-                {
-                    throw e.InnerException;
-                }
+                return outputStream;
+            }
+        }
+
+        private static MemoryStream GetTaskResult(System.Threading.Tasks.Task<MemoryStream> outputReadTask)
+        {
+            try
+            {
+                return outputReadTask.Result;
+            }
+            catch (AggregateException e)
+            {
+                throw e.InnerException;
             }
         }
 
@@ -83,7 +90,7 @@ namespace Andy.FlacHash.ExternalProcess
 
         private void ProcessExitCode(Process process)
         {
-            //have to stop and wait for the process to finish
+            //stop and wait for the process to finish
             if (process.WaitForExit(timeout) == false)
                 process.Kill(true);
 
