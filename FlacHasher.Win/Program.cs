@@ -36,18 +36,18 @@ namespace Andy.FlacHash.Win
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var sourceFileGetter = Build_DirectoryFileGetter(supportedFileExtensions))
             {
-                var services = BuildHasher(settings.Decoder);
+                var (hasher, progressReporter) = BuildHasher(settings.Decoder);
                 Application.Run(
                     new UI.FormX(
-                        new UI.HashCalcOnSeparateThreadService(services.Item1),
+                        new UI.HashCalcOnSeparateThreadService(hasher),
                         new InteractiveTextFileWriter(saveHashesToFileDialog),
                         new UI.HashDisplayValueFactory(hashRepresentationFormat),
-                        services.Item2,
+                        progressReporter,
                         sourceFileGetter));
             }
         }
 
-        private static Tuple<IMultipleFileHasher, FileReadProgressReporter> BuildHasher(FileInfo decoderFile)
+        private static (IMultipleFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderFile)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
@@ -58,9 +58,7 @@ namespace Andy.FlacHash.Win
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
 
-            return new Tuple<IMultipleFileHasher, FileReadProgressReporter>(
-                new MultipleFileHasher(hasher),
-                fileReadProgressReporter);
+            return (new MultipleFileHasher(hasher), fileReadProgressReporter);
         }
 
         private static UI.InteractiveDirectoryFileGetter Build_DirectoryFileGetter(string sourceFileFilter)
@@ -69,7 +67,7 @@ namespace Andy.FlacHash.Win
             {
                 ShowNewFolderButton = false
             };
-            
+
             return new UI.InteractiveDirectoryFileGetter(dirBrowser, sourceFileFilter);
         }
 
