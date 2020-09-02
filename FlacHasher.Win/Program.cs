@@ -39,7 +39,7 @@ namespace Andy.FlacHash.Win
                 var services = BuildHasher(settings.Decoder);
                 Application.Run(
                     new UI.FormX(
-                        services.Item1,
+                        new UI.HashCalcOnSeparateThreadService(services.Item1),
                         new InteractiveTextFileWriter(saveHashesToFileDialog),
                         new UI.HashDisplayValueFactory(hashRepresentationFormat),
                         services.Item2,

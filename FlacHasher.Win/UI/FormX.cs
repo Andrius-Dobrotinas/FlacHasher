@@ -11,25 +11,28 @@ namespace Andy.FlacHash.Win.UI
 {
     public partial class FormX : Form
     {
-        private readonly IMultipleFileHasher hasher;
+        private readonly HashCalcOnSeparateThreadService hasherService;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
 
         public FormX(
-            IMultipleFileHasher hashCalc,
+            HashCalcOnSeparateThreadService hasherService,
             InteractiveTextFileWriter hashFileWriter,
-            IDisplayValueProducer<FileHashResult> resultListFaceValueFactory,
+            IDisplayValueProducer<FileHashResult> displayValueProducer,
             IO.IFileReadEventSource fileReadEventSource,
             InteractiveDirectoryFileGetter directoryFileGetter)
         {
             InitializeComponent();
 
-            this.list_results.DisplayValueProducer = resultListFaceValueFactory;
+            this.list_results.DisplayValueProducer = displayValueProducer;
 
-            this.hasher = hashCalc;
+            this.hasherService = hasherService;
             this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
+
+            hasherService.OnHashResultAvailable += UpdateUIWithResult;
+            hasherService.UiUpdateContext = this;
 
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
@@ -58,37 +61,14 @@ namespace Andy.FlacHash.Win.UI
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            var files = list_files.GetItems().ToList();
+            var files = this.list_files.GetItems().ToList();
 
             this.list_results.ClearList();
 
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.SetMaxValue(totalSize);
 
-            Task.Factory.StartNew(() =>
-            {
-                CalcHashesAndReport(hasher, UpdateUIWithResult_OnUIThread, files);
-            });
-        }
-
-        private static void CalcHashesAndReport(
-            IMultipleFileHasher hasher,
-            Action<FileHashResult> reportResult,
-            IEnumerable<FileInfo> files)
-        {
-            IEnumerable<FileHashResult> results = hasher.ComputeHashes(files);
-
-            foreach (var result in results)
-            {
-                reportResult(result);
-            }
-        }
-
-        void UpdateUIWithResult_OnUIThread(FileHashResult result)
-        {
-            this.Invoke(
-                new Action(
-                    () => UpdateUIWithResult(result)));
+            hasherService.CalculateHashes(files);
         }
 
         private void UpdateUIWithResult(FileHashResult result)
