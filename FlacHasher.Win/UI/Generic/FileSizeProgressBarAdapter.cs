@@ -25,9 +25,11 @@ namespace Andy.FlacHash.Win.UI
             progressBar.Increment((int)progress);
         }
 
-        public void SetMaxValue(long value)
+        public void Reset(long maxValue)
         {
-            long maximum = value / bytesPerKb;
+            progressBar.Value = 0;
+
+            long maximum = maxValue / bytesPerKb;
             progressBar.Maximum = (int)maximum;
         }
     }

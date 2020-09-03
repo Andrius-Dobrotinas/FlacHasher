@@ -66,7 +66,7 @@ namespace Andy.FlacHash.Win.UI
             this.list_results.ClearList();
 
             long totalSize = files.Select(file => file.Length).Sum();
-            progressReporter.SetMaxValue(totalSize);
+            progressReporter.Reset(totalSize);
 
             hasherService.CalculateHashes(files);
         }
