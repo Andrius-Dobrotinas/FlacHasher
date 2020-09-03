@@ -9,7 +9,7 @@ namespace Andy.FlacHash.Win.UI
         /* todo: think about what to do with this. technically, this should be a value
          * that guarantees that the result doesn't exceed int size... but then the real-world
          * values (file sizes) could be too small? think about this at some point */
-        private const int megabyteDivider = 1048576; //1024x1024
+        private const int bytesPerKb = 1024;
 
         private readonly ProgressBar progressBar;
 
@@ -20,14 +20,14 @@ namespace Andy.FlacHash.Win.UI
 
         public void Increment(long bytesRead)
         {
-            long progress = bytesRead / megabyteDivider;
+            long progress = bytesRead / bytesPerKb;
 
             progressBar.Increment((int)progress);
         }
 
         public void SetMaxValue(long value)
         {
-            long maximum = value / megabyteDivider;
+            long maximum = value / bytesPerKb;
             progressBar.Maximum = (int)maximum;
         }
     }
