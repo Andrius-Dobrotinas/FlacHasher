@@ -17,7 +17,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
-        public MemoryStream Encode(FileInfo sourceFile, int compressionLevel)
+        public Stream Encode(FileInfo sourceFile, int compressionLevel)
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 

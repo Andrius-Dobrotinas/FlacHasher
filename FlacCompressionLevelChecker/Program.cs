@@ -38,7 +38,7 @@ namespace Andy.FlacHash
                 flacExe,
                 new ExternalProcess.ProcessRunner(processTimeoutSec));
 
-            using (MemoryStream recodedAudio = recoder.Encode(sourceFile, compressionLevel))
+            using (Stream recodedAudio = recoder.Encode(sourceFile, compressionLevel))
             {
                 Console.WriteLine($"{sourceFile.FullName}: compressed to level {compressionLevel}: {sourceFile.Length == recodedAudio.Length}");
             }

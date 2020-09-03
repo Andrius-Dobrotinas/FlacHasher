@@ -6,7 +6,7 @@ namespace Andy.FlacHash.ExternalProcess
 {
     public interface IIOProcessRunner
     {
-        MemoryStream RunAndReadOutput(
+        Stream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments,
             Stream input);

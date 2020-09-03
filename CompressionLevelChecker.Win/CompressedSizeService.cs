@@ -20,7 +20,7 @@ namespace Andy.FlacHash.Win
 
         public long GetCompressedSize(FileInfo sourceFile, int compressionLevel)
         {
-            using (MemoryStream recodedAudio = encoder.Encode(sourceFile, compressionLevel))
+            using (Stream recodedAudio = encoder.Encode(sourceFile, compressionLevel))
             {
                 return recodedAudio.Length;
             }

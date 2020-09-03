@@ -9,7 +9,7 @@ namespace Andy.FlacHash.ExternalProcess
         /// <summary>
         /// Runs a process and returns the contents of its output stream
         /// </summary>
-        MemoryStream RunAndReadOutput(
+        Stream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments);
     }

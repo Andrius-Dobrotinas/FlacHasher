@@ -15,7 +15,7 @@ namespace Andy.FlacHash.ExternalProcess
             this.timeout = timeout;
         }
 
-        public MemoryStream RunAndReadOutput(
+        public Stream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments)
         {
@@ -33,7 +33,7 @@ namespace Andy.FlacHash.ExternalProcess
             }
         }
 
-        public MemoryStream RunAndReadOutput(
+        public Stream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments,
             Stream input)
@@ -59,14 +59,14 @@ namespace Andy.FlacHash.ExternalProcess
                 stdin.Close();
 
                 var outputStream = GetTaskResult(outputReadTask);
-
+                
                 ProcessExitCode(process);
 
                 return outputStream;
             }
         }
 
-        private static MemoryStream GetTaskResult(System.Threading.Tasks.Task<MemoryStream> outputReadTask)
+        private static Stream GetTaskResult(System.Threading.Tasks.Task<MemoryStream> outputReadTask)
         {
             try
             {
