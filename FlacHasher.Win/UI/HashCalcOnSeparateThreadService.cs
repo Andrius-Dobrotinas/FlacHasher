@@ -23,6 +23,8 @@ namespace Andy.FlacHash.Win.UI
         /// </summary>
         public event Action<FileHashResult> OnHashResultAvailable;
 
+        public event Action OnFinished;
+
         public HashCalcOnSeparateThreadService(IMultipleFileHasher hasher)
         {
             this.hasher = hasher;
@@ -34,10 +36,14 @@ namespace Andy.FlacHash.Win.UI
 
             if (OnHashResultAvailable == null) throw new ArgumentNullException(nameof(OnHashResultAvailable), "The value must be provided via the public property");
 
-            Task.Factory.StartNew(() =>
-            {
-                CalcHashesAndReportOnUIThread(sourceFiles);
-            });
+            if (OnFinished == null) throw new ArgumentNullException(nameof(OnFinished), "The value must be provided via the public property");
+
+            Task.Factory
+                .StartNew(() =>
+                {
+                    CalcHashesAndReportOnUIThread(sourceFiles);
+                })
+                .ContinueWith(ReportFinish_OnUIThread);
         }
 
         private void CalcHashesAndReportOnUIThread(
@@ -54,6 +60,11 @@ namespace Andy.FlacHash.Win.UI
         private void ReportResult_OnUIThread(FileHashResult result)
         {
             UiUpdateContext.Invoke(new Action(() => OnHashResultAvailable(result)));
+        }
+
+        private void ReportFinish_OnUIThread(Task task)
+        {
+            UiUpdateContext.Invoke(OnFinished);
         }
     }
 }

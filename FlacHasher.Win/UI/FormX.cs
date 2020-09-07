@@ -16,6 +16,8 @@ namespace Andy.FlacHash.Win.UI
         private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
 
+        private bool inProgress = false;
+
         public FormX(
             HashCalcOnSeparateThreadService hasherService,
             InteractiveTextFileWriter hashFileWriter,
@@ -32,6 +34,7 @@ namespace Andy.FlacHash.Win.UI
             this.directoryFileGetter = directoryFileGetter;
 
             hasherService.OnHashResultAvailable += UpdateUIWithResult;
+            hasherService.OnFinished += OnSearchFinished;
             hasherService.UiUpdateContext = this;
 
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
@@ -68,7 +71,20 @@ namespace Andy.FlacHash.Win.UI
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.Reset(totalSize);
 
+            ToggleSearchProgress(true);
+
             hasherService.CalculateHashes(files);
+        }
+
+        private void ToggleSearchProgress(bool inProgress)
+        {
+            this.inProgress = inProgress;
+            btn_go.Enabled = !inProgress;
+        }
+
+        private void OnSearchFinished()
+        {
+            ToggleSearchProgress(false);
         }
 
         private void UpdateUIWithResult(FileHashResult result)
