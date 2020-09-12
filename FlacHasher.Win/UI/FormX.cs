@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,6 +18,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
 
         private bool inProgress = false;
+        private CancellationTokenSource cancellationTokenSource;
 
         public FormX(
             HashCalcOnSeparateThreadService hasherService,
@@ -34,7 +36,7 @@ namespace Andy.FlacHash.Win.UI
             this.directoryFileGetter = directoryFileGetter;
 
             hasherService.OnHashResultAvailable += UpdateUIWithResult;
-            hasherService.OnFinished += OnSearchFinished;
+            hasherService.OnFinished += OnCalcFinished;
             hasherService.UiUpdateContext = this;
 
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
@@ -64,6 +66,21 @@ namespace Andy.FlacHash.Win.UI
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
+            if (!inProgress)
+                StartCalc();
+            else
+                CancelCal();
+        }
+
+        private void CancelCal()
+        {
+            btn_go.Enabled = false;
+            btn_go.Text = "Stopping...";
+            cancellationTokenSource.Cancel();
+        }
+
+        private void StartCalc()
+        {
             var files = this.list_files.GetItems().ToList();
 
             this.list_results.ClearList();
@@ -71,20 +88,30 @@ namespace Andy.FlacHash.Win.UI
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.Reset(totalSize);
 
-            ToggleSearchProgress(true);
+            this.cancellationTokenSource = new CancellationTokenSource();
+            ToggleCalcProgress(true);
 
-            hasherService.CalculateHashes(files);
+            hasherService.CalculateHashes(files, cancellationTokenSource.Token);
         }
 
-        private void ToggleSearchProgress(bool inProgress)
+        private void ToggleCalcProgress(bool inProgress)
         {
             this.inProgress = inProgress;
-            btn_go.Enabled = !inProgress;
+            btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
 
-        private void OnSearchFinished()
+        private void OnCalcFinished()
         {
-            ToggleSearchProgress(false);
+            ToggleCalcProgress(false);
+
+            //extra clean-up when cancelled
+            if (cancellationTokenSource.IsCancellationRequested)
+            {
+                btn_go.Enabled = true;
+                progressReporter.Reset(0);
+            }
+
+            cancellationTokenSource.Dispose();
         }
 
         private void UpdateUIWithResult(FileHashResult result)

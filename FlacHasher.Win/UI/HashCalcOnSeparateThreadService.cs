@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -30,7 +31,7 @@ namespace Andy.FlacHash.Win.UI
             this.hasher = hasher;
         }
 
-        public void CalculateHashes(IEnumerable<FileInfo> sourceFiles)
+        public void CalculateHashes(IEnumerable<FileInfo> sourceFiles, CancellationToken cancellationToken)
         {
             if (UiUpdateContext == null) throw new ArgumentNullException(nameof(UiUpdateContext), "The value must be provided via the public property");
 
@@ -41,18 +42,24 @@ namespace Andy.FlacHash.Win.UI
             Task.Factory
                 .StartNew(() =>
                 {
-                    CalcHashesAndReportOnUIThread(sourceFiles);
+                    CalcHashesAndReportOnUIThread(sourceFiles, cancellationToken);
                 })
                 .ContinueWith(ReportFinish_OnUIThread);
         }
 
         private void CalcHashesAndReportOnUIThread(
-            IEnumerable<FileInfo> files)
+            IEnumerable<FileInfo> files,
+            CancellationToken cancellationToken)
         {
             IEnumerable<FileHashResult> results = hasher.ComputeHashes(files);
 
+            //just in case the op is cancelled right away-ish. you don't want to even start the enumeration in that case
+            if (cancellationToken.IsCancellationRequested) return;
+
             foreach (var result in results)
             {
+                if (cancellationToken.IsCancellationRequested) return;
+
                 ReportResult_OnUIThread(result);
             }
         }
