@@ -35,9 +35,8 @@ namespace Andy.FlacHash.Win.UI
             CancellationToken cancellationToken,
             Action finishedCallback)
         {
-            if (UiUpdateContext == null) throw new ArgumentNullException(nameof(UiUpdateContext), "The value must be provided via the public property");
-
-            if (HashCalculated == null) throw new ArgumentNullException(nameof(HashCalculated), "The value must be provided via the public property");
+            if (UiUpdateContext == null) throw new InvalidOperationException($"{nameof(UiUpdateContext)} is not set");
+            if (HashCalculated == null) throw new InvalidOperationException($"{nameof(HashCalculated)} event handler is not set");
 
             if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
 
