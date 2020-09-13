@@ -4,6 +4,13 @@ using System.Threading;
 
 namespace Andy.FlacHash.Win
 {
+    /// <summary>
+    /// An action that honors a cancellation token and runs another action when it's done
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="finishedCallback">An action that's run when the main action is finished</param>
+    public delegate void BeginCancellableAction(CancellationToken cancellationToken, Action finishedCallback);
+
     public class CancellableActionRunner
     {
         private CancellationTokenSource cancellationTokenSource;
@@ -30,28 +37,25 @@ namespace Andy.FlacHash.Win
         /// <summary>
         /// Starts an action
         /// </summary>
-        public void Start(Action<CancellationToken> cancellableAction)
+        public void Start(BeginCancellableAction beginCancellableAction)
         {
             if (inProgress)
                 throw new InvalidOperationException("More than one action may not be run at a time");
 
             cancellationTokenSource = new CancellationTokenSource();
             ToggleActionState(true);
-            cancellableAction(cancellationTokenSource.Token);
+            beginCancellableAction(cancellationTokenSource.Token, OnFinished);
         }
 
         /// <summary>
-        /// Cancel a currently running action
+        /// Cancels a currently running action
         /// </summary>
         public void Cancel()
         {
             cancellationTokenSource.Cancel();
         }
 
-        /// <summary>
-        /// Must be invoked when the action finishes
-        /// </summary>
-        public void OnFinished()
+        private void OnFinished()
         {
             ToggleActionState(false);
 

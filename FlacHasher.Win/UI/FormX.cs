@@ -37,7 +37,6 @@ namespace Andy.FlacHash.Win.UI
             cancellableActionRunner.Finished += OnCalcFinished;
 
             hasherService.OnHashCalculated += UpdateUIWithResult;
-            hasherService.OnFinished += cancellableActionRunner.OnFinished;
             hasherService.UiUpdateContext = this;
 
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
@@ -76,7 +75,7 @@ namespace Andy.FlacHash.Win.UI
             }
         }
 
-        private void StartCalc(CancellationToken cancellationToken)
+        private void StartCalc(CancellationToken cancellationToken, Action calcFinishedCallback)
         {
             var files = this.list_files.GetItems().ToList();
 
@@ -85,7 +84,7 @@ namespace Andy.FlacHash.Win.UI
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.Reset(totalSize);
 
-            hasherService.CalculateHashes(files, cancellationToken);
+            hasherService.CalculateHashes(files, cancellationToken, calcFinishedCallback);
         }
 
         private void OnCancellation()
