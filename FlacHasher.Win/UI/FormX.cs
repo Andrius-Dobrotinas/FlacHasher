@@ -16,9 +16,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
-
-        private bool inProgress = false;
-        private CancellationTokenSource cancellationTokenSource;
+        private readonly CancellableActionRunner cancellableActionRunner = new CancellableActionRunner();
 
         public FormX(
             HashCalcOnSeparateThreadService hasherService,
@@ -35,8 +33,11 @@ namespace Andy.FlacHash.Win.UI
             this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
 
+            cancellableActionRunner.StateChanged += OnCalcStateChanged;
+            cancellableActionRunner.Finished += OnCalcFinished;
+
             hasherService.OnHashResultAvailable += UpdateUIWithResult;
-            hasherService.OnFinished += OnCalcFinished;
+            hasherService.OnFinished += cancellableActionRunner.OnFinished;
             hasherService.UiUpdateContext = this;
 
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
@@ -66,20 +67,16 @@ namespace Andy.FlacHash.Win.UI
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            if (!inProgress)
-                StartCalc();
+            if (!cancellableActionRunner.InProgress)
+                cancellableActionRunner.Start(StartCalc);
             else
-                CancelCal();
+            {
+                OnCancellation(); // todo this
+                cancellableActionRunner.Cancel();
+            }
         }
 
-        private void CancelCal()
-        {
-            btn_go.Enabled = false;
-            btn_go.Text = "Stopping...";
-            cancellationTokenSource.Cancel();
-        }
-
-        private void StartCalc()
+        private void StartCalc(CancellationToken cancellationToken)
         {
             var files = this.list_files.GetItems().ToList();
 
@@ -88,30 +85,27 @@ namespace Andy.FlacHash.Win.UI
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.Reset(totalSize);
 
-            this.cancellationTokenSource = new CancellationTokenSource();
-            ToggleCalcProgress(true);
-
-            hasherService.CalculateHashes(files, cancellationTokenSource.Token);
+            hasherService.CalculateHashes(files, cancellationToken);
         }
 
-        private void ToggleCalcProgress(bool inProgress)
+        private void OnCancellation()
         {
-            this.inProgress = inProgress;
+            btn_go.Enabled = false;
+            btn_go.Text = "Stopping...";
+        }
+
+        private void OnCalcStateChanged(bool inProgress)
+        {
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
 
-        private void OnCalcFinished()
+        private void OnCalcFinished(bool wasCancelled)
         {
-            ToggleCalcProgress(false);
-
-            //extra clean-up when cancelled
-            if (cancellationTokenSource.IsCancellationRequested)
+            if (wasCancelled)
             {
                 btn_go.Enabled = true;
                 progressReporter.Reset(0);
             }
-
-            cancellationTokenSource.Dispose();
         }
 
         private void UpdateUIWithResult(FileHashResult result)
