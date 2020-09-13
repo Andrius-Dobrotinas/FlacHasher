@@ -36,7 +36,7 @@ namespace Andy.FlacHash.Win.UI
             cancellableActionRunner.StateChanged += OnCalcStateChanged;
             cancellableActionRunner.Finished += OnCalcFinished;
 
-            hasherService.OnHashResultAvailable += UpdateUIWithResult;
+            hasherService.OnHashCalculated += UpdateUIWithResult;
             hasherService.OnFinished += cancellableActionRunner.OnFinished;
             hasherService.UiUpdateContext = this;
 

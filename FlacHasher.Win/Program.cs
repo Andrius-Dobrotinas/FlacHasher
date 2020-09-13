@@ -39,7 +39,9 @@ namespace Andy.FlacHash.Win
                 var (hasher, progressReporter) = BuildHasher(settings.Decoder);
                 Application.Run(
                     new UI.FormX(
-                        new UI.HashCalcOnSeparateThreadService(hasher),
+                        new UI.HashCalcOnSeparateThreadService(
+                            hasher,
+                            new ActionOnNonUiThreadRunner()),
                         new InteractiveTextFileWriter(saveHashesToFileDialog),
                         new UI.HashDisplayValueFactory(hashRepresentationFormat),
                         progressReporter,
@@ -67,7 +69,7 @@ namespace Andy.FlacHash.Win
             {
                 ShowNewFolderButton = false
             };
-
+            
             return new UI.InteractiveDirectoryFileGetter(dirBrowser, sourceFileFilter);
         }
 
