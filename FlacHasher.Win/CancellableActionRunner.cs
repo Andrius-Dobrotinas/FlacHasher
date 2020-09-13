@@ -39,6 +39,9 @@ namespace Andy.FlacHash.Win
         /// </summary>
         public void Start(BeginCancellableAction beginCancellableAction)
         {
+            if (Finished == null) throw new InvalidOperationException($"{nameof(Finished)} event handler is not set");
+            if (StateChanged == null) throw new InvalidOperationException($"{nameof(StateChanged)} event handler is not set");
+
             if (inProgress)
                 throw new InvalidOperationException("More than one action may not be run at a time");
 
