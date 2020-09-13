@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Win.UI
         /// <summary>
         /// An event that is fired for each calculated file hash
         /// </summary>
-        public event Action<FileHashResult> OnHashCalculated;
+        public event Action<FileHashResult> HashCalculated;
 
         public HashCalcOnSeparateThreadService(IMultipleFileHasher hasher,
             ActionOnNonUiThreadRunner nonUiActionRunner)
@@ -33,18 +33,18 @@ namespace Andy.FlacHash.Win.UI
 
         public void CalculateHashes(IEnumerable<FileInfo> sourceFiles,
             CancellationToken cancellationToken,
-            Action finished)
+            Action finishedCallback)
         {
             if (UiUpdateContext == null) throw new ArgumentNullException(nameof(UiUpdateContext), "The value must be provided via the public property");
 
-            if (OnHashCalculated == null) throw new ArgumentNullException(nameof(OnHashCalculated), "The value must be provided via the public property");
+            if (HashCalculated == null) throw new ArgumentNullException(nameof(HashCalculated), "The value must be provided via the public property");
 
-            if (finished == null) throw new ArgumentNullException(nameof(finished));
+            if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
 
             nonUiActionRunner.Run(
                 reportProgress => CalcHashesAndReportOnUIThread(sourceFiles, reportProgress, cancellationToken),
-                OnHashCalculated,
-                finished,
+                HashCalculated,
+                finishedCallback,
                 UiUpdateContext);
         }
 

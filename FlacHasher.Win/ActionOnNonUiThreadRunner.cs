@@ -13,26 +13,26 @@ namespace Andy.FlacHash.Win
         /// </summary>
         /// <typeparam name="TProgress">Type of object that represents action progress</typeparam>
         /// <param name="action">An action that is invoked on a non-UI thread</param>
-        /// <param name="onProgress">An action that reports progress and is invoked on a UI thread</param>
-        /// <param name="onFinished">An action that's invoked on a UI thread when the main action finishes</param>
+        /// <param name="reportProgress">An action that reports progress and is invoked on a UI thread</param>
+        /// <param name="finishedCallback">An action that's invoked on a UI thread when the main action finishes</param>
         /// <param name="uiUpdateContext">A control which will be used for running an action on a UI thread</param>
         public void Run<TProgress>(
             Action<Action<TProgress>> action,
-            Action<TProgress> onProgress,
-            Action onFinished,
+            Action<TProgress> reportProgress,
+            Action finishedCallback,
             Control uiUpdateContext)
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
             if (uiUpdateContext == null) throw new ArgumentNullException(nameof(uiUpdateContext));
-            if (onProgress == null) throw new ArgumentNullException(nameof(onProgress));
-            if (onFinished == null) throw new ArgumentNullException(nameof(onFinished));
+            if (reportProgress == null) throw new ArgumentNullException(nameof(reportProgress));
+            if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
 
             void ReportProgress_OnUiThread(TProgress result)
             {
-                uiUpdateContext.Invoke(new Action(() => onProgress(result)));
+                uiUpdateContext.Invoke(new Action(() => reportProgress(result)));
             }
 
-            void RunPostAction_OnUiThread(Task task) => uiUpdateContext.Invoke(onFinished);
+            void RunPostAction_OnUiThread(Task task) => uiUpdateContext.Invoke(finishedCallback);
 
             Task.Factory
                 .StartNew(() =>

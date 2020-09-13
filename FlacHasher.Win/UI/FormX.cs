@@ -36,7 +36,7 @@ namespace Andy.FlacHash.Win.UI
             cancellableActionRunner.StateChanged += OnCalcStateChanged;
             cancellableActionRunner.Finished += OnCalcFinished;
 
-            hasherService.OnHashCalculated += UpdateUIWithResult;
+            hasherService.HashCalculated += UpdateUIWithResult;
             hasherService.UiUpdateContext = this;
 
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
