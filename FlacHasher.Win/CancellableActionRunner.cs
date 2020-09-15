@@ -54,9 +54,9 @@ namespace Andy.FlacHash.Win
             if (inProgress)
                 throw new InvalidOperationException("More than one action may not be run at a time");
 
-            cancellationTokenSource = new CancellationTokenSource();
             ToggleActionState(true);
-            beginCancellableAction(cancellationTokenSource.Token, OnFinished);
+
+            cancellationTokenSource = CancellableActionStarter.Start(beginCancellableAction, OnFinished);
         }
 
         /// <summary>
