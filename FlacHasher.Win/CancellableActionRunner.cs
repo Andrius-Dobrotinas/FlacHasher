@@ -18,39 +18,37 @@ namespace Andy.FlacHash.Win
 
         public bool InProgress => inProgress;
 
-        /// <summary>
-        /// Invoked whe the action is completed
-        /// </summary>
-        public event Action<bool> Finished;
+        private readonly Action<bool> reportCompletion;
+        private readonly Action<bool> stateChanged;
 
-        /// <summary>
-        /// Invoked when on transitions between In-progress and not-in-progress state
-        /// </summary>
-        public event Action<bool> StateChanged;
+        /// <param name="reportCompletion">Invoked when an action is completed</param>
+        /// <param name="stateChanged">Invoked on transitions between in-progress and the opposite state</param>
+        public CancellableActionRunner(Action<bool> reportCompletion, Action<bool> stateChanged)
+        {
+            this.reportCompletion = reportCompletion ?? throw new ArgumentNullException(nameof(reportCompletion));
+            this.stateChanged = stateChanged ?? throw new ArgumentNullException(nameof(stateChanged));
+        }
 
         private void ToggleActionState(bool inProgress)
         {
             this.inProgress = inProgress;
-            StateChanged(inProgress);
+            stateChanged(inProgress);
         }
 
         private void OnFinished()
         {
             ToggleActionState(false);
 
-            Finished(cancellationTokenSource.IsCancellationRequested);
+            reportCompletion(cancellationTokenSource.IsCancellationRequested);
 
             cancellationTokenSource.Dispose();
         }
 
         /// <summary>
-        /// Starts an action
+        /// Starts a new action
         /// </summary>
         public void Start(BeginCancellableAction beginCancellableAction)
         {
-            if (Finished == null) throw new InvalidOperationException($"{nameof(Finished)} event handler is not set");
-            if (StateChanged == null) throw new InvalidOperationException($"{nameof(StateChanged)} event handler is not set");
-
             if (inProgress)
                 throw new InvalidOperationException("More than one action may not be run at a time");
 

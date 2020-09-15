@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
-        private readonly CancellableActionRunner cancellableActionRunner = new CancellableActionRunner();
+        private readonly CancellableActionRunner cancellableActionRunner;
 
         public FormX(
             HashCalcOnSeparateThreadService hasherService,
@@ -33,8 +33,8 @@ namespace Andy.FlacHash.Win.UI
             this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
 
-            cancellableActionRunner.StateChanged += OnCalcStateChanged;
-            cancellableActionRunner.Finished += OnCalcFinished;
+            cancellableActionRunner = new CancellableActionRunner(
+                OnCalcFinished, OnCalcStateChanged);
 
             hasherService.HashCalculated += UpdateUIWithResult;
             hasherService.UiUpdateContext = this;
