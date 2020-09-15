@@ -34,6 +34,15 @@ namespace Andy.FlacHash.Win
             StateChanged(inProgress);
         }
 
+        private void OnFinished()
+        {
+            ToggleActionState(false);
+
+            Finished(cancellationTokenSource.IsCancellationRequested);
+
+            cancellationTokenSource.Dispose();
+        }
+
         /// <summary>
         /// Starts an action
         /// </summary>
@@ -56,15 +65,6 @@ namespace Andy.FlacHash.Win
         public void Cancel()
         {
             cancellationTokenSource.Cancel();
-        }
-
-        private void OnFinished()
-        {
-            ToggleActionState(false);
-
-            Finished(cancellationTokenSource.IsCancellationRequested);
-
-            cancellationTokenSource.Dispose();
         }
     }
 }
