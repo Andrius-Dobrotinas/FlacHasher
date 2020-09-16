@@ -13,17 +13,20 @@ namespace Andy.FlacHash.Win
 
     public class CancellableActionRunner
     {
+        public delegate void CompletionHandler(bool cancelled);
+        public delegate void StateChangeHandler(bool inProgress);
+
         private CancellationTokenSource cancellationTokenSource;
         private bool inProgress = false;
 
         public bool InProgress => inProgress;
 
-        private readonly Action<bool> reportCompletion;
-        private readonly Action<bool> stateChanged;
+        private readonly CompletionHandler reportCompletion;
+        private readonly StateChangeHandler stateChanged;
 
         /// <param name="reportCompletion">Invoked when an action is completed</param>
         /// <param name="stateChanged">Invoked on transitions between in-progress and the opposite state</param>
-        public CancellableActionRunner(Action<bool> reportCompletion, Action<bool> stateChanged)
+        public CancellableActionRunner(CompletionHandler reportCompletion, StateChangeHandler stateChanged)
         {
             this.reportCompletion = reportCompletion ?? throw new ArgumentNullException(nameof(reportCompletion));
             this.stateChanged = stateChanged ?? throw new ArgumentNullException(nameof(stateChanged));

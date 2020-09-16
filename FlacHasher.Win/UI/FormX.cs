@@ -98,9 +98,9 @@ namespace Andy.FlacHash.Win.UI
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
 
-        private void OnCalcFinished(bool wasCancelled)
+        private void OnCalcFinished(bool cancelled)
         {
-            if (wasCancelled)
+            if (cancelled)
             {
                 btn_go.Enabled = true;
                 progressReporter.Reset(0);
