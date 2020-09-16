@@ -4,25 +4,18 @@ using System.Threading;
 
 namespace Andy.FlacHash.Win
 {
-    /// <summary>
-    /// An action that honors a cancellation token and runs another action when it's done
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <param name="finishedCallback">An action that's run when the main action is finished</param>
-    public delegate void BeginCancellableAction(CancellationToken cancellationToken, Action finishedCallback);
-
     public class CancellableActionRunner
     {
         public delegate void CompletionHandler(bool cancelled);
         public delegate void StateChangeHandler(bool inProgress);
 
+        private readonly CompletionHandler reportCompletion;
+        private readonly StateChangeHandler stateChanged;
+
         private CancellationTokenSource cancellationTokenSource;
         private bool inProgress = false;
 
         public bool InProgress => inProgress;
-
-        private readonly CompletionHandler reportCompletion;
-        private readonly StateChangeHandler stateChanged;
 
         /// <param name="reportCompletion">Invoked when an action is completed</param>
         /// <param name="stateChanged">Invoked on transitions between in-progress and the opposite state</param>

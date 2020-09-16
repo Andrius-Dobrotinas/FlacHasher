@@ -4,6 +4,13 @@ using System.Threading;
 
 namespace Andy.FlacHash.Win
 {
+    /// <summary>
+    /// An action that honors a cancellation token and runs another action when it's done
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="finishedCallback">An action that's run when the main action is finished</param>
+    public delegate void BeginCancellableAction(CancellationToken cancellationToken, Action finishedCallback);
+
     public static class CancellableActionStarter
     {
         /// <summary>
