@@ -11,7 +11,7 @@ namespace Andy.FlacHash.Win.UI
     /// </summary>
     public class HashCalcOnSeparateThreadService
     {
-        private readonly IMultipleFileHasher hasher;
+        private readonly IReportingMultipleFileHasher hasher;
         private readonly ActionOnNonUiThreadRunner nonUiActionRunner;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Win.UI
         /// </summary>
         public event Action<FileHashResult> HashCalculated;
 
-        public HashCalcOnSeparateThreadService(IMultipleFileHasher hasher,
+        public HashCalcOnSeparateThreadService(IReportingMultipleFileHasher hasher,
             ActionOnNonUiThreadRunner nonUiActionRunner)
         {
             this.hasher = hasher;
@@ -41,28 +41,10 @@ namespace Andy.FlacHash.Win.UI
             if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
 
             nonUiActionRunner.Run(
-                reportProgress => CalcHashesAndReportOnUIThread(sourceFiles, reportProgress, cancellationToken),
+                reportProgress => hasher.ComputeHashes(sourceFiles, reportProgress, cancellationToken),
                 HashCalculated,
                 finishedCallback,
                 UiUpdateContext);
-        }
-
-        private void CalcHashesAndReportOnUIThread(
-            IEnumerable<FileInfo> files,
-            Action<FileHashResult> reportHash,
-            CancellationToken cancellationToken)
-        {
-            IEnumerable<FileHashResult> results = hasher.ComputeHashes(files);
-
-            //just in case the op is cancelled right away-ish. you don't want to even start the enumeration in that case
-            if (cancellationToken.IsCancellationRequested) return;
-
-            foreach (var result in results)
-            {
-                if (cancellationToken.IsCancellationRequested) return;
-
-                reportHash(result);
-            }
         }
     }
 }

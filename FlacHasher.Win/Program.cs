@@ -49,7 +49,7 @@ namespace Andy.FlacHash.Win
             }
         }
 
-        private static (IMultipleFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderFile)
+        private static (IReportingMultipleFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderFile)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
@@ -59,8 +59,10 @@ namespace Andy.FlacHash.Win
             var reader = new IO.Audio.DecodingFileReader(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
+            var cancellableHasher = new ReportingMultipleFileHasher(
+                new MultipleFileHasher(hasher));
 
-            return (new MultipleFileHasher(hasher), fileReadProgressReporter);
+            return (cancellableHasher, fileReadProgressReporter);
         }
 
         private static UI.InteractiveDirectoryFileGetter Build_DirectoryFileGetter(string sourceFileFilter)

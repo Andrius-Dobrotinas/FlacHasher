@@ -7,6 +7,9 @@ namespace Andy.FlacHash
 {
     public interface IMultipleFileHasher
     {
+        /// <summary>
+        /// Calculates hashes for each file upon enumeration
+        /// </summary>
         IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files);
     }
 
