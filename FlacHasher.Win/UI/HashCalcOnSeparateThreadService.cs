@@ -41,7 +41,7 @@ namespace Andy.FlacHash.Win.UI
             if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
 
             nonUiActionRunner.Run(
-                reportProgress => hasher.ComputeHashes(sourceFiles, reportProgress, cancellationToken),
+                reportProgressOnUi => hasher.ComputeHashes(sourceFiles, reportProgressOnUi, cancellationToken),
                 HashCalculated,
                 finishedCallback,
                 UiUpdateContext);
