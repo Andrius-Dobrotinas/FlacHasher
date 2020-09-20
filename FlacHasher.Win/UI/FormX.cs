@@ -12,14 +12,13 @@ namespace Andy.FlacHash.Win.UI
 {
     public partial class FormX : Form
     {
-        private readonly HashCalcOnSeparateThreadService hasherService;
+        private readonly HashCalculationService hasherService;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
         private readonly InteractiveDirectoryFileGetter directoryFileGetter;
-        private readonly CancellableActionRunner cancellableActionRunner;
 
         public FormX(
-            HashCalcOnSeparateThreadService hasherService,
+            HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
             IDisplayValueProducer<FileHashResult> displayValueProducer,
             IO.IFileReadEventSource fileReadEventSource,
@@ -29,15 +28,13 @@ namespace Andy.FlacHash.Win.UI
 
             this.list_results.DisplayValueProducer = displayValueProducer;
 
-            this.hasherService = hasherService;
             this.hashFileWriter = hashFileWriter;
             this.directoryFileGetter = directoryFileGetter;
 
-            cancellableActionRunner = new CancellableActionRunner(
-                OnCalcFinished, OnCalcStateChanged);
-
-            hasherService.HashCalculated += UpdateUIWithResult;
-            hasherService.UiUpdateContext = this;
+            this.hasherService = hashCalculationServiceFactory.Build(
+                this,
+                OnCalcFinished,
+                OnCalcStateChanged);
 
             progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
@@ -66,16 +63,16 @@ namespace Andy.FlacHash.Win.UI
 
         private void Btn_Go_Click(object sender, EventArgs e)
         {
-            if (!cancellableActionRunner.InProgress)
-                cancellableActionRunner.Start(StartCalc);
+            if (!hasherService.InProgress)
+                hasherService.Start(PrepCalc(), UpdateUIWithResult);
             else
             {
                 OnCancellation(); // todo this
-                cancellableActionRunner.Cancel();
+                hasherService.Cancel();
             }
         }
 
-        private void StartCalc(CancellationToken cancellationToken, Action calcFinishedCallback)
+        private IEnumerable<FileInfo> PrepCalc()
         {
             var files = this.list_files.GetItems().ToList();
 
@@ -84,7 +81,7 @@ namespace Andy.FlacHash.Win.UI
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.Reset(totalSize);
 
-            hasherService.CalculateHashes(files, cancellationToken, calcFinishedCallback);
+            return files;
         }
 
         private void OnCancellation()

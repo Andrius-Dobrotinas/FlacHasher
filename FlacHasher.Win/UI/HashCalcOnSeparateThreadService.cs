@@ -13,38 +13,32 @@ namespace Andy.FlacHash.Win.UI
     {
         private readonly IReportingMultipleFileHasher hasher;
         private readonly ActionOnNonUiThreadRunner nonUiActionRunner;
+        private readonly Control uiUpdateContext;
 
-        /// <summary>
-        /// A control that is used as a context for UI updates from another thread
-        /// </summary>
-        public Control UiUpdateContext { get; set; }
-
-        /// <summary>
-        /// An event that is fired for each calculated file hash
-        /// </summary>
-        public event Action<FileHashResult> HashCalculated;
-
+        /// <param name="uiUpdateContext">A control that is used as a context for UI updates from another thread</param>
         public HashCalcOnSeparateThreadService(IReportingMultipleFileHasher hasher,
-            ActionOnNonUiThreadRunner nonUiActionRunner)
+            ActionOnNonUiThreadRunner nonUiActionRunner,
+            Control uiUpdateContext)
         {
             this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
             this.nonUiActionRunner = nonUiActionRunner ?? throw new ArgumentNullException(nameof(nonUiActionRunner));
+            this.uiUpdateContext = uiUpdateContext ?? throw new ArgumentNullException(nameof(uiUpdateContext));
         }
 
         public void CalculateHashes(IEnumerable<FileInfo> sourceFiles,
             CancellationToken cancellationToken,
-            Action finishedCallback)
+            Action finishedCallback,
+            Action<FileHashResult> hashCalculated)
         {
-            if (UiUpdateContext == null) throw new InvalidOperationException($"{nameof(UiUpdateContext)} is not set");
-            if (HashCalculated == null) throw new InvalidOperationException($"{nameof(HashCalculated)} event handler is not set");
+            if (hashCalculated == null) throw new ArgumentNullException(nameof(hashCalculated));
 
             if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
 
             nonUiActionRunner.Run(
                 reportProgressOnUi => hasher.ComputeHashes(sourceFiles, reportProgressOnUi, cancellationToken),
-                HashCalculated,
+                hashCalculated,
                 finishedCallback,
-                UiUpdateContext);
+                uiUpdateContext);
         }
     }
 }
