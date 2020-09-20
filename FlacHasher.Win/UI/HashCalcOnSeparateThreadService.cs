@@ -27,8 +27,8 @@ namespace Andy.FlacHash.Win.UI
         public HashCalcOnSeparateThreadService(IReportingMultipleFileHasher hasher,
             ActionOnNonUiThreadRunner nonUiActionRunner)
         {
-            this.hasher = hasher;
-            this.nonUiActionRunner = nonUiActionRunner;
+            this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
+            this.nonUiActionRunner = nonUiActionRunner ?? throw new ArgumentNullException(nameof(nonUiActionRunner));
         }
 
         public void CalculateHashes(IEnumerable<FileInfo> sourceFiles,
