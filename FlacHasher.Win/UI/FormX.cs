@@ -64,27 +64,32 @@ namespace Andy.FlacHash.Win.UI
         private void Btn_Go_Click(object sender, EventArgs e)
         {
             if (!hasherService.InProgress)
-                hasherService.Start(PrepCalc(), UpdateUIWithResult);
+            {
+                var files = GetFiles();
+                BeforeCalc(files);
+                hasherService.Start(files, UpdateUIWithCalcResult);
+            }
             else
             {
-                OnCancellation(); // todo this
+                OnCalcCancellation(); //make the hasher service invoke this when cancelled?
                 hasherService.Cancel();
             }
         }
 
-        private IEnumerable<FileInfo> PrepCalc()
+        private IEnumerable<FileInfo> GetFiles()
         {
-            var files = this.list_files.GetItems().ToList();
+            return this.list_files.GetItems().ToList();
+        }
 
+        private void BeforeCalc(IEnumerable<FileInfo> files)
+        {
             this.list_results.ClearList();
 
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.Reset(totalSize);
-
-            return files;
         }
 
-        private void OnCancellation()
+        private void OnCalcCancellation()
         {
             btn_go.Enabled = false;
             btn_go.Text = "Stopping...";
@@ -104,7 +109,7 @@ namespace Andy.FlacHash.Win.UI
             }
         }
 
-        private void UpdateUIWithResult(FileHashResult result)
+        private void UpdateUIWithCalcResult(FileHashResult result)
         {
             this.list_results.AddItem(result);
             this.Text = result.File.Name;
