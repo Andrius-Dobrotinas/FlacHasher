@@ -30,10 +30,6 @@ namespace Andy.FlacHash.Win.UI
             Action finishedCallback,
             Action<FileHashResult> hashCalculated)
         {
-            if (hashCalculated == null) throw new ArgumentNullException(nameof(hashCalculated));
-
-            if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
-
             nonUiActionRunner.Run(
                 reportProgressOnUi => hasher.ComputeHashes(sourceFiles, reportProgressOnUi, cancellationToken),
                 hashCalculated,
