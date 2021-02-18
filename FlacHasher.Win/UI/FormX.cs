@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Win.UI
             }
             else
             {
-                OnCalcCancellation(); //make the hasher service invoke this when cancelled?
+                OnCalcCancellation(); //TODO: make the hasher service invoke this when cancelled?
                 hasherService.Cancel();
             }
         }
