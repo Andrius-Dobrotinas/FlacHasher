@@ -50,7 +50,14 @@ namespace Andy.FlacHash.Win.UI
             var files = directoryFileGetter.GetFiles();
             if (files == null) return;
 
+            SetNewInputFiles(files);
+        }
+
+        private void SetNewInputFiles(FileInfo[] files)
+        {
             list_files.ReplaceItems(files);
+            list_results.ClearList();
+            progressReporter.Reset(0);
         }
 
         private void SaveHashes(IEnumerable<ListItem<FileHashResult>> results)
