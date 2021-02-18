@@ -43,6 +43,8 @@ namespace Andy.FlacHash.Win.UI
             };
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, SaveHashes);
+
+            this.label_Status.Text = "Select a directory";
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
@@ -55,6 +57,7 @@ namespace Andy.FlacHash.Win.UI
 
         private void SetNewInputFiles(FileInfo[] files)
         {
+            label_Status.Text = @"Press ""Go""";
             list_files.ReplaceItems(files);
             list_results.ClearList();
             progressReporter.Reset(0);
@@ -105,6 +108,7 @@ namespace Andy.FlacHash.Win.UI
         private void OnCalcStateChanged(bool inProgress)
         {
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
+            this.label_Status.Text = "Working...";
         }
 
         private void OnCalcFinished(bool cancelled)
@@ -113,6 +117,12 @@ namespace Andy.FlacHash.Win.UI
             {
                 btn_go.Enabled = true;
                 progressReporter.Reset(0);
+
+                label_Status.Text = "Canceled";
+            }
+            else
+            {
+                label_Status.Text = "Finished";
             }
         }
 

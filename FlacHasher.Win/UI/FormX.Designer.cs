@@ -35,6 +35,7 @@
             this.list_results = new FileHashResultList();
             this.ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.label_Status = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btn_chooseDir
@@ -49,13 +50,13 @@
             // 
             // list_files
             // 
-            this.list_files.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.list_files.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.list_files.FormattingEnabled = true;
             this.list_files.Location = new System.Drawing.Point(137, 9);
             this.list_files.Name = "list_files";
             this.list_files.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.list_files.Size = new System.Drawing.Size(566, 147);
+            this.list_files.Size = new System.Drawing.Size(566, 121);
             this.list_files.TabIndex = 2;
             // 
             // btn_go
@@ -70,8 +71,8 @@
             // 
             // list_results
             // 
-            this.list_results.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.list_results.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.list_results.FormattingEnabled = true;
             this.list_results.Location = new System.Drawing.Point(137, 162);
@@ -91,11 +92,20 @@
             this.progressBar.Size = new System.Drawing.Size(115, 22);
             this.progressBar.TabIndex = 5;
             // 
+            // label_Status
+            // 
+            this.label_Status.AutoSize = true;
+            this.label_Status.Location = new System.Drawing.Point(137, 137);
+            this.label_Status.Name = "label_Status";
+            this.label_Status.Size = new System.Drawing.Size(0, 13);
+            this.label_Status.TabIndex = 6;
+            // 
             // FormX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(715, 296);
+            this.Controls.Add(this.label_Status);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.list_results);
             this.Controls.Add(this.btn_go);
@@ -104,6 +114,7 @@
             this.Name = "FormX";
             this.Text = "FormX";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -115,5 +126,6 @@
         private FileHashResultList list_results;
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
         private System.Windows.Forms.ProgressBar progressBar;
+        private System.Windows.Forms.Label label_Status;
     }
 }
