@@ -36,7 +36,7 @@ namespace Andy.FlacHash.Win.UI
                 OnCalcFinished,
                 OnCalcStateChanged);
 
-            progressReporter = new FileSizeProgressBarAdapter(progressBar);
+            this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
             fileReadEventSource.BytesRead += (bytesRead) => {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
@@ -45,6 +45,7 @@ namespace Andy.FlacHash.Win.UI
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, SaveHashes);
 
             this.label_Status.Text = "Select a directory";
+            this.btn_go.Enabled = false;
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
