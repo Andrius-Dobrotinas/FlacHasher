@@ -52,15 +52,20 @@ namespace Andy.FlacHash.Win.UI
             var files = directoryFileGetter.GetFiles();
             if (files == null) return;
 
+            if (files.Any() == false)
+                label_Status.Text = "The selected directory doesn't contain files suitable files";
+            else
+                label_Status.Text = @"Press ""Go""";
+
             SetNewInputFiles(files);
         }
 
         private void SetNewInputFiles(FileInfo[] files)
         {
-            label_Status.Text = @"Press ""Go""";
             list_files.ReplaceItems(files);
             list_results.ClearList();
             progressReporter.Reset(0);
+            btn_go.Enabled = files.Any();
         }
 
         private void SaveHashes(IEnumerable<ListItem<FileHashResult>> results)
