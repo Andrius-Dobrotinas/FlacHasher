@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Andy.FlacHash.Win.UI
 {
@@ -24,7 +25,7 @@ namespace Andy.FlacHash.Win.UI
             Action<FileHashResult> hashCalculated)
         {
             cancellableActionRunner.Start(
-                (cancellationToken, finishedCallback) => hashCalcOnSeparateThreadService.CalculateHashes(
+                (cancellationToken, finishedCallback) => hashCalcOnSeparateThreadService.StartHashCalculation(
                     sourceFiles,
                     cancellationToken,
                     finishedCallback,

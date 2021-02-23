@@ -10,36 +10,35 @@ namespace Andy.FlacHash.Win
         public delegate void ActionReportingProgressOnUiThread<TProgress>(Action<TProgress> reportProgressOnUiThread);
 
         /// <summary>
-        /// Runs a given action on a non-UI thread, but does the progress reporting and
-        /// the invocation of a post-action callback on a UI thread
+        /// Runs a given operation in a new thread, but does the progress reporting in a specified context (that is tied to a thread)
         /// </summary>
-        /// <typeparam name="TProgress">Type of object that represents action progress</typeparam>
-        /// <param name="action">An action that is invoked on a non-UI thread</param>
-        /// <param name="reportProgress">An action that reports progress and is to be invoked on a UI thread</param>
-        /// <param name="finishedCallback">An action that's invoked on a UI thread when the main action finishes</param>
-        /// <param name="uiUpdateContext">A control which will be used for running an action on a UI thread</param>
-        public void Run<TProgress>(
-            ActionReportingProgressOnUiThread<TProgress> action,
-            Action<TProgress> reportProgress,
-            Action finishedCallback,
-            Control uiUpdateContext)
+        /// <typeparam name="TProgress">Type of object that represents progress of the operation</typeparam>
+        /// <param name="operation">An operation that is started in a new thread</param>
+        /// <param name="progressReportingContext">A context (thread) in which the reporting of process is to be carried out</param>
+        /// <param name="reportProgressInContext">An action that reports progress of the opration</param>
+        /// <param name="reportCompletionInContext">An action that reports the completion of the operation</param>
+        public Task Start<TProgress>(
+            ActionReportingProgressOnUiThread<TProgress> operation,
+            Control progressReportingContext,
+            Action<TProgress> reportProgressInContext,
+            Action reportCompletionInContext)
         {
-            if (action == null) throw new ArgumentNullException(nameof(action));
-            if (uiUpdateContext == null) throw new ArgumentNullException(nameof(uiUpdateContext));
-            if (reportProgress == null) throw new ArgumentNullException(nameof(reportProgress));
-            if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
+            if (operation == null) throw new ArgumentNullException(nameof(operation));
+            if (progressReportingContext == null) throw new ArgumentNullException(nameof(progressReportingContext));
+            if (reportProgressInContext == null) throw new ArgumentNullException(nameof(reportProgressInContext));
+            if (reportCompletionInContext == null) throw new ArgumentNullException(nameof(reportCompletionInContext));
 
             void ReportProgress_OnUiThread(TProgress result)
             {
-                uiUpdateContext.Invoke(new Action(() => reportProgress(result)));
+                progressReportingContext.Invoke(new Action(() => reportProgressInContext(result)));
             }
 
-            void RunPostAction_OnUiThread(Task task) => uiUpdateContext.Invoke(finishedCallback);
+            void RunPostAction_OnUiThread(Task task) => progressReportingContext.Invoke(reportCompletionInContext);
 
-            Task.Factory
+            return Task.Factory
                 .StartNew(() =>
                 {
-                    action(ReportProgress_OnUiThread);
+                    operation(ReportProgress_OnUiThread);
                 })
                 .ContinueWith(RunPostAction_OnUiThread);
         }

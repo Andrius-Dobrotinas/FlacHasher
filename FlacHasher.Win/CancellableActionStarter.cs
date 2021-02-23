@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Andy.FlacHash.Win
 {
     /// <summary>
-    /// An action that honors a cancellation token and runs another action when it's done
+    /// An action that honors a cancellation token and runs a supplied <see cref="finishedCallback"/> when it's done
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <param name="finishedCallback">An action that's run when the main action is finished</param>
-    public delegate void BeginCancellableAction(CancellationToken cancellationToken, Action finishedCallback);
+    public delegate Task BeginCancellableAction(CancellationToken cancellationToken, Action finishedCallback);
 
     public static class CancellableActionStarter
     {
@@ -18,7 +19,7 @@ namespace Andy.FlacHash.Win
         /// </summary>
         /// <param name="beginCancellableAction">An action that begins an action into which a cancellation token is injected</param>
         /// <param name="finishedCallback">A callback that runs when an action in question finishes</param>
-        public static CancellationTokenSource Start(
+        public static (Task, CancellationTokenSource) Start(
             BeginCancellableAction beginCancellableAction,
             Action finishedCallback)
         {
@@ -27,9 +28,9 @@ namespace Andy.FlacHash.Win
 
             var cancellationTokenSource = new CancellationTokenSource();
 
-            beginCancellableAction(cancellationTokenSource.Token, finishedCallback);
+            var task = beginCancellableAction(cancellationTokenSource.Token, finishedCallback);
 
-            return cancellationTokenSource;
+            return (task, cancellationTokenSource);
         }
     }
 }

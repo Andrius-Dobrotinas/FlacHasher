@@ -2,39 +2,40 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win.UI
 {
     /// <summary>
-    /// Calculates hash on a new thread and returns results via an event fired on a UI thread
+    /// Starts the operation of hash calculation in a new thread with progress reported on a UI thead
     /// </summary>
     public class HashCalcOnSeparateThreadService
     {
         private readonly IReportingMultipleFileHasher hasher;
         private readonly ActionOnNonUiThreadRunner nonUiActionRunner;
-        private readonly Control uiUpdateContext;
+        private readonly Control progressReportingContext;
 
-        /// <param name="uiUpdateContext">A control that is used as a context for UI updates from another thread</param>
+        /// <param name="progressReportingContext">A control that is used as a context for UI updates from an operation running on a separate thread</param>
         public HashCalcOnSeparateThreadService(IReportingMultipleFileHasher hasher,
             ActionOnNonUiThreadRunner nonUiActionRunner,
-            Control uiUpdateContext)
+            Control progressReportingContext)
         {
             this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
             this.nonUiActionRunner = nonUiActionRunner ?? throw new ArgumentNullException(nameof(nonUiActionRunner));
-            this.uiUpdateContext = uiUpdateContext ?? throw new ArgumentNullException(nameof(uiUpdateContext));
+            this.progressReportingContext = progressReportingContext ?? throw new ArgumentNullException(nameof(progressReportingContext));
         }
 
-        public void CalculateHashes(IEnumerable<FileInfo> sourceFiles,
+        public Task StartHashCalculation(IEnumerable<FileInfo> sourceFiles,
             CancellationToken cancellationToken,
-            Action finishedCallback,
-            Action<FileHashResult> hashCalculated)
+            Action reportCompletionInContext,
+            Action<FileHashResult> reportHashInContext)
         {
-            nonUiActionRunner.Run(
+            return nonUiActionRunner.Start(
                 reportProgressOnUi => hasher.ComputeHashes(sourceFiles, reportProgressOnUi, cancellationToken),
-                hashCalculated,
-                finishedCallback,
-                uiUpdateContext);
+                progressReportingContext,
+                reportHashInContext,
+                reportCompletionInContext);
         }
     }
 }
