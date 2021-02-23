@@ -17,12 +17,12 @@ namespace Andy.FlacHash.Win.UI
             this.nonUiActionRunner = nonUiActionRunner;
         }
 
-        public HashCalculationService Build(
+        public NonBlockingHashCalculationService Build(
             Control uiUpdateContext,
             CancellableActionRunner.CompletionHandler reportCompletion,
             CancellableActionRunner.StateChangeHandler stateChanged)
         {
-            return new HashCalculationService(
+            return new NonBlockingHashCalculationService(
                 new HashCalcOnSeparateThreadService(hasher, nonUiActionRunner, uiUpdateContext),
                 new CancellableActionRunner(reportCompletion, stateChanged));
         }

@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Andy.FlacHash.Win.UI
 {
-    public class HashCalculationService
+    public class NonBlockingHashCalculationService
     {
         public readonly HashCalcOnSeparateThreadService hashCalcOnSeparateThreadService;
         private readonly CancellableActionRunner cancellableActionRunner;
 
-        public HashCalculationService(
+        public NonBlockingHashCalculationService(
             HashCalcOnSeparateThreadService hashCalcOnSeparateThreadService,
             CancellableActionRunner cancellableActionRunner)
         {
