@@ -7,11 +7,11 @@ namespace Andy.FlacHash.Win.UI
     public class HashCalculationServiceFactory
     {
         private readonly IReportingMultipleFileHasher hasher;
-        private readonly ActionOnNonUiThreadRunner nonUiActionRunner;
+        private readonly ProgressReportingOperationRunner nonUiActionRunner;
 
         public HashCalculationServiceFactory(
             IReportingMultipleFileHasher hasher,
-            ActionOnNonUiThreadRunner nonUiActionRunner)
+            ProgressReportingOperationRunner nonUiActionRunner)
         {
             this.hasher = hasher;
             this.nonUiActionRunner = nonUiActionRunner;

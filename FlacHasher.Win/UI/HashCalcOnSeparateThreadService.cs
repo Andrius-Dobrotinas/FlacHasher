@@ -13,12 +13,12 @@ namespace Andy.FlacHash.Win.UI
     public class HashCalcOnSeparateThreadService
     {
         private readonly IReportingMultipleFileHasher hasher;
-        private readonly ActionOnNonUiThreadRunner nonUiActionRunner;
+        private readonly ProgressReportingOperationRunner nonUiActionRunner;
         private readonly Control progressReportingContext;
 
         /// <param name="progressReportingContext">A control that is used as a context for UI updates from an operation running on a separate thread</param>
         public HashCalcOnSeparateThreadService(IReportingMultipleFileHasher hasher,
-            ActionOnNonUiThreadRunner nonUiActionRunner,
+            ProgressReportingOperationRunner nonUiActionRunner,
             Control progressReportingContext)
         {
             this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
@@ -31,8 +31,8 @@ namespace Andy.FlacHash.Win.UI
             Action reportCompletionInContext,
             Action<FileHashResult> reportHashInContext)
         {
-            return nonUiActionRunner.Start(
-                reportProgressOnUi => hasher.ComputeHashes(sourceFiles, reportProgressOnUi, cancellationToken),
+            return nonUiActionRunner.StartOnNewThread(
+                reportProgressInUi => hasher.ComputeHashes(sourceFiles, reportProgressInUi, cancellationToken),
                 progressReportingContext,
                 reportHashInContext,
                 reportCompletionInContext);

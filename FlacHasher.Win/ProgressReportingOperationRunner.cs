@@ -5,9 +5,9 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win
 {
-    public class ActionOnNonUiThreadRunner
+    public class ProgressReportingOperationRunner
     {
-        public delegate void ActionReportingProgressOnUiThread<TProgress>(Action<TProgress> reportProgressOnUiThread);
+        public delegate void ProgressReportingOperation<TProgress>(Action<TProgress> reportProgress);
 
         /// <summary>
         /// Runs a given operation in a new thread, but does the progress reporting in a specified context (that is tied to a thread)
@@ -17,8 +17,8 @@ namespace Andy.FlacHash.Win
         /// <param name="progressReportingContext">A context (thread) in which the reporting of process is to be carried out</param>
         /// <param name="reportProgressInContext">An action that reports progress of the opration</param>
         /// <param name="reportCompletionInContext">An action that reports the completion of the operation</param>
-        public Task Start<TProgress>(
-            ActionReportingProgressOnUiThread<TProgress> operation,
+        public Task StartOnNewThread<TProgress>(
+            ProgressReportingOperation<TProgress> operation,
             Control progressReportingContext,
             Action<TProgress> reportProgressInContext,
             Action reportCompletionInContext)
