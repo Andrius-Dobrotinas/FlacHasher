@@ -48,7 +48,7 @@ namespace Andy.FlacHash.Win.UI
             this.btn_go.Enabled = false;
 
             this.mode_Calc.Checked = true;
-            SetMode(Mode.Calculate);
+            SetMode(Mode.Calculation);
 
             this.list_verification_results.View = View.Details;
         }
@@ -97,12 +97,12 @@ namespace Andy.FlacHash.Win.UI
 
                 switch (mode)
                 {
-                    case Mode.Calculate:
+                    case Mode.Calculation:
                         {
                             hasherService.Start(files, UpdateUIWithCalcResult);
                             return;
                         }
-                    case Mode.Verify:
+                    case Mode.Verification:
                         {
                             var targetHashes = File.ReadAllLines(hashFile.FullName);
                             int i = 0;
@@ -185,28 +185,28 @@ namespace Andy.FlacHash.Win.UI
 
         public enum Mode
         {
-            Calculate,
-            Verify
+            Calculation,
+            Verification
         }
 
         private Mode mode;
 
         private void mode_Calc_CheckedChanged(object sender, EventArgs e)
         {
-            SetMode(Mode.Calculate);
+            SetMode(Mode.Calculation);
         }
 
         private void mode_Verify_CheckedChanged(object sender, EventArgs e)
         {
-            SetMode(Mode.Verify);
+            SetMode(Mode.Verification);
         }
 
         private void SetMode(Mode mode)
         {
             this.mode = mode;
 
-            this.list_results.Visible = mode == Mode.Calculate;
-            this.list_verification_results.Visible = mode == Mode.Verify;
+            this.list_results.Visible = mode == Mode.Calculation;
+            this.list_verification_results.Visible = mode == Mode.Verification;
         }
     }
 }
