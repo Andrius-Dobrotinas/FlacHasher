@@ -38,6 +38,9 @@
             this.label_Status = new System.Windows.Forms.Label();
             this.mode_Verify = new System.Windows.Forms.RadioButton();
             this.mode_Calc = new System.Windows.Forms.RadioButton();
+            this.list_verification_results = new System.Windows.Forms.ListView();
+            this.col_file = new System.Windows.Forms.ColumnHeader();
+            this.col_isMatch = new System.Windows.Forms.ColumnHeader();
             this.SuspendLayout();
             // 
             // btn_chooseDir
@@ -137,11 +140,33 @@
             this.mode_Calc.UseVisualStyleBackColor = true;
             this.mode_Calc.CheckedChanged += new System.EventHandler(this.mode_Calc_CheckedChanged);
             // 
+            // list_verification_results
+            // 
+            this.list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.col_file,
+            this.col_isMatch});
+            this.list_verification_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.list_verification_results.HideSelection = false;
+            this.list_verification_results.Location = new System.Drawing.Point(160, 187);
+            this.list_verification_results.Name = "list_verification_results";
+            this.list_verification_results.Size = new System.Drawing.Size(660, 139);
+            this.list_verification_results.TabIndex = 10;
+            this.list_verification_results.UseCompatibleStateImageBehavior = false;
+            // 
+            // col_file
+            // 
+            this.col_file.Text = "File";
+            // 
+            // col_isMatch
+            // 
+            this.col_isMatch.Text = "Matches";
+            // 
             // FormX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(834, 342);
+            this.Controls.Add(this.list_verification_results);
             this.Controls.Add(this.mode_Verify);
             this.Controls.Add(this.mode_Calc);
             this.Controls.Add(this.label_Status);
@@ -169,5 +194,8 @@
         private System.Windows.Forms.Label label_Status;
         private System.Windows.Forms.RadioButton mode_Verify;
         private System.Windows.Forms.RadioButton mode_Calc;
+        private System.Windows.Forms.ListView list_verification_results;
+        private System.Windows.Forms.ColumnHeader col_file;
+        private System.Windows.Forms.ColumnHeader col_isMatch;
     }
 }

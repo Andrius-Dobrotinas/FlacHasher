@@ -48,7 +48,9 @@ namespace Andy.FlacHash.Win.UI
             this.btn_go.Enabled = false;
 
             this.mode_Calc.Checked = true;
-            this.mode = Mode.Calculate;
+            SetMode(Mode.Calculate);
+
+            this.list_verification_results.View = View.Details;
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
@@ -111,8 +113,14 @@ namespace Andy.FlacHash.Win.UI
                                         .Replace("-", "").ToLowerInvariant();
                                     var isMatch = string.Equals(targetHashes[i], hash, StringComparison.OrdinalIgnoreCase);
 
-                                    MessageBox.Show($"{result.File.FullName}: match: {isMatch}");
-                                    UpdateUIWithCalcResult(result);
+                                    var item = new ListViewItem
+                                    {
+                                        Text = result.File.Name,
+                                    };
+
+                                    item.SubItems.Add(isMatch.ToString());
+
+                                    this.list_verification_results.Items.Add(item);
 
                                     i++;
                                 });
@@ -185,12 +193,20 @@ namespace Andy.FlacHash.Win.UI
 
         private void mode_Calc_CheckedChanged(object sender, EventArgs e)
         {
-            mode = Mode.Calculate;
+            SetMode(Mode.Calculate);
         }
 
         private void mode_Verify_CheckedChanged(object sender, EventArgs e)
         {
-            mode = Mode.Verify;
+            SetMode(Mode.Verify);
+        }
+
+        private void SetMode(Mode mode)
+        {
+            this.mode = mode;
+
+            this.list_results.Visible = mode == Mode.Calculate;
+            this.list_verification_results.Visible = mode == Mode.Verify;
         }
     }
 }
