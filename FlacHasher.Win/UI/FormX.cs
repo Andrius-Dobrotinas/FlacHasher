@@ -15,21 +15,21 @@ namespace Andy.FlacHash.Win.UI
         private readonly NonBlockingHashCalculationService hasherService;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
-        private readonly InteractiveDirectoryFileGetter directoryFileGetter;
+        private readonly InteractiveFileGetter sourceFileGetter;
 
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
             IDisplayValueProducer<FileHashResult> displayValueProducer,
             IO.IFileReadEventSource fileReadEventSource,
-            InteractiveDirectoryFileGetter directoryFileGetter)
+            InteractiveFileGetter sourceFileGetter)
         {
             InitializeComponent();
 
             this.list_results.DisplayValueProducer = displayValueProducer;
 
             this.hashFileWriter = hashFileWriter;
-            this.directoryFileGetter = directoryFileGetter;
+            this.sourceFileGetter = sourceFileGetter;
 
             this.hasherService = hashCalculationServiceFactory.Build(
                 this,
@@ -46,28 +46,37 @@ namespace Andy.FlacHash.Win.UI
 
             this.label_Status.Text = "Select a directory";
             this.btn_go.Enabled = false;
+
+            this.mode_Calc.Checked = true;
+            this.mode = Mode.Calculate;
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
-            var files = directoryFileGetter.GetFiles();
-            if (files == null) return;
+            var result = sourceFileGetter.GetFiles();
+            if (result == null) return;
+
+            var files = result.Value.Item1;
+            var hashFile = result.Value.Item2;
 
             if (files.Any() == false)
                 label_Status.Text = "The selected directory doesn't contain files suitable files";
             else
                 label_Status.Text = @"Press ""Go""";
 
-            SetNewInputFiles(files);
+            SetNewInputFiles(files, hashFile);
         }
 
-        private void SetNewInputFiles(FileInfo[] files)
+        private void SetNewInputFiles(FileInfo[] files, FileInfo hashFile)
         {
             list_files.ReplaceItems(files);
+            this.hashFile = hashFile;
             list_results.ClearList();
             progressReporter.Reset(0);
             btn_go.Enabled = files.Any();
         }
+
+        private FileInfo hashFile;
 
         private void SaveHashes(IEnumerable<ListItem<FileHashResult>> results)
         {
@@ -83,7 +92,35 @@ namespace Andy.FlacHash.Win.UI
             {
                 var files = GetFiles();
                 BeforeCalc(files);
-                hasherService.Start(files, UpdateUIWithCalcResult);
+
+                switch (mode)
+                {
+                    case Mode.Calculate:
+                        {
+                            hasherService.Start(files, UpdateUIWithCalcResult);
+                            return;
+                        }
+                    case Mode.Verify:
+                        {
+                            var targetHashes = File.ReadAllLines(hashFile.FullName);
+                            int i = 0;
+                            hasherService.Start(files,
+                                (FileHashResult result) =>
+                                {
+                                    var hash = BitConverter.ToString(result.Hash)
+                                        .Replace("-", "").ToLowerInvariant();
+                                    var isMatch = string.Equals(targetHashes[i], hash, StringComparison.OrdinalIgnoreCase);
+
+                                    MessageBox.Show($"{result.File.FullName}: match: {isMatch}");
+                                    UpdateUIWithCalcResult(result);
+
+                                    i++;
+                                });
+                            return;
+                        }
+                    default:
+                        throw new NotImplementedException();
+                }
             }
             else
             {
@@ -136,6 +173,24 @@ namespace Andy.FlacHash.Win.UI
         {
             this.list_results.AddItem(result);
             this.Text = result.File.Name;
+        }
+
+        public enum Mode
+        {
+            Calculate,
+            Verify
+        }
+
+        private Mode mode;
+
+        private void mode_Calc_CheckedChanged(object sender, EventArgs e)
+        {
+            mode = Mode.Calculate;
+        }
+
+        private void mode_Verify_CheckedChanged(object sender, EventArgs e)
+        {
+            mode = Mode.Verify;
         }
     }
 }

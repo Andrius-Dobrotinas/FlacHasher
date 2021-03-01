@@ -26,16 +26,12 @@ namespace Andy.FlacHash.Win.UI
         /// <summary>
         /// Shows a file dialog and either returns a list of files or null if the operation is cancelled by the user
         /// </summary>
-        public FileInfo[] GetFiles()
+        public DirectoryInfo GetDirectory()
         {
             var result = dirBrowser.ShowDialog();
             if (result != DialogResult.OK) return null;
 
-            var path = new DirectoryInfo(dirBrowser.SelectedPath);
-
-            return IOUtil
-                .FindFiles(path, sourceFileFilter)
-                .ToArray();
+            return new DirectoryInfo(dirBrowser.SelectedPath);
         }
 
         public void Dispose()

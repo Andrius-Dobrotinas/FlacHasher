@@ -12,6 +12,7 @@ namespace Andy.FlacHash.Win
         const string settingsFileName = "settings.cfg";
         const string hashRepresentationFormat = "{hash}";
         const string supportedFileExtensions = "*.flac";
+        const string hashFileExtension = "*.hash";
         const int processTimeoutSec = 300; // todo: read this from the settings file
 
         [STAThread]
@@ -45,7 +46,10 @@ namespace Andy.FlacHash.Win
                         new InteractiveTextFileWriter(saveHashesToFileDialog),
                         new UI.HashDisplayValueFactory(hashRepresentationFormat),
                         progressReporter,
-                        sourceFileGetter));
+                        new UI.InteractiveFileGetter(
+                            sourceFileGetter,
+                            supportedFileExtensions,
+                            hashFileExtension)));
             }
         }
 
