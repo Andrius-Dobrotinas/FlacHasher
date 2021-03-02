@@ -12,17 +12,17 @@ namespace Andy.FlacHash.Win.UI
     public class InteractiveFileGetter
     {
         private readonly InteractiveDirectoryFileGetter dirBrowser;
-        private readonly string sourceFileFilter;
-        private readonly string hashFileFilter;
+        private readonly string targetFileExtension;
+        private readonly string hashFileExtension;
 
         public InteractiveFileGetter(
             InteractiveDirectoryFileGetter dirBrowser,
-            string sourceFileFilter,
-            string hashFileFilter)
+            string targetFileExtension,
+            string hashFileExtension)
         {
             this.dirBrowser = dirBrowser;
-            this.sourceFileFilter = sourceFileFilter;
-            this.hashFileFilter = hashFileFilter;
+            this.targetFileExtension = targetFileExtension;
+            this.hashFileExtension = hashFileExtension;
         }
 
         /// <summary>
@@ -30,16 +30,21 @@ namespace Andy.FlacHash.Win.UI
         /// </summary>
         public (FileInfo[], FileInfo)? GetFiles()
         {
-            var result = dirBrowser.GetDirectory();
-            if (result == null) return null;
+            var directory = dirBrowser.GetDirectory();
+            if (directory == null) return null;
 
-            var files = IOUtil
-                .FindFiles(result, sourceFileFilter)
-                .ToArray();
+            var allFiles = IOUtil.FindFiles(directory, new string[] { targetFileExtension, hashFileExtension })
+                .GroupBy(x => x.Extension)
+                .ToArray()
+                .ToDictionary(x => x.Key, x => x.ToArray());
 
-            var hashFile = IOUtil
-                .FindFiles(result, hashFileFilter)
-                .FirstOrDefault();
+            var files = allFiles.ContainsKey(targetFileExtension)
+                ? allFiles[targetFileExtension]
+                : new FileInfo[0];
+
+            var hashFile = allFiles.ContainsKey(hashFileExtension)
+                ? allFiles[hashFileExtension].First()
+                : null;
 
             return (files, hashFile);
         }
