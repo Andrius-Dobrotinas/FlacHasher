@@ -12,17 +12,14 @@ namespace Andy.FlacHash.Win.UI
     public class InteractiveFileGetter
     {
         private readonly InteractiveDirectoryFileGetter dirBrowser;
-        private readonly string targetFileExtension;
-        private readonly string hashFileExtension;
+        private readonly TargetFileResolver targetFileResolver;
 
         public InteractiveFileGetter(
             InteractiveDirectoryFileGetter dirBrowser,
-            string targetFileExtension,
-            string hashFileExtension)
+            TargetFileResolver targetFileResolver)
         {
             this.dirBrowser = dirBrowser;
-            this.targetFileExtension = targetFileExtension;
-            this.hashFileExtension = hashFileExtension;
+            this.targetFileResolver = targetFileResolver;
         }
 
         /// <summary>
@@ -33,20 +30,7 @@ namespace Andy.FlacHash.Win.UI
             var directory = dirBrowser.GetDirectory();
             if (directory == null) return null;
 
-            var allFiles = IOUtil.FindFiles(directory, new string[] { targetFileExtension, hashFileExtension })
-                .GroupBy(x => x.Extension)
-                .ToArray()
-                .ToDictionary(x => x.Key, x => x.ToArray());
-
-            var files = allFiles.ContainsKey(targetFileExtension)
-                ? allFiles[targetFileExtension]
-                : new FileInfo[0];
-
-            var hashFile = allFiles.ContainsKey(hashFileExtension)
-                ? allFiles[hashFileExtension].First()
-                : null;
-
-            return (files, hashFile);
+            return targetFileResolver.GetFiles(directory);
         }
 
         public void Dispose()

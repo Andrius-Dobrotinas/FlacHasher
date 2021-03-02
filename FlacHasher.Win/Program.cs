@@ -48,8 +48,9 @@ namespace Andy.FlacHash.Win
                         progressReporter,
                         new UI.InteractiveFileGetter(
                             sourceFileGetter,
-                            supportedFileExtension,
-                            hashFileExtension)));
+                            new TargetFileResolver(
+                                supportedFileExtension,
+                                hashFileExtension))));
             }
         }
 
