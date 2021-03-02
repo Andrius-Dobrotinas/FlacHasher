@@ -11,7 +11,7 @@ namespace Andy.FlacHash.Win
     {
         const string settingsFileName = "settings.cfg";
         const string hashRepresentationFormat = "{hash}";
-        const string supportedFileExtensions = "*.flac";
+        const string supportedFileExtensions = "*.flac,*.hash";
         const string hashFileExtension = "*.hash";
         const int processTimeoutSec = 300; // todo: read this from the settings file
 
@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Win
             Application.SetCompatibleTextRenderingDefault(false);
 
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
-            using (var sourceFileGetter = Build_DirectoryFileGetter(supportedFileExtensions))
+            using (var sourceFileGetter = Build_DirectoryFileGetter())
             {
                 var (hasher, progressReporter) = BuildHasher(settings.Decoder);
                 Application.Run(
@@ -69,14 +69,14 @@ namespace Andy.FlacHash.Win
             return (cancellableHasher, fileReadProgressReporter);
         }
 
-        private static UI.InteractiveDirectoryFileGetter Build_DirectoryFileGetter(string sourceFileFilter)
+        private static UI.InteractiveDirectoryFileGetter Build_DirectoryFileGetter()
         {
             var dirBrowser = new FolderBrowserDialog
             {
                 ShowNewFolderButton = false
             };
             
-            return new UI.InteractiveDirectoryFileGetter(dirBrowser, sourceFileFilter);
+            return new UI.InteractiveDirectoryFileGetter(dirBrowser);
         }
 
         private static SaveFileDialog Build_SaveHashesToFileDialog()

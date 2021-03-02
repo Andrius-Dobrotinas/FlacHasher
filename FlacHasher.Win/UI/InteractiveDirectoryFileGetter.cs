@@ -12,14 +12,11 @@ namespace Andy.FlacHash.Win.UI
     public class InteractiveDirectoryFileGetter : IDisposable
     {
         private readonly FolderBrowserDialog dirBrowser;
-        private readonly string sourceFileFilter;
 
         public InteractiveDirectoryFileGetter(
-            FolderBrowserDialog dirBrowser,
-            string sourceFileFilter)
+            FolderBrowserDialog dirBrowser)
         {
             this.dirBrowser = dirBrowser;
-            this.sourceFileFilter = sourceFileFilter;
             dirBrowser.ShowNewFolderButton = false;
         }
 
