@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Win
             Application.SetCompatibleTextRenderingDefault(false);
 
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
-            using (var sourceFileGetter = Build_DirectoryFileGetter())
+            using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
                 var (hasher, progressReporter) = BuildHasher(settings.Decoder);
                 Application.Run(
@@ -46,11 +46,10 @@ namespace Andy.FlacHash.Win
                         new InteractiveTextFileWriter(saveHashesToFileDialog),
                         new UI.HashDisplayValueFactory(hashRepresentationFormat),
                         progressReporter,
-                        new UI.InteractiveFileGetter(
-                            sourceFileGetter,
-                            new TargetFileResolver(
-                                supportedFileExtension,
-                                hashFileExtension))));
+                        directoryResolver,
+                        new TargetFileResolver(
+                            supportedFileExtension,
+                            hashFileExtension)));
             }
         }
 
@@ -70,7 +69,7 @@ namespace Andy.FlacHash.Win
             return (cancellableHasher, fileReadProgressReporter);
         }
 
-        private static UI.InteractiveDirectoryFileGetter Build_DirectoryFileGetter()
+        private static UI.InteractiveDirectoryFileGetter Build_InteractiveDirectoryResolverGetter()
         {
             var dirBrowser = new FolderBrowserDialog
             {

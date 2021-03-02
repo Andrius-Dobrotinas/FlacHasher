@@ -15,21 +15,25 @@ namespace Andy.FlacHash.Win.UI
         private readonly NonBlockingHashCalculationService hasherService;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
-        private readonly InteractiveFileGetter sourceFileGetter;
+
+        private readonly InteractiveDirectoryFileGetter dirBrowser;
+        private readonly TargetFileResolver targetFileResolver;
 
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
             IDisplayValueProducer<FileHashResult> displayValueProducer,
             IO.IFileReadEventSource fileReadEventSource,
-            InteractiveFileGetter sourceFileGetter)
+            InteractiveDirectoryFileGetter dirBrowser,
+            TargetFileResolver targetFileResolver)
         {
             InitializeComponent();
 
             this.list_results.DisplayValueProducer = displayValueProducer;
 
             this.hashFileWriter = hashFileWriter;
-            this.sourceFileGetter = sourceFileGetter;
+            this.dirBrowser = dirBrowser;
+            this.targetFileResolver = targetFileResolver;
 
             this.hasherService = hashCalculationServiceFactory.Build(
                 this,
@@ -55,8 +59,10 @@ namespace Andy.FlacHash.Win.UI
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
-            var result = sourceFileGetter.GetFiles();
-            if (result == null) return;
+            var directory = dirBrowser.GetDirectory();
+            if (directory == null) return;
+
+            var result = targetFileResolver.GetFiles(directory);
 
             var files = result.Value.Item1;
             var hashFile = result.Value.Item2;
