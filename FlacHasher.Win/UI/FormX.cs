@@ -89,6 +89,8 @@ namespace Andy.FlacHash.Win.UI
                 list_hashFiles.Items.Clear();
 
             list_results.ClearList();
+            list_verification_results.Items.Clear();
+
             progressReporter.Reset(0);
             
             Set_Go_Button_State();
@@ -155,12 +157,13 @@ namespace Andy.FlacHash.Win.UI
 
         private IEnumerable<FileInfo> GetFiles()
         {
-            return this.list_files.GetItems().ToList();
+            return list_files.GetItems().ToList();
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
         {
-            this.list_results.ClearList();
+            list_results.ClearList();
+            list_verification_results.Items.Clear();
 
             long totalSize = files.Select(file => file.Length).Sum();
             progressReporter.Reset(totalSize);
