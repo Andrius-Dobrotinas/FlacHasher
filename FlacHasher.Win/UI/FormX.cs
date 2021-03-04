@@ -134,8 +134,7 @@ namespace Andy.FlacHash.Win.UI
                             hasherService.Start(files,
                                 (FileHashResult result) =>
                                 {
-                                    var hash = BitConverter.ToString(result.Hash)
-                                        .Replace("-", "").ToLowerInvariant();
+                                    var hash = HashFormatting.GetInLowercase(result.Hash);
                                     var isMatch = string.Equals(targetHashes[i], hash, StringComparison.OrdinalIgnoreCase);
 
                                     verification_results.Add(result.File, isMatch);
