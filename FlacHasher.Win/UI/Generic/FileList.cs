@@ -10,6 +10,7 @@ namespace Andy.FlacHash.Win.UI
     {
         IEnumerable<FileInfo> GetItems();
         void ReplaceItems(FileInfo[] files);
+        bool Any();
     }
 
     public class FileList : ListBox, IFileList
@@ -17,6 +18,11 @@ namespace Andy.FlacHash.Win.UI
         public FileList()
         {
             this.DisplayMember = nameof(FileInfo.Name);
+        }
+
+        public bool Any()
+        {
+            return this.Items.Count > 0;
         }
 
         public IEnumerable<FileInfo> GetItems()

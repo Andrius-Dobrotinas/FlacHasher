@@ -81,7 +81,15 @@ namespace Andy.FlacHash.Win.UI
             this.hashFile = hashFile;
             list_results.ClearList();
             progressReporter.Reset(0);
-            btn_go.Enabled = files.Any();
+            
+            Set_Go_Button_State();
+        }
+
+        private void Set_Go_Button_State()
+        {
+            var isVerificationPossible = hashFile != null;
+
+            btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || isVerificationPossible);
         }
 
         private FileInfo hashFile;
@@ -213,6 +221,8 @@ namespace Andy.FlacHash.Win.UI
 
             this.list_results.Visible = mode == Mode.Calculation;
             this.list_verification_results.Visible = mode == Mode.Verification;
+
+            Set_Go_Button_State();
         }
     }
 }
