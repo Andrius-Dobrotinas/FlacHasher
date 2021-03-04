@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Win.UI
 
         public string GetDisplayValue(FileHashResult result)
         {
-            return Cmd.OutputFormatter.GetFormattedString(format, result.Hash, result.File);
+            return Cmd.OutputFormatting.GetFormattedString(format, result.Hash, result.File);
         }
     }
 }

@@ -98,7 +98,7 @@ namespace Andy.FlacHash.Cmd
             }
             else
             {
-                string formattedOutput = OutputFormatter.GetFormattedString(format, hash, sourceFile);
+                string formattedOutput = OutputFormatting.GetFormattedString(format, hash, sourceFile);
                 Console.WriteLine(formattedOutput);
             }
         }

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Andy.FlacHash.Cmd
 {
-    public class OutputFormatter
+    public class OutputFormatting
     {
         public static string GetFormattedString(string format, byte[] hash, FileInfo file)
         {
