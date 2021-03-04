@@ -19,6 +19,8 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveDirectoryFileGetter dirBrowser;
         private readonly TargetFileResolver targetFileResolver;
 
+        private readonly VerificationResultsListWrapper verification_results;
+
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
@@ -55,6 +57,7 @@ namespace Andy.FlacHash.Win.UI
             SetMode(Mode.Calculation);
 
             this.list_verification_results.View = View.Details;
+            this.verification_results = new VerificationResultsListWrapper(list_verification_results);
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
@@ -133,14 +136,7 @@ namespace Andy.FlacHash.Win.UI
                                         .Replace("-", "").ToLowerInvariant();
                                     var isMatch = string.Equals(targetHashes[i], hash, StringComparison.OrdinalIgnoreCase);
 
-                                    var item = new ListViewItem
-                                    {
-                                        Text = result.File.Name,
-                                    };
-
-                                    item.SubItems.Add(isMatch.ToString());
-
-                                    this.list_verification_results.Items.Add(item);
+                                    verification_results.Add(result.File, isMatch);
 
                                     i++;
                                 });
