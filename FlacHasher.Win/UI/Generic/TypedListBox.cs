@@ -29,13 +29,13 @@ namespace Andy.FlacHash.Win.UI
 
         public IDisplayValueProducer<TValue> DisplayValueProducer { get; set; }
 
-        public void AddItem(TValue result)
+        public void AddItem(TValue value)
         {
             this.Items.Add(
                 new TListItem
                 {
-                    Value = result,
-                    DisplayValue = DisplayValueProducer?.GetDisplayValue(result)
+                    Value = value,
+                    DisplayValue = DisplayValueProducer?.GetDisplayValue(value)
                 });
         }
 
