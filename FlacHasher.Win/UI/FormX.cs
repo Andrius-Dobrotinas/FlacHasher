@@ -78,7 +78,13 @@ namespace Andy.FlacHash.Win.UI
         private void SetNewInputFiles(FileInfo[] files, FileInfo hashFile)
         {
             list_files.ReplaceItems(files);
-            this.hashFile = hashFile;
+
+            // TODO: I want it to list all available hash files, just in case there's more than one
+            if (hashFile != null)
+                list_hashFiles.ReplaceItems(hashFile);
+            else
+                list_hashFiles.Items.Clear();
+
             list_results.ClearList();
             progressReporter.Reset(0);
             
@@ -87,12 +93,10 @@ namespace Andy.FlacHash.Win.UI
 
         private void Set_Go_Button_State()
         {
-            var isVerificationPossible = hashFile != null;
+            var isVerificationPossible = list_hashFiles.Any();
 
             btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || isVerificationPossible);
         }
-
-        private FileInfo hashFile;
 
         private void SaveHashes(IEnumerable<ListItem<FileHashResult>> results)
         {
@@ -118,8 +122,10 @@ namespace Andy.FlacHash.Win.UI
                         }
                     case Mode.Verification:
                         {
+                            var hashFile = list_hashFiles.GetItems().First();
                             var targetHashes = File.ReadAllLines(hashFile.FullName);
                             int i = 0;
+
                             hasherService.Start(files,
                                 (FileHashResult result) =>
                                 {
@@ -221,6 +227,9 @@ namespace Andy.FlacHash.Win.UI
 
             this.list_results.Visible = mode == Mode.Calculation;
             this.list_verification_results.Visible = mode == Mode.Verification;
+            
+            this.list_files.Size = new System.Drawing.Size(660, 139);
+
 
             Set_Go_Button_State();
         }

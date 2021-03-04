@@ -10,6 +10,7 @@ namespace Andy.FlacHash.Win.UI
     {
         IEnumerable<FileInfo> GetItems();
         void ReplaceItems(FileInfo[] files);
+        void ReplaceItems(FileInfo file);
         bool Any();
     }
 
@@ -34,6 +35,12 @@ namespace Andy.FlacHash.Win.UI
         {
             this.Items.Clear();
             this.Items.AddRange(files);
+        }
+
+        public void ReplaceItems(FileInfo file)
+        {
+            this.Items.Clear();
+            this.Items.Add(file);
         }
     }
 }

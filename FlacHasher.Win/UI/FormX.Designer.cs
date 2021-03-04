@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             this.btn_chooseDir = new System.Windows.Forms.Button();
-            this.list_files = new Andy.FlacHash.Win.UI.FileList();
             this.btn_go = new System.Windows.Forms.Button();
             this.list_results = new Andy.FlacHash.Win.UI.FileHashResultList();
             this.ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -41,6 +40,10 @@
             this.list_verification_results = new System.Windows.Forms.ListView();
             this.col_file = new System.Windows.Forms.ColumnHeader();
             this.col_isMatch = new System.Windows.Forms.ColumnHeader();
+            this.layoutGroup_input = new System.Windows.Forms.TableLayoutPanel();
+            this.list_hashFiles = new Andy.FlacHash.Win.UI.FileList();
+            this.list_files = new Andy.FlacHash.Win.UI.FileList();
+            this.layoutGroup_input.SuspendLayout();
             this.SuspendLayout();
             // 
             // btn_chooseDir
@@ -53,20 +56,6 @@
             this.btn_chooseDir.Text = "Choose a dir";
             this.btn_chooseDir.UseVisualStyleBackColor = true;
             this.btn_chooseDir.Click += new System.EventHandler(this.BtnChooseDir_Click);
-            // 
-            // list_files
-            // 
-            this.list_files.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.list_files.DisplayMember = "Name";
-            this.list_files.FormattingEnabled = true;
-            this.list_files.ItemHeight = 15;
-            this.list_files.Location = new System.Drawing.Point(160, 10);
-            this.list_files.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.list_files.Name = "list_files";
-            this.list_files.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.list_files.Size = new System.Drawing.Size(660, 139);
-            this.list_files.TabIndex = 2;
             // 
             // btn_go
             // 
@@ -161,11 +150,51 @@
             // 
             this.col_isMatch.Text = "Matches";
             // 
+            // layoutGroup_input
+            // 
+            this.layoutGroup_input.ColumnCount = 1;
+            this.layoutGroup_input.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.layoutGroup_input.Controls.Add(this.list_hashFiles, 0, 1);
+            this.layoutGroup_input.Controls.Add(this.list_files, 0, 0);
+            this.layoutGroup_input.Location = new System.Drawing.Point(159, 12);
+            this.layoutGroup_input.Name = "layoutGroup_input";
+            this.layoutGroup_input.RowCount = 2;
+            this.layoutGroup_input.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.layoutGroup_input.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.layoutGroup_input.Size = new System.Drawing.Size(661, 132);
+            this.layoutGroup_input.TabIndex = 12;
+            // 
+            // list_hashFiles
+            // 
+            this.list_hashFiles.DisplayMember = "Name";
+            this.list_hashFiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.list_hashFiles.FormattingEnabled = true;
+            this.list_hashFiles.ItemHeight = 15;
+            this.list_hashFiles.Location = new System.Drawing.Point(3, 110);
+            this.list_hashFiles.Name = "list_hashFiles";
+            this.list_hashFiles.Size = new System.Drawing.Size(655, 19);
+            this.list_hashFiles.TabIndex = 14;
+            // 
+            // list_files
+            // 
+            this.list_files.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.list_files.DisplayMember = "Name";
+            this.list_files.FormattingEnabled = true;
+            this.list_files.ItemHeight = 15;
+            this.list_files.Location = new System.Drawing.Point(4, 3);
+            this.list_files.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.list_files.Name = "list_files";
+            this.list_files.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.list_files.Size = new System.Drawing.Size(653, 94);
+            this.list_files.TabIndex = 4;
+            // 
             // FormX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(834, 342);
+            this.Controls.Add(this.layoutGroup_input);
             this.Controls.Add(this.list_verification_results);
             this.Controls.Add(this.mode_Verify);
             this.Controls.Add(this.mode_Calc);
@@ -173,11 +202,11 @@
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.list_results);
             this.Controls.Add(this.btn_go);
-            this.Controls.Add(this.list_files);
             this.Controls.Add(this.btn_chooseDir);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "FormX";
             this.Text = "FormX";
+            this.layoutGroup_input.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -186,7 +215,6 @@
         #endregion
 
         private System.Windows.Forms.Button btn_chooseDir;
-        private FileList list_files;
         private System.Windows.Forms.Button btn_go;
         private FileHashResultList list_results;
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
@@ -197,5 +225,8 @@
         private System.Windows.Forms.ListView list_verification_results;
         private System.Windows.Forms.ColumnHeader col_file;
         private System.Windows.Forms.ColumnHeader col_isMatch;
+        private System.Windows.Forms.TableLayoutPanel layoutGroup_input;
+        private FileList list_hashFiles;
+        private FileList list_files;
     }
 }
