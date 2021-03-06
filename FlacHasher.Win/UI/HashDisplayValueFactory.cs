@@ -5,18 +5,16 @@ namespace Andy.FlacHash.Win.UI
 {
     public class HashDisplayValueFactory : IDisplayValueProducer<FileHashResult>
     {
-        private readonly string format;
+        private readonly IHashFormatter hashFormatter;
 
-        public HashDisplayValueFactory(string format)
+        public HashDisplayValueFactory(IHashFormatter hashFormatter)
         {
-            if (string.IsNullOrEmpty(format)) throw new ArgumentNullException(nameof(format));
-
-            this.format = format;
+            this.hashFormatter = hashFormatter;
         }
 
         public string GetDisplayValue(FileHashResult result)
         {
-            return Cmd.OutputFormatting.GetFormattedString(format, result.Hash, result.File);
+            return hashFormatter.GetString(result.Hash);
         }
     }
 }

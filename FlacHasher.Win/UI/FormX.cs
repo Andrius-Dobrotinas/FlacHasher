@@ -19,6 +19,8 @@ namespace Andy.FlacHash.Win.UI
         private readonly InteractiveDirectoryFileGetter dirBrowser;
         private readonly TargetFileResolver targetFileResolver;
 
+        private readonly IHashFormatter hashFormatter;
+
         private readonly VerificationResultsListWrapper verification_results;
 
         public FormX(
@@ -27,7 +29,8 @@ namespace Andy.FlacHash.Win.UI
             IDisplayValueProducer<FileHashResult> displayValueProducer,
             IO.IFileReadEventSource fileReadEventSource,
             InteractiveDirectoryFileGetter dirBrowser,
-            TargetFileResolver targetFileResolver)
+            TargetFileResolver targetFileResolver,
+            IHashFormatter hashFormatter)
         {
             InitializeComponent();
 
@@ -36,6 +39,7 @@ namespace Andy.FlacHash.Win.UI
             this.hashFileWriter = hashFileWriter;
             this.dirBrowser = dirBrowser;
             this.targetFileResolver = targetFileResolver;
+            this.hashFormatter = hashFormatter;
 
             this.hasherService = hashCalculationServiceFactory.Build(
                 this,
@@ -134,7 +138,7 @@ namespace Andy.FlacHash.Win.UI
                             hasherService.Start(files,
                                 (FileHashResult result) =>
                                 {
-                                    var hash = HashFormatting.GetInLowercase(result.Hash);
+                                    var hash = hashFormatter.GetString(result.Hash);
                                     var isMatch = string.Equals(targetHashes[i], hash, StringComparison.OrdinalIgnoreCase);
 
                                     verification_results.Add(result.File, isMatch);

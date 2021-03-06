@@ -10,7 +10,6 @@ namespace Andy.FlacHash.Win
     static class Program
     {
         const string settingsFileName = "settings.cfg";
-        const string hashRepresentationFormat = "{hash}";
         const string supportedFileExtension = ".flac";
         const string hashFileExtension = ".hash";
         const int processTimeoutSec = 300; // todo: read this from the settings file
@@ -38,6 +37,8 @@ namespace Andy.FlacHash.Win
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
                 var (hasher, progressReporter) = BuildHasher(settings.Decoder);
+                var hashFormatter = new HashFormatter();
+
                 Application.Run(
                     new UI.FormX(
                         new UI.HashCalculationServiceFactory(
@@ -49,7 +50,8 @@ namespace Andy.FlacHash.Win
                         directoryResolver,
                         new TargetFileResolver(
                             supportedFileExtension,
-                            hashFileExtension)));
+                            hashFileExtension),
+                        hashFormatter));
             }
         }
 
