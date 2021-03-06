@@ -73,8 +73,7 @@
             this.list_results.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.list_results.DisplayMember = "DisplayValue";
-            this.list_results.DisplayValueProducer = null;
+            this.list_results.DisplayMember = "HashString";
             this.list_results.FormattingEnabled = true;
             this.list_results.ItemHeight = 15;
             this.list_results.Location = new System.Drawing.Point(160, 187);

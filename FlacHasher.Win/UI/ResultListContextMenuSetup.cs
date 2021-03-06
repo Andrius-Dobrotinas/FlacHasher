@@ -11,7 +11,7 @@ namespace Andy.FlacHash.Win.UI
         public static void WireUp(
             ListBox resultList,
             ContextMenuStrip contextMenu,
-            Action<IEnumerable<ListItem<FileHashResult>>> saveHashesAction)
+            Action<IEnumerable<FileHashResultListItem>> saveHashesAction)
         {
             void resultList_MouseDown(object sender, MouseEventArgs e)
             {
@@ -28,10 +28,10 @@ namespace Andy.FlacHash.Win.UI
         private static void BuildResultsCtxMenu(
             ListBox resultList,
             ContextMenuStrip contextMenu,
-            Action<IEnumerable<ListItem<FileHashResult>>> saveHashesAction)
+            Action<IEnumerable<FileHashResultListItem>> saveHashesAction)
         {
             var saveEventHandler = new EventHandler(
-                (sender, e) => saveHashesAction(resultList.Items.Cast<ListItem<FileHashResult>>()));
+                (sender, e) => saveHashesAction(resultList.Items.Cast<FileHashResultListItem>()));
 
             contextMenu.Items.Add(
                 "Save to a File...",

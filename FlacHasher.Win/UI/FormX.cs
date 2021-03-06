@@ -26,15 +26,12 @@ namespace Andy.FlacHash.Win.UI
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
-            IDisplayValueProducer<FileHashResult> displayValueProducer,
             IO.IFileReadEventSource fileReadEventSource,
             InteractiveDirectoryFileGetter dirBrowser,
             TargetFileResolver targetFileResolver,
             IHashFormatter hashFormatter)
         {
             InitializeComponent();
-
-            this.list_results.DisplayValueProducer = displayValueProducer;
 
             this.hashFileWriter = hashFileWriter;
             this.dirBrowser = dirBrowser;
@@ -107,9 +104,9 @@ namespace Andy.FlacHash.Win.UI
             btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || isVerificationPossible);
         }
 
-        private void SaveHashes(IEnumerable<ListItem<FileHashResult>> results)
+        private void SaveHashes(IEnumerable<FileHashResultListItem> results)
         {
-            var hashes = results.Select(x => x.DisplayValue);
+            var hashes = results.Select(x => x.HashString);
 
             if (hashFileWriter.GetFileAndSave(hashes) == true)
                 MessageBox.Show("Hashes saved!");
@@ -201,7 +198,13 @@ namespace Andy.FlacHash.Win.UI
 
         private void UpdateUIWithCalcResult(FileHashResult result)
         {
-            this.list_results.AddItem(result);
+            this.list_results.AddItem(
+                new FileHashResultListItem
+                {
+                    Value = result,
+                    HashString = hashFormatter.GetString(result.Hash)
+                });
+
             this.Text = result.File.Name;
         }
 

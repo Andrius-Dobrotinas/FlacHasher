@@ -3,8 +3,17 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Win.UI
 {
-    public class FileHashResultList : TypedListBox<FileHashResult, ListItem<FileHashResult>>
+    public class FileHashResultListItem
     {
+        public FileHashResult Value { get; set; }
+        public string HashString { get; set; }
+    }
 
+    public class FileHashResultList : TypedListBox<FileHashResultListItem>
+    {
+        public FileHashResultList()
+        {
+            DisplayMember = nameof(FileHashResultListItem.HashString);
+        }
     }
 }

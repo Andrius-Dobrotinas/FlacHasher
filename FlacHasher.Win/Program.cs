@@ -45,7 +45,6 @@ namespace Andy.FlacHash.Win
                             hasher,
                             new ProgressReportingOperationRunner()),
                         new InteractiveTextFileWriter(saveHashesToFileDialog),
-                        new UI.HashDisplayValueFactory(hashRepresentationFormat),
                         progressReporter,
                         directoryResolver,
                         new TargetFileResolver(
@@ -77,7 +76,7 @@ namespace Andy.FlacHash.Win
             {
                 ShowNewFolderButton = false
             };
-            
+
             return new UI.InteractiveDirectoryFileGetter(dirBrowser);
         }
 

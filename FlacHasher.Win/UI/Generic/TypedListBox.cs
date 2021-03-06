@@ -5,38 +5,21 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Win.UI
 {
-    public interface ITypedListBox<TValue, TListItem> where TListItem : IListItem<TValue>, new()
+    public interface ITypedListBox<TListItem> where TListItem : class
     {
-        void AddItem(TValue result);
+        void AddItem(TListItem result);
         void ClearList();
     }
 
     /// <summary>
-    /// A type-safe implementation of <see cref="ListBox"/> which takes items of
-    /// <see cref="IListItem{TValue}"/> type as a way to control item display values.
-    /// A <see cref="IDisplayValueProducer{T}"/> must be provided via <see cref="TypedListBox.FaceValueFactory"/>
-    /// setter in order for the component to be able derive an item display values.
-    /// The reason it can't be injected via a constructor is so it's WinForms designer-friendly
-    /// (generated code doesn't have to be amended with the injection of a dependency).
+    /// A strongly-typed wrapper of <see cref="ListBox"/>
     /// </summary>
-    public class TypedListBox<TValue, TListItem> : ListBox, ITypedListBox<TValue, TListItem>
-         where TListItem : IListItem<TValue>, new()
+    public class TypedListBox<TListItem> : ListBox, ITypedListBox<TListItem>
+         where TListItem : class
     {
-        public TypedListBox()
+        public void AddItem(TListItem value)
         {
-            this.DisplayMember = nameof(IListItem<TValue>.DisplayValue);
-        }
-
-        public IDisplayValueProducer<TValue> DisplayValueProducer { get; set; }
-
-        public void AddItem(TValue value)
-        {
-            this.Items.Add(
-                new TListItem
-                {
-                    Value = value,
-                    DisplayValue = DisplayValueProducer?.GetDisplayValue(value)
-                });
+            this.Items.Add(value);
         }
 
         public void ClearList()
