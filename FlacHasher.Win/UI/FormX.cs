@@ -57,6 +57,10 @@ namespace Andy.FlacHash.Win.UI
             this.mode_Calc.Checked = true;
             SetMode(Mode.Calculation);
 
+            this.list_files.Initialize();
+            this.list_hashFiles.Initialize();
+            this.list_results.Initialize();
+
             this.list_verification_results.View = View.Details;
             this.verification_results = new VerificationResultsListWrapper(list_verification_results);
         }

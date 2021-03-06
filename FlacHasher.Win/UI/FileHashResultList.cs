@@ -11,7 +11,10 @@ namespace Andy.FlacHash.Win.UI
 
     public class FileHashResultList : TypedListBox<FileHashResultListItem>
     {
-        public FileHashResultList()
+        /// <summary>
+        /// Since the object is created by the Winforms Designer, this method makes sure the desired default values are used
+        /// </summary>
+        public void Initialize()
         {
             DisplayMember = nameof(FileHashResultListItem.HashString);
         }

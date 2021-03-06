@@ -16,7 +16,10 @@ namespace Andy.FlacHash.Win.UI
 
     public class FileList : ListBox, IFileList
     {
-        public FileList()
+        /// <summary>
+        /// Since the object is created by the Winforms Designer, this method makes sure the desired default values are used
+        /// </summary>
+        public void Initialize()
         {
             this.DisplayMember = nameof(FileInfo.Name);
         }
