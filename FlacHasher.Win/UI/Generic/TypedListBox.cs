@@ -22,9 +22,26 @@ namespace Andy.FlacHash.Win.UI
             this.Items.Add(value);
         }
 
+        public void ReplaceItems(TListItem[] files)
+        {
+            this.Items.Clear();
+            this.Items.AddRange(files);
+        }
+
+        public void ReplaceItems(TListItem file)
+        {
+            this.Items.Clear();
+            this.Items.Add(file);
+        }
+
         public void ClearList()
         {
             this.Items.Clear();
+        }
+
+        public IEnumerable<TListItem> GetItems()
+        {
+            return this.Items.Cast<TListItem>();
         }
     }
 }

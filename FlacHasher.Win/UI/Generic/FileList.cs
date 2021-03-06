@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Win.UI
         bool Any();
     }
 
-    public class FileList : ListBox, IFileList
+    public class FileList : TypedListBox<FileInfo>, IFileList
     {
         /// <summary>
         /// Since the object is created by the Winforms Designer, this method makes sure the desired default values are used
@@ -27,23 +27,6 @@ namespace Andy.FlacHash.Win.UI
         public bool Any()
         {
             return this.Items.Count > 0;
-        }
-
-        public IEnumerable<FileInfo> GetItems()
-        {
-            return this.Items.Cast<FileInfo>();
-        }
-
-        public void ReplaceItems(FileInfo[] files)
-        {
-            this.Items.Clear();
-            this.Items.AddRange(files);
-        }
-
-        public void ReplaceItems(FileInfo file)
-        {
-            this.Items.Clear();
-            this.Items.Add(file);
         }
     }
 }
