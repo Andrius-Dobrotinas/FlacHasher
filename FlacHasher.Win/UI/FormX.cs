@@ -132,19 +132,14 @@ namespace Andy.FlacHash.Win.UI
                         }
                     case Mode.Verification:
                         {
-                            var hashFile = list_hashFiles.GetItems().First();
-
-                            if (hashFile.Exists == false)
-                                throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
-
-                            var targetHashes = File.ReadAllLines(hashFile.FullName);
+                            var expectedHashes = GetExpectedHashes();
                             int i = 0;
 
                             hasherService.Start(files,
                                 (FileHashResult result) =>
                                 {
                                     var hash = hashFormatter.GetString(result.Hash);
-                                    var isMatch = string.Equals(targetHashes[i], hash, StringComparison.OrdinalIgnoreCase);
+                                    var isMatch = string.Equals(expectedHashes[i], hash, StringComparison.OrdinalIgnoreCase);
 
                                     verification_results.Add(result.File, isMatch);
 
@@ -166,6 +161,16 @@ namespace Andy.FlacHash.Win.UI
         private IEnumerable<FileInfo> GetFiles()
         {
             return list_files.GetItems().ToList();
+        }
+        
+        private string[] GetExpectedHashes()
+        {
+            var hashFile = list_hashFiles.GetItems().First();
+
+            if (hashFile.Exists == false)
+                throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
+
+            return File.ReadAllLines(hashFile.FullName);
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
