@@ -15,10 +15,11 @@ namespace Andy.FlacHash.Cmd
             return new Parameters
             {
                 Decoder = Parameter.GetValue(arguments, ArgumentNames.Decoder),
-                InputFiles = Parameter.GetValue(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
+                InputFiles = Parameter.GetValue<string[]>(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
                 InputDirectory = Parameter.GetValue(arguments, ArgumentNames.Decoder),
                 TargetFileExtension = Parameter.GetValue(arguments, ArgumentNames.FileExtension),
-                OutputFormat = Parameter.GetValue(arguments, ArgumentNames.FileExtension)
+                OutputFormat = Parameter.GetValue(arguments, ArgumentNames.FileExtension),
+                ProcessTimeoutSec = Parameter.GetValue<int?>(arguments, ArgumentNames.ProcessTimeoutSec, value => int.Parse(value))
             };
         }
     }

@@ -10,7 +10,7 @@ namespace Andy.FlacHash.Cmd
     class Program
     {
         const string settingsFileName = "settings.cfg";
-        const int processTimeoutSec = 300; // todo: read this from the settings file
+        const int processTimeoutSecDefault = 300;
 
         static int Main(string[] args)
         {
@@ -47,6 +47,7 @@ namespace Andy.FlacHash.Cmd
             {
                 FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
+                int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
                 var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(

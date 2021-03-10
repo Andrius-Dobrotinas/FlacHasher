@@ -16,6 +16,9 @@ namespace Andy.FlacHash.IO
 
         public Stream CreateStream(FileInfo sourceFile)
         {
+            if (sourceFile.Exists == false)
+                throw new FileNotFoundException($"File not found: {sourceFile.FullName}", sourceFile.FullName);
+
             var stream = new ProgressReportingReadOnlyFileStream(sourceFile.FullName);
 
             stream.BytesRead += new BytesReadHandler(progressReporter.Report);

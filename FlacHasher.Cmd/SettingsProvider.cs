@@ -10,22 +10,23 @@ namespace Andy.FlacHash.Cmd
             IDictionary<string, IDictionary<string, string>> settings,
             string defaultSectionName)
         {
-            FileInfo decoder = null;
-            string outputFormat = null;
-
             if (settings.ContainsKey(defaultSectionName))
             {
                 var defaultSection = settings[defaultSectionName];
 
-                decoder = GetFile(defaultSection, nameof(Settings.Decoder));
-                outputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat));
+                var decoder = GetFile(defaultSection, nameof(Settings.Decoder));
+                var outputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat));
+                var processTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessTimeoutSec));
+
+                return new Settings
+                {
+                    Decoder = decoder,
+                    OutputFormat = outputFormat,
+                    ProcessTimeoutSec = processTimeoutSec
+                };
             }
 
-            return new Settings
-            {
-                Decoder = decoder,
-                OutputFormat = outputFormat
-            };
+            return new Settings();
         }
 
         private static FileInfo GetFile(IDictionary<string, string> section, string key)
@@ -40,6 +41,15 @@ namespace Andy.FlacHash.Cmd
             return section.ContainsKey(key) 
                 ? section[key]
                 : null;
+        }
+
+        private static int? GetValueInt(IDictionary<string, string> section, string key)
+        {
+            var value = GetValue(section, key);
+
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            return int.Parse(value);
         }
 
         public static Settings GetSettings(FileInfo settingsFile)
