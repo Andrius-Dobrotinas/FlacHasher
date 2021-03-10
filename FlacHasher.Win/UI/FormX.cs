@@ -133,6 +133,10 @@ namespace Andy.FlacHash.Win.UI
                     case Mode.Verification:
                         {
                             var hashFile = list_hashFiles.GetItems().First();
+
+                            if (hashFile.Exists == false)
+                                throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
+
                             var targetHashes = File.ReadAllLines(hashFile.FullName);
                             int i = 0;
 
