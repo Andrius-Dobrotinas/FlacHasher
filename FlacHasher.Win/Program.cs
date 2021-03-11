@@ -50,7 +50,9 @@ namespace Andy.FlacHash.Win
                         new TargetFileResolver(
                             supportedFileExtension,
                             hashFileExtension),
-                        hashFormatter));
+                        hashFormatter,
+                        new HashFileParser(),
+                        new HashVerifier(hashFormatter)));
             }
         }
 

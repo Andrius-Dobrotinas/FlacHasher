@@ -20,6 +20,8 @@ namespace Andy.FlacHash.Win.UI
         private readonly TargetFileResolver targetFileResolver;
 
         private readonly IHashFormatter hashFormatter;
+        private readonly HashFileParser hashFileParser;
+        private readonly HashVerifier hashVerifier;
 
         private readonly VerificationResultsListWrapper verification_results;
 
@@ -29,7 +31,9 @@ namespace Andy.FlacHash.Win.UI
             IO.IFileReadEventSource fileReadEventSource,
             InteractiveDirectoryFileGetter dirBrowser,
             TargetFileResolver targetFileResolver,
-            IHashFormatter hashFormatter)
+            IHashFormatter hashFormatter,
+            HashFileParser hashFileParser,
+            HashVerifier hashVerifier)
         {
             InitializeComponent();
 
@@ -37,6 +41,8 @@ namespace Andy.FlacHash.Win.UI
             this.dirBrowser = dirBrowser;
             this.targetFileResolver = targetFileResolver;
             this.hashFormatter = hashFormatter;
+            this.hashFileParser = hashFileParser;
+            this.hashVerifier = hashVerifier;
 
             this.hasherService = hashCalculationServiceFactory.Build(
                 this,
@@ -133,13 +139,13 @@ namespace Andy.FlacHash.Win.UI
                     case Mode.Verification:
                         {
                             var expectedHashes = GetExpectedHashes();
+
                             int i = 0;
 
                             hasherService.Start(files,
                                 (FileHashResult result) =>
                                 {
-                                    var hash = hashFormatter.GetString(result.Hash);
-                                    var isMatch = string.Equals(expectedHashes[i], hash, StringComparison.OrdinalIgnoreCase);
+                                    var isMatch = hashVerifier.DoesMatch(expectedHashes, result);
 
                                     verification_results.Add(result.File, isMatch);
 
@@ -163,14 +169,25 @@ namespace Andy.FlacHash.Win.UI
             return list_files.GetItems().ToList();
         }
         
-        private string[] GetExpectedHashes()
+        private KeyValuePair<string, string>[] GetExpectedHashes()
         {
             var hashFile = list_hashFiles.GetItems().First();
 
             if (hashFile.Exists == false)
                 throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
 
-            return File.ReadAllLines(hashFile.FullName);
+            var lines = File.ReadAllLines(hashFile.FullName);
+
+            var expectedHashes = hashFileParser
+                .Parse(lines)
+                .ToArray();
+
+            if (expectedHashes.Any(x => string.IsNullOrEmpty(x.Key)))
+                throw new Exception("Some entries in the hash file don't specify a file name");
+            else if (expectedHashes.Select(x => x.Key).Distinct().Count() != expectedHashes.Length)
+                throw new Exception("Some file names are repeated in the file");
+
+            return expectedHashes;
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
