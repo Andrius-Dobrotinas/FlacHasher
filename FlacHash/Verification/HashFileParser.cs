@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Verification
 {
     public class HashFileParser
     {

@@ -1,4 +1,5 @@
 using Andy.FlacHash.Cmd;
+using Andy.FlacHash.Verification;
 using System;
 using System.Collections.Generic;
 using System.IO;
