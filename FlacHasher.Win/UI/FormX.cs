@@ -104,7 +104,7 @@ namespace Andy.FlacHash.Win.UI
             list_verification_results.Items.Clear();
 
             progressReporter.Reset(0);
-            
+
             Set_Go_Button_State();
         }
 
@@ -169,7 +169,7 @@ namespace Andy.FlacHash.Win.UI
         {
             return list_files.GetItems().ToList();
         }
-        
+
         private KeyValuePair<string, string>[] GetExpectedHashes()
         {
             var hashFile = list_hashFiles.GetItems().First();
@@ -183,7 +183,7 @@ namespace Andy.FlacHash.Win.UI
                 .Parse(lines)
                 .ToArray();
 
-            if (expectedHashes.Any(x => string.IsNullOrEmpty(x.Key)))
+            if (expectedHashes.Any(x => x.Key == null))
                 throw new Exception("Some entries in the hash file don't specify a file name");
             else if (expectedHashes.Select(x => x.Key).Distinct().Count() != expectedHashes.Length)
                 throw new Exception("Some file names are repeated in the file");
@@ -263,7 +263,7 @@ namespace Andy.FlacHash.Win.UI
 
             this.list_results.Visible = mode == Mode.Calculation;
             this.list_verification_results.Visible = mode == Mode.Verification;
-            
+
             this.list_files.Size = new System.Drawing.Size(660, 139);
 
 

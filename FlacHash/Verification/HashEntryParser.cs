@@ -17,6 +17,10 @@ namespace Andy.FlacHash.Verification
             if (segments.Length != 2)
                 throw new Exception($"Expected line {lineNumber} to have {2} segments, but it has {segments.Length}");
 
+            for (int i = 0; i < 2; i++)
+                if (segments[i] == "")
+                    segments[i] = null;
+
             return segments;
         }
     }
