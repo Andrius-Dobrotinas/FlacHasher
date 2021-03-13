@@ -4,7 +4,12 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public class HashFileParser
+    public interface IHashFileParser
+    {
+        IEnumerable<KeyValuePair<string, string>> Parse(string[] lines);
+    }
+
+    public class HashFileParser : IHashFileParser
     {
         private readonly IHashEntryParser lineParser;
 

@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly TargetFileResolver targetFileResolver;
 
         private readonly IHashFormatter hashFormatter;
-        private readonly HashFileParser hashFileParser;
+        private readonly ValidatingHashFileParser hashFileParser;
         private readonly HashVerifier hashVerifier;
 
         private readonly VerificationResultsListWrapper verification_results;
@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Win.UI
             InteractiveDirectoryFileGetter dirBrowser,
             TargetFileResolver targetFileResolver,
             IHashFormatter hashFormatter,
-            HashFileParser hashFileParser,
+            ValidatingHashFileParser hashFileParser,
             HashVerifier hashVerifier)
         {
             InitializeComponent();
@@ -182,14 +182,6 @@ namespace Andy.FlacHash.Win.UI
             var expectedHashes = hashFileParser
                 .Parse(lines)
                 .ToArray();
-
-            if (expectedHashes.Any(x => x.Key == null))
-                throw new Exception("Some entries in the hash file don't specify a file name");
-            else if (expectedHashes.Select(x => x.Key).Distinct().Count() != expectedHashes.Length)
-                throw new Exception("Some file names are repeated in the file");
-
-            if (expectedHashes.Any(x => x.Value == null))
-                throw new Exception("Some entries are missing hash values");
 
             return expectedHashes;
         }
