@@ -188,6 +188,9 @@ namespace Andy.FlacHash.Win.UI
             else if (expectedHashes.Select(x => x.Key).Distinct().Count() != expectedHashes.Length)
                 throw new Exception("Some file names are repeated in the file");
 
+            if (expectedHashes.Any(x => x.Value == null))
+                throw new Exception("Some entries are missing hash values");
+
             return expectedHashes;
         }
 
