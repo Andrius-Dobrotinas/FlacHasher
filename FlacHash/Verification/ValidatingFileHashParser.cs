@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public class ValidatingHashFileParser
+    public class ValidatingFileHashParser
     {
         private readonly IHashFileParser lineParser;
         private readonly IEqualityComparer<string> stringComparer;
 
-        public ValidatingHashFileParser(IHashFileParser lineParser, IEqualityComparer<string> stringComparer)
+        public ValidatingFileHashParser(IHashFileParser lineParser, IEqualityComparer<string> stringComparer)
         {
             this.lineParser = lineParser;
             this.stringComparer = stringComparer;
@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Verification
         /// <summary>
         /// Uses a default string Comparer for file names
         /// </summary>
-        public ValidatingHashFileParser(IHashFileParser lineParser) : this(lineParser, null)
+        public ValidatingFileHashParser(IHashFileParser lineParser) : this(lineParser, null)
         {
         }
 

@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly TargetFileResolver targetFileResolver;
 
         private readonly IHashFormatter hashFormatter;
-        private readonly ValidatingHashFileParser hashFileParser;
+        private readonly ValidatingFileHashParser hashFileParser;
         private readonly HashVerifier hashVerifier;
 
         private readonly VerificationResultsListWrapper verification_results;
@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Win.UI
             InteractiveDirectoryFileGetter dirBrowser,
             TargetFileResolver targetFileResolver,
             IHashFormatter hashFormatter,
-            ValidatingHashFileParser hashFileParser,
+            ValidatingFileHashParser hashFileParser,
             HashVerifier hashVerifier)
         {
             InitializeComponent();

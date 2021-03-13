@@ -6,16 +6,16 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public class ValidatingHashFileParserTests
+    public class ValidatingFileHashParserTests
     {
-        private ValidatingHashFileParser target;
+        private ValidatingFileHashParser target;
         private Mock<IHashFileParser> parser;
 
         [SetUp]
         public void Setup()
         {
             parser = new Mock<IHashFileParser>();
-            target = new ValidatingHashFileParser(parser.Object);
+            target = new ValidatingFileHashParser(parser.Object);
         }
 
         [TestCaseSource(nameof(Get_NoFilenames))]
@@ -76,7 +76,7 @@ namespace Andy.FlacHash.Verification
 
             Setup_Parser(sourceLines, parsedData);
             
-            var target = new ValidatingHashFileParser(parser.Object, stringComparer.Object);
+            var target = new ValidatingFileHashParser(parser.Object, stringComparer.Object);
 
             Assert.Throws<DuplicateFileException>(
                 () => target.Parse(sourceLines).ToArray());
