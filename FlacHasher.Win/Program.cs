@@ -54,7 +54,8 @@ namespace Andy.FlacHash.Win
                         hashFormatter,
                         new ValidatingHashFileParser(
                             new HashFileParser(
-                                new HashEntryParser())),
+                                new HashEntryParser()),
+                            new CaseInsensitiveOrdinalStringComparer()),
                         new HashVerifier(hashFormatter)));
             }
         }

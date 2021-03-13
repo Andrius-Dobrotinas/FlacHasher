@@ -51,6 +51,37 @@ namespace Andy.FlacHash.Verification
                 () => target.Parse(sourceLines).ToArray());
         }
 
+        [TestCaseSource(nameof(Get_RepeatedFilenames2))]
+        public void When_file_name_is_repeated__based_on_the_supplied_string_Comparer__Must_throw_an_exception(
+            IList<(string, string, bool)> file_hash_isRepeated)
+        {
+            var stringComparer = new Mock<IEqualityComparer<string>>();
+            
+            foreach (var entry in file_hash_isRepeated.Select(x => new { Filename = x.Item1, IsRepeated = x.Item3 }))
+            {
+                stringComparer.Setup(
+                    x => x.Equals(
+                        It.IsAny<string>(),
+                        It.Is<string>(
+                            arg => arg == entry.Filename)))
+                    .Returns(entry.IsRepeated);
+            }
+
+            var parsedData = file_hash_isRepeated
+                .Select(x => new KeyValuePair<string, string>(x.Item1, x.Item2))
+                .ToList();
+
+            var sourceLines = new string[parsedData.Count];
+
+
+            Setup_Parser(sourceLines, parsedData);
+            
+            var target = new ValidatingHashFileParser(parser.Object, stringComparer.Object);
+
+            Assert.Throws<DuplicateFileException>(
+                () => target.Parse(sourceLines).ToArray());
+        }
+
         private void Setup_Parser(string[] sourceLines, IEnumerable<KeyValuePair<string, string>> returnValue)
         {
             parser.Setup(
@@ -101,6 +132,23 @@ namespace Andy.FlacHash.Verification
                     new KeyValuePair<string, string>("file 1", "hash"),
                     new KeyValuePair<string, string>("file 2", "hash 2"),
                     new KeyValuePair<string, string>("file 1", "hash 3"),
+                });
+        }
+
+        private static IEnumerable<TestCaseData> Get_RepeatedFilenames2()
+        {
+            yield return new TestCaseData(
+                new List<(string, string, bool)> {
+                    ("file", "hash", false),
+                    ("File", "hash2", true)
+                });
+
+            yield return new TestCaseData(
+                new List<(string, string, bool)> {
+                    ("file 1", "hash", false),
+                    ("file 2", "hash 2", false),
+                    ("FILE 1", "hash 3", true),
+                    ("file 3", "hash 4", false),
                 });
         }
     }

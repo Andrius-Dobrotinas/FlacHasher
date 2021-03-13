@@ -7,10 +7,19 @@ namespace Andy.FlacHash.Verification
     public class ValidatingHashFileParser
     {
         private readonly IHashFileParser lineParser;
+        private readonly IEqualityComparer<string> stringComparer;
 
-        public ValidatingHashFileParser(IHashFileParser lineParser)
+        public ValidatingHashFileParser(IHashFileParser lineParser, IEqualityComparer<string> stringComparer)
         {
             this.lineParser = lineParser;
+            this.stringComparer = stringComparer;
+        }
+
+        /// <summary>
+        /// Uses a default string Comparer for file names
+        /// </summary>
+        public ValidatingHashFileParser(IHashFileParser lineParser) : this(lineParser, null)
+        {
         }
 
         public IEnumerable<KeyValuePair<string, string>> Parse(string[] lines)
@@ -28,7 +37,7 @@ namespace Andy.FlacHash.Verification
             if (entry.Key == null)
                 throw new MissingFileNameException();
 
-            if (processedFilenames.Contains(entry.Key))
+            if (processedFilenames.Contains(entry.Key, stringComparer))
                 throw new DuplicateFileException();
 
             if (entry.Value == null)
