@@ -32,6 +32,18 @@ namespace Andy.FlacHash.Verification
             Assert.AreEqual(expectedSegment2, segments[1], "Segment 2");
         }
 
+        [TestCase(" :asd", null, "asd")]
+        [TestCase(":\t", null, null)]
+        [TestCase("     : \t\t", null, null)]
+        public void When_either_segment_is_whitespace__Must_return_two_segments__With_the_whitespace_one_as_null(string line, string expectedSegment1, string expectedSegment2)
+        {
+            var segments = target.ParseLine(line, 0);
+
+            Assert.AreEqual(2, segments.Length, "The number of segments");
+            Assert.AreEqual(expectedSegment1, segments[0], "Segment 1");
+            Assert.AreEqual(expectedSegment2, segments[1], "Segment 2");
+        }
+
         [TestCase("file:hash:")]
         [TestCase(":file:hash:")]
         [TestCase("file::hash")]
@@ -54,6 +66,8 @@ namespace Andy.FlacHash.Verification
         }
 
         [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t\t")]
         public void When_line_is_empty__Must_throw_an_exception(string line)
         {
             Assert.Throws<ArgumentException>(
