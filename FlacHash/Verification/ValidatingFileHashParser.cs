@@ -6,10 +6,10 @@ namespace Andy.FlacHash.Verification
 {
     public class ValidatingFileHashParser
     {
-        private readonly IHashFileParser lineParser;
+        private readonly IFileHashParser lineParser;
         private readonly IEqualityComparer<string> stringComparer;
 
-        public ValidatingFileHashParser(IHashFileParser lineParser, IEqualityComparer<string> stringComparer)
+        public ValidatingFileHashParser(IFileHashParser lineParser, IEqualityComparer<string> stringComparer)
         {
             this.lineParser = lineParser;
             this.stringComparer = stringComparer;
@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Verification
         /// <summary>
         /// Uses a default string Comparer for file names
         /// </summary>
-        public ValidatingFileHashParser(IHashFileParser lineParser) : this(lineParser, null)
+        public ValidatingFileHashParser(IFileHashParser lineParser) : this(lineParser, null)
         {
         }
 

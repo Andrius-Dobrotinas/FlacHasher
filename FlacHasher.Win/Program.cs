@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Win
                             hashFileExtension),
                         hashFormatter,
                         new ValidatingFileHashParser(
-                            new HashFileParser(
+                            new FileHashParser(
                                 new HashEntryParser()),
                             new CaseInsensitiveOrdinalStringComparer()),
                         new HashVerifier(hashFormatter)));

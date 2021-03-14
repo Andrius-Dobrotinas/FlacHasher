@@ -4,16 +4,16 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public interface IHashFileParser
+    public interface IFileHashParser
     {
         IEnumerable<KeyValuePair<string, string>> Parse(string[] lines);
     }
 
-    public class HashFileParser : IHashFileParser
+    public class FileHashParser : IFileHashParser
     {
         private readonly IHashEntryParser lineParser;
 
-        public HashFileParser(IHashEntryParser lineParser)
+        public FileHashParser(IHashEntryParser lineParser)
         {
             this.lineParser = lineParser;
         }
