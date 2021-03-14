@@ -19,7 +19,24 @@ namespace Andy.FlacHash.Verification
         }
 
         [TestCaseSource(nameof(Get_NoFilenames))]
-        public void When_file_name_is_not_specified__Must_throw_an_exception(IList<KeyValuePair<string, string>> parsedData)
+        public void When_no_file_names_are_specified__Return_the_result(IList<KeyValuePair<string, string>> parsedData)
+        {
+            var sourceLines = new string[parsedData.Count];
+
+            Setup_Parser(sourceLines, parsedData);
+
+            var result = target.Parse(sourceLines).ToArray();
+
+            Assert.AreEqual(parsedData.Count, result.Length, "The resulting collection must be the correct length");
+
+            for (int i = 0; i < parsedData.Count; i++)
+            {
+                Assert.AreEqual(parsedData[i], result[i], $"Item {i} reference must match");
+            }
+        }
+
+        [TestCaseSource(nameof(Get_SomeFilenamesMissing))]
+        public void When_some_file_names_are_not_specified__Must_throw_an_exception(IList<KeyValuePair<string, string>> parsedData)
         {
             var sourceLines = new string[parsedData.Count];
 
@@ -96,6 +113,36 @@ namespace Andy.FlacHash.Verification
             yield return new TestCaseData(
                 new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>(null, "hash")
+                });
+
+            yield return new TestCaseData(
+                new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>(null, "hash"),
+                    new KeyValuePair<string, string>(null, "hash")
+                });
+
+            yield return new TestCaseData(
+                new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>(null, "hash"),
+                    new KeyValuePair<string, string>(null, "hash 2"),
+                    new KeyValuePair<string, string>(null, "hash")
+                });
+        }
+
+        private static IEnumerable<TestCaseData> Get_SomeFilenamesMissing()
+        {
+            yield return new TestCaseData(
+                new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>(null, "hash"),
+                    new KeyValuePair<string, string>("file", "hash")
+                });
+
+            yield return new TestCaseData(
+                new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>(null, "hash"),
+                    new KeyValuePair<string, string>(null, "hash 2"),
+                    new KeyValuePair<string, string>("file", "hash"),
+                    new KeyValuePair<string, string>("file", "hash")
                 });
 
             yield return new TestCaseData(

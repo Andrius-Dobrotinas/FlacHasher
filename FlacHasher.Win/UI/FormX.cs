@@ -141,12 +141,16 @@ namespace Andy.FlacHash.Win.UI
                         {
                             var expectedHashes = GetExpectedHashes();
 
+                            var selectBasedOnPosition = expectedHashes.Any(x => string.IsNullOrEmpty(x.Key));
+
                             int i = 0;
 
                             hasherService.Start(files,
                                 (FileHashResult result) =>
                                 {
-                                    var isMatch = hashVerifier.DoesMatch(expectedHashes, result);
+                                    var isMatch = selectBasedOnPosition
+                                        ? hashVerifier.DoesMatch(expectedHashes, result, i)
+                                        : hashVerifier.DoesMatch(expectedHashes, result);
 
                                     verification_results.Add(result.File, isMatch);
 
@@ -260,7 +264,7 @@ namespace Andy.FlacHash.Win.UI
             this.list_verification_results.Visible = mode == Mode.Verification;
 
             this.list_files.Size = new System.Drawing.Size(660, 139);
-
+            
 
             Set_Go_Button_State();
         }

@@ -13,6 +13,14 @@ namespace Andy.FlacHash.Win
             this.hashFormatter = hashFormatter;
         }
 
+        public bool DoesMatch(IList<KeyValuePair<string, string>> expectedHashes, FileHashResult actualHash, int fileIndex)
+        {
+            var hash = hashFormatter.GetString(actualHash.Hash);
+            var isMatch = AreEqualOrdinalCaseInsensitive(expectedHashes[fileIndex].Value, hash);
+
+            return isMatch;
+        }
+
         public bool DoesMatch(
             IList<KeyValuePair<string, string>> expectedHashes,
             FileHashResult actual)

@@ -44,10 +44,19 @@ namespace Andy.FlacHash.Verification
 
         [TestCase("filehash")]
         [TestCase("file hash")]
-        [TestCase("", Description = "Empty line too")]
-        public void When_line_contains_No_Colon__Must_throw_an_exception(string line)
+        public void When_line_contains_No_Colon__Must_return_the_whole_value_as_the_Second_segment(string line)
         {
-            Assert.Throws<Exception>(
+            var segments = target.ParseLine(line, 0);
+
+            Assert.AreEqual(2, segments.Length, "The number of segments");
+            Assert.AreEqual(null, segments[0], "Segment 1");
+            Assert.AreEqual(line, segments[1], "Segment 2");
+        }
+
+        [TestCase("")]
+        public void When_line_is_empty__Must_throw_an_exception(string line)
+        {
+            Assert.Throws<ArgumentException>(
                 () => target.ParseLine(line, 0));
         }
     }

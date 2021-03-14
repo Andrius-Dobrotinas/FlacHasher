@@ -25,25 +25,40 @@ namespace Andy.FlacHash.Verification
         public IEnumerable<KeyValuePair<string, string>> Parse(string[] lines)
         {
             var processedFilenames = new List<string>(lines.Length);
+            bool firstItemHasFileName = false;
+            int index = 0;
 
             foreach (var entry in lineParser.Parse(lines))
             {
-                yield return Validate(entry, processedFilenames);
+                yield return Validate(entry, processedFilenames, index++, ref firstItemHasFileName);
             }
         }
 
-        private KeyValuePair<string, string> Validate(KeyValuePair<string, string> entry, IList<string> processedFilenames)
+        private KeyValuePair<string, string> Validate(KeyValuePair<string, string> entry, IList<string> processedFilenames, int index, ref bool firstItemHasFileName)
         {
-            if (entry.Key == null)
-                throw new MissingFileNameException();
+            if (index == 0)
+                firstItemHasFileName = entry.Key != null;
 
-            if (processedFilenames.Contains(entry.Key, stringComparer))
-                throw new DuplicateFileException();
+            if (index > 0)
+            {
+                var hasFilename = entry.Key != null;
+
+                if ((hasFilename && !firstItemHasFileName)
+                    || (!hasFilename && firstItemHasFileName))
+                    throw new MissingFileNameException();
+            }
+
+            if (firstItemHasFileName)
+            {
+                if (processedFilenames.Contains(entry.Key, stringComparer))
+                    throw new DuplicateFileException();
+
+                processedFilenames.Add(entry.Key);
+            }
 
             if (entry.Value == null)
                 throw new MissingHashValueException();
 
-            processedFilenames.Add(entry.Key);
 
             return entry;
         }
