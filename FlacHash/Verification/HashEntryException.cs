@@ -20,7 +20,7 @@ namespace Andy.FlacHash.Verification
 
     public class MissingHashValueException : HashEntryException
     {
-        public MissingHashValueException() : base("An entry is missing a hash value")
+        public MissingHashValueException(int entryNumber) : base($"An entry is missing a hash value. Entry number: {entryNumber}")
         {
 
         }
@@ -28,7 +28,7 @@ namespace Andy.FlacHash.Verification
 
     public class DuplicateFileException : Exception
     {
-        public DuplicateFileException() : base("File name is repeated in the file")
+        public DuplicateFileException(string fileName, int entryNumber) : base($"File name is repeated: {fileName}. Entry number {entryNumber}")
         {
 
         }

@@ -51,14 +51,13 @@ namespace Andy.FlacHash.Verification
             if (firstItemHasFileName)
             {
                 if (processedFilenames.Contains(entry.Key, stringComparer))
-                    throw new DuplicateFileException();
+                    throw new DuplicateFileException(entry.Key, index + 1);
 
                 processedFilenames.Add(entry.Key);
             }
 
             if (entry.Value == null)
-                throw new MissingHashValueException();
-
+                throw new MissingHashValueException(index + 1);
 
             return entry;
         }
