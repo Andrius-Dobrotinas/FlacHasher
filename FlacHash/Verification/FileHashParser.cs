@@ -6,7 +6,7 @@ namespace Andy.FlacHash.Verification
 {
     public interface IFileHashParser
     {
-        IEnumerable<KeyValuePair<string, string>> Parse(string[] lines);
+        IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines);
     }
 
     public class FileHashParser : IFileHashParser
@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Verification
             this.lineParser = lineParser;
         }
 
-        public IEnumerable<KeyValuePair<string, string>> Parse(string[] lines)
+        public IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines)
         {
             int i = 0;
             var parsedLines = lines.Select(line => lineParser.ParseLine(line, ++i));

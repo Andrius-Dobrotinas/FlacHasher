@@ -22,9 +22,9 @@ namespace Andy.FlacHash.Verification
         {
         }
 
-        public IEnumerable<KeyValuePair<string, string>> Parse(string[] lines)
+        public IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines)
         {
-            var processedFilenames = new List<string>(lines.Length);
+            var processedFilenames = new List<string>();
             bool firstItemHasFileName = false;
             int index = 0;
 

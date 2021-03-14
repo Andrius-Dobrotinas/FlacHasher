@@ -182,8 +182,7 @@ namespace Andy.FlacHash.Win.UI
                 throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
 
             var lines = File.ReadAllLines(hashFile.FullName)
-                .Where(line => string.IsNullOrWhiteSpace(line) == false)
-                .ToArray();
+                .Where(line => string.IsNullOrWhiteSpace(line) == false);
 
             var expectedHashes = hashFileParser
                 .Parse(lines)
