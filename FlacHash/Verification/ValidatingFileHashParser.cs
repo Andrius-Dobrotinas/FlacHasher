@@ -4,7 +4,12 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public class ValidatingFileHashParser
+    public interface IValidatingFileHashParser
+    {
+        IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines);
+    }
+
+    public class ValidatingFileHashParser : IValidatingFileHashParser
     {
         private readonly IFileHashParser lineParser;
         private readonly IEqualityComparer<string> stringComparer;

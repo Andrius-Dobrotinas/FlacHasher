@@ -52,10 +52,11 @@ namespace Andy.FlacHash.Win
                             supportedFileExtension,
                             hashFileExtension),
                         hashFormatter,
-                        new ValidatingFileHashParser(
-                            new FileHashParser(
-                                new HashEntryParser()),
-                            new CaseInsensitiveOrdinalStringComparer()),
+                        new HashFileParser(
+                            new ValidatingFileHashParser(
+                                new FileHashParser(
+                                    new HashEntryParser()),
+                                new CaseInsensitiveOrdinalStringComparer())),
                         new HashVerifier(hashFormatter)));
             }
         }

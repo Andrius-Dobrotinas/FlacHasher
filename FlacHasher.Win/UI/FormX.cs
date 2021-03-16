@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly TargetFileResolver targetFileResolver;
 
         private readonly IHashFormatter hashFormatter;
-        private readonly ValidatingFileHashParser hashFileParser;
+        private readonly HashFileParser hashFileParser;
         private readonly HashVerifier hashVerifier;
 
         private readonly VerificationResultsListWrapper verification_results;
@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Win.UI
             InteractiveDirectoryFileGetter dirBrowser,
             TargetFileResolver targetFileResolver,
             IHashFormatter hashFormatter,
-            ValidatingFileHashParser hashFileParser,
+            HashFileParser hashFileParser,
             HashVerifier hashVerifier)
         {
             InitializeComponent();
@@ -181,14 +181,8 @@ namespace Andy.FlacHash.Win.UI
             if (hashFile.Exists == false)
                 throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
 
-            var lines = File.ReadAllLines(hashFile.FullName)
-                .Where(line => string.IsNullOrWhiteSpace(line) == false);
-
-            var expectedHashes = hashFileParser
-                .Parse(lines)
+            return hashFileParser.Parse(hashFile)
                 .ToArray();
-
-            return expectedHashes;
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
