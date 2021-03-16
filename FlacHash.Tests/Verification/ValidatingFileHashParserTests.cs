@@ -8,14 +8,14 @@ namespace Andy.FlacHash.Verification
 {
     public class ValidatingFileHashParserTests
     {
-        private ValidatingFileHashParser target;
-        private Mock<IFileHashParser> parser;
+        private ValidatingHashMapParser target;
+        private Mock<IHashMapParser> parser;
 
         [SetUp]
         public void Setup()
         {
-            parser = new Mock<IFileHashParser>();
-            target = new ValidatingFileHashParser(parser.Object);
+            parser = new Mock<IHashMapParser>();
+            target = new ValidatingHashMapParser(parser.Object);
         }
 
         [TestCaseSource(nameof(Get_NoFilenames))]
@@ -93,7 +93,7 @@ namespace Andy.FlacHash.Verification
 
             Setup_Parser(sourceLines, parsedData);
             
-            var target = new ValidatingFileHashParser(parser.Object, stringComparer.Object);
+            var target = new ValidatingHashMapParser(parser.Object, stringComparer.Object);
 
             Assert.Throws<DuplicateFileException>(
                 () => target.Parse(sourceLines).ToArray());
