@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Verification
             if (segments.Length == 1)
                 return new string[]
                 {
-                    null, segments[0]
+                    null, segments[0].Trim()
                 };
 
             if (segments.Length > 2)
@@ -30,6 +30,8 @@ namespace Andy.FlacHash.Verification
             for (int i = 0; i < 2; i++)
                 if (string.IsNullOrWhiteSpace(segments[i]))
                     segments[i] = null;
+                else
+                    segments[i] = segments[i].Trim();
 
             return segments;
         }

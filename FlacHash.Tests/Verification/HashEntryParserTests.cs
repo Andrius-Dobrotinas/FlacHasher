@@ -73,5 +73,21 @@ namespace Andy.FlacHash.Verification
             Assert.Throws<ArgumentException>(
                 () => target.ParseLine(line, 0));
         }
+
+        [TestCase(" file:hash", "file", "hash")]
+        [TestCase("file :hash", "file", "hash")]
+        [TestCase("file: hash", "file", "hash")]
+        [TestCase("file:hash ", "file", "hash")]
+        [TestCase("\tfile   :\t\thash ", "file", "hash")]
+        [TestCase("\tfil\te   :\t\thas   h ", "fil\te", "has   h")]
+        [TestCase("\tfilehash ", null, "filehash")]
+        [TestCase("\tfil e\thash ", null, "fil e\thash")]
+        public void Must_remove_whitespace_from_the_start_and_end_of_each_segment(string line, string expectedSegment1, string expectedSegment2)
+        {
+            var segments = target.ParseLine(line, 0);
+
+            Assert.AreEqual(expectedSegment1, segments[0], "Segment 1");
+            Assert.AreEqual(expectedSegment2, segments[1], "Segment 2");
+        }
     }
 }
