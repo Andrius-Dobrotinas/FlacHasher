@@ -11,19 +11,19 @@ namespace Andy.FlacHash.Verification
 
     public class ValidatingHashMapParser : IValidatingHashMapParser
     {
-        private readonly IHashMapParser lineParser;
+        private readonly IHashEntryCollectionParser collectionParser;
         private readonly IEqualityComparer<string> stringComparer;
 
-        public ValidatingHashMapParser(IHashMapParser lineParser, IEqualityComparer<string> stringComparer)
+        public ValidatingHashMapParser(IHashEntryCollectionParser collectionParser, IEqualityComparer<string> stringComparer)
         {
-            this.lineParser = lineParser;
+            this.collectionParser = collectionParser;
             this.stringComparer = stringComparer;
         }
 
         /// <summary>
         /// Uses a default string Comparer for file names
         /// </summary>
-        public ValidatingHashMapParser(IHashMapParser lineParser) : this(lineParser, null)
+        public ValidatingHashMapParser(IHashEntryCollectionParser collectionParser) : this(collectionParser, null)
         {
         }
 
@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Verification
             bool firstItemHasFileName = false;
             int index = 0;
 
-            foreach (var entry in lineParser.Parse(lines))
+            foreach (var entry in collectionParser.Parse(lines))
             {
                 yield return Validate(entry, processedFilenames, index++, ref firstItemHasFileName);
             }

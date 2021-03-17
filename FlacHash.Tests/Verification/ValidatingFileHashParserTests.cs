@@ -9,12 +9,12 @@ namespace Andy.FlacHash.Verification
     public class ValidatingFileHashParserTests
     {
         private ValidatingHashMapParser target;
-        private Mock<IHashMapParser> parser;
+        private Mock<IHashEntryCollectionParser> parser;
 
         [SetUp]
         public void Setup()
         {
-            parser = new Mock<IHashMapParser>();
+            parser = new Mock<IHashEntryCollectionParser>();
             target = new ValidatingHashMapParser(parser.Object);
         }
 
