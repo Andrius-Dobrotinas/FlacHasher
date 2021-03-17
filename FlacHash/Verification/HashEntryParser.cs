@@ -5,12 +5,12 @@ namespace Andy.FlacHash.Verification
 {
     public interface IHashEntryParser
     {
-        string[] ParseLine(string line, int lineNumber);
+        KeyValuePair<string, string> Parse(string line, int lineNumber);
     }
 
     public class HashEntryParser : IHashEntryParser
     {
-        public string[] ParseLine(string line, int lineNumber)
+        public KeyValuePair<string, string> Parse(string line, int lineNumber)
         {
             if (line == null) throw new ArgumentNullException(nameof(line));
             if (string.IsNullOrWhiteSpace(line)) throw new ArgumentException("An empty string is unacceptable!", nameof(line));
@@ -19,21 +19,24 @@ namespace Andy.FlacHash.Verification
             var segments = line.Split(':');
 
             if (segments.Length == 1)
-                return new string[]
-                {
-                    null, segments[0].Trim()
-                };
+                return new KeyValuePair<string, string>(
+                    null,
+                    TrimAndReplaceEmptyWithNull(segments[0]));
 
             if (segments.Length > 2)
-                throw new Exception($"Expected line {lineNumber} to have {2} segments, but it has {segments.Length}");
+                throw new Exception($"Expected line {lineNumber} to have 1-2 segments, but it has {segments.Length}");
 
-            for (int i = 0; i < 2; i++)
-                if (string.IsNullOrWhiteSpace(segments[i]))
-                    segments[i] = null;
-                else
-                    segments[i] = segments[i].Trim();
+            return new KeyValuePair<string, string>(
+                    TrimAndReplaceEmptyWithNull(segments[0]),
+                    TrimAndReplaceEmptyWithNull(segments[1]));
+        }
 
-            return segments;
+        private string TrimAndReplaceEmptyWithNull(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+            else
+                return value.Trim();
         }
     }
 }

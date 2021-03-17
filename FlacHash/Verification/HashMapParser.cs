@@ -21,12 +21,7 @@ namespace Andy.FlacHash.Verification
         public IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines)
         {
             int i = 0;
-            var parsedLines = lines.Select(line => lineParser.ParseLine(line, ++i));
-
-            return parsedLines.Select(
-                segments => new KeyValuePair<string, string>(
-                    segments[0],
-                    segments[1]));
+            return lines.Select(line => lineParser.Parse(line, ++i));
         }
     }
 }
