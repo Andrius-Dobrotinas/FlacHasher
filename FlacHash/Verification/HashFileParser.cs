@@ -7,9 +7,9 @@ namespace Andy.FlacHash.Verification
 {
     public class HashFileParser
     {
-        private readonly IValidatingHashMapParser parser;
+        private readonly IHashMapParser parser;
 
-        public HashFileParser(IValidatingHashMapParser parser)
+        public HashFileParser(IHashMapParser parser)
         {
             this.parser = parser;
         }

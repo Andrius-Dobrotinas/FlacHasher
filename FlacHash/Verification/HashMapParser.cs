@@ -4,17 +4,17 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public interface IValidatingHashMapParser
+    public interface IHashMapParser
     {
         IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines);
     }
 
-    public class ValidatingHashMapParser : IValidatingHashMapParser
+    public class HashMapParser : IHashMapParser
     {
         private readonly IHashEntryCollectionParser collectionParser;
         private readonly IEqualityComparer<string> stringComparer;
 
-        public ValidatingHashMapParser(IHashEntryCollectionParser collectionParser, IEqualityComparer<string> stringComparer)
+        public HashMapParser(IHashEntryCollectionParser collectionParser, IEqualityComparer<string> stringComparer)
         {
             this.collectionParser = collectionParser;
             this.stringComparer = stringComparer;
@@ -23,7 +23,7 @@ namespace Andy.FlacHash.Verification
         /// <summary>
         /// Uses a default string Comparer for file names
         /// </summary>
-        public ValidatingHashMapParser(IHashEntryCollectionParser collectionParser) : this(collectionParser, null)
+        public HashMapParser(IHashEntryCollectionParser collectionParser) : this(collectionParser, null)
         {
         }
 
