@@ -5,16 +5,16 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public class HashFileParser
+    public class HashFileReader
     {
         private readonly IHashMapParser parser;
 
-        public HashFileParser(IHashMapParser parser)
+        public HashFileReader(IHashMapParser parser)
         {
             this.parser = parser;
         }
 
-        public FileHashMap Parse(FileInfo file)
+        public FileHashMap Read(FileInfo file)
         {
             var lines = File.ReadAllLines(file.FullName)
                 .Where(line => string.IsNullOrWhiteSpace(line) == false);

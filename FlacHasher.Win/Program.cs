@@ -52,7 +52,7 @@ namespace Andy.FlacHash.Win
                             supportedFileExtension,
                             hashFileExtension),
                         hashFormatter,
-                        new HashFileParser(
+                        new HashFileReader(
                             new HashMapParser(
                                 new HashEntryCollectionParser(
                                     new HashEntryParser()),
