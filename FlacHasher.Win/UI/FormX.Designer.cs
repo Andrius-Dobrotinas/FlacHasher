@@ -178,9 +178,9 @@
             this.list_hashFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.list_hashFiles.FormattingEnabled = true;
             this.list_hashFiles.ItemHeight = 15;
-            this.list_hashFiles.Location = new System.Drawing.Point(3, 146);
+            this.list_hashFiles.Location = new System.Drawing.Point(3, 127);
             this.list_hashFiles.Name = "list_hashFiles";
-            this.list_hashFiles.Size = new System.Drawing.Size(662, 19);
+            this.list_hashFiles.Size = new System.Drawing.Size(662, 38);
             this.list_hashFiles.TabIndex = 14;
             // 
             // list_files
@@ -193,7 +193,7 @@
             this.list_files.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.list_files.Name = "list_files";
             this.list_files.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.list_files.Size = new System.Drawing.Size(660, 137);
+            this.list_files.Size = new System.Drawing.Size(660, 118);
             this.list_files.TabIndex = 4;
             // 
             // tableLayoutPanel1

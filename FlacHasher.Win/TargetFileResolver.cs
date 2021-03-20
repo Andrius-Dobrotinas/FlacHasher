@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Win
             this.hashFileFilter = hashFileFilter;
         }
 
-        public (FileInfo[], FileInfo)? GetFiles(DirectoryInfo directory)
+        public (FileInfo[], FileInfo[])? GetFiles(DirectoryInfo directory)
         {
             var allFiles = IOUtil.FindFiles(directory, new string[] { sourceFileFilter, hashFileFilter })
                 .GroupBy(x => x.Extension)
@@ -29,11 +29,11 @@ namespace Andy.FlacHash.Win
                 ? allFiles[sourceFileFilter]
                 : new FileInfo[0];
 
-            var hashFile = allFiles.ContainsKey(hashFileFilter)
-                ? allFiles[hashFileFilter].First()
+            var hashFiles = allFiles.ContainsKey(hashFileFilter)
+                ? allFiles[hashFileFilter]
                 : null;
 
-            return (files, hashFile);
+            return (files, hashFiles);
         }
     }
 }

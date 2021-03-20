@@ -80,23 +80,25 @@ namespace Andy.FlacHash.Win.UI
             var result = targetFileResolver.GetFiles(directory);
 
             var files = result.Value.Item1;
-            var hashFile = result.Value.Item2;
+            var hashFiles = result.Value.Item2;
 
             if (files.Any() == false)
                 label_Status.Text = "The selected directory doesn't contain files suitable files";
             else
                 label_Status.Text = @"Press ""Go""";
 
-            SetNewInputFiles(files, hashFile);
+            SetNewInputFiles(files, hashFiles);
         }
 
-        private void SetNewInputFiles(FileInfo[] files, FileInfo hashFile)
+        private void SetNewInputFiles(FileInfo[] files, FileInfo[] hashFiles)
         {
             list_files.ReplaceItems(files);
 
-            // TODO: I want it to list all available hash files, just in case there's more than one
-            if (hashFile != null)
-                list_hashFiles.ReplaceItems(hashFile);
+            if (hashFiles != null)
+            {
+                list_hashFiles.ReplaceItems(hashFiles);
+                list_hashFiles.SelectedIndex = 0;
+            }
             else
                 list_hashFiles.Items.Clear();
 
@@ -174,7 +176,7 @@ namespace Andy.FlacHash.Win.UI
 
         private FileHashMap GetExpectedHashes()
         {
-            var hashFile = list_hashFiles.GetItems().First();
+            var hashFile = list_hashFiles.GetSelectedItem();
 
             if (hashFile.Exists == false)
                 throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");

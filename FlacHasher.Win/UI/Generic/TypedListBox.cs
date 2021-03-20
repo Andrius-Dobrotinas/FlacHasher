@@ -43,5 +43,10 @@ namespace Andy.FlacHash.Win.UI
         {
             return this.Items.Cast<TListItem>();
         }
+
+        public TListItem GetSelectedItem()
+        {
+            return (TListItem)this.SelectedItem;
+        }
     }
 }
