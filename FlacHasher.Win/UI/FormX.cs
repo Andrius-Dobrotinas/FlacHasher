@@ -68,6 +68,8 @@ namespace Andy.FlacHash.Win.UI
 
             this.list_verification_results.View = View.Details;
 
+            list_verification_results.SmallImageList = imgList_verification;
+
             list_verification_results.Resize += List_verification_results_Resize;
             List_verification_results_Resize(null, null);
         }

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormX));
             this.btn_chooseDir = new System.Windows.Forms.Button();
             this.btn_go = new System.Windows.Forms.Button();
             this.list_results = new Andy.FlacHash.Win.UI.FileHashResultList();
@@ -47,6 +48,7 @@
             this.group_Left = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.group_Results = new System.Windows.Forms.GroupBox();
+            this.imgList_verification = new System.Windows.Forms.ImageList(this.components);
             this.layoutGroup_input.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.group_Left.SuspendLayout();
@@ -255,6 +257,14 @@
             this.group_Results.TabIndex = 13;
             this.group_Results.TabStop = false;
             // 
+            // imgList_verification
+            // 
+            this.imgList_verification.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.imgList_verification.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgList_verification.ImageStream")));
+            this.imgList_verification.TransparentColor = System.Drawing.Color.Transparent;
+            this.imgList_verification.Images.SetKeyName(0, "good");
+            this.imgList_verification.Images.SetKeyName(1, "bad");
+            // 
             // FormX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -296,5 +306,6 @@
         private System.Windows.Forms.GroupBox group_Left;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.GroupBox group_Results;
+        private System.Windows.Forms.ImageList imgList_verification;
     }
 }

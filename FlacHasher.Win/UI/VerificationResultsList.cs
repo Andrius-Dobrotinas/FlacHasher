@@ -12,6 +12,7 @@ namespace Andy.FlacHash.Win.UI
             var item = new ListViewItem
             {
                 Text = file.Name,
+                ImageIndex = isMatch ? 0 : 1,
             };
 
             item.SubItems.Add(isMatch.ToString());
