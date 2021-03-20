@@ -67,6 +67,15 @@ namespace Andy.FlacHash.Win.UI
             this.list_results.Initialize();
 
             this.list_verification_results.View = View.Details;
+
+            list_verification_results.Resize += List_verification_results_Resize;
+            List_verification_results_Resize(null, null);
+        }
+        private void List_verification_results_Resize(object sender, EventArgs e)
+        {
+            var newWidth = list_verification_results.Width - col_results_verification_isMatch.Width;
+
+            col_results_verification_file.Width = (int)(newWidth * .95);
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)

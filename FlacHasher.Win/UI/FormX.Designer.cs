@@ -151,6 +151,7 @@
             // col_results_verification_file
             // 
             this.col_results_verification_file.Text = "File";
+            this.col_results_verification_file.Width = 200;
             // 
             // col_results_verification_isMatch
             // 
