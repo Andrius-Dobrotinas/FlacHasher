@@ -38,8 +38,8 @@
             this.mode_Verify = new System.Windows.Forms.RadioButton();
             this.mode_Calc = new System.Windows.Forms.RadioButton();
             this.list_verification_results = new System.Windows.Forms.ListView();
-            this.col_file = new System.Windows.Forms.ColumnHeader();
-            this.col_isMatch = new System.Windows.Forms.ColumnHeader();
+            this.col_results_verification_file = new System.Windows.Forms.ColumnHeader();
+            this.col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
             this.layoutGroup_input = new System.Windows.Forms.TableLayoutPanel();
             this.list_hashFiles = new Andy.FlacHash.Win.UI.FileList();
             this.list_files = new Andy.FlacHash.Win.UI.FileList();
@@ -137,8 +137,8 @@
             // list_verification_results
             // 
             this.list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.col_file,
-            this.col_isMatch});
+            this.col_results_verification_file,
+            this.col_results_verification_isMatch});
             this.list_verification_results.Dock = System.Windows.Forms.DockStyle.Fill;
             this.list_verification_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.list_verification_results.HideSelection = false;
@@ -148,13 +148,13 @@
             this.list_verification_results.TabIndex = 10;
             this.list_verification_results.UseCompatibleStateImageBehavior = false;
             // 
-            // col_file
+            // col_results_verification_file
             // 
-            this.col_file.Text = "File";
+            this.col_results_verification_file.Text = "File";
             // 
-            // col_isMatch
+            // col_results_verification_isMatch
             // 
-            this.col_isMatch.Text = "Matches";
+            this.col_results_verification_isMatch.Text = "Matches";
             // 
             // layoutGroup_input
             // 
@@ -286,8 +286,8 @@
         private System.Windows.Forms.RadioButton mode_Verify;
         private System.Windows.Forms.RadioButton mode_Calc;
         private System.Windows.Forms.ListView list_verification_results;
-        private System.Windows.Forms.ColumnHeader col_file;
-        private System.Windows.Forms.ColumnHeader col_isMatch;
+        private System.Windows.Forms.ColumnHeader col_results_verification_file;
+        private System.Windows.Forms.ColumnHeader col_results_verification_isMatch;
         private System.Windows.Forms.TableLayoutPanel layoutGroup_input;
         private FileList list_hashFiles;
         private FileList list_files;
