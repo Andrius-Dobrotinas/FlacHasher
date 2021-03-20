@@ -141,16 +141,14 @@ namespace Andy.FlacHash.Win.UI
                         {
                             var expectedHashes = GetExpectedHashes();
 
-                            var selectBasedOnPosition = expectedHashes.Any(x => string.IsNullOrEmpty(x.Key));
-
                             int i = 0;
 
                             hasherService.Start(files,
                                 (FileHashResult result) =>
                                 {
-                                    var isMatch = selectBasedOnPosition
-                                        ? hashVerifier.DoesMatch(expectedHashes, result, i)
-                                        : hashVerifier.DoesMatch(expectedHashes, result);
+                                    var isMatch = expectedHashes.IsPositionBased
+                                        ? hashVerifier.DoesMatch(expectedHashes.Hashes, result, i)
+                                        : hashVerifier.DoesMatch(expectedHashes.Hashes, result);
 
                                     verification_results.Add(result.File, isMatch);
 
@@ -174,15 +172,14 @@ namespace Andy.FlacHash.Win.UI
             return list_files.GetItems().ToList();
         }
 
-        private KeyValuePair<string, string>[] GetExpectedHashes()
+        private FileHashMap GetExpectedHashes()
         {
             var hashFile = list_hashFiles.GetItems().First();
 
             if (hashFile.Exists == false)
                 throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
 
-            return hashFileParser.Parse(hashFile)
-                .ToArray();
+            return hashFileParser.Parse(hashFile);
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)

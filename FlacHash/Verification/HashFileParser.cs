@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Verification
             this.parser = parser;
         }
 
-        public IEnumerable<KeyValuePair<string, string>> Parse(FileInfo file)
+        public FileHashMap Parse(FileInfo file)
         {
             var lines = File.ReadAllLines(file.FullName)
                 .Where(line => string.IsNullOrWhiteSpace(line) == false);

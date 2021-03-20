@@ -6,7 +6,7 @@ namespace Andy.FlacHash.Verification
 {
     public interface IHashMapParser
     {
-        IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines);
+        FileHashMap Parse(IEnumerable<string> lines);
     }
 
     public class HashMapParser : IHashMapParser
@@ -27,7 +27,16 @@ namespace Andy.FlacHash.Verification
         {
         }
 
-        public IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines)
+        public FileHashMap Parse(IEnumerable<string> lines)
+        {
+            var hashes = ParseValidate(lines).ToList();
+
+            var isPositionBased = hashes.Any() && hashes.First().Key == null;
+
+            return new FileHashMap(hashes, isPositionBased);
+        }
+
+        private IEnumerable<KeyValuePair<string, string>> ParseValidate(IEnumerable<string> lines)
         {
             var processedFilenames = new List<string>();
             bool firstItemHasFileName = false;
