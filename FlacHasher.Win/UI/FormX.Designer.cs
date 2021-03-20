@@ -37,7 +37,7 @@
             this.label_Status = new System.Windows.Forms.Label();
             this.mode_Verify = new System.Windows.Forms.RadioButton();
             this.mode_Calc = new System.Windows.Forms.RadioButton();
-            this.list_verification_results = new System.Windows.Forms.ListView();
+            this.list_verification_results = new Andy.FlacHash.Win.UI.VerificationResultsList();
             this.col_results_verification_file = new System.Windows.Forms.ColumnHeader();
             this.col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
             this.layoutGroup_input = new System.Windows.Forms.TableLayoutPanel();
@@ -285,7 +285,7 @@
         private System.Windows.Forms.Label label_Status;
         private System.Windows.Forms.RadioButton mode_Verify;
         private System.Windows.Forms.RadioButton mode_Calc;
-        private System.Windows.Forms.ListView list_verification_results;
+        private VerificationResultsList list_verification_results;
         private System.Windows.Forms.ColumnHeader col_results_verification_file;
         private System.Windows.Forms.ColumnHeader col_results_verification_isMatch;
         private System.Windows.Forms.TableLayoutPanel layoutGroup_input;

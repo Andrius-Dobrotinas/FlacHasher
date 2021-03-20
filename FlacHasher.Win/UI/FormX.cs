@@ -24,8 +24,6 @@ namespace Andy.FlacHash.Win.UI
         private readonly HashFileReader hashFileParser;
         private readonly HashVerifier hashVerifier;
 
-        private readonly VerificationResultsListWrapper verification_results;
-
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
@@ -69,7 +67,6 @@ namespace Andy.FlacHash.Win.UI
             this.list_results.Initialize();
 
             this.list_verification_results.View = View.Details;
-            this.verification_results = new VerificationResultsListWrapper(list_verification_results);
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
@@ -152,7 +149,7 @@ namespace Andy.FlacHash.Win.UI
                                         ? hashVerifier.DoesMatch(expectedHashes.Hashes, result, i)
                                         : hashVerifier.DoesMatch(expectedHashes.Hashes, result);
 
-                                    verification_results.Add(result.File, isMatch);
+                                    list_verification_results.Add(result.File, isMatch);
 
                                     i++;
                                 });
