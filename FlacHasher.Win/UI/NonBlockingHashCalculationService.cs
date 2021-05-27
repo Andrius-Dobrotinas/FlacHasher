@@ -20,11 +20,11 @@ namespace Andy.FlacHash.Win.UI
 
         public bool InProgress => cancellableActionRunner.InProgress;
 
-        public void Start(
+        public Task Start(
             IEnumerable<FileInfo> sourceFiles,
             Action<FileHashResult> hashCalculated)
         {
-            cancellableActionRunner.Start(
+            return cancellableActionRunner.Start(
                 (cancellationToken, finishedCallback) => hashCalcOnSeparateThreadService.StartHashCalculation(
                     sourceFiles,
                     cancellationToken,
