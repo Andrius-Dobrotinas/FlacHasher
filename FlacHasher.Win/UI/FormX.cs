@@ -138,12 +138,13 @@ namespace Andy.FlacHash.Win.UI
             if (!hasherService.InProgress)
             {
                 var files = GetFiles();
-                BeforeCalc(files);
 
                 switch (mode)
                 {
                     case Mode.Calculation:
                         {
+                            BeforeCalc(files);
+
                             hasherService.Start(files, UpdateUIWithCalcResult);
                             return;
                         }
@@ -151,19 +152,74 @@ namespace Andy.FlacHash.Win.UI
                         {
                             var expectedHashes = GetExpectedHashes();
 
+                            IList<KeyValuePair<string, string>> hashesExpected;
+                            IEnumerable<KeyValuePair<string, string>> missingFiles;
+
+                            if (expectedHashes.IsPositionBased)
+                            {
+                                files = files.Take(expectedHashes.Hashes.Count).ToList();
+
+                                if (files.Count() < expectedHashes.Hashes.Count)
+                                    missingFiles = expectedHashes.Hashes.Skip(files.Count());
+                                else
+                                    missingFiles = new KeyValuePair<string, string>[0];
+
+                                hashesExpected = expectedHashes.Hashes;
+                            }
+                            else
+                            {
+                                var filesByNames = files.ToDictionary(x => x.Name, x => x);
+                                
+                                var expectedHashesWithMatchingTargetFiles = expectedHashes.Hashes
+                                    .ToDictionary(
+                                        x => x,
+                                        x => filesByNames.GetValueOrDefault(x.Key));
+
+                                var existingExpectedHashesWithMatchingTargetFiles = expectedHashesWithMatchingTargetFiles
+                                    .Where(x => x.Value != null);
+
+                                // Just take files that are included in the hash map
+                                files = existingExpectedHashesWithMatchingTargetFiles
+                                    .Select(x => x.Value);
+
+                                hashesExpected = existingExpectedHashesWithMatchingTargetFiles
+                                    .Select(x => x.Key)
+                                    .ToArray();
+
+                                missingFiles = expectedHashesWithMatchingTargetFiles
+                                    .Where(x => x.Value == null)
+                                    .Select(x => x.Key);
+                            }
+
+                            files = files.ToList();
+                            var actualFileCount = files.Count();
+
                             int i = 0;
 
-                            hasherService.Start(files,
-                                (FileHashResult result) =>
-                                {
-                                    var isMatch = expectedHashes.IsPositionBased
-                                        ? hashVerifier.DoesMatch(expectedHashes.Hashes, result, i)
-                                        : hashVerifier.DoesMatch(expectedHashes.Hashes, result);
+                            BeforeCalc(files);
 
-                                    list_verification_results.Add(result.File, isMatch);
+                            hasherService.Start(files,
+                                (FileHashResult calcResult) =>
+                                {
+                                    var isMatch = hashVerifier.DoesMatch(hashesExpected, i, calcResult.Hash);
+
+                                    list_verification_results.Add(calcResult.File, isMatch);
 
                                     i++;
+
+                                    // When finished, add all missing files to the list
+                                    if (i == actualFileCount)
+                                    {
+                                        foreach (var item in missingFiles)
+                                            list_verification_results.Add(
+                                                new FileInfo(
+                                                    expectedHashes.IsPositionBased
+                                                        ? "File Missing"
+                                                        : item.Key),
+                                                false);
+                                    }
                                 });
+
                             return;
                         }
                     default:

@@ -13,10 +13,10 @@ namespace Andy.FlacHash.Win
             this.hashFormatter = hashFormatter;
         }
 
-        public bool DoesMatch(IList<KeyValuePair<string, string>> expectedHashes, FileHashResult actualHash, int fileIndex)
+        public bool DoesMatch(IList<KeyValuePair<string, string>> expectedHashes, int hashIndex, byte[] actualHash)
         {
-            var hash = hashFormatter.GetString(actualHash.Hash);
-            var isMatch = AreEqualOrdinalCaseInsensitive(expectedHashes[fileIndex].Value, hash);
+            var hashString = hashFormatter.GetString(actualHash);
+            var isMatch = AreEqualOrdinalCaseInsensitive(expectedHashes[hashIndex].Value, hashString);
 
             return isMatch;
         }
