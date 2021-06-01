@@ -133,6 +133,49 @@ namespace Andy.FlacHash.Win.UI
                 MessageBox.Show("Hashes saved!");
         }
 
+        private (IList<KeyValuePair<string, string>>, IList<KeyValuePair<string, string>>, IList<FileInfo>) GetHashDataPositionBased(IList<KeyValuePair<string, string>> expectedHashes, IEnumerable<FileInfo> files)
+        {
+            var filesTargetedByTheHashes = files.Take(expectedHashes.Count).ToList();
+
+            var entriesWithFilesMissing = filesTargetedByTheHashes.Count < expectedHashes.Count
+                ? expectedHashes
+                    .Skip(filesTargetedByTheHashes.Count)
+                    //.Select(x => new KeyValuePair<string, string>("File Missing", x.Value)
+                    .ToArray()
+                : new KeyValuePair<string, string>[0];
+
+            return (expectedHashes, entriesWithFilesMissing, filesTargetedByTheHashes);
+        }
+
+        private (IList<KeyValuePair<string, string>>, IList<KeyValuePair<string, string>>, IList<FileInfo>) GetHashData(IList<KeyValuePair<string, string>> expectedHashes, IEnumerable<FileInfo> files)
+        {
+            var filesByNames = files.ToDictionary(x => x.Name, x => x);
+
+            var expectedHashToTargetFileMap = expectedHashes
+                .ToDictionary(
+                    x => x,
+                    x => filesByNames.GetValueOrDefault(x.Key));
+
+            var hashesWithExistingFiles = expectedHashToTargetFileMap
+                .Where(x => x.Value != null);
+
+            // Just take files that are included in the hash map
+            var filesTargetedByTheHashes = hashesWithExistingFiles
+                .Select(x => x.Value)
+                .ToArray();
+
+            var existingHashes = hashesWithExistingFiles
+                .Select(x => x.Key)
+                .ToArray();
+
+            var missingFiles = expectedHashToTargetFileMap
+                .Where(x => x.Value == null)
+                .Select(x => x.Key)
+                .ToArray();
+
+            return (existingHashes, missingFiles, filesTargetedByTheHashes);
+        }
+
         private void Btn_Go_Click(object sender, EventArgs e)
         {
             if (!hasherService.InProgress)
@@ -152,56 +195,24 @@ namespace Andy.FlacHash.Win.UI
                         {
                             var expectedHashes = GetExpectedHashes();
 
-                            IList<KeyValuePair<string, string>> hashesExpected;
-                            IEnumerable<KeyValuePair<string, string>> missingFiles;
+                            IList<KeyValuePair<string, string>> existingFileHashes;
+                            IEnumerable<KeyValuePair<string, string>> missingFileHashes;
+                            IList<FileInfo> filesTargetedByTheHashes;
 
-                            if (expectedHashes.IsPositionBased)
-                            {
-                                files = files.Take(expectedHashes.Hashes.Count).ToList();
+                            (existingFileHashes, missingFileHashes, filesTargetedByTheHashes) = expectedHashes.IsPositionBased
+                                    ? GetHashDataPositionBased(expectedHashes.Hashes, files)
+                                    : GetHashData(expectedHashes.Hashes, files);
 
-                                if (files.Count() < expectedHashes.Hashes.Count)
-                                    missingFiles = expectedHashes.Hashes.Skip(files.Count());
-                                else
-                                    missingFiles = new KeyValuePair<string, string>[0];
-
-                                hashesExpected = expectedHashes.Hashes;
-                            }
-                            else
-                            {
-                                var filesByNames = files.ToDictionary(x => x.Name, x => x);
-                                
-                                var expectedHashesWithMatchingTargetFiles = expectedHashes.Hashes
-                                    .ToDictionary(
-                                        x => x,
-                                        x => filesByNames.GetValueOrDefault(x.Key));
-
-                                var existingExpectedHashesWithMatchingTargetFiles = expectedHashesWithMatchingTargetFiles
-                                    .Where(x => x.Value != null);
-
-                                // Just take files that are included in the hash map
-                                files = existingExpectedHashesWithMatchingTargetFiles
-                                    .Select(x => x.Value);
-
-                                hashesExpected = existingExpectedHashesWithMatchingTargetFiles
-                                    .Select(x => x.Key)
-                                    .ToArray();
-
-                                missingFiles = expectedHashesWithMatchingTargetFiles
-                                    .Where(x => x.Value == null)
-                                    .Select(x => x.Key);
-                            }
-
-                            files = files.ToList();
-                            var actualFileCount = files.Count();
+                            var actualFileCount = filesTargetedByTheHashes.Count;
 
                             int i = 0;
 
-                            BeforeCalc(files);
+                            BeforeCalc(filesTargetedByTheHashes);
 
-                            hasherService.Start(files,
+                            hasherService.Start(filesTargetedByTheHashes,
                                 (FileHashResult calcResult) =>
                                 {
-                                    var isMatch = hashVerifier.DoesMatch(hashesExpected, i, calcResult.Hash);
+                                    var isMatch = hashVerifier.DoesMatch(existingFileHashes, i, calcResult.Hash);
 
                                     list_verification_results.Add(calcResult.File, isMatch);
 
@@ -210,7 +221,7 @@ namespace Andy.FlacHash.Win.UI
                                     // When finished, add all missing files to the list
                                     if (i == actualFileCount)
                                     {
-                                        foreach (var item in missingFiles)
+                                        foreach (var item in missingFileHashes)
                                             list_verification_results.Add(
                                                 new FileInfo(
                                                     expectedHashes.IsPositionBased
@@ -233,7 +244,7 @@ namespace Andy.FlacHash.Win.UI
             }
         }
 
-        private IEnumerable<FileInfo> GetFiles()
+        private IList<FileInfo> GetFiles()
         {
             return list_files.GetItems().ToList();
         }
@@ -322,7 +333,7 @@ namespace Andy.FlacHash.Win.UI
             this.list_verification_results.Visible = mode == Mode.Verification;
 
             this.list_files.Size = new System.Drawing.Size(660, 139);
-            
+
 
             Set_Go_Button_State();
         }
