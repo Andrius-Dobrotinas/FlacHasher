@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Andy.FlacHash.Win
@@ -13,10 +14,11 @@ namespace Andy.FlacHash.Win
             this.hashFormatter = hashFormatter;
         }
 
-        public bool DoesMatch(IList<KeyValuePair<string, string>> expectedHashes, int hashIndex, byte[] actualHash)
+        public bool DoesMatch(IList<KeyValuePair<FileInfo, string>> expectedHashes, int hashIndex, byte[] actualHash)
         {
-            var hashString = hashFormatter.GetString(actualHash);
-            var isMatch = AreEqualOrdinalCaseInsensitive(expectedHashes[hashIndex].Value, hashString);
+            var targetHash = expectedHashes[hashIndex].Value;
+            var actualHashString = hashFormatter.GetString(actualHash);
+            var isMatch = AreEqualOrdinalCaseInsensitive(targetHash, actualHashString);
 
             return isMatch;
         }
