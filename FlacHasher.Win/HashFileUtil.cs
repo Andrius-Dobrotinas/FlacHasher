@@ -7,7 +7,13 @@ namespace Andy.FlacHash.Win
 {
     public static class HashFileUtil
     {
-        public static (IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<FileInfo, string>> missing) GetHashDataPositionBased(IList<KeyValuePair<string, string>> expectedHashes, IEnumerable<FileInfo> files)
+        /// <param name="expectedHashes">Key = File name, Value = hash value</param>
+        public static (
+            IList<KeyValuePair<FileInfo, string>> expected, 
+            IList<KeyValuePair<FileInfo, string>> missing) 
+            GetHashDataPositionBased(
+            IList<KeyValuePair<string, string>> expectedHashes, 
+            IEnumerable<FileInfo> files)
         {
             var filesTargetedByTheHashes = files.Take(expectedHashes.Count).ToList();
 
@@ -35,7 +41,13 @@ namespace Andy.FlacHash.Win
             return (result, missing);
         }
 
-        public static (IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<FileInfo, string>> missing) GetHashData(IList<KeyValuePair<string, string>> expectedHashes, IEnumerable<FileInfo> files)
+        /// <param name="expectedHashes">Key = File name, Value = hash value</param>
+        public static (
+            IList<KeyValuePair<FileInfo, string>> expected, 
+            IList<KeyValuePair<FileInfo, string>> missing) 
+            GetHashData(
+            IList<KeyValuePair<string, string>> expectedHashes, 
+            IEnumerable<FileInfo> files)
         {
             var nameToFileDictionary = files.ToDictionary(x => x.Name, x => x);
 
