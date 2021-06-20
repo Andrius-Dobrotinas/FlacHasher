@@ -152,35 +152,7 @@ namespace Andy.FlacHash.Win.UI
                         {
                             var expectedHashes = GetExpectedHashes();
 
-                            IList<KeyValuePair<FileInfo, string>> existingFileHashes;
-                            IList<KeyValuePair<FileInfo, string>> missingFileHashes;
-
-                            (existingFileHashes, missingFileHashes) = expectedHashes.IsPositionBased
-                                    ? HashFileUtil.GetHashDataPositionBased(expectedHashes.Hashes, files)
-                                    : HashFileUtil.GetHashData(expectedHashes.Hashes, files);
-
-                            var existingFiles = existingFileHashes.Select(x => x.Key).ToList();
-
-                            BeforeCalc(existingFiles);
-
-                            var actualFileCount = existingFileHashes.Count;
-                            int i = 0;
-                            hasherService.Start(existingFiles,
-                                (FileHashResult calcResult) =>
-                                {
-                                    var isMatch = hashVerifier.DoesMatch(existingFileHashes, i, calcResult.Hash);
-
-                                    list_verification_results.Add(calcResult.File, isMatch);
-
-                                    i++;
-
-                                    // When finished, add all missing files to the list
-                                    if (i == actualFileCount)
-                                    {
-                                        foreach (var item in missingFileHashes)
-                                            list_verification_results.Add(item.Key, false);
-                                    }
-                                });
+                            VerifyHashes(files, expectedHashes);
 
                             return;
                         }
@@ -208,6 +180,37 @@ namespace Andy.FlacHash.Win.UI
                 throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
 
             return hashFileParser.Read(hashFile);
+        }
+
+        private void VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
+        {
+            (IList<KeyValuePair<FileInfo, string>> existingFileHashes,
+            IList<KeyValuePair<FileInfo, string>> missingFileHashes) = expectedHashes.IsPositionBased
+                    ? HashFileUtil.GetHashDataPositionBased(expectedHashes.Hashes, files)
+                    : HashFileUtil.GetHashData(expectedHashes.Hashes, files);
+
+            var existingFiles = existingFileHashes.Select(x => x.Key).ToList();
+
+            BeforeCalc(existingFiles);
+
+            var actualFileCount = existingFileHashes.Count;
+            int i = 0;
+            hasherService.Start(existingFiles,
+                (FileHashResult calcResult) =>
+                {
+                    var isMatch = hashVerifier.DoesMatch(existingFileHashes, i, calcResult.Hash);
+
+                    list_verification_results.Add(calcResult.File, isMatch);
+
+                    i++;
+
+                    // When finished, add all missing files to the list
+                    if (i == actualFileCount)
+                    {
+                        foreach (var item in missingFileHashes)
+                            list_verification_results.Add(item.Key, false);
+                    }
+                });
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
