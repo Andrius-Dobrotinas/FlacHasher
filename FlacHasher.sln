@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher.Win", "FlacHashe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHash.IO", "FlacHash.IO\FlacHash.IO.csproj", "{2A68B888-C4F5-4B4C-9CE9-AE73CB6F884B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHasher.Win.Tests", "FlacHasher.Win.Tests\FlacHasher.Win.Tests.csproj", "{73574F89-BE50-4B75-806E-E8EF4D106A55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{2A68B888-C4F5-4B4C-9CE9-AE73CB6F884B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A68B888-C4F5-4B4C-9CE9-AE73CB6F884B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A68B888-C4F5-4B4C-9CE9-AE73CB6F884B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73574F89-BE50-4B75-806E-E8EF4D106A55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73574F89-BE50-4B75-806E-E8EF4D106A55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73574F89-BE50-4B75-806E-E8EF4D106A55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73574F89-BE50-4B75-806E-E8EF4D106A55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

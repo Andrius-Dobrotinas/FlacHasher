@@ -7,6 +7,8 @@ namespace Andy.FlacHash.Win
 {
     public static class HashFileUtil
     {
+        public const string MissingFileKey = "File's Missing";
+
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
         public static (
             IList<KeyValuePair<FileInfo, string>> expected, 
