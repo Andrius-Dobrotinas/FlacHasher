@@ -186,8 +186,8 @@ namespace Andy.FlacHash.Win.UI
         {
             (IList<KeyValuePair<FileInfo, string>> existingFileHashes,
             IList<KeyValuePair<FileInfo, string>> missingFileHashes) = expectedHashes.IsPositionBased
-                    ? HashFileUtil.GetHashDataPositionBased(expectedHashes.Hashes, files)
-                    : HashFileUtil.GetHashData(expectedHashes.Hashes, files);
+                    ? HashFileUtil.MatchFilesToHashesPositionBased(expectedHashes.Hashes, files)
+                    : HashFileUtil.MatchFilesToHashes(expectedHashes.Hashes, files);
 
             var existingFiles = existingFileHashes.Select(x => x.Key).ToList();
 

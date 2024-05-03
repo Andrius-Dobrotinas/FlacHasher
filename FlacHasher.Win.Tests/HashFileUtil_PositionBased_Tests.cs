@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Win
                 .ToArray();
 
             (IList<KeyValuePair<FileInfo, string>> result_ExpectedItems,
-            IList<KeyValuePair<FileInfo, string>> result_MissingItems) = HashFileUtil.GetHashDataPositionBased(expected_Items, input_files);
+            IList<KeyValuePair<FileInfo, string>> result_MissingItems) = HashFileUtil.MatchFilesToHashesPositionBased(expected_Items, input_files);
 
             Assert.IsEmpty(result_MissingItems, "Missing files/hashes");
 
@@ -62,7 +62,7 @@ namespace Andy.FlacHash.Win
                 .ToArray();
 
             (IList<KeyValuePair<FileInfo, string>> result_ExpectedItems,
-            IList<KeyValuePair<FileInfo, string>> _) = HashFileUtil.GetHashDataPositionBased(input_expectedHashes, input_files);
+            IList<KeyValuePair<FileInfo, string>> _) = HashFileUtil.MatchFilesToHashesPositionBased(input_expectedHashes, input_files);
 
             Verify_Result_ContainsExpected(input_expectedHashes, input_files, input_files.Count, result_ExpectedItems);
         }
@@ -75,7 +75,7 @@ namespace Andy.FlacHash.Win
                 .ToArray();
 
             (IList<KeyValuePair<FileInfo, string>> _,
-            IList<KeyValuePair<FileInfo, string>> result_MissingItems) = HashFileUtil.GetHashDataPositionBased(expectedHashes, files);
+            IList<KeyValuePair<FileInfo, string>> result_MissingItems) = HashFileUtil.MatchFilesToHashesPositionBased(expectedHashes, files);
 
             Assert.IsNotEmpty(result_MissingItems);
 

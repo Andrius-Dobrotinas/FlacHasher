@@ -9,11 +9,15 @@ namespace Andy.FlacHash.Win
     {
         public const string MissingFileKey = "File's Missing";
 
+        /// <summary>
+        /// Matches <paramref name="files"/> with <paramref name="expectedHashes"/> based on their position, not file name.
+        /// For each file that's not found, return file info with <see cref="MissingFileKey"/> as file name.
+        /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
         public static (
-            IList<KeyValuePair<FileInfo, string>> expected, 
-            IList<KeyValuePair<FileInfo, string>> missing) 
-            GetHashDataPositionBased(
+            IList<KeyValuePair<FileInfo, string>> present, 
+            IList<KeyValuePair<FileInfo, string>> missing)
+            MatchFilesToHashesPositionBased(
             IList<KeyValuePair<string, string>> expectedHashes, 
             IEnumerable<FileInfo> files)
         {
@@ -26,13 +30,13 @@ namespace Andy.FlacHash.Win
             {
                 var expected = expectedHashes[i];
 
-                var fileOnFileSystem = (i < filesTargetedByTheHashes.Count)
+                var matchingFile = (i < filesTargetedByTheHashes.Count)
                     ? filesTargetedByTheHashes[i]
                     : null;
 
-                if (fileOnFileSystem != null)
+                if (matchingFile != null)
                     result.Add(
-                        new KeyValuePair<FileInfo, string>(fileOnFileSystem, expected.Value));
+                        new KeyValuePair<FileInfo, string>(matchingFile, expected.Value));
                 else
                     missing.Add(
                         new KeyValuePair<FileInfo, string>(
@@ -43,15 +47,18 @@ namespace Andy.FlacHash.Win
             return (result, missing);
         }
 
+        /// <summary>
+        /// Matches <paramref name="files"/> with <paramref name="expectedHashes"/> based on file name.
+        /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
         public static (
-            IList<KeyValuePair<FileInfo, string>> expected, 
-            IList<KeyValuePair<FileInfo, string>> missing) 
-            GetHashData(
+            IList<KeyValuePair<FileInfo, string>> present,
+            IList<KeyValuePair<FileInfo, string>> missing)
+            MatchFilesToHashes(
             IList<KeyValuePair<string, string>> expectedHashes, 
             IEnumerable<FileInfo> files)
         {
-            var nameToFileDictionary = files.ToDictionary(x => x.Name, x => x);
+            var fileDictionary = files.ToDictionary(x => x.Name, x => x);
 
             var result = new List<KeyValuePair<FileInfo, string>>();
             var missing = new List<KeyValuePair<FileInfo, string>>();
@@ -59,11 +66,11 @@ namespace Andy.FlacHash.Win
             for (int i = 0; i < expectedHashes.Count; i++)
             {
                 var expected = expectedHashes[i];
-                var fileOnFileSystem = nameToFileDictionary.GetValueOrDefault(expected.Key);
+                var matchingFile = fileDictionary.GetValueOrDefault(expected.Key);
 
-                if (fileOnFileSystem != null)
+                if (matchingFile != null)
                     result.Add(
-                        new KeyValuePair<FileInfo, string>(fileOnFileSystem, expected.Value));
+                        new KeyValuePair<FileInfo, string>(matchingFile, expected.Value));
                 else
                     missing.Add(
                         new KeyValuePair<FileInfo, string>(
