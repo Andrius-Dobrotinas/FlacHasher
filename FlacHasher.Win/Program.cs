@@ -77,14 +77,14 @@ namespace Andy.FlacHash.Win
             return (cancellableHasher, fileReadProgressReporter);
         }
 
-        private static UI.InteractiveDirectoryFileGetter Build_InteractiveDirectoryResolverGetter()
+        private static UI.InteractiveDirectoryGetter Build_InteractiveDirectoryResolverGetter()
         {
             var dirBrowser = new FolderBrowserDialog
             {
                 ShowNewFolderButton = false
             };
 
-            return new UI.InteractiveDirectoryFileGetter(dirBrowser);
+            return new UI.InteractiveDirectoryGetter(dirBrowser);
         }
 
         private static SaveFileDialog Build_SaveHashesToFileDialog()

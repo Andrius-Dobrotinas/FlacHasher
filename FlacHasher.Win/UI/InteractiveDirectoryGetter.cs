@@ -9,11 +9,11 @@ namespace Andy.FlacHash.Win.UI
     /// <summary>
     /// Disposes of its dependencies
     /// </summary>
-    public class InteractiveDirectoryFileGetter : IDisposable
+    public class InteractiveDirectoryGetter : IDisposable
     {
         private readonly FolderBrowserDialog dirBrowser;
 
-        public InteractiveDirectoryFileGetter(
+        public InteractiveDirectoryGetter(
             FolderBrowserDialog dirBrowser)
         {
             this.dirBrowser = dirBrowser;
