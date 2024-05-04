@@ -2,23 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
-    <AssemblyName>FlacHasher.Win.Tests</AssemblyName>
-
-    <RootNamespace>Andy.FlacHash.Win</RootNamespace>
+    <AssemblyName>TestHelper.Tests</AssemblyName>
+    <RootNamespace>Andy</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FlacHasher.Win\FlacHasher.Win.csproj" />
-    <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
   </ItemGroup>
 
 </Project>

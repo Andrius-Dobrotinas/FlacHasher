@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,141 +8,204 @@ namespace Andy.FlacHash.Win
 {
     public class HashFileUtil_NameBased_Tests
     {
-        [Test]
-        public void When_ExpectedFilesArePresent__Should_Return_AllExpectedHashes_And_No_MissingFiles()
+        const string hash1 = "659e7-hash1";
+        const string hash2 = "5ea29-hash2";
+        const string hash3 = "1235e-hash3";
+        const string hash4 = "6789e-hash4";
+        const string hash5 = "789e7-hash5";
+        const string hash6 = "878e5-hash6";
+        
+        const string path = @"d:\boots";
+        const string filename1 = "Nirvana_1990-08-17_SBD1_t01.flac";
+        const string filename2 = "Nirvana_1990-08-17_SBD1_t02.flac";
+        const string filename3 = "Nirvana_1990-08-17_SBD1_t03.flac";
+        const string filename4 = "Nirvana_1990-08-17_SBD1_t04.flac";
+        const string filename5 = "Nirvana_1990-08-17_SBD1_t05.flac";
+        const string filename6 = "Nirvana_1990-08-17_SBD1_t06.flac";
+
+        static string FileToString(FileInfo file) => file.Name;
+
+        [TestCaseSource(nameof(GetCases_SameNumberOfFiles_AsHashes))]
+        public void When_All_FilesReferencedByHashlist_ArePresent__Must_Return_AllHashes_WithCorrespondingFiles_InOriginalHashOrder__And_No_MissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var fileName1 = "Nirvana_1990-08-17_SBD1_t01.flac";
-            var fileName2 = "Nirvana_1990-08-17_SBD1_t02.flac";
-            var file1 = new FileInfo(fileName1);
-            var file2 = new FileInfo(fileName2);
+            var (result_presentItems, result_missingItems) = HashFileUtil.MatchFilesToHashes(inputHashes, inputFiles);
 
-            var hash1 = "659e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8722277";
-            var hash2 = "5ea29a4b4ed755218a8fc5af7b026caaa4d98582ca21554de1e8f0c18d5a69a1";
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Key),
+                expected.Select(x => x.Key),
+                FileToString,
+                "File infos");
 
-            var input_HashItems = new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>(fileName1, hash1),
-                    new KeyValuePair<string, string>(fileName2, hash2)
-                };
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
 
-            var input_Files = new FileInfo[]
-                {
-                    file1,
-                    file2
-                };
+            Assert.IsEmpty(result_missingItems, "Missing items");
+        }
 
-            var expected_ExpectedItems = new List<KeyValuePair<FileInfo, string>>
-            {
-                new KeyValuePair<FileInfo, string>(file1, hash1),
-                new KeyValuePair<FileInfo, string>(file2, hash2)
-            };
+        [TestCaseSource(nameof(GetCases_AllMatches_WithExtraFiles))]
+        public void When_ThereAreExtraUnreferencedFiles__Must_Return_JustHashedFiles__And_No_MissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
+        {
+            var expected = inputHashes.ToList();
 
-            Test_When_NoFilesMissing_Should_Return_ExpectedItems(input_HashItems, input_Files, expected_ExpectedItems);
+            var (result_presentItems, result_missingItems) = HashFileUtil.MatchFilesToHashes(inputHashes, inputFiles);
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Key.Name),
+                expected.Select(x => x.Key),
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
+
+            Assert.IsEmpty(result_missingItems, "Missing items");
+        }
+
+        [TestCaseSource(nameof(GetCases_FewerFilesPresent_ThanExpected))]
+        public void When_SomeReferencedFilesAreMissing__Must_Return_JustTheHashesForMatchingFiles(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<string, string>> _)
+        {
+            var (result_presentItems, __) = HashFileUtil.MatchFilesToHashes(inputHashes, inputFiles);
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Key),
+                expected.Select(x => x.Key),
+                FileToString,
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
+        }
+        
+        [TestCaseSource(nameof(GetCases_FewerFilesPresent_ThanExpected))]
+        public void When_SomeReferencedFilesAreMissing__Must_Return_MissingItems_AsFileInfoWithSameName(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<KeyValuePair<string, string>> expected)
+        {
+            var (__, result_missingItems) = HashFileUtil.MatchFilesToHashes(inputHashes, inputFiles);
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Key.Name),
+                expected.Select(x => x.Key),
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
+        }
+
+        [TestCaseSource(nameof(GetCases_SomeMissing_SomeExtra))]
+        public void When_SomeReferencedFilesAreMissing_AndExtraFilesArePresent__Must_Return_HashesForFiles_ThatAreReferencedAndPresent(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<string, string>> _)
+        {
+            var (result_presentItems, __) = HashFileUtil.MatchFilesToHashes(inputHashes, inputFiles);
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Key),
+                expected.Select(x => x.Key),
+                FileToString,
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
+        }
+
+        [TestCaseSource(nameof(GetCases_SomeMissing_SomeExtra))]
+        public void When_SomeReferencedFilesAreMissing_AndExtraFilesArePresent__Must_Return_MissingReferencedFiles_AsMissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<KeyValuePair<string, string>> expected)
+        {
+            var (__, result_missingItems) = HashFileUtil.MatchFilesToHashes(inputHashes, inputFiles);
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Key.Name),
+                expected.Select(x => x.Key),
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
+        }
+
+        [TestCaseSource(nameof(GetCases_NoInputFilesPresent))]
+        public void When_All_FilesReferencedByHashlist_AreMissing__Must_ReturnAllHashes_As_MissingItems(IList<KeyValuePair<string, string>> inputHashes)
+        {
+            var expectedNames = inputHashes.Select(x => x.Key).ToList();
+            var expectedHashes = inputHashes.Select(x => x.Value).ToList();
+
+            var (result_presentItems, result_missingItems) = HashFileUtil.MatchFilesToHashes(inputHashes, Array.Empty<FileInfo>());
+
+            Assert.IsEmpty(result_presentItems, "Present items");
+            Assert.IsNotEmpty(result_missingItems, "Missing items");
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Key.Name),
+                expectedNames,
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Value),
+                expectedHashes,
+                "Hash values");
+        }
+
+        [TestCaseSource(nameof(GetCases_AllMissing_SomeExtra))]
+        public void When_All_FilesReferencedByHashlist_AreMissing_AndExtraFilesArePresent__Must_Return_AllReferencedOnes_AsMissingItems(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
+        {
+            var expectedNames = inputHashes.Select(x => x.Key).ToList();
+            var expectedHashes = inputHashes.Select(x => x.Value).ToList();
+
+            var (result_present, result_missingItems) = HashFileUtil.MatchFilesToHashes(inputHashes, inputFiles);
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Key.Name),
+                expectedNames,
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Value),
+                expectedHashes,
+                "Hash values");
         }
 
         [Test]
-        public void When_ThereAreExtraUnexpectedFiles__Should_Return_AllExpectedHashes_And_No_MissingFiles()
+        public void When_ReturningMissingItems_Must_ReturnThem_AsFileInfo_And_NameMustEqualOriginalName()
         {
-            var fileName1 = "Nirvana_1990-08-17_SBD1_t01.flac";
-            var fileName2 = "Nirvana_1990-08-17_SBD1_t02.flac";
-            var file1 = new FileInfo(fileName1);
-            var file2 = new FileInfo(fileName2);
-
-            var hash1 = "659e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8722277";
-            var hash2 = "5ea29a4b4ed755218a8fc5af7b026caaa4d98582ca21554de1e8f0c18d5a69a1";
-
-            var input_HashItems = new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>(fileName1, hash1),
-                    new KeyValuePair<string, string>(fileName2, hash2)
-                };
-
-            var input_Files = new FileInfo[]
-                {
-                    file1,
-                    file2,
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t03.flac")
-                };
-
-            var expected_ExpectedItems = new List<KeyValuePair<FileInfo, string>>
+            var inputHashes = new KeyValuePair<string, string>[]
             {
-                new KeyValuePair<FileInfo, string>(file1, hash1),
-                new KeyValuePair<FileInfo, string>(file2, hash2)
+                new KeyValuePair<string, string>(filename1, "hash1"),
+                new KeyValuePair<string, string>(filename2, "hash2"),
+                new KeyValuePair<string, string>(filename3, "hash3")
             };
 
-            Test_When_NoFilesMissing_Should_Return_ExpectedItems(input_HashItems, input_Files, expected_ExpectedItems);
+            var (_, result_missingItems) = HashFileUtil.MatchFilesToHashes(inputHashes, new FileInfo[0]);
+
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Key.Name),
+                new string[]
+                { filename1, filename2, filename3 },
+                "File infos");
         }
 
-        private void Test_When_NoFilesMissing_Should_Return_ExpectedItems(
-            IList<KeyValuePair<string, string>> input_HashItems,
-            IList<FileInfo> input_Files,
-            IList<KeyValuePair<FileInfo, string>> expected_ExpectedItems)
+        private static IEnumerable<TestCaseData> GetCases_FewerFilesPresent_ThanExpected()
         {
-            (IList<KeyValuePair<FileInfo, string>> result_ExpectedItems,
-            IList<KeyValuePair<FileInfo, string>> result_MissingItems) = HashFileUtil.MatchFilesToHashes(input_HashItems, input_Files);
-
-            Assert.IsEmpty(result_MissingItems, "Missing items");
-
-            Verify_Result_ContainsExpected(expected_ExpectedItems, result_ExpectedItems);
-        }
-
-        [TestCaseSource(nameof(GetCases_LessFilesThanExpected))]
-        public void When_ExpectedFilesAreMissing__Should_Return_ItemsForExistingFiles(
-            IList<KeyValuePair<string, string>> input_Items,
-            IList<FileInfo> input_Files,
-            IList<KeyValuePair<FileInfo, string>> expected_items,
-            IList<KeyValuePair<FileInfo, string>> expected_Missingitems)
-        {
-            (IList<KeyValuePair<FileInfo, string>> result_ExpectedItems,
-            IList<KeyValuePair<FileInfo, string>> _) = HashFileUtil.MatchFilesToHashes(input_Items, input_Files);
-
-            Verify_Result_ContainsExpected(expected_items, result_ExpectedItems);
-        }
-
-        [TestCaseSource(nameof(GetCases_LessFilesThanExpected))]
-        public void When_ExpectedFilesAreMissing__Should_Return_MissingItems(
-            IList<KeyValuePair<string, string>> input_Items,
-            IList<FileInfo> input_Files,
-            IList<KeyValuePair<FileInfo, string>> expected_items,
-            IList<KeyValuePair<FileInfo, string>> expected_Missingitems)
-        {
-            (IList<KeyValuePair<FileInfo, string>> _,
-            IList<KeyValuePair<FileInfo, string>> result_Missing) = HashFileUtil.MatchFilesToHashes(input_Items, input_Files);
-
-            Assert.IsNotEmpty(result_Missing);
-
-            for (int i = 0; i < expected_Missingitems.Count; i++)
-            {
-                Assert.IsFalse(result_Missing.Count - 1 < i, "The missing-result should not contain more items than there are missing files");
-
-                var target = expected_Missingitems[i];
-                Assert.IsTrue(result_Missing.Any(x => x.Key.FullName == target.Key.FullName), $"Contains item {target.Key.Name}");
-
-                var actualItem = result_Missing.First(x => x.Key.FullName == target.Key.FullName);
-
-                Assert.AreEqual(target.Value, actualItem.Value, $"Hashes, index {i}");
-            }
-        }
-
-        private static IEnumerable<TestCaseData> GetCases_LessFilesThanExpected()
-        {
-            var fileName1 = "Nirvana_1990-08-17_SBD1_t01.flac";
-            var fileName2 = "Nirvana_1990-08-17_SBD1_t02.flac";
-            var file1 = new FileInfo(fileName1);
-            var file2 = new FileInfo(fileName2);
-
-            var hash1 = "659e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8722277";
-            var hash2 = "5ea29a4b4ed755218a8fc5af7b026caaa4d98582ca21554de1e8f0c18d5a69a1";
-
-            var missing1_fileName = "missing file";
-            var missing1_hash = "1235ea29a4b4ed755218a8fc5af7b026caaa4d98582ca21554de1e8f0c18missing";
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+            var file4 = new FileInfo($@"{path}\{filename4}");
+            var file5 = new FileInfo($@"{path}\{filename5}");
+            var file6 = new FileInfo($@"{path}\{filename6}");
 
             yield return new TestCaseData(
+                "Last file missing",
                 new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>(fileName1, hash1),
-                    new KeyValuePair<string, string>(missing1_fileName, missing1_hash),
-                    new KeyValuePair<string, string>(fileName2, hash2),
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename3, hash3) //missing
                 },
                 new FileInfo[] // input files
                 {
@@ -153,40 +217,378 @@ namespace Andy.FlacHash.Win
                     new KeyValuePair<FileInfo, string>(file1, hash1),
                     new KeyValuePair<FileInfo, string>(file2, hash2)
                 },
-                new List<KeyValuePair<FileInfo, string>> // expected missing items
+                new List<KeyValuePair<string, string>> // expected missing items
                 {
-                    //new KeyValuePair<FileInfo, string>(file1, hash1),
-                    new KeyValuePair<FileInfo, string>(new FileInfo(missing1_fileName), missing1_hash)
+                    new KeyValuePair<string, string>(filename3, hash3)
+                });
+
+            yield return new TestCaseData(
+                "First file missing",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename3, hash3), //missing
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2)
+                },
+                new FileInfo[] // input files
+                {
+                    file1,
+                    file2
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2)
+                },
+                new List<KeyValuePair<string, string>> // expected missing items
+                {
+                    new KeyValuePair<string, string>(filename3, hash3)
+                });
+
+            yield return new TestCaseData(
+                "Buncha files missing",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename3, hash3), //missing
+                    new KeyValuePair<string, string>(filename4, hash4), //missing
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename5, hash5),
+                    new KeyValuePair<string, string>(filename6, hash6), //missing
+                },
+                new FileInfo[] // input files
+                {
+                    file1, file2, file5
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file5, hash5)
+                },
+                new List<KeyValuePair<string, string>> // expected missing items
+                {
+                    new KeyValuePair<string, string>(filename3, hash3),
+                    new KeyValuePair<string, string>(filename4, hash4),
+                    new KeyValuePair<string, string>(filename6, hash6)
+                });
+
+            yield return new TestCaseData(
+                "Buncha files missing, Files out of order",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename3, hash3), //missing
+                    new KeyValuePair<string, string>(filename4, hash4), //missing
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename5, hash5),
+                    new KeyValuePair<string, string>(filename6, hash6), //missing
+                },
+                new FileInfo[] // input files
+                {
+                    file2, file5, file1 
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file5, hash5)
+                },
+                new List<KeyValuePair<string, string>> // expected missing items
+                {
+                    new KeyValuePair<string, string>(filename3, hash3),
+                    new KeyValuePair<string, string>(filename4, hash4),
+                    new KeyValuePair<string, string>(filename6, hash6)
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetCases_SomeMissing_SomeExtra()
+        {
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+            var file4 = new FileInfo($@"{path}\{filename4}");
+            var file5 = new FileInfo($@"{path}\{filename5}");
+            var file6 = new FileInfo($@"{path}\{filename6}");
+
+            yield return new TestCaseData(
+                "One file missing, One file extra",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename3, hash3) //missing
+                },
+                new FileInfo[] // input files
+                {
+                    file1,
+                    file2,
+                    file5 //extra
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2)
+                },
+                new List<KeyValuePair<string, string>> // expected missing items
+                {
+                    new KeyValuePair<string, string>(filename3, hash3)
+                });
+
+            yield return new TestCaseData(
+                "Two missing, One extra",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename2, hash2), //missing
+                    new KeyValuePair<string, string>(filename3, hash3),
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename4, hash4), //missing
+                },
+                new FileInfo[] // input files
+                {
+                    file1,
+                    file3,
+                    file5 //extra
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file3, hash3),
+                    new KeyValuePair<FileInfo, string>(file1, hash1)
+                },
+                new List<KeyValuePair<string, string>> // expected missing items
+                {
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename4, hash4)
+                });
+
+            yield return new TestCaseData(
+                "One missing, Two extra",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename5, hash5),
+                    new KeyValuePair<string, string>(filename4, hash4), //missing
+                    new KeyValuePair<string, string>(filename1, hash1)
+                },
+                new FileInfo[] // input files
+                {
+                    file1,
+                    file2,
+                    file3, //extra
+                    file5,
+                    file6 //extra
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file5, hash5),
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                },
+                new List<KeyValuePair<string, string>> // expected missing items
+                {
+                    new KeyValuePair<string, string>(filename4, hash4)
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetCases_AllMissing_SomeExtra()
+        {
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+            var file4 = new FileInfo($@"{path}\{filename4}");
+            var file5 = new FileInfo($@"{path}\{filename5}");
+
+            yield return new TestCaseData(
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename4, hash4)
+                },
+                new FileInfo[] // input files
+                {
+                    file3,
+                    file5,
+                    file1
                 });
 
             yield return new TestCaseData(
                 new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>(fileName1, hash1),
-                    new KeyValuePair<string, string>(fileName2, hash2),
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename3, hash3)
                 },
-                new FileInfo[0], // input files
-                new KeyValuePair<FileInfo, string>[0], // expected items
-                new List<KeyValuePair<FileInfo, string>> // expected missing items
+                new FileInfo[] // input files
                 {
-                    new KeyValuePair<FileInfo, string>(file1, hash1),
-                    new KeyValuePair<FileInfo, string>(file2, hash2)
+                    file4,
+                    file5
                 });
         }
 
-        private void Verify_Result_ContainsExpected(
-            IList<KeyValuePair<FileInfo, string>> expected_ExpectedItems,
-            IList<KeyValuePair<FileInfo, string>> result_ExpectedItems)
+        private static IEnumerable<TestCaseData> GetCases_NoInputFilesPresent()
         {
-            for (int i = 0; i < expected_ExpectedItems.Count; i++)
-            {
-                var expected = expected_ExpectedItems[i];
-                Assert.IsFalse(result_ExpectedItems.Count - 1 < i, "The result should not contain more items than there are in the source");
+            yield return new TestCaseData(
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                });
+        }
 
-                var matchingFile = result_ExpectedItems.FirstOrDefault(x => x.Key == expected.Key);
-                Assert.IsNotNull(matchingFile, $"The file should be present: {expected.Key.FullName}");
-                Assert.AreEqual(expected.Value, matchingFile.Value, $"The hash should match");
-            }
+        private static IEnumerable<TestCaseData> GetCases_SameNumberOfFiles_AsHashes()
+        {
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+            var file4 = new FileInfo($@"{path}\{filename4}");
+
+            yield return new TestCaseData(
+                "Single file",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1)
+                },
+                new FileInfo[] // input files
+                {
+                    file1
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1)
+                });
+
+            yield return new TestCaseData(
+                "Multiple files",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename3, hash3),
+                    new KeyValuePair<string, string>(filename4, hash4),
+                },
+                new FileInfo[] // input files
+                {
+                    file1, file2, file3, file4
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file3, hash3),
+                    new KeyValuePair<FileInfo, string>(file4, hash4)
+                });
+
+            yield return new TestCaseData(
+                "Multiple files; Files out of order",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename3, hash3),
+                    new KeyValuePair<string, string>(filename4, hash4),
+                },
+                new FileInfo[] // input files
+                {
+                    file4, file1, file3, file2
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file3, hash3),
+                    new KeyValuePair<FileInfo, string>(file4, hash4)
+                });
+
+            yield return new TestCaseData(
+                "Multiple files, Hashes in non-filename-based order",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename4, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename1, hash3),
+                    new KeyValuePair<string, string>(filename3, hash4),
+                },
+                new FileInfo[] // input files
+                {
+                    file1, file2, file3, file4
+                },
+                new List<KeyValuePair<FileInfo, string>> // expected items
+                {
+                    new KeyValuePair<FileInfo, string>(file4, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file1, hash3),
+                    new KeyValuePair<FileInfo, string>(file3, hash4)
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetCases_AllMatches_WithExtraFiles()
+        {
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+            var file4 = new FileInfo($@"{path}\{filename4}");
+            var file5 = new FileInfo($@"{path}\{filename5}");
+
+            yield return new TestCaseData(
+                "Single hash",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1)
+                },
+                new FileInfo[] // input files
+                {
+                    file1,
+                    file2 //extra
+                });
+
+            yield return new TestCaseData(
+                "Multiple hashes",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename3, hash3),
+                },
+                new FileInfo[] // input files
+                {
+                    file1, 
+                    file2, 
+                    file3, 
+                    file4, //extra
+                    file5 //extra
+                });
+
+            yield return new TestCaseData(
+                "Multiple hashes; Files out of order",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename1, hash1),
+                    new KeyValuePair<string, string>(filename2, hash2),
+                    new KeyValuePair<string, string>(filename3, hash3),
+                },
+                new FileInfo[] // input files
+                {
+                    file4, //extra
+                    file1, 
+                    file3, 
+                    file2
+                });
+
+            yield return new TestCaseData(
+                "Multiple files, Hashes in non-filename-based order",
+                new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>(filename4, hash1),
+                    new KeyValuePair<string, string>(filename1, hash3),
+                    new KeyValuePair<string, string>(filename3, hash4),
+                },
+                new FileInfo[] // input files
+                {
+                    file1, 
+                    file2, //extra 
+                    file3, 
+                    file4,
+                    file5 //extra
+                });
         }
     }
 }
