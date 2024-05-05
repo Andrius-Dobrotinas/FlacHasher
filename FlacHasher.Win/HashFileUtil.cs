@@ -40,7 +40,7 @@ namespace Andy.FlacHash.Win
                 else
                     missing.Add(
                         new KeyValuePair<FileInfo, string>(
-                            new FileInfo("File's Missing"),
+                            new FileInfo(MissingFileKey),
                             expected.Value));
             }
 

@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,125 +8,296 @@ namespace Andy.FlacHash.Win
 {
     public class HashFileUtil_PositionBased_Tests
     {
-        [Test]
-        public void When_NumberOf_Files_IsTheSameAs_NumberOf_ExpectedHashes__Should_Return_AllHashes_And_No_MissingFiles()
+        const string hash1 = "659e7-hash1";
+        const string hash2 = "5ea29-hash2";
+        const string hash3 = "1235e-hash3";
+        const string hash4 = "6789e-hash4";
+        const string hash5 = "789e7-hash5";
+        const string hash6 = "878e5-hash6";
+
+        const string path = @"d:\boots";
+        const string filename1 = "Nirvana_1990-08-17_SBD1_t01.flac";
+        const string filename2 = "Nirvana_1990-08-17_SBD1_t02.flac";
+        const string filename3 = "Nirvana_1990-08-17_SBD1_t03.flac";
+        const string filename4 = "Nirvana_1990-08-17_SBD1_t04.flac";
+        const string filename5 = "Nirvana_1990-08-17_SBD1_t05.flac";
+        const string filename6 = "Nirvana_1990-08-17_SBD1_t06.flac";
+
+        [TestCaseSource(nameof(GetCases_NumberOfFilesMatchesHashes))]
+        public void When_Theres_TheSameNumber_OfFiles_As_TheNumberOf_Hashes__Must_Return_AllHashes_MatchedWithFilesAtRespectiveIndexes_And_No_MissingFiles(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            Test_When_NoFilesMissing_Should_Return_ExpectedItems(new []
-                {
-                    "659e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8722277",
-                    "5ea29a4b4ed755218a8fc5af7b026caaa4d98582ca21554de1e8f0c18d5a69a1"
-                },
-                new FileInfo[]
-                {
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t01.flac"),
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t02.flac")
-                });
+            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+
+            Assert.IsNotEmpty(result_presentItems);
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Key),
+                expected.Select(x => x.Key),
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
+
+            Assert.IsEmpty(result_missing);
         }
 
-        [Test]
-        public void When_MoreFiles_Than_ExpectedHashes__Should_Return_AllHashes_And_No_MissingFiles()
+        [TestCaseSource(nameof(GetCases_MoreFilesThanExpected))]
+        public void When_Theres_MoreFiles_Than_Hashes__Must_Return_AllHashes_PairedWithTheSameNumberOfFirstFiles_And_No_MissingFiles(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            Test_When_NoFilesMissing_Should_Return_ExpectedItems(new[]
-                {
-                    "659e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8722277",
-                    "5ea29a4b4ed755218a8fc5af7b026caaa4d98582ca21554de1e8f0c18d5a69a1"
-                },
-                new FileInfo[]
-                {
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t01.flac"),
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t02.flac"),
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t03.flac")
-                });
+            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+
+            Assert.IsNotEmpty(result_presentItems);
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Key),
+                expected.Select(x => x.Key),
+                "File infos");
+
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
+
+            Assert.IsEmpty(result_missing);
         }
 
-        private void Test_When_NoFilesMissing_Should_Return_ExpectedItems(IList<string> input_hashes, IList<FileInfo> input_files)
+        [TestCaseSource(nameof(GetCases_FewerFilesThanExpected))]
+        public void When_Theres_FewerFiles_Than_ExpectedHashes__Must_Return_TheSameNumberOfFirstHashes_PairedWithFiles(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<string> _)
         {
-            IList<KeyValuePair<string, string>> expected_Items = input_hashes
-                .Select(hash => new KeyValuePair<string, string>("", hash))
-                .ToArray();
+            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
 
-            (IList<KeyValuePair<FileInfo, string>> result_ExpectedItems,
-            IList<KeyValuePair<FileInfo, string>> result_MissingItems) = HashFileUtil.MatchFilesToHashesPositionBased(expected_Items, input_files);
+            Assert.IsNotEmpty(result_presentItems);
 
-            Assert.IsEmpty(result_MissingItems, "Missing files/hashes");
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Key),
+                expected.Select(x => x.Key),
+                "File infos");
 
-            Assert.IsNotEmpty(result_ExpectedItems, "Expected files/hashes");
-
-            Verify_Result_ContainsExpected(expected_Items, input_files, expected_Items.Count, result_ExpectedItems);
+            AssertThat.CollectionsMatchExactly(
+                result_presentItems.Select(x => x.Value),
+                expected.Select(x => x.Value),
+                "Hash values");
         }
 
-        [TestCaseSource(nameof(GetCases_LessFilesThanExpected))]
-        public void When_LessFiles_Than_ExpectedHashes__Should_Return_TheNumberOfFirstItems_ThatThereAreFiles(IList<string> input_hashes, IList<FileInfo> input_files)
+        [TestCaseSource(nameof(GetCases_FewerFilesThanExpected))]
+        public void When_Theres_FewerFiles_Than_ExpectedHashes__Must_Return_TheExcessHashes_As_MissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<string> expected)
         {
-            IList<KeyValuePair<string, string>> input_expectedHashes = input_hashes
-                .Select(hash => new KeyValuePair<string, string>("", hash))
-                .ToArray();
+            var (result_presentItems, result_missingItems) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
 
-            (IList<KeyValuePair<FileInfo, string>> result_ExpectedItems,
-            IList<KeyValuePair<FileInfo, string>> _) = HashFileUtil.MatchFilesToHashesPositionBased(input_expectedHashes, input_files);
+            Assert.IsNotEmpty(result_missingItems);
 
-            Verify_Result_ContainsExpected(input_expectedHashes, input_files, input_files.Count, result_ExpectedItems);
-        }
-
-        [TestCaseSource(nameof(GetCases_LessFilesThanExpected))]
-        public void When_LessFiles_Than_ExpectedHashes__Should_Return_MissingItems(IList<string> hashes, IList<FileInfo> files)
-        {
-            IList<KeyValuePair<string, string>> expectedHashes = hashes
-                .Select(hash => new KeyValuePair<string, string>("", hash))
-                .ToArray();
-
-            (IList<KeyValuePair<FileInfo, string>> _,
-            IList<KeyValuePair<FileInfo, string>> result_MissingItems) = HashFileUtil.MatchFilesToHashesPositionBased(expectedHashes, files);
-
-            Assert.IsNotEmpty(result_MissingItems);
-
-            var diffCount = expectedHashes.Count - files.Count;
-
-            for (int i = 0; i < diffCount; i++)
+            Assert.Multiple(() =>
             {
-                Assert.IsFalse(result_MissingItems.Count - 1 < i, "The missing-result should not contain more items than there are missing files");
+                var distinctValues = result_missingItems.Select(x => x.Key.Name).Distinct();
+                Assert.AreEqual(HashFileUtil.MissingFileKey, distinctValues.First(), "Missing file info Name");
+                Assert.AreEqual(1, distinctValues.Count(), "Use the same name for a missing file");
+            });
 
-                var result = result_MissingItems[diffCount - 1 + i];
-                Assert.AreEqual(result_MissingItems[i].Value, result.Value, "Hash values");
-                Assert.AreEqual(HashFileUtil.MissingFileKey, result.Key.Name, "File NAME has to match the pre-defined 'no-file' name");
-            }
+            AssertThat.CollectionsMatchExactly(
+                result_missingItems.Select(x => x.Value),
+                expected,
+                "Hash values");
         }
 
-        private static IEnumerable<TestCaseData> GetCases_LessFilesThanExpected()
+        [TestCaseSource(nameof(GetCases_NoInputFiles))]
+        public void When_Theres_NoFiles__Must_Return_AllHashes_As_Missing(IList<KeyValuePair<string, string>> inputHashes)
         {
+            var expectedHashes = inputHashes.Select(x => x.Value).ToList();
+
+            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, Array.Empty<FileInfo>());
+
+            Assert.IsEmpty(result_presentItems);
+            Assert.IsNotEmpty(result_missing);
+
+            Assert.Multiple(() =>
+            {
+                var distinctValues = result_missing.Select(x => x.Key.Name).Distinct();
+                Assert.AreEqual(HashFileUtil.MissingFileKey, distinctValues.First(), "Missing file info Name");
+                Assert.AreEqual(1, distinctValues.Count(), "Use the same name for a missing file");
+            });
+
+            AssertThat.CollectionsMatchExactly(
+                result_missing.Select(x => x.Value),
+                expectedHashes,
+                "Hash values");
+        }
+
+        private static IEnumerable<TestCaseData> GetCases_NumberOfFilesMatchesHashes()
+        {
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+            var file4 = new FileInfo($@"{path}\{filename4}");
+            
             yield return new TestCaseData(
+                // hashes
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash1),
+                },
+                new FileInfo[]
+                {
+                    file1
+                },
+                // expected
+                new KeyValuePair<FileInfo, string>[]
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                });
+
+            yield return new TestCaseData(
+                // hashes
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash1),
+                    new KeyValuePair<string, string>(null, hash2),
+                    new KeyValuePair<string, string>(null, hash3),
+                    new KeyValuePair<string, string>(null, hash4)
+                },
+                new FileInfo[]
+                {
+                    file1,
+                    file2,
+                    file3,
+                    file4,
+                },
+                // expected - present
+                new KeyValuePair<FileInfo, string>[]
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file3, hash3),
+                    new KeyValuePair<FileInfo, string>(file4, hash4)
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetCases_MoreFilesThanExpected()
+        {
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+            var file4 = new FileInfo($@"{path}\{filename4}");
+            var file5 = new FileInfo($@"{path}\{filename5}");
+
+            yield return new TestCaseData(
+                // hashes
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash1),
+                    new KeyValuePair<string, string>(null, hash2)
+                },
+                new FileInfo[]
+                {
+                    file1,
+                    file2,
+                    file3
+                },
+                // expected
+                new KeyValuePair<FileInfo, string>[]
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2)
+                });
+
+            yield return new TestCaseData(
+                // hashes
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash1),
+                    new KeyValuePair<string, string>(null, hash2),
+                    new KeyValuePair<string, string>(null, hash3),
+                },
+                new FileInfo[]
+                {
+                    file1,
+                    file2,
+                    file3,
+                    file4,
+                    file5
+                },
+                // expected - present
+                new KeyValuePair<FileInfo, string>[]
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file3, hash3)
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetCases_FewerFilesThanExpected()
+        {
+            
+            var file1 = new FileInfo($@"{path}\{filename1}");
+            var file2 = new FileInfo($@"{path}\{filename2}");
+            var file3 = new FileInfo($@"{path}\{filename3}");
+
+            yield return new TestCaseData(
+                "Last file missing",
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash1),
+                    new KeyValuePair<string, string>(null, hash2),
+                    new KeyValuePair<string, string>(null, hash3)
+                },
+                new FileInfo[]
+                {
+                    file1, file2
+                },
+                // expected - present
+                new KeyValuePair<FileInfo, string>[]
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                },
+                // expected - missing
                 new string[]
                 {
-                    "659e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8722277",
-                    "789e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8711188",
-                    "5ea29a4b4ed755218a8fc5af7b026caaa4d98582ca21554de1e8f0c18d5a69a1"
-                },
-                new FileInfo[]
-                {
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t01.flac"),
-                    new FileInfo("Nirvana_1990-08-17_SBD1_t02.flac")
+                    hash3
                 });
 
             yield return new TestCaseData(
+                "More than one file missing",
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash1),
+                    new KeyValuePair<string, string>(null, hash2),
+                    new KeyValuePair<string, string>(null, hash3),
+                    new KeyValuePair<string, string>(null, hash4)
+                },
+                new FileInfo[]
+                {
+                    file1, file3
+                },
+                // expected - present
+                new KeyValuePair<FileInfo, string>[]
+                {
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file3, hash2),
+                },
+                // expected - missing
                 new string[]
                 {
-                    "659e7ccaa5cb9d72bb508a382fd17fdf84e0eab412d9341fd10c14edd8722277",
-                },
-                new FileInfo[0]);
+                    hash3, hash4
+                });
         }
 
-        private void Verify_Result_ContainsExpected(
-            IList<KeyValuePair<string, string>> input_expectedHashes,
-            IList<FileInfo> input_files,
-            int expected_ResultCount,
-            IList<KeyValuePair<FileInfo, string>> result_ExpectedItems)
+        private static IEnumerable<TestCaseData> GetCases_NoInputFiles()
         {
-            for (int i = 0; i < expected_ResultCount; i++)
-            {
-                Assert.IsFalse(result_ExpectedItems.Count - 1 < i, "The result should not contain more items than there are in the source");
-                Assert.AreEqual(input_files[i], result_ExpectedItems[i].Key, $"The file should be included at position {i}: {input_files[i].FullName}");
-                Assert.AreEqual(input_expectedHashes[i].Value, result_ExpectedItems[i].Value, $"The hash should be included at position {i}");
-            }
+            yield return new TestCaseData(
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash2)
+                });
+
+            yield return new TestCaseData(
+                new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(null, hash1),
+                    new KeyValuePair<string, string>(null, hash2),
+                    new KeyValuePair<string, string>(null, hash3)
+                });
         }
     }
 }
