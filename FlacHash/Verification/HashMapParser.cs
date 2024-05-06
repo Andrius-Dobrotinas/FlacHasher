@@ -20,13 +20,6 @@ namespace Andy.FlacHash.Verification
             this.stringComparer = stringComparer;
         }
 
-        /// <summary>
-        /// Uses a default string Comparer for file names
-        /// </summary>
-        public HashMapParser(IHashEntryCollectionParser collectionParser) : this(collectionParser, null)
-        {
-        }
-
         public FileHashMap Parse(IEnumerable<string> lines)
         {
             var hashes = ParseValidate(lines).ToList();

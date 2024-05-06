@@ -8,14 +8,19 @@ namespace Andy.FlacHash.Verification
 {
     public class HashMapParserTests
     {
-        private HashMapParser target;
-        private Mock<IHashEntryCollectionParser> parser;
+        HashMapParser target;
+        Mock<IHashEntryCollectionParser> parser;
+        Mock<IEqualityComparer<string>> stringComparer;
+
 
         [SetUp]
         public void Setup()
         {
             parser = new Mock<IHashEntryCollectionParser>();
-            target = new HashMapParser(parser.Object);
+            stringComparer = new Mock<IEqualityComparer<string>>();
+            target = new HashMapParser(parser.Object, stringComparer.Object);
+
+            stringComparer.Setup(x => x.Equals(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
         }
 
         [TestCaseSource(nameof(Get_WithFilesNames))]
@@ -88,19 +93,8 @@ namespace Andy.FlacHash.Verification
                 () => target.Parse(sourceLines));
         }
 
-        [TestCaseSource(nameof(Get_RepeatedFilenames))]
-        public void When_file_name_is_repeated__Must_throw_an_exception(IList<KeyValuePair<string, string>> parsedData)
-        {
-            var sourceLines = parsedData.Select(x => "line").ToArray();
-
-            Setup_Parser(sourceLines, parsedData);
-
-            Assert.Throws<DuplicateFileException>(
-                () => target.Parse(sourceLines));
-        }
-
         [TestCaseSource(nameof(Get_RepeatedFilenames2))]
-        public void When_file_name_is_repeated__based_on_the_supplied_string_Comparer__Must_throw_an_exception(
+        public void When_file_name_is_repeated__Must_throw_an_exception(
             IList<(string, string, bool)> file_hash_isRepeated)
         {
             var stringComparer = new Mock<IEqualityComparer<string>>();
@@ -120,7 +114,6 @@ namespace Andy.FlacHash.Verification
                 .ToList();
 
             var sourceLines = parsedData.Select(x => "line").ToArray();
-
 
             Setup_Parser(sourceLines, parsedData);
             
