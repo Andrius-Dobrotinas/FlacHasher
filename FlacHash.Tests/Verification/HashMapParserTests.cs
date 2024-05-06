@@ -18,10 +18,10 @@ namespace Andy.FlacHash.Verification
             target = new HashMapParser(parser.Object);
         }
 
-        [TestCaseSource(nameof(Get_HappyScenario))]
-        public void When_file_names_are_specified__Must_set_the_flag_value_to_False(IList<KeyValuePair<string, string>> parsedData)
+        [TestCaseSource(nameof(Get_WithFilesNames))]
+        public void When_file_names_Are_Specified__Must_set_IsPositionBased_to_False(IList<KeyValuePair<string, string>> parsedData)
         {
-            var sourceLines = new string[parsedData.Count];
+            var sourceLines = parsedData.Select(x => "line").ToArray();
 
             Setup_Parser(sourceLines, parsedData);
 
@@ -30,27 +30,34 @@ namespace Andy.FlacHash.Verification
             Assert.IsFalse(result.IsPositionBased);
         }
 
-        [TestCaseSource(nameof(Get_NoFilenames))]
-        public void When_no_file_names_are_specified__Must_Return_the_result(IList<KeyValuePair<string, string>> parsedData)
+        [TestCaseSource(nameof(Get_WithFilesNames))]
+        public void Must_return_the_Parsed_lines_in_the_order_they_were_parsed__When_file_names_Are_Specified(IList<KeyValuePair<string, string>> parsedData)
         {
-            var sourceLines = new string[parsedData.Count];
+            var sourceLines = parsedData.Select(x => "line").ToArray();
 
             Setup_Parser(sourceLines, parsedData);
 
             var result = target.Parse(sourceLines);
 
-            Assert.AreEqual(parsedData.Count, result.Hashes.Count, "The resulting collection must be the correct length");
-
-            for (int i = 0; i < parsedData.Count; i++)
-            {
-                Assert.AreEqual(parsedData[i], result.Hashes[i], $"Item {i} reference must match");
-            }
+            AssertThat.CollectionsMatchExactly(parsedData, result.Hashes);
         }
 
         [TestCaseSource(nameof(Get_NoFilenames))]
-        public void When_no_file_names_are_specified__Must_set_the_flag_value_to_True(IList<KeyValuePair<string, string>> parsedData)
+        public void Must_return_the_Parsed_lines_in_the_order_they_were_parsed__When_file_names_are_Not_Specified(IList<KeyValuePair<string, string>> parsedData)
         {
-            var sourceLines = new string[parsedData.Count];
+            var sourceLines = parsedData.Select(x => "line").ToArray();
+
+            Setup_Parser(sourceLines, parsedData);
+
+            var result = target.Parse(sourceLines);
+
+            AssertThat.CollectionsMatchExactly(parsedData, result.Hashes);
+        }
+
+        [TestCaseSource(nameof(Get_NoFilenames))]
+        public void When_file_names_are_Not_Specified__Must_set_IsPositionBased_to_True(IList<KeyValuePair<string, string>> parsedData)
+        {
+            var sourceLines = parsedData.Select(x => "line").ToArray();
 
             Setup_Parser(sourceLines, parsedData);
 
@@ -60,9 +67,9 @@ namespace Andy.FlacHash.Verification
         }
 
         [TestCaseSource(nameof(Get_SomeFilenamesMissing))]
-        public void When_some_file_names_are_not_specified__Must_throw_an_exception(IList<KeyValuePair<string, string>> parsedData)
+        public void When_Some_file_names_are_Not_Specified__Must_throw_an_exception(IList<KeyValuePair<string, string>> parsedData)
         {
-            var sourceLines = new string[parsedData.Count];
+            var sourceLines = parsedData.Select(x => "line").ToArray();
 
             Setup_Parser(sourceLines, parsedData);
 
@@ -71,9 +78,9 @@ namespace Andy.FlacHash.Verification
         }
 
         [TestCaseSource(nameof(Get_NoHashes))]
-        public void When_hash_is_not_specified__Must_throw_an_exception(IList<KeyValuePair<string, string>> parsedData)
+        public void When_Hash_is_not_specified__Must_throw_an_exception(string description, IList<KeyValuePair<string, string>> parsedData)
         {
-            var sourceLines = new string[parsedData.Count];
+            var sourceLines = parsedData.Select(x => "line").ToArray();
 
             Setup_Parser(sourceLines, parsedData);
 
@@ -84,7 +91,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(Get_RepeatedFilenames))]
         public void When_file_name_is_repeated__Must_throw_an_exception(IList<KeyValuePair<string, string>> parsedData)
         {
-            var sourceLines = new string[parsedData.Count];
+            var sourceLines = parsedData.Select(x => "line").ToArray();
 
             Setup_Parser(sourceLines, parsedData);
 
@@ -112,7 +119,7 @@ namespace Andy.FlacHash.Verification
                 .Select(x => new KeyValuePair<string, string>(x.Item1, x.Item2))
                 .ToList();
 
-            var sourceLines = new string[parsedData.Count];
+            var sourceLines = parsedData.Select(x => "line").ToArray();
 
 
             Setup_Parser(sourceLines, parsedData);
@@ -132,7 +139,7 @@ namespace Andy.FlacHash.Verification
                 .Returns(returnValue);
         }
 
-        private static IEnumerable<TestCaseData> Get_HappyScenario()
+        private static IEnumerable<TestCaseData> Get_WithFilesNames()
         {
             yield return new TestCaseData(
                 new KeyValuePair<string, string>[] {
@@ -194,14 +201,29 @@ namespace Andy.FlacHash.Verification
         private static IEnumerable<TestCaseData> Get_NoHashes()
         {
             yield return new TestCaseData(
+                "With file name",
                 new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("file", null)
                 });
 
             yield return new TestCaseData(
+                "With no file name",
+                new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>(null, null)
+                });
+
+            yield return new TestCaseData(
+                "With file name",
                 new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("file", "hash"),
                     new KeyValuePair<string, string>("file 2", null)
+                });
+
+            yield return new TestCaseData(
+                "With no file name",
+                new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>(null, "hash"),
+                    new KeyValuePair<string, string>(null, null)
                 });
         }
 
