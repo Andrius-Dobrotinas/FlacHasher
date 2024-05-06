@@ -38,7 +38,7 @@ namespace Andy.FlacHash.Win
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
                 var (hasher, progressReporter) = BuildHasher(settings.Decoder);
-                var hashFormatter = new HashFormatter();
+                var hashFormatter = new PlainLowercaseHashFormatter();
 
                 Application.Run(
                     new UI.FormX(
