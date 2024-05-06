@@ -11,7 +11,7 @@ namespace Andy.FlacHash.Verification
 
         [TestCase("file:hash", "file", "hash")]
         [TestCase("One:Two", "One", "Two")]
-        public void When_line_has_data_separated_by_Colon__Must_return_the_first_one_as_the_Key_and_the_second_one_as_the_Value(string line, string expectedKey, string expectedValue)
+        public void When_line_has_data_separated_by_Colon__Must_return_the_First_one_as_the_Key_and_the_Second_one_as_the_Value(string line, string expectedKey, string expectedValue)
         {
             var result = target.Parse(line, 0);
 
@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Verification
         [TestCase(":hash", null, "hash", Description = "Even when one of the segments is empty")]
         [TestCase("file:", "file", null, Description = "Even when one of the segments is empty")]
         [TestCase(":", null, null, Description = "Even when both segments are empty")]
-        public void When_either_segment_is_empty__Must_return_the_whitespace_one_as_null(string line, string expectedKey, string expectedValue)
+        public void Must_return_Empty_segments_within_a_line_as_Null(string line, string expectedKey, string expectedValue)
         {
             var result = target.Parse(line, 0);
 
@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Verification
         [TestCase(" :asd", null, "asd")]
         [TestCase(":\t", null, null)]
         [TestCase("     : \t\t", null, null)]
-        public void When_either_segment_is_whitespace__Must_return_the_whitespace_one_as_null(string line, string expectedKey, string expectedValue)
+        public void Must_return_Whitespace_segments_within_a_line_as_Null(string line, string expectedKey, string expectedValue)
         {
             var result = target.Parse(line, 0);
 
@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Verification
         [TestCase(":file:hash:")]
         [TestCase("file::hash")]
         [TestCase("file:hash::")]
-        public void When_line_contains_more_than_One_Colon__Must_throw_an_exception(string line)
+        public void When_line_contains_more_Two_segments__Must_throw_an_exception(string line)
         {
             Assert.Throws<Exception>(
                 () => target.Parse(line, 0));
@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Verification
 
         [TestCase("filehash")]
         [TestCase("file hash")]
-        public void When_line_contains_No_Colon__Must_return_the_whole_string_as_the_Valu(string line)
+        public void When_line_contains_No_Separator__Must_return_the_Whole_string_as_the_Value(string line)
         {
             var result = target.Parse(line, 0);
 
@@ -64,7 +64,7 @@ namespace Andy.FlacHash.Verification
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("\t\t")]
-        public void When_line_is_empty__Must_throw_an_exception(string line)
+        public void When_line_is_empty_or_whitespace__Must_throw_an_exception(string line)
         {
             Assert.Throws<ArgumentException>(
                 () => target.Parse(line, 0));
@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Verification
         [TestCase("\tfil\te   :\t\thas   h ", "fil\te", "has   h")]
         [TestCase("\tfilehash ", null, "filehash")]
         [TestCase("\tfil e\thash ", null, "fil e\thash")]
-        public void Must_remove_whitespace_from_the_start_and_end_of_both_properties(string line, string expectedKey, string expectedValue)
+        public void Must_remove_whitespace_from_the_start_and_end_of_both_segments(string line, string expectedKey, string expectedValue)
         {
             var result = target.Parse(line, 0);
 
