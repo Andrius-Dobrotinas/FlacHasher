@@ -91,7 +91,7 @@ namespace Andy.FlacHash.Win.UI
             var hashFiles = result.Value.Item2;
 
             if (files.Any() == false)
-                label_Status.Text = "The selected directory doesn't contain files suitable files";
+                label_Status.Text = "The selected directory doesn't contain suitable files";
             else
                 label_Status.Text = @"Press ""Go""";
 
