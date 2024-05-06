@@ -7,7 +7,7 @@ namespace Andy.FlacHash.Win
 {
     public static class HashFileUtil
     {
-        public const string MissingFileKey = "File's Missing";
+        public const string MissingFileKey = "{FILE_MISSING}";
 
         /// <summary>
         /// Matches <paramref name="files"/> with <paramref name="expectedHashes"/> based on their position, not file name.
