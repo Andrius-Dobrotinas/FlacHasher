@@ -5,12 +5,12 @@ namespace Andy.FlacHash.Verification
 {
     public interface IHashEntryParser
     {
-        KeyValuePair<string, string> Parse(string line, int lineNumber);
+        KeyValuePair<string, string> Parse(string line);
     }
 
     public class HashEntryParser : IHashEntryParser
     {
-        public KeyValuePair<string, string> Parse(string line, int lineNumber)
+        public KeyValuePair<string, string> Parse(string line)
         {
             if (line == null) throw new ArgumentNullException(nameof(line));
             if (string.IsNullOrWhiteSpace(line)) throw new ArgumentException("An empty string is unacceptable!", nameof(line));
@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Verification
                     TrimAndReplaceEmptyWithNull(segments[0]));
 
             if (segments.Length > 2)
-                throw new Exception($"Expected line {lineNumber} to have 1-2 segments, but it has {segments.Length}");
+                throw new Exception($"Expected the line to have 1-2 segments, but it has {segments.Length}");
 
             return new KeyValuePair<string, string>(
                     TrimAndReplaceEmptyWithNull(segments[0]),

@@ -21,7 +21,23 @@ namespace Andy.FlacHash.Verification
         public IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines)
         {
             int i = 0;
-            return lines.Select(line => lineParser.Parse(line, ++i));
+
+            foreach (var line in lines)
+            {
+                yield return ParseLine(line, ++i);
+            }
+        }
+
+        private KeyValuePair<string, string> ParseLine(string line, int lineNumber)
+        {
+            try
+            {
+                return lineParser.Parse(line);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error parsing hash file's line #{lineNumber}: {e.Message}", e);
+            }
         }
     }
 }
