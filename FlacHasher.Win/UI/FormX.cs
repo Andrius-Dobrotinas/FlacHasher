@@ -120,9 +120,7 @@ namespace Andy.FlacHash.Win.UI
 
         private void Set_Go_Button_State()
         {
-            var isVerificationPossible = list_hashFiles.Any();
-
-            btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || isVerificationPossible);
+            btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || list_hashFiles.Any());
         }
 
         private void SaveHashes(IEnumerable<FileHashResultListItem> results)
@@ -184,8 +182,7 @@ namespace Andy.FlacHash.Win.UI
 
         private void VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
         {
-            (IList<KeyValuePair<FileInfo, string>> existingFileHashes,
-            IList<KeyValuePair<FileInfo, string>> missingFileHashes) = expectedHashes.IsPositionBased
+            var (existingFileHashes, missingFileHashes) = expectedHashes.IsPositionBased
                     ? HashFileUtil.MatchFilesToHashesPositionBased(expectedHashes.Hashes, files)
                     : HashFileUtil.MatchFilesToHashes(expectedHashes.Hashes, files);
 
