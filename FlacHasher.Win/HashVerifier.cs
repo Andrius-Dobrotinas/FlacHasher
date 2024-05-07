@@ -23,21 +23,6 @@ namespace Andy.FlacHash.Win
             return isMatch;
         }
 
-        public bool DoesMatch(
-            IList<KeyValuePair<string, string>> expectedHashes,
-            FileHashResult actual)
-        {
-            var fileName = actual.File.Name;
-
-            var expected = expectedHashes.First(x => AreEqualOrdinalCaseInsensitive(x.Key, fileName));
-
-            var actualHash = hashFormatter.GetString(actual.Hash);
-
-            bool isMatch = AreEqualOrdinalCaseInsensitive(actualHash, expected.Value);
-
-            return isMatch;
-        }
-
         private static bool AreEqualOrdinalCaseInsensitive(string one, string two)
         {
             return string.Equals(one, two, StringComparison.OrdinalIgnoreCase);
