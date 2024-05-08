@@ -23,7 +23,7 @@ namespace Andy.FlacHash.Cmd
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Failure reading a settings file. {e.Message}");
+                WriteUserLine($"Failure reading a settings file. {e.Message}");
                 return (int)ReturnValue.SettingsReadingFailure;
             }
 
@@ -35,12 +35,12 @@ namespace Andy.FlacHash.Cmd
             }
             catch (CmdLineArgNotFoundException e)
             {
-                Console.Error.WriteLine(e.Message);
+                WriteUserLine(e.Message);
                 return (int)ReturnValue.ArgumentNotFound;
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine(e.Message);
+                WriteUserLine(e.Message);
                 return (int)ReturnValue.ArgumentError;
             }
 
@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Cmd
 
                 if (!inputFiles.Any())
                 {
-                    Console.WriteLine("No files provided/found");
+                    WriteUserLine("No files provided/found");
                     return (int)ReturnValue.NoFilesToProcess;
                 }
 
@@ -75,29 +75,29 @@ namespace Andy.FlacHash.Cmd
             }
             catch (ConfigurationException e)
             {
-                Console.WriteLine(e.Message);
+                WriteUserLine(e.Message);
 
                 return (int)ReturnValue.ConfigurationError;
             }
             catch (IO.IOException e)
             {
-                Console.WriteLine(e.Message);
+                WriteUserLine(e.Message);
 
                 return (int)ReturnValue.InputReadingFailure;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                WriteUserLine(e.Message);
 
                 return (int)ReturnValue.ExecutionFailure;
             }
 
-            Console.Error.WriteLine("Done!");
+            WriteUserLine("Done!");
 
             return (int)ReturnValue.Success;
         }
 
-        private static void OutputHash(byte[] hash, string format, FileInfo sourceFile)
+        static void OutputHash(byte[] hash, string format, FileInfo sourceFile)
         {
             if (string.IsNullOrEmpty(format))
             {
@@ -110,6 +110,11 @@ namespace Andy.FlacHash.Cmd
                 string formattedOutput = OutputFormatting.GetFormattedString(format, hash, sourceFile);
                 Console.WriteLine(formattedOutput);
             }
+        }
+
+        static void WriteUserLine(string text)
+        {
+            Console.Error.WriteLine(text);
         }
     }
 }
