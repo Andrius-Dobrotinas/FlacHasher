@@ -47,7 +47,7 @@ namespace Andy.FlacHash.Cmd
                     throw new Exception("Target file extension must be specified when scanning a directory");
 
                 return DirectoryScanner.GetFiles(new DirectoryInfo(cmdlineArguments.InputDirectory), fileExtension)
-                    .ToArray();
+                    .ToList();
             }
 
             throw new Exception("No input files or directory has been specified");
