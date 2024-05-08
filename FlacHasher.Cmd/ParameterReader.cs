@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Cmd
             {
                 Decoder = Parameter.GetValue(arguments, ArgumentNames.Decoder),
                 InputFiles = Parameter.GetValue<string[]>(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
-                InputDirectory = Parameter.GetValue(arguments, ArgumentNames.Decoder),
+                InputDirectory = Parameter.GetValue(arguments, ArgumentNames.InputDirectory),
                 TargetFileExtension = Parameter.GetValue(arguments, ArgumentNames.FileExtension),
                 OutputFormat = Parameter.GetValue(arguments, ArgumentNames.FileExtension),
                 ProcessTimeoutSec = Parameter.GetValue<int?>(arguments, ArgumentNames.ProcessTimeoutSec, value => int.Parse(value))
