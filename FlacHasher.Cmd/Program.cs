@@ -50,6 +50,12 @@ namespace Andy.FlacHash.Cmd
                 int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
+                if (!inputFiles.Any())
+                {
+                    Console.WriteLine("No files provided/found");
+                    return (int)ReturnValue.NoFilesToProcess;
+                }
+
                 var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
                     decoderFile,
                     new ExternalProcess.ProcessRunner(processTimeoutSec));
