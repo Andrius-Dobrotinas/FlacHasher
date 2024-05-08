@@ -44,13 +44,13 @@ namespace Andy.FlacHash.Cmd
 
                 // TODO: define default extension in code, somewhere with a decoder?..
                 if (String.IsNullOrEmpty(fileExtension))
-                    throw new Exception("Target file exception must be specified when scanning a directory");
+                    throw new Exception("Target file extension must be specified when scanning a directory");
 
-                return DirectoryScanner.GetFiles(new DirectoryInfo(fileExtension), fileExtension)
+                return DirectoryScanner.GetFiles(new DirectoryInfo(cmdlineArguments.InputDirectory), fileExtension)
                     .ToArray();
             }
 
-            throw new Exception("No input files or directory have been specified");
+            throw new Exception("No input files or directory has been specified");
         }
 
         public static FileInfo GetDecoder(Settings settings, Parameters cmdlineArguments)
