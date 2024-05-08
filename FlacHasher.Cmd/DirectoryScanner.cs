@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Cmd
     {
         public static IEnumerable<FileInfo> GetFiles(DirectoryInfo directory, string fileSearchPattern)
         {
-            return directory.GetFiles(fileSearchPattern, SearchOption.TopDirectoryOnly); // TODO: use EnumerationOptions instead and ignore hidden files
+            return directory.GetFiles($"*.{fileSearchPattern}", SearchOption.TopDirectoryOnly); // TODO: use EnumerationOptions instead and ignore hidden files
         }
     }
 }
