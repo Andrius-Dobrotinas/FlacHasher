@@ -46,7 +46,8 @@ namespace Andy.FlacHash.Cmd
                 if (String.IsNullOrEmpty(fileExtension))
                     throw new Exception("Target file exception must be specified when scanning a directory");
 
-                DirectoryScanner.GetFiles(new DirectoryInfo(fileExtension), fileExtension);
+                return DirectoryScanner.GetFiles(new DirectoryInfo(fileExtension), fileExtension)
+                    .ToArray();
             }
 
             throw new Exception("No input files or directory have been specified");
