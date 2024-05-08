@@ -11,6 +11,7 @@ namespace Andy.FlacHash.Cmd
     {
         const string settingsFileName = "settings.cfg";
         const int processTimeoutSecDefault = 300;
+        const char newlineChar = '\n';
 
         static int Main(string[] args)
         {
@@ -100,8 +101,9 @@ namespace Andy.FlacHash.Cmd
         {
             if (string.IsNullOrEmpty(format))
             {
-                Console.OpenStandardOutput().Write(hash, 0, hash.Length);
-                Console.Error.WriteLine(); // This is so next message is printed on the next line. Check whether this is actually ok
+                var stdout = Console.OpenStandardOutput();
+                stdout.Write(hash, 0, hash.Length);
+                stdout.Write(stackalloc byte[] { (byte)newlineChar });
             }
             else
             {
