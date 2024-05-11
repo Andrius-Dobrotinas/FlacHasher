@@ -2,24 +2,29 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Andy.FlacHash.ExternalProcess
 {
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
         private readonly int timeout;
+        private readonly bool showProcessWindowWithStdErrOutput;
 
         /// <param name="timeout">Time to wait for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
-        public ProcessRunner(int timeout)
+        /// <param name="showProcessWindowWithStdErrOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
+        /// When off, captures stderr and includes in exceptions if the process fails</param>
+        public ProcessRunner(int timeout, bool showProcessWindowWithStdErrOutput)
         {
             this.timeout = timeout;
+            this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
         }
 
         public Stream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments)
         {
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments, showProcessWindowWithStdErrOutput);
             
             using (var process = new Process { StartInfo = processSettings })
             {
@@ -27,12 +32,13 @@ namespace Andy.FlacHash.ExternalProcess
 
                 //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
                 //The bigger the file, the more is written to the error stream as progress report
-                var stdErrorTask = System.Threading.Tasks.Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream));
+                var stdErrorTask = processSettings.RedirectStandardError
+                    ? Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream))
+                    : null;
 
                 var outputStream = ReadStream(process.StandardOutput.BaseStream);
 
-                using (var stdError = stdErrorTask.GetAwaiter().GetResult())
-                    ProcessExitCode(process, stdError);
+                ProcessExitCode(process, stdErrorTask);
 
                 return outputStream;
             }
@@ -45,28 +51,29 @@ namespace Andy.FlacHash.ExternalProcess
         {
             if (inputData == null) throw new ArgumentNullException(nameof(inputData));
 
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments, showProcessWindowWithStdErrOutput);
             processSettings.RedirectStandardInput = true;
 
             using (var process = new Process { StartInfo = processSettings })
             {
                 process.Start();
 
-                System.Threading.Tasks.Task.Delay(100).Wait(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
+                Task.Delay(100).Wait(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
 
                 //the writing operation gets blocked until someone reads the output - when both in and out are redirected.
-                var outputReadTask = System.Threading.Tasks.Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
+                var outputReadTask = Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
 
                 //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
                 //The bigger the file, the more is written to the error stream as progress report
-                var stdErrorTask = System.Threading.Tasks.Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream));
+                var stdErrorTask = processSettings.RedirectStandardError
+                    ? Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream))
+                    : null;
 
                 WriteToStdIn(process, inputData);
 
                 var outputStream = GetTaskResult(outputReadTask);
 
-                using (var stdError = stdErrorTask.GetAwaiter().GetResult())
-                    ProcessExitCode(process, stdError);
+                ProcessExitCode(process, stdErrorTask);
 
                 return outputStream;
             }
@@ -81,7 +88,7 @@ namespace Andy.FlacHash.ExternalProcess
             stdin.Close();
         }
 
-        private static Stream GetTaskResult(System.Threading.Tasks.Task<MemoryStream> outputReadTask)
+        private static Stream GetTaskResult(Task<MemoryStream> outputReadTask)
         {
             try
             {
@@ -103,8 +110,18 @@ namespace Andy.FlacHash.ExternalProcess
             return processOutput;
         }
 
+        private void ProcessExitCode(Process process, Task<MemoryStream> stdErrorTask)
+        {
+            if (stdErrorTask == null)
+                ProcessExitCode(process);
+            else
+            using (var stdError = stdErrorTask.GetAwaiter().GetResult())
+            {
+                ProcessExitCode(process, stdError);
+            }
+        }
 
-        private void ProcessExitCode(Process process, Stream stdError)
+        private void ProcessExitCode(Process process, Stream stdError = null)
         {
             //stop and wait for the process to finish
             if (process.WaitForExit(timeout) == false)
@@ -112,6 +129,9 @@ namespace Andy.FlacHash.ExternalProcess
 
             if (process.ExitCode != 0)
             {
+                if (stdError == null)
+                    throw new ExecutionException(process.ExitCode);
+
                 string processErrorOutput = GetErrorStreamOutput(stdError);
                 throw new ExecutionException(process.ExitCode, processErrorOutput);
             }

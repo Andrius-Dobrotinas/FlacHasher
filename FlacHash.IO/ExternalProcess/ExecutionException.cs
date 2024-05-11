@@ -11,6 +11,12 @@ namespace Andy.FlacHash.ExternalProcess
         public int ExitCode { get; }
         public string ProcessErrorOutput { get; }
 
+        public ExecutionException(int exitCode)
+            : base($"The process exited with code {exitCode}. Process error output has not been captured")
+        {
+            ExitCode = exitCode;
+        }
+
         public ExecutionException(int exitCode, string processErrorOutput)
             : base($"The process exited with code {exitCode}. See {nameof(ProcessErrorOutput)} for details.")
         {

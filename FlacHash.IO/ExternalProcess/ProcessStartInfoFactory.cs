@@ -9,11 +9,12 @@ namespace Andy.FlacHash.ExternalProcess
     {
         internal static ProcessStartInfo GetStandardProcessSettings(
             FileInfo fileToRun,
-            IEnumerable<string> arguments)
+            IEnumerable<string> arguments,
+            bool showProcessWindowWithStdErrOutput)
         {
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
 
-            var settings = GetStandardProcessSettings(fileToRun);
+            var settings = GetStandardProcessSettings(fileToRun, showProcessWindowWithStdErrOutput);
 
             foreach (var arg in arguments)
                 settings.ArgumentList.Add(arg);
@@ -21,17 +22,17 @@ namespace Andy.FlacHash.ExternalProcess
             return settings;
         }
 
-        internal static ProcessStartInfo GetStandardProcessSettings(FileInfo fileToRun)
+        internal static ProcessStartInfo GetStandardProcessSettings(FileInfo fileToRun, bool showProcessWindowWithStdErrOutput)
         {
             if (fileToRun == null) throw new ArgumentNullException(nameof(fileToRun));
 
             return new ProcessStartInfo
             {
                 FileName = fileToRun.FullName,
-                RedirectStandardError = true,
+                RedirectStandardError = showProcessWindowWithStdErrOutput ? false : true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false, // Required for stream redirection to work
-                CreateNoWindow = true,
+                CreateNoWindow = showProcessWindowWithStdErrOutput ? false : true,
                 ErrorDialog = false
             };
         }

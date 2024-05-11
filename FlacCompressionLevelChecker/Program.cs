@@ -36,7 +36,7 @@ namespace Andy.FlacHash
 
             var recoder = new IO.Audio.Flac.CmdLine.FileRecoder(
                 flacExe,
-                new ExternalProcess.ProcessRunner(processTimeoutSec));
+                new ExternalProcess.ProcessRunner(processTimeoutSec, true));
 
             using (Stream recodedAudio = recoder.Encode(sourceFile, compressionLevel))
             {
