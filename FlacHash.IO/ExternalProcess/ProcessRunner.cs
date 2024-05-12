@@ -71,7 +71,7 @@ namespace Andy.FlacHash.ExternalProcess
 
                 WriteToStdIn(process, inputData);
 
-                var outputStream = GetTaskResult(outputReadTask);
+                var outputStream = outputReadTask.GetAwaiter().GetResult();
 
                 ProcessExitCode(process, stdErrorTask);
 
@@ -86,18 +86,6 @@ namespace Andy.FlacHash.ExternalProcess
 
             //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
             stdin.Close();
-        }
-
-        private static Stream GetTaskResult(Task<MemoryStream> outputReadTask)
-        {
-            try
-            {
-                return outputReadTask.Result;
-            }
-            catch (AggregateException e)
-            {
-                throw e.InnerException;
-            }
         }
 
         private static MemoryStream ReadStream(Stream outputStream)
