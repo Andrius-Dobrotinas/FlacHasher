@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash
+﻿namespace Andy.FlacHash.CompressionLevel
 {
     public static class ArgumentNames
     {

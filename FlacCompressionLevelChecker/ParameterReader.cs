@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.CompressionLevel
 {
     public class ParameterReader
     {

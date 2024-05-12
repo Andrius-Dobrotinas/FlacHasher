@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.CompressionLevel
 {
     class Program
     {

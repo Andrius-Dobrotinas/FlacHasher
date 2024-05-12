@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.CompressionLevel
 {
     public class Parameters
     {
