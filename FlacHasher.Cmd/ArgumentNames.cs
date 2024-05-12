@@ -7,6 +7,6 @@
         public const string InputFiles = "--input";
         public const string InputDirectory = "--inputDir";
         public const string FileExtension = "--file-extension";
-        public const string ProcessTimeoutSec = "--process-timeout";
+        public const string ProcessExitTimeoutSec = "--process-exit-timeout";
     }
 }

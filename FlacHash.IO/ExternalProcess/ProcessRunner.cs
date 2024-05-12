@@ -8,15 +8,15 @@ namespace Andy.FlacHash.ExternalProcess
 {
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
-        private readonly int timeout;
+        private readonly int exitTimeout;
         private readonly bool showProcessWindowWithStdErrOutput;
 
-        /// <param name="timeout">Time to wait for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
+        /// <param name="exitTimeout">Time to wait for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
         /// <param name="showProcessWindowWithStdErrOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
         /// When off, captures stderr and includes in exceptions if the process fails</param>
-        public ProcessRunner(int timeout, bool showProcessWindowWithStdErrOutput)
+        public ProcessRunner(int exitTimeout, bool showProcessWindowWithStdErrOutput)
         {
-            this.timeout = timeout;
+            this.exitTimeout = exitTimeout;
             this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
         }
 
@@ -112,7 +112,7 @@ namespace Andy.FlacHash.ExternalProcess
         private void ProcessExitCode(Process process, Stream stdError = null)
         {
             //stop and wait for the process to finish
-            if (process.WaitForExit(timeout) == false)
+            if (process.WaitForExit(exitTimeout) == false)
                 process.Kill(true);
 
             if (process.ExitCode != 0)
