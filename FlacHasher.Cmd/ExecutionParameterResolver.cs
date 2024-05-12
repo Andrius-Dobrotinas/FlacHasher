@@ -61,12 +61,12 @@ namespace Andy.FlacHash.Cmd
             return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
         }
 
-        public static int GetProcessExitTimeoutInSeconds(Settings settings, Parameters cmdlineArguments, int defaultValue)
+        public static int GetProcessExitTimeoutInMs(Settings settings, Parameters cmdlineArguments, int defaultValue)
         {
-            if (cmdlineArguments.ProcessExitTimeoutSec != null)
-                return cmdlineArguments.ProcessExitTimeoutSec.Value;
+            if (cmdlineArguments.ProcessExitTimeoutMs != null)
+                return cmdlineArguments.ProcessExitTimeoutMs.Value;
 
-            return settings.ProcessExitTimeoutSec ?? defaultValue;
+            return settings.ProcessExitTimeoutMs ?? defaultValue;
         }
     }
 }

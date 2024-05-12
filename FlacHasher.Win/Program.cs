@@ -13,7 +13,7 @@ namespace Andy.FlacHash.Win
         const string settingsFileName = "settings.cfg";
         const string supportedFileExtension = ".flac";
         const string hashFileExtension = ".hash";
-        const int processExitTimeoutSec = 300; // todo: read this from the settings file
+        const int processExitTimeoutMs = 1000; // todo: read this from the settings file
         const bool showProcessWindowWithOutput = false;
 
         [STAThread]
@@ -68,7 +68,7 @@ namespace Andy.FlacHash.Win
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
             var decoder = new IO.Audio.Flac.CmdLine.StreamDecoder(
                 decoderFile,
-                new ExternalProcess.ProcessRunner(processExitTimeoutSec, showProcessWindowWithOutput));
+                new ExternalProcess.ProcessRunner(processExitTimeoutMs, showProcessWindowWithOutput));
             var reader = new IO.Audio.DecodingFileReader(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());

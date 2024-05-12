@@ -16,13 +16,13 @@ namespace Andy.FlacHash.Cmd
 
                 var decoder = GetFile(defaultSection, nameof(Settings.Decoder));
                 var outputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat));
-                var processExitTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessExitTimeoutSec));
+                var processExitTimeoutMs = GetValueInt(defaultSection, nameof(Settings.ProcessExitTimeoutMs));
 
                 return new Settings
                 {
                     Decoder = decoder,
                     OutputFormat = outputFormat,
-                    ProcessExitTimeoutSec = processExitTimeoutSec
+                    ProcessExitTimeoutMs = processExitTimeoutMs
                 };
             }
 
