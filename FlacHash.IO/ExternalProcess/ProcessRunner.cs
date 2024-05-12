@@ -9,14 +9,17 @@ namespace Andy.FlacHash.ExternalProcess
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
         private readonly int exitTimeoutMs;
+        private readonly int timeoutMs;
         private readonly bool showProcessWindowWithStdErrOutput;
 
+        /// <param name="timeoutSec">If a process doesn't finish within a given time (in seconds), it will be termined without returning any result</param>
         /// <param name="exitTimeout">Time to wait (in milliseconds) for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
         /// <param name="showProcessWindowWithStdErrOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
         /// When off, captures stderr and includes in exceptions if the process fails</param>
-        public ProcessRunner(int exitTimeout, bool showProcessWindowWithStdErrOutput)
+        public ProcessRunner(int timeoutSec, int exitTimeout, bool showProcessWindowWithStdErrOutput)
         {
             this.exitTimeoutMs = exitTimeout;
+            this.timeoutMs = timeoutSec * 1000;
             this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
         }
 
@@ -30,17 +33,7 @@ namespace Andy.FlacHash.ExternalProcess
             {
                 process.Start();
 
-                //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
-                //The bigger the file, the more is written to the error stream as progress report
-                var stdErrorTask = processSettings.RedirectStandardError
-                    ? Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream))
-                    : null;
-
-                var outputStream = ReadStream(process.StandardOutput.BaseStream);
-
-                ProcessExitCode(process, stdErrorTask);
-
-                return outputStream;
+                return GetOutputStream(process);
             }
         }
 
@@ -60,23 +53,42 @@ namespace Andy.FlacHash.ExternalProcess
 
                 Task.Delay(100).Wait(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
 
-                //the writing operation gets blocked until someone reads the output - when both in and out are redirected.
-                var outputReadTask = Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
+                var writeTask = Task.Run(() => WriteToStdIn(process, inputData));
 
-                //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
-                //The bigger the file, the more is written to the error stream as progress report
-                var stdErrorTask = processSettings.RedirectStandardError
-                    ? Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream))
-                    : null;
-
-                WriteToStdIn(process, inputData);
-
-                var outputStream = outputReadTask.GetAwaiter().GetResult();
-
-                ProcessExitCode(process, stdErrorTask);
-
-                return outputStream;
+                return GetOutputStream(process);
             }
+        }
+
+        private MemoryStream GetOutputStream(Process process)
+        {
+            //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
+            //The bigger the file, the more is written to the error stream as progress report
+            var stdErrorTask = process.StartInfo.RedirectStandardError
+                ? Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream))
+                : null;
+
+            //the writing operation gets blocked until someone reads the output - when both in and out are redirected.
+            var outputReadTask = Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
+
+            var finishedInTime = Task.WaitAll(
+                new[] { outputReadTask, stdErrorTask ?? Task.CompletedTask },
+                timeoutMs);
+
+            if (!finishedInTime)
+            {
+                //just in case it just finished
+                if (!process.HasExited)
+                {
+                    process.Kill(true);
+                    throw new TimeoutException("The process has taken longer than allowed and has been cancelled");
+                }
+            }
+
+            var outputStream = outputReadTask.GetAwaiter().GetResult();
+
+            ProcessExitCode(process, stdErrorTask);
+
+            return outputStream;
         }
 
         private static void WriteToStdIn(Process process, Stream inputData)

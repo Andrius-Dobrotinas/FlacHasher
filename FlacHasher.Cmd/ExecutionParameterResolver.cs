@@ -68,5 +68,13 @@ namespace Andy.FlacHash.Cmd
 
             return settings.ProcessExitTimeoutMs ?? defaultValue;
         }
+        
+        public static int GetProcessTimeoutInSeconds(Settings settings, Parameters cmdlineArguments, int defaultValue)
+        {
+            if (cmdlineArguments.ProcessTimeoutSec != null)
+                return cmdlineArguments.ProcessTimeoutSec.Value;
+
+            return settings.ProcessTimeoutSec ?? defaultValue;
+        }
     }
 }

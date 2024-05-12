@@ -9,5 +9,6 @@ namespace Andy.FlacHash.Cmd
         public FileInfo Decoder { get; set; }
         public string OutputFormat { get; set; }
         public int? ProcessExitTimeoutMs { get; set; }
+        public int? ProcessTimeoutSec { get; set; }
     }
 }

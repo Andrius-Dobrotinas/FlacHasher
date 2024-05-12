@@ -12,6 +12,7 @@ namespace Andy.FlacHash.Cmd
         const string settingsFileName = "settings.cfg";
         const char newlineChar = '\n';
         const int processExitTimeoutMsDefault = 2000;
+        const int processTimeoutSecDefault = int.MaxValue;
         const bool printProcessProgress = true;
 
         static int Main(string[] args)
@@ -50,6 +51,7 @@ namespace Andy.FlacHash.Cmd
                 FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 int processExitTimeoutMs = ExecutionParameterResolver.GetProcessExitTimeoutInMs(settings, parameters, processExitTimeoutMsDefault);
+                int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
                 if (!inputFiles.Any())
@@ -60,7 +62,7 @@ namespace Andy.FlacHash.Cmd
 
                 var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
                     decoderFile,
-                    new ExternalProcess.ProcessRunner(processExitTimeoutMs, printProcessProgress));
+                    new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, printProcessProgress));
 
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher);

@@ -19,7 +19,8 @@ namespace Andy.FlacHash.Cmd
                 InputDirectory = Parameter.GetValue(arguments, ArgumentNames.InputDirectory),
                 TargetFileExtension = Parameter.GetValue(arguments, ArgumentNames.FileExtension),
                 OutputFormat = Parameter.GetValue(arguments, ArgumentNames.OutputFormat),
-                ProcessExitTimeoutMs = Parameter.GetValue<int?>(arguments, ArgumentNames.ProcessExitTimeoutMs, value => int.Parse(value))
+                ProcessExitTimeoutMs = Parameter.GetValue<int?>(arguments, ArgumentNames.ProcessExitTimeoutMs, value => int.Parse(value)),
+                ProcessTimeoutSec = Parameter.GetValue<int?>(arguments, ArgumentNames.ProcessTimeoutSec, value => int.Parse(value))
             };
         }
     }
