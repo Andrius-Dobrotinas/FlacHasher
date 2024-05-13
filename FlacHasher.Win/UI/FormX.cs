@@ -24,6 +24,8 @@ namespace Andy.FlacHash.Win.UI
         private readonly HashFileReader hashFileParser;
         private readonly HashVerifier hashVerifier;
 
+        private bool finishedWithErrors;
+
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
@@ -219,6 +221,8 @@ namespace Andy.FlacHash.Win.UI
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
         {
+            finishedWithErrors = false;
+
             list_results.ClearList();
             list_verification_results.Items.Clear();
 
@@ -249,6 +253,9 @@ namespace Andy.FlacHash.Win.UI
             }
             else
             {
+                if (finishedWithErrors)
+                    progressReporter.SetToMax();
+
                 label_Status.Text = "Finished";
             }
         }
@@ -273,7 +280,8 @@ namespace Andy.FlacHash.Win.UI
 
         private void ReportExecutionError(Exception exception, FileInfo file)
         {
-            MessageBox.Show($"Error processing file {file.Name}: {exception.Message}");
+            finishedWithErrors = true;
+            MessageBox.Show($"Error processing file {file.Name}: {exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         public enum Mode
