@@ -2,6 +2,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 
@@ -20,7 +21,7 @@ namespace Andy.FlacHash
         }
 
         [TestCaseSource(nameof(GetFiles))]
-        public void Should_Not_ComputeHashes_UntilResultsAreEnumerated(IList<FileInfo> files)
+        public void Must_Not_ComputeHashes_UntilResultsAreEnumerated(IList<FileInfo> files)
         {
             target.ComputeHashes(files);
 
@@ -28,11 +29,11 @@ namespace Andy.FlacHash
                 x => x.ComputerHash(
                     It.IsAny<FileInfo>()),
                 Times.Never,
-                "Should not do anything before enumeration");
+                "Must not do anything before enumeration");
         }
 
         [TestCaseSource(nameof(GetFiles))]
-        public void Should_ComputeHashes_ForEachFile_WhenResultsAreEnumerated(IList<FileInfo> files)
+        public void Must_ComputeHashes_ForEachFile_WhenResultsAreEnumerated(IList<FileInfo> files)
         {
             target.ComputeHashes(files)
                 .ToArray();
@@ -41,7 +42,7 @@ namespace Andy.FlacHash
                 x => x.ComputerHash(
                     It.IsAny<FileInfo>()),
                 Times.Exactly(files.Count),
-                "Should invoke the hash computation function exactly the number of times there are files");
+                "Must invoke the hash computation function for each file");
 
             for(int i = 0; i < files.Count; i++)
             {
@@ -49,8 +50,47 @@ namespace Andy.FlacHash
                 x => x.ComputerHash(
                     It.Is<FileInfo>(
                         arg => arg == files[i])),
-                $"Should invoke the hash computation function for file under index {i} ('{files[i].FullName}')");
+                $"Must invoke the hash computation function for file. Expected for file at position {i} ('{files[i].FullName}')");
             }
+        }
+
+        [TestCaseSource(nameof(GetFilesWithResults))]
+        public void Must_Return_HashComputation_Result_AlongWith_File(IList<KeyValuePair<FileInfo, byte[]>> filesWithResults)
+        {
+            var files = filesWithResults.Select(x => x.Key).ToArray();
+            var expectedResults = filesWithResults.Select(x => x.Value);
+
+            foreach (var (file, hash) in filesWithResults)
+                hasher.Setup(
+                    x => x.ComputerHash(
+                        It.Is<FileInfo>(arg => arg == file)))
+                    .Returns(hash);
+
+            var results = target.ComputeHashes(files)
+                .ToArray();
+
+            AssertThat.CollectionsMatchExactly(results.Select(x => x.File), files, "Files");
+            AssertThat.CollectionsMatchExactly(results.Select(x => x.Hash), expectedResults, "Hashes");
+        }
+
+        [TestCaseSource(nameof(GetFilesWithExceptions))]
+        public void When_ComputationErrorsOut_Must_ProcessAllFiles_And_ReturnException_For_FailedOnes(IList<(FileInfo, byte[], Exception)> filesWithResults)
+        {
+            var expected = filesWithResults.Select(x => new FileHashResult { File = x.Item1, Hash = x.Item2, Exception = x.Item3 }).ToArray();
+            var files = expected.Select(x => x.File).ToArray();
+
+            foreach (var item in expected)
+                hasher.Setup(
+                    x => x.ComputerHash(
+                        It.Is<FileInfo>(arg => arg == item.File)))
+                    .Returns<FileInfo>(f => item.Hash ?? throw item.Exception);
+
+            var results = target.ComputeHashes(files)
+                .ToArray();
+
+            AssertThat.CollectionsMatchExactly(results.Select(x => x.File), files, "Files");
+            AssertThat.CollectionsMatchExactly(results.Select(x => x.Hash), expected.Select(x => x.Hash), "Hashes");
+            AssertThat.CollectionsMatchExactly(results.Select(x => x.Exception), expected.Select(x => x.Exception), toString: x => x?.Message, "Exceptions");
         }
 
         private static IEnumerable<TestCaseData> GetFiles()
@@ -66,7 +106,37 @@ namespace Andy.FlacHash
                 {
                     new FileInfo("path1"),
                     new FileInfo("path2"),
-                    new FileInfo("path3"),
+                    new FileInfo("path3")
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetFilesWithResults()
+        {
+            yield return new TestCaseData(
+                new KeyValuePair<FileInfo, byte[]>[]
+                {
+                    new KeyValuePair<FileInfo, byte[]>(new FileInfo("path1"), new byte[] { 1, 2, 1, 0 } ),
+                    new KeyValuePair<FileInfo, byte[]>(new FileInfo("path2"), new byte[] { 2, 1, 2, 0 } ),
+                    new KeyValuePair<FileInfo, byte[]>(new FileInfo("path3"), new byte[] { 3, 2, 3, 1 } )
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetFilesWithExceptions()
+        {
+            yield return new TestCaseData(
+                new (FileInfo, byte[], Exception)[]
+                {
+                    (new FileInfo("path1"), new byte[] { 1, 2, 1, 0 }, null),
+                    (new FileInfo("path2"), null, new Exception("error'd out")),
+                    (new FileInfo("path3"), new byte[] { 3, 2, 3, 1 }, null )
+                });
+
+            yield return new TestCaseData(
+                new (FileInfo, byte[], Exception)[]
+                {
+                    (new FileInfo("path1"), null, new Exception("outta luck!")),
+                    (new FileInfo("path2"), null, new Exception("error'd out - next!")),
+                    (new FileInfo("path3"), new byte[] { 3, 2, 3, 1 }, null )
                 });
         }
     }

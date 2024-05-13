@@ -25,10 +25,23 @@ namespace Andy.FlacHash
         public IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files)
         {
             return files.Select(
-                file => new FileHashResult
-                {
-                    File = file,
-                    Hash = hasher.ComputerHash(file)
+                file => {
+                    try
+                    {
+                        return new FileHashResult
+                        {
+                            File = file,
+                            Hash = hasher.ComputerHash(file)
+                        };
+                    }
+                    catch (Exception e)
+                    {
+                        return new FileHashResult
+                        {
+                            File = file,
+                            Exception = e
+                        };
+                    }
                 });
         }
     }

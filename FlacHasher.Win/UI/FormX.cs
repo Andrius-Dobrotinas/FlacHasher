@@ -195,9 +195,16 @@ namespace Andy.FlacHash.Win.UI
             hasherService.Start(existingFiles,
                 (FileHashResult calcResult) =>
                 {
-                    var isMatch = hashVerifier.DoesMatch(existingFileHashes, i, calcResult.Hash);
+                    if (calcResult.Exception == null)
+                    {
+                        var isMatch = hashVerifier.DoesMatch(existingFileHashes, i, calcResult.Hash);
 
-                    list_verification_results.Add(calcResult.File, isMatch);
+                        list_verification_results.Add(calcResult.File, isMatch);
+                    }
+                    else
+                    {
+                        ReportExecutionError(calcResult.Exception, calcResult.File);
+                    }
 
                     i++;
 
@@ -248,6 +255,12 @@ namespace Andy.FlacHash.Win.UI
 
         private void UpdateUIWithCalcResult(FileHashResult result)
         {
+            if (result.Exception != null)
+            {
+                ReportExecutionError(result.Exception, result.File);
+                return;
+            }
+
             this.list_results.AddItem(
                 new FileHashResultListItem
                 {
@@ -256,6 +269,11 @@ namespace Andy.FlacHash.Win.UI
                 });
 
             this.Text = result.File.Name;
+        }
+
+        private void ReportExecutionError(Exception exception, FileInfo file)
+        {
+            MessageBox.Show($"Error processing file {file.Name}: {exception.Message}");
         }
 
         public enum Mode

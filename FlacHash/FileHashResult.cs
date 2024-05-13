@@ -7,5 +7,6 @@ namespace Andy.FlacHash
     {
         public FileInfo File { get; set; }
         public byte[] Hash { get; set; }
+        public Exception Exception { get; set; }
     }
 }

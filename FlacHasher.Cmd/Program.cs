@@ -73,7 +73,11 @@ namespace Andy.FlacHash.Cmd
                 // The hashes should be computed on this enumeration, and therefore will be output as they're computed
                 foreach (var entry in hashes)
                 {
-                    OutputHash(entry.Hash, outputFomat, entry.File);
+                    if (entry.Exception == null)
+                        OutputHash(entry.Hash, outputFomat, entry.File);
+                    else
+                        if (!printProcessProgress)
+                            WriteUserLine($"Error processing file {entry.File.Name}: {entry.Exception.Message}");
                 };
             }
             catch (ConfigurationException e)

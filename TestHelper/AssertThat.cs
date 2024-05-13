@@ -7,7 +7,7 @@ namespace Andy
 {
     public static class AssertThat
     {
-        private static string DefaultToString<T>(T @object) => @object.ToString();
+        private static string DefaultToString<T>(T @object) => @object?.ToString();
 
         /// <summary>
         /// Verifies that the <paramref name="target"/> collection doesn't contain any elements from <paramref name="unexpected"/>.

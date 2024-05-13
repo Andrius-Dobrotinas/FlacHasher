@@ -26,7 +26,8 @@ namespace Andy.FlacHash.Win.UI
             this.progressReportingContext = progressReportingContext ?? throw new ArgumentNullException(nameof(progressReportingContext));
         }
 
-        public Task StartHashCalculation(IEnumerable<FileInfo> sourceFiles,
+        public Task StartHashCalculation(
+            IEnumerable<FileInfo> sourceFiles,
             CancellationToken cancellationToken,
             Action reportCompletionInContext,
             Action<FileHashResult> reportHashInContext)
