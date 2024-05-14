@@ -12,6 +12,8 @@ namespace Andy.FlacHash.ExternalProcess
         private readonly int timeoutMs;
         private readonly bool showProcessWindowWithStdErrOutput;
 
+        public const int NoTimeoutValue = -1;
+
         /// <param name="timeoutSec">If a process doesn't finish within a given time (in seconds), it will be termined without returning any result</param>
         /// <param name="exitTimeout">Time to wait (in milliseconds) for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
         /// <param name="showProcessWindowWithStdErrOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
@@ -19,7 +21,7 @@ namespace Andy.FlacHash.ExternalProcess
         public ProcessRunner(int timeoutSec, int exitTimeout, bool showProcessWindowWithStdErrOutput)
         {
             this.exitTimeoutMs = exitTimeout;
-            this.timeoutMs = timeoutSec * 1000;
+            this.timeoutMs = timeoutSec == NoTimeoutValue ? NoTimeoutValue : timeoutSec * 1000;
             this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
         }
 

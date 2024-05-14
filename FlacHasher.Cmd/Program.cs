@@ -1,5 +1,6 @@
 ﻿using Andy.Cmd;
 using Andy.FlacHash.Crypto;
+using Andy.FlacHash.ExternalProcess;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,7 @@ namespace Andy.FlacHash.Cmd
         const string settingsFileName = "settings.cfg";
         const char newlineChar = '\n';
         const int processExitTimeoutMsDefault = 2000;
-        const int processTimeoutSecDefault = int.MaxValue;
+        const int processTimeoutSecDefault = ProcessRunner.NoTimeoutValue;
         const bool printProcessProgress = true;
         const bool continueOnError = true; // todo: read this from the settings file && consul
 
