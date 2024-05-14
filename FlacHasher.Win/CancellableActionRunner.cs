@@ -22,6 +22,7 @@ namespace Andy.FlacHash.Win
         public delegate void StateChangeHandler(bool inProgress);
 
         private readonly CompletionHandler reportCompletion;
+        private readonly Action<Exception> reportFailure;
         private readonly StateChangeHandler stateChanged;
 
         private CancellationTokenSource cancellationTokenSource;
@@ -34,9 +35,10 @@ namespace Andy.FlacHash.Win
 
         /// <param name="reportCompletion">Fired when an action finishes, be it due to cancelation or natural completion</param>
         /// <param name="stateChanged">Fired when an action starts and when it finishes</param>
-        public CancellableActionRunner(CompletionHandler reportCompletion, StateChangeHandler stateChanged)
+        public CancellableActionRunner(CompletionHandler reportCompletion, Action<Exception> reportFailure, StateChangeHandler stateChanged)
         {
             this.reportCompletion = reportCompletion ?? throw new ArgumentNullException(nameof(reportCompletion));
+            this.reportFailure = reportFailure ?? throw new ArgumentNullException(nameof(reportFailure));
             this.stateChanged = stateChanged ?? throw new ArgumentNullException(nameof(stateChanged));
         }
 
@@ -54,6 +56,15 @@ namespace Andy.FlacHash.Win
 
             cancellationTokenSource.Dispose();
         }
+        
+        private void OnFailed(Exception e)
+        {
+            ToggleActionState(false);
+
+            reportFailure(e);
+
+            cancellationTokenSource.Dispose();
+        }
 
         /// <summary>
         /// Starts a new action using the currently set up event handlers.
@@ -66,7 +77,7 @@ namespace Andy.FlacHash.Win
 
             ToggleActionState(true);
 
-            var result = CancellableActionStarter.Start(beginCancellableAction, OnFinished);
+            var result = CancellableActionStarter.Start(beginCancellableAction, OnFinished, OnFailed);
 
             cancellationTokenSource = result.Item2;
 

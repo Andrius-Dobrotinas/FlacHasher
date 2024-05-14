@@ -10,7 +10,7 @@ namespace Andy.FlacHash.Win
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <param name="finishedCallback">An action that's run when the main action is finished</param>
-    public delegate Task BeginCancellableAction(CancellationToken cancellationToken, Action finishedCallback);
+    public delegate Task BeginCancellableAction(CancellationToken cancellationToken, Action finishedCallback, Action<Exception> failureCallback);
 
     public static class CancellableActionStarter
     {
@@ -21,14 +21,16 @@ namespace Andy.FlacHash.Win
         /// <param name="finishedCallback">A callback that runs when an action in question finishes</param>
         public static (Task, CancellationTokenSource) Start(
             BeginCancellableAction beginCancellableAction,
-            Action finishedCallback)
+            Action finishedCallback,
+            Action<Exception> failureCallback)
         {
             if (beginCancellableAction == null) throw new ArgumentNullException(nameof(beginCancellableAction));
             if (finishedCallback == null) throw new ArgumentNullException(nameof(finishedCallback));
+            if (failureCallback == null) throw new ArgumentNullException(nameof(failureCallback));
 
             var cancellationTokenSource = new CancellationTokenSource();
 
-            var task = beginCancellableAction(cancellationTokenSource.Token, finishedCallback);
+            var task = beginCancellableAction(cancellationTokenSource.Token, finishedCallback, failureCallback);
 
             return (task, cancellationTokenSource);
         }

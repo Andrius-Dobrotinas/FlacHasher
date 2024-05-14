@@ -25,11 +25,12 @@ namespace Andy.FlacHash.Win.UI
             Action<FileHashResult> hashCalculated)
         {
             return cancellableActionRunner.Start(
-                (cancellationToken, finishedCallback) => hashCalcOnSeparateThreadService.StartHashCalculation(
+                (cancellationToken, finishedCallback, reportFailure) => hashCalcOnSeparateThreadService.StartHashCalculation(
                     sourceFiles,
                     cancellationToken,
                     finishedCallback,
-                    hashCalculated));
+                    hashCalculated,
+                    reportFailure));
         }
 
         public void Cancel()

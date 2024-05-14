@@ -15,7 +15,8 @@ namespace Andy.FlacHash.Win
         const string hashFileExtension = ".hash";
         const int processExitTimeoutMs = 1000; // todo: read this from the settings file
         const int processTimeoutSec = 180; // todo: read this from the settings file
-        const bool showProcessWindowWithOutput = false;
+        const bool showProcessWindowWithOutput = false; // todo: read this from the settings file
+        const bool continueOnError = true; // todo: read this from the settings file
 
         [STAThread]
         static void Main()
@@ -74,7 +75,7 @@ namespace Andy.FlacHash.Win
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
             var cancellableHasher = new ReportingMultipleFileHasher(
-                new MultipleFileHasher(hasher));
+                new MultipleFileHasher(hasher, continueOnError));
 
             return (cancellableHasher, fileReadProgressReporter);
         }

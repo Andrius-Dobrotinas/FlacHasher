@@ -16,10 +16,12 @@ namespace Andy.FlacHash
     public class MultipleFileHasher : IMultipleFileHasher
     {
         private readonly IFileHasher hasher;
+        private readonly bool continueOnError;
 
-        public MultipleFileHasher(IFileHasher hasher)
+        public MultipleFileHasher(IFileHasher hasher, bool continueOnError)
         {
             this.hasher = hasher;
+            this.continueOnError = continueOnError;
         }
 
         public IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files)
@@ -36,6 +38,9 @@ namespace Andy.FlacHash
                     }
                     catch (Exception e)
                     {
+                        if (!continueOnError)
+                            throw;
+
                         return new FileHashResult
                         {
                             File = file,

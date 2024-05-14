@@ -17,7 +17,12 @@ namespace Andy.FlacHash
         public void Setup()
         {
             hasher = new Mock<IFileHasher>();
-            target = new MultipleFileHasher(hasher.Object);
+            target = new MultipleFileHasher(hasher.Object, true);
+        }
+
+        MultipleFileHasher CreateTarget(bool failOnError)
+        {
+            return new MultipleFileHasher(hasher.Object, failOnError);
         }
 
         [TestCaseSource(nameof(GetFiles))]
@@ -74,7 +79,7 @@ namespace Andy.FlacHash
         }
 
         [TestCaseSource(nameof(GetFilesWithExceptions))]
-        public void When_ComputationErrorsOut_Must_ProcessAllFiles_And_ReturnException_For_FailedOnes(IList<(FileInfo, byte[], Exception)> filesWithResults)
+        public void When_ComputationErrorsOut_And_ConfiguredToContinueOnError__Must_ProcessAllFiles_And_ReturnException_For_FailedOnes(IList<(FileInfo, byte[], Exception)> filesWithResults)
         {
             var expected = filesWithResults.Select(x => new FileHashResult { File = x.Item1, Hash = x.Item2, Exception = x.Item3 }).ToArray();
             var files = expected.Select(x => x.File).ToArray();
@@ -85,12 +90,34 @@ namespace Andy.FlacHash
                         It.Is<FileInfo>(arg => arg == item.File)))
                     .Returns<FileInfo>(f => item.Hash ?? throw item.Exception);
 
+            target = CreateTarget(true);
+
             var results = target.ComputeHashes(files)
                 .ToArray();
 
             AssertThat.CollectionsMatchExactly(results.Select(x => x.File), files, "Files");
             AssertThat.CollectionsMatchExactly(results.Select(x => x.Hash), expected.Select(x => x.Hash), "Hashes");
             AssertThat.CollectionsMatchExactly(results.Select(x => x.Exception), expected.Select(x => x.Exception), toString: x => x?.Message, "Exceptions");
+        }
+
+        [TestCaseSource(nameof(GetFilesWithExceptions))]
+        public void When_ComputationErrorsOut_And_ConfiguredToFailOnError__Must_Rethrow_TheException_Rightaway(IList<(FileInfo, byte[], Exception)> filesWithResults)
+        { 
+            var files = filesWithResults.Select(x => x.Item1).ToArray();
+            var expectedException = filesWithResults.Select(x => x.Item3).First(x => x != null);
+
+            foreach (var (file, hash, exception) in filesWithResults)
+                hasher.Setup(
+                    x => x.ComputerHash(
+                        It.Is<FileInfo>(arg => arg == file)))
+                    .Returns<FileInfo>(f => hash ?? throw exception);
+
+            target = CreateTarget(false);
+
+            Assert.Throws(
+                expectedException.GetType(),
+                () => target.ComputeHashes(files)
+                            .ToArray());
         }
 
         private static IEnumerable<TestCaseData> GetFiles()
@@ -134,7 +161,7 @@ namespace Andy.FlacHash
             yield return new TestCaseData(
                 new (FileInfo, byte[], Exception)[]
                 {
-                    (new FileInfo("path1"), null, new Exception("outta luck!")),
+                    (new FileInfo("path1"), null, new ArithmeticException("outta luck!")),
                     (new FileInfo("path2"), null, new Exception("error'd out - next!")),
                     (new FileInfo("path3"), new byte[] { 3, 2, 3, 1 }, null )
                 });

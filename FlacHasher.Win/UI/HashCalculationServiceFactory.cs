@@ -20,11 +20,12 @@ namespace Andy.FlacHash.Win.UI
         public NonBlockingHashCalculationService Build(
             Control uiUpdateContext,
             CancellableActionRunner.CompletionHandler reportCompletion,
+            Action<Exception> reportFailure,
             CancellableActionRunner.StateChangeHandler stateChanged)
         {
             return new NonBlockingHashCalculationService(
                 new HashCalcOnSeparateThreadService(hasher, nonUiActionRunner, uiUpdateContext),
-                new CancellableActionRunner(reportCompletion, stateChanged));
+                new CancellableActionRunner(reportCompletion, reportFailure, stateChanged));
         }
     }
 }

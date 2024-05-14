@@ -48,6 +48,7 @@ namespace Andy.FlacHash.Win.UI
             this.hasherService = hashCalculationServiceFactory.Build(
                 this,
                 OnCalcFinished,
+                OnFailure,
                 OnCalcStateChanged);
 
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
@@ -258,6 +259,16 @@ namespace Andy.FlacHash.Win.UI
 
                 label_Status.Text = "Finished";
             }
+        }
+
+        private void OnFailure(Exception e)
+        {
+            btn_go.Enabled = true;
+            progressReporter.Reset(0);
+
+            label_Status.Text = "Failed";
+
+            MessageBox.Show($"Error processing file(s): {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void UpdateUIWithCalcResult(FileHashResult result)

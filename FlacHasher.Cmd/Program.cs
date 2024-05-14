@@ -14,6 +14,7 @@ namespace Andy.FlacHash.Cmd
         const int processExitTimeoutMsDefault = 2000;
         const int processTimeoutSecDefault = int.MaxValue;
         const bool printProcessProgress = true;
+        const bool continueOnError = true; // todo: read this from the settings file && consul
 
         static int Main(string[] args)
         {
@@ -65,7 +66,7 @@ namespace Andy.FlacHash.Cmd
                     new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, printProcessProgress));
 
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
-                var multiHasher = new MultipleFileHasher(hasher);
+                var multiHasher = new MultipleFileHasher(hasher, continueOnError);
 
                 IEnumerable<FileHashResult> hashes = multiHasher
                         .ComputeHashes(inputFiles);

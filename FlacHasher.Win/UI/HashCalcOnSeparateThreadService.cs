@@ -30,13 +30,15 @@ namespace Andy.FlacHash.Win.UI
             IEnumerable<FileInfo> sourceFiles,
             CancellationToken cancellationToken,
             Action reportCompletionInContext,
-            Action<FileHashResult> reportHashInContext)
+            Action<FileHashResult> reportHashInContext,
+            Action<Exception> reportFailure)
         {
             return nonUiActionRunner.StartOnNewThread(
                 reportProgressInUi => hasher.ComputeHashes(sourceFiles, reportProgressInUi, cancellationToken),
                 progressReportingContext,
                 reportHashInContext,
-                reportCompletionInContext);
+                reportCompletionInContext,
+                reportFailure);
         }
     }
 }

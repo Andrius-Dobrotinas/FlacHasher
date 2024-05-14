@@ -21,19 +21,27 @@ namespace Andy.FlacHash.Win
             ProgressReportingOperation<TProgress> operation,
             Control progressReportingContext,
             Action<TProgress> reportProgressInContext,
-            Action reportCompletionInContext)
+            Action reportCompletionInContext,
+            Action<Exception> reportFailure)
         {
             if (operation == null) throw new ArgumentNullException(nameof(operation));
             if (progressReportingContext == null) throw new ArgumentNullException(nameof(progressReportingContext));
             if (reportProgressInContext == null) throw new ArgumentNullException(nameof(reportProgressInContext));
             if (reportCompletionInContext == null) throw new ArgumentNullException(nameof(reportCompletionInContext));
+            if (reportFailure == null) throw new ArgumentNullException(nameof(reportFailure));
 
             void ReportProgress_OnUiThread(TProgress result)
             {
                 progressReportingContext.Invoke(new Action(() => reportProgressInContext(result)));
             }
 
-            void RunPostAction_OnUiThread(Task task) => progressReportingContext.Invoke(reportCompletionInContext);
+            void RunPostAction_OnUiThread(Task task)
+            {
+                if (task.IsFaulted)
+                    progressReportingContext.Invoke(reportFailure, task.Exception);
+                else
+                    progressReportingContext.Invoke(reportCompletionInContext);
+            };
 
             return Task.Factory
                 .StartNew(() =>
