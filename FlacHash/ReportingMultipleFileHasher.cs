@@ -43,6 +43,9 @@ namespace Andy.FlacHash
                 if (cancellationToken.IsCancellationRequested) return;
 
                 reportHash(result);
+
+                    //so it doesn't go back to the enumerator, which would result in launching decoding the next file
+                    if (cancellationToken.IsCancellationRequested) return;
             }
         }
     }
