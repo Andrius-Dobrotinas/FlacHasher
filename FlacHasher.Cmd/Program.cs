@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Andy.FlacHash.Cmd
 {
@@ -62,6 +63,13 @@ namespace Andy.FlacHash.Cmd
                     return (int)ReturnValue.NoFilesToProcess;
                 }
 
+                var cancellation = new CancellationTokenSource();
+                Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
+                {
+                    e.Cancel = true;
+                    cancellation.Cancel();
+                };
+
                 var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
                     decoderFile,
                     new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, printProcessProgress));
@@ -69,17 +77,17 @@ namespace Andy.FlacHash.Cmd
                 var hasher = new FileHasher(decoder, new Sha256HashComputer());
                 var multiHasher = new MultipleFileHasher(hasher, continueOnError);
 
-                IEnumerable<FileHashResult> hashes = multiHasher
-                        .ComputeHashes(inputFiles);
+                IEnumerable<FileHashResult> computations = multiHasher
+                        .ComputeHashes(inputFiles, cancellation.Token);
 
                 // The hashes should be computed on this enumeration, and therefore will be output as they're computed
-                foreach (var entry in hashes)
+                foreach (var result in computations)
                 {
-                    if (entry.Exception == null)
-                        OutputHash(entry.Hash, outputFomat, entry.File);
+                    if (result.Exception == null)
+                        OutputHash(result.Hash, outputFomat, result.File);
                     else
                         if (!printProcessProgress)
-                            WriteUserLine($"Error processing file {entry.File.Name}: {entry.Exception.Message}");
+                            WriteUserLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
                 };
             }
             catch (ConfigurationException e)
@@ -93,6 +101,12 @@ namespace Andy.FlacHash.Cmd
                 WriteUserLine(e.Message);
 
                 return (int)ReturnValue.InputReadingFailure;
+            }
+            catch (OperationCanceledException e)
+            {
+                WriteUserLine("The operation was cancelled");
+
+                return (int)ReturnValue.Cancellation;
             }
             catch (Exception e)
             {

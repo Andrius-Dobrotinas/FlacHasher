@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Andy.FlacHash
 {
@@ -10,7 +11,7 @@ namespace Andy.FlacHash
         /// <summary>
         /// Calculates hashes for each file upon enumeration
         /// </summary>
-        IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files);
+        IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files, CancellationToken cancellation = default);
     }
 
     public class MultipleFileHasher : IMultipleFileHasher
@@ -24,7 +25,7 @@ namespace Andy.FlacHash
             this.continueOnError = continueOnError;
         }
 
-        public IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files)
+        public IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files, CancellationToken cancellation = default)
         {
             return files.Select(
                 file => {
@@ -33,8 +34,12 @@ namespace Andy.FlacHash
                         return new FileHashResult
                         {
                             File = file,
-                            Hash = hasher.ComputerHash(file)
+                            Hash = hasher.ComputerHash(file, cancellation)
                         };
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
                     }
                     catch (Exception e)
                     {

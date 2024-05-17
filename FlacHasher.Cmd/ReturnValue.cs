@@ -6,6 +6,7 @@
         ArgumentNotFound = -1,
         ArgumentError = -2,
         NoFilesToProcess = -3,
+        Cancellation = -99,
         ExecutionFailure = -100,
         InputReadingFailure = -200,
         SettingsReadingFailure = -300,

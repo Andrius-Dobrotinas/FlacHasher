@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Andy.FlacHash.IO.Audio
 {
@@ -17,10 +18,10 @@ namespace Andy.FlacHash.IO.Audio
             this.inputStreamFactory = streamFactory;
         }
 
-        public Stream Read(FileInfo sourceFile)
+        public Stream Read(FileInfo sourceFile, CancellationToken cancellation = default)
         {
             using (var stream = inputStreamFactory.CreateStream(sourceFile))
-                return decoder.Read(stream);
+                return decoder.Read(stream, cancellation);
         }
     }
 }

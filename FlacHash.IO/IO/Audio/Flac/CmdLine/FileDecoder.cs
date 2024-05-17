@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
@@ -16,7 +17,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }
 
-        public Stream Read(FileInfo sourceFile)
+        public Stream Read(FileInfo sourceFile, CancellationToken cancellation = default)
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
@@ -29,7 +30,8 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             {
                 return processRunner.RunAndReadOutput(
                     decoderExecutableFile,
-                    arguments);
+                    arguments,
+                    cancellation);
             }
             catch(ExternalProcess.ExecutionException e)
             {

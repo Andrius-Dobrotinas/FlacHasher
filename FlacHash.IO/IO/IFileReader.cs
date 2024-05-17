@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 namespace Andy.FlacHash.IO
 {
@@ -8,6 +9,6 @@ namespace Andy.FlacHash.IO
         /// <summary>
         /// Returns a specified file as a stream.
         /// </summary>
-        Stream Read(FileInfo sourceFile);
+        Stream Read(FileInfo sourceFile, CancellationToken cancellation = default);
     }
 }

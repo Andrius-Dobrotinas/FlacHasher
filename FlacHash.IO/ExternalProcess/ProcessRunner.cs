@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Andy.FlacHash.ExternalProcess
@@ -27,7 +28,8 @@ namespace Andy.FlacHash.ExternalProcess
 
         public Stream RunAndReadOutput(
             FileInfo fileToRun,
-            IEnumerable<string> arguments)
+            IEnumerable<string> arguments,
+            CancellationToken cancellation = default)
         {
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments, showProcessWindowWithStdErrOutput);
             
@@ -35,14 +37,15 @@ namespace Andy.FlacHash.ExternalProcess
             {
                 process.Start();
 
-                return GetOutputStream(process);
+                return GetOutputStream(process, cancellation);
             }
         }
 
         public Stream RunAndReadOutput(
             FileInfo fileToRun,
             IEnumerable<string> arguments,
-            Stream inputData)
+            Stream inputData,
+            CancellationToken cancellation = default)
         {
             if (inputData == null) throw new ArgumentNullException(nameof(inputData));
 
@@ -57,11 +60,11 @@ namespace Andy.FlacHash.ExternalProcess
 
                 var writeTask = Task.Run(() => WriteToStdIn(process, inputData));
 
-                return GetOutputStream(process);
+                return GetOutputStream(process, cancellation);
             }
         }
 
-        private MemoryStream GetOutputStream(Process process)
+        private MemoryStream GetOutputStream(Process process, CancellationToken cancellation = default)
         {
             //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
             //The bigger the file, the more is written to the error stream as progress report
@@ -72,9 +75,19 @@ namespace Andy.FlacHash.ExternalProcess
             //the writing operation gets blocked until someone reads the output - when both in and out are redirected.
             var outputReadTask = Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
 
-            var finishedInTime = Task.WaitAll(
-                new[] { outputReadTask, stdErrorTask ?? Task.CompletedTask },
-                timeoutMs);
+            bool finishedInTime;
+            try
+            {
+                finishedInTime = Task.WaitAll(
+                    new[] { outputReadTask, stdErrorTask ?? Task.CompletedTask },
+                    timeoutMs,
+                    cancellation);
+            }
+            catch (OperationCanceledException)
+            {
+                process.Kill(true);
+                throw;
+            }
 
             if (!finishedInTime)
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Andy.FlacHash.ExternalProcess
 {
@@ -11,6 +12,7 @@ namespace Andy.FlacHash.ExternalProcess
         /// </summary>
         Stream RunAndReadOutput(
             FileInfo fileToRun,
-            IEnumerable<string> arguments);
+            IEnumerable<string> arguments,
+            CancellationToken cancellation = default);
     }
 }

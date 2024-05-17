@@ -33,19 +33,26 @@ namespace Andy.FlacHash
             if (files == null) throw new ArgumentNullException(nameof(files));
             if (reportHash == null) throw new ArgumentNullException(nameof(reportHash));
 
-            IEnumerable<FileHashResult> computations = hasher.ComputeHashes(files);
+            IEnumerable<FileHashResult> computations = hasher.ComputeHashes(files, cancellationToken);
 
             //just in case the op is cancelled right away-ish. you don't want to even start the enumeration in that case
             if (cancellationToken.IsCancellationRequested) return;
 
-            foreach (var result in computations)
+            try
             {
-                if (cancellationToken.IsCancellationRequested) return;
+                foreach (var result in computations)
+                {
+                    if (cancellationToken.IsCancellationRequested) return;
 
-                reportHash(result);
+                    reportHash(result);
 
                     //so it doesn't go back to the enumerator, which would result in launching decoding the next file
                     if (cancellationToken.IsCancellationRequested) return;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                return;
             }
         }
     }

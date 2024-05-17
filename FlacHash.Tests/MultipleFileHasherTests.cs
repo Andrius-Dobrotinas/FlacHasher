@@ -2,9 +2,9 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Andy.FlacHash
 {
@@ -32,7 +32,8 @@ namespace Andy.FlacHash
 
             hasher.Verify(
                 x => x.ComputerHash(
-                    It.IsAny<FileInfo>()),
+                    It.IsAny<FileInfo>(),
+                    It.IsAny<CancellationToken>()),
                 Times.Never,
                 "Must not do anything before enumeration");
         }
@@ -40,21 +41,25 @@ namespace Andy.FlacHash
         [TestCaseSource(nameof(GetFiles))]
         public void Must_ComputeHashes_ForEachFile_WhenResultsAreEnumerated(IList<FileInfo> files)
         {
-            target.ComputeHashes(files)
+            var cancellation = new CancellationTokenSource().Token;
+
+            target.ComputeHashes(files, cancellation)
                 .ToArray();
 
             hasher.Verify(
                 x => x.ComputerHash(
-                    It.IsAny<FileInfo>()),
+                    It.IsAny<FileInfo>(),
+                    It.Is<CancellationToken>(arg => arg == cancellation)),
                 Times.Exactly(files.Count),
                 "Must invoke the hash computation function for each file");
 
-            for(int i = 0; i < files.Count; i++)
+            for (int i = 0; i < files.Count; i++)
             {
                 hasher.Verify(
                 x => x.ComputerHash(
                     It.Is<FileInfo>(
-                        arg => arg == files[i])),
+                        arg => arg == files[i]),
+                    It.IsAny<CancellationToken>()),
                 $"Must invoke the hash computation function for file. Expected for file at position {i} ('{files[i].FullName}')");
             }
         }
@@ -68,7 +73,8 @@ namespace Andy.FlacHash
             foreach (var (file, hash) in filesWithResults)
                 hasher.Setup(
                     x => x.ComputerHash(
-                        It.Is<FileInfo>(arg => arg == file)))
+                        It.Is<FileInfo>(arg => arg == file),
+                        It.IsAny<CancellationToken>()))
                     .Returns(hash);
 
             var results = target.ComputeHashes(files)
@@ -76,6 +82,23 @@ namespace Andy.FlacHash
 
             AssertThat.CollectionsMatchExactly(results.Select(x => x.File), files, "Files");
             AssertThat.CollectionsMatchExactly(results.Select(x => x.Hash), expectedResults, "Hashes");
+        }
+        
+        [TestCaseSource(nameof(GetFilesWithExceptions))]
+        public void When_Hasher_ThrowsCancellationException_Must_Rethrow(IList<(FileInfo, byte[], Exception)> filesWithResults)
+        {
+            var files = filesWithResults.Select(x => x.Item1).ToArray();
+
+            foreach (var (file, hash, exception) in filesWithResults)
+                hasher.Setup(
+                    x => x.ComputerHash(
+                        It.Is<FileInfo>(arg => arg == file),
+                        It.IsAny<CancellationToken>()))
+                    .Returns<FileInfo, CancellationToken>((f, c) => hash ?? throw new OperationCanceledException("!!"));
+
+            Assert.Throws<OperationCanceledException>(
+                () => target.ComputeHashes(files, new CancellationTokenSource().Token)
+                            .ToArray());
         }
 
         [TestCaseSource(nameof(GetFilesWithExceptions))]
@@ -87,8 +110,9 @@ namespace Andy.FlacHash
             foreach (var item in expected)
                 hasher.Setup(
                     x => x.ComputerHash(
-                        It.Is<FileInfo>(arg => arg == item.File)))
-                    .Returns<FileInfo>(f => item.Hash ?? throw item.Exception);
+                        It.Is<FileInfo>(arg => arg == item.File),
+                        It.IsAny<CancellationToken>()))
+                    .Returns<FileInfo, CancellationToken>((f, c) => item.Hash ?? throw item.Exception);
 
             target = CreateTarget(true);
 
@@ -102,15 +126,16 @@ namespace Andy.FlacHash
 
         [TestCaseSource(nameof(GetFilesWithExceptions))]
         public void When_ComputationErrorsOut_And_ConfiguredToFailOnError__Must_Rethrow_TheException_Rightaway(IList<(FileInfo, byte[], Exception)> filesWithResults)
-        { 
+        {
             var files = filesWithResults.Select(x => x.Item1).ToArray();
             var expectedException = filesWithResults.Select(x => x.Item3).First(x => x != null);
 
             foreach (var (file, hash, exception) in filesWithResults)
                 hasher.Setup(
                     x => x.ComputerHash(
-                        It.Is<FileInfo>(arg => arg == file)))
-                    .Returns<FileInfo>(f => hash ?? throw exception);
+                        It.Is<FileInfo>(arg => arg == file),
+                        It.IsAny<CancellationToken>()))
+                    .Returns<FileInfo, CancellationToken>((f, c) => hash ?? throw exception);
 
             target = CreateTarget(false);
 
