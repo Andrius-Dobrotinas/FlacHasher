@@ -140,18 +140,7 @@ namespace Andy.FlacHash.ExternalProcess
             return processOutput;
         }
 
-        private void ProcessExitCode(Process process, Task<MemoryStream> stdErrorTask)
-        {
-            if (stdErrorTask == null)
-                ProcessExitCode(process);
-            else
-            using (var stdError = stdErrorTask.GetAwaiter().GetResult())
-            {
-                ProcessExitCode(process, stdError);
-            }
-        }
-
-        private void ProcessExitCode(Process process, Stream stdError = null)
+        private void ProcessExitCode(Process process, Task<MemoryStream> stdErrorTask = null)
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
@@ -159,11 +148,14 @@ namespace Andy.FlacHash.ExternalProcess
 
             if (process.ExitCode != 0)
             {
-                if (stdError == null)
+                if (stdErrorTask == null)
                     throw new ExecutionException(process.ExitCode);
 
-                string processErrorOutput = GetErrorStreamOutput(stdError);
-                throw new ExecutionException(process.ExitCode, processErrorOutput);
+                using (var stdError = stdErrorTask.GetAwaiter().GetResult())
+                {
+                    string processErrorOutput = GetErrorStreamOutput(stdError);
+                    throw new ExecutionException(process.ExitCode, processErrorOutput);
+                }
             }
         }
 
