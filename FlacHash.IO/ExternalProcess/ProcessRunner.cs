@@ -64,7 +64,7 @@ namespace Andy.FlacHash.ExternalProcess
             {
                 process.Start();
 
-                Task.Delay(100).Wait(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
+                Task.Delay(100).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
 
                 var writeTask = Task.Run(() => WriteToStdIn(process, inputData));
 
