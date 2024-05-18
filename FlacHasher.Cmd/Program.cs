@@ -137,6 +137,11 @@ namespace Andy.FlacHash.Cmd
 
         static void WriteUserLine(string text)
         {
+            if (printProcessProgress)
+            {
+                Console.Error.WriteLine("");
+                Console.Error.WriteLine("");
+            }
             Console.Error.WriteLine(text);
         }
     }
