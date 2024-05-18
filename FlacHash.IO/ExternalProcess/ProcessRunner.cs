@@ -27,11 +27,11 @@ namespace Andy.FlacHash.ExternalProcess
         }
 
         public Stream RunAndReadOutput(
-            FileInfo fileToRun,
+            FileInfo executableFile,
             IEnumerable<string> arguments,
             CancellationToken cancellation = default)
         {
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments, showProcessWindowWithStdErrOutput);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
             
             using (var process = new Process { StartInfo = processSettings })
             {
@@ -41,15 +41,23 @@ namespace Andy.FlacHash.ExternalProcess
             }
         }
 
+        /* The idea is:
+        * -start the process
+        * -start reading std streams (can't start writing/reading to/from them until the process is running)
+        * -wait until the process produces the output (std-out is fully read)
+        * -get process exit code and error info/ if applicable
+        * 
+        * In addition to this, it also listens to cancellations and for time-out, which forces the killing of the process
+        */
         public Stream RunAndReadOutput(
-            FileInfo fileToRun,
+            FileInfo executableFile,
             IEnumerable<string> arguments,
             Stream inputData,
             CancellationToken cancellation = default)
         {
             if (inputData == null) throw new ArgumentNullException(nameof(inputData));
 
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(fileToRun, arguments, showProcessWindowWithStdErrOutput);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
             processSettings.RedirectStandardInput = true;
 
             using (var process = new Process { StartInfo = processSettings })
@@ -72,16 +80,19 @@ namespace Andy.FlacHash.ExternalProcess
                 ? Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream))
                 : null;
 
-            //the writing operation gets blocked until someone reads the output - when both in and out are redirected.
+            //the writing operation gets blocked until someone reads the output - when std-out is redirected.
             var outputReadTask = Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
 
-            bool finishedInTime;
+            //wait for reading to finish or terminate the process on time-out or cancellation
+            bool timedOut;
             try
             {
-                finishedInTime = Task.WaitAll(
+                var finishedInTime = Task.WaitAll(
                     new[] { outputReadTask, stdErrorTask ?? Task.CompletedTask },
                     timeoutMs,
                     cancellation);
+
+                timedOut = !finishedInTime;
             }
             catch (OperationCanceledException)
             {
@@ -89,7 +100,7 @@ namespace Andy.FlacHash.ExternalProcess
                 throw;
             }
 
-            if (!finishedInTime)
+            if (timedOut)
             {
                 //just in case it just finished
                 if (!process.HasExited)
@@ -138,7 +149,7 @@ namespace Andy.FlacHash.ExternalProcess
 
         private void ProcessExitCode(Process process, Stream stdError = null)
         {
-            //stop and wait for the process to finish
+            //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
                 process.Kill(true);
 

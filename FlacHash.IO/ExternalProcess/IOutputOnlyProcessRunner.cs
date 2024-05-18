@@ -8,10 +8,10 @@ namespace Andy.FlacHash.ExternalProcess
     public interface IOutputOnlyProcessRunner
     {
         /// <summary>
-        /// Runs a process and returns the contents of its output stream
+        /// Runs the <paramref name="executableFile"/> and returns output once it finishes
         /// </summary>
         Stream RunAndReadOutput(
-            FileInfo fileToRun,
+            FileInfo executableFile,
             IEnumerable<string> arguments,
             CancellationToken cancellation = default);
     }
