@@ -116,7 +116,7 @@ namespace Andy.FlacHash.ExternalProcess
 
             var outputStream = outputReadTask.GetAwaiter().GetResult();
 
-            ProcessExitCode(process, stdErrorTask);
+            ProcessExitCode(process, exitTimeoutMs, stdErrorTask);
 
             return outputStream;
         }
@@ -140,7 +140,7 @@ namespace Andy.FlacHash.ExternalProcess
             return processOutput;
         }
 
-        private void ProcessExitCode(Process process, Task<MemoryStream> stdErrorTask = null)
+        private static void ProcessExitCode(Process process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null)
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
