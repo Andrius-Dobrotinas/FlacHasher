@@ -92,7 +92,7 @@ namespace Andy.FlacHash.ExternalProcess
             try
             {
                 var finishedInTime = Task.WaitAll(
-                    new[] { outputReadTask, stdErrorTask ?? Task.CompletedTask },
+                    new[] { outputReadTask },
                     timeoutMs,
                     cancellation);
 
@@ -134,7 +134,7 @@ namespace Andy.FlacHash.ExternalProcess
         {
             var processOutput = new MemoryStream();
             outputStream.CopyTo(processOutput);
-
+            
             processOutput.Seek(0, SeekOrigin.Begin);
 
             return processOutput;
