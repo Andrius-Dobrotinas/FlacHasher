@@ -113,7 +113,10 @@ namespace Andy.FlacHash.ExternalProcess
                     throw new TimeoutException("The process has taken longer than allowed and has been cancelled");
                 }
             }
-
+         
+            //At this point, the std-out-read task is successfully finished and will not block.
+            //It hasn't been cancelled, and hasn't timed-out - so there will be no exception.
+            //Even if time-out had fired, it must've still finished before it got around to killing the process.
             var outputStream = outputReadTask.GetAwaiter().GetResult();
 
             ProcessExitCode(process, exitTimeoutMs, stdErrorTask);
