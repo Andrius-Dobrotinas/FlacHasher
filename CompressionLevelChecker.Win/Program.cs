@@ -12,6 +12,7 @@ namespace Andy.FlacHash.Win
     {
         private const int defaultCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Highest;
         private const int processExitTimeoutMs = 1000;
+        private const int processStartDelayMs = 100;
         const int processTimeoutSec = 180;
 
         // todo: these values must be stored somewhere else
@@ -59,7 +60,7 @@ namespace Andy.FlacHash.Win
 
         private static CompressionLevelService BuildComponents(FileInfo flacExe)
         {
-            var processRunner = new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, true);
+            var processRunner = new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, processStartDelayMs, showProcessWindowWithStdErrOutput: true);
 
             IAudioFileEncoder encoder_MetadataPreserved = new FileRecoder(flacExe, processRunner);
 
