@@ -80,9 +80,13 @@ namespace Andy.FlacHash.ExternalProcess
         {
             //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
             //The bigger the file, the more is written to the error stream as progress report
-            var stdErrorTask = process.StartInfo.RedirectStandardError
-                ? Task.Run<MemoryStream>(() => ReadStream(process.StandardError.BaseStream))
-                : null;
+            CancellationTokenSource errorReadCancellation = null;
+            Task<MemoryStream> stdErrorTask = null;
+            if (process.StartInfo.RedirectStandardError)
+            {
+                errorReadCancellation = new CancellationTokenSource();
+                stdErrorTask = Task.Run<MemoryStream>(() => ReadStreamCancellable(process.StandardError.BaseStream, errorReadCancellation.Token));
+            }
 
             //the writing operation gets blocked until someone reads the output - when std-out is redirected.
             var outputReadTask = Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
@@ -119,7 +123,7 @@ namespace Andy.FlacHash.ExternalProcess
             //Even if time-out had fired, it must've still finished before it got around to killing the process.
             var outputStream = outputReadTask.GetAwaiter().GetResult();
 
-            ProcessExitCode(process, exitTimeoutMs, stdErrorTask);
+            ProcessExitCode(process, exitTimeoutMs, stdErrorTask, errorReadCancellation);
 
             return outputStream;
         }
@@ -139,11 +143,28 @@ namespace Andy.FlacHash.ExternalProcess
             outputStream.CopyTo(processOutput);
             
             processOutput.Seek(0, SeekOrigin.Begin);
-
             return processOutput;
         }
 
-        private static void ProcessExitCode(Process process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null)
+        private static MemoryStream ReadStreamCancellable(Stream outputStream, CancellationToken cancellation = default)
+        {
+            var processOutput = new MemoryStream();
+
+            //Just in case the stream freezes even after process exits (unlikely, but I've heard about such a problem).
+            //Whatever has been copied over, should be returned because it can be useful even if it's incomplete.
+            try
+            {
+                outputStream.CopyToAsync(processOutput, cancellation).GetAwaiter().GetResult();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            processOutput.Seek(0, SeekOrigin.Begin);
+            return processOutput;
+        }
+
+        private static void ProcessExitCode(Process process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null, CancellationTokenSource errorReadCancellation = null)
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
@@ -154,26 +175,43 @@ namespace Andy.FlacHash.ExternalProcess
                 if (stdErrorTask == null)
                     throw new ExecutionException(process.ExitCode);
 
-                using (var stdError = stdErrorTask.GetAwaiter().GetResult())
+                try
                 {
-                    string processErrorOutput = GetErrorStreamOutput(stdError);
-                    throw new ExecutionException(process.ExitCode, processErrorOutput);
+                    // Wait for std-error read task to finish - or force-stop it on time-out
+                    using (var stdError = WaitForErrorStream(stdErrorTask, exitTimeoutMs, errorReadCancellation))
+                    {
+                        string processErrorOutput = ReadErrorStreamOutput(stdError);
+                        throw new ExecutionException(process.ExitCode, processErrorOutput);
+                    }
+                }
+                catch (ExecutionException)
+                {
+                    throw;
+                }
+                catch
+                {
+                    throw new ExecutionException(process.ExitCode);
                 }
             }
         }
 
-        private static string GetErrorStreamOutput(Stream stdError)
+        private static TStream WaitForErrorStream<TStream>(Task<TStream> stdErrorTask, int exitTimeoutMs, CancellationTokenSource errorReadCancellation)
+        {
+            bool finished = stdErrorTask.Wait(exitTimeoutMs);
+            
+            //Shouldn't ever happen, but just in case the stars align right
+            if (!finished)
+                errorReadCancellation.Cancel();
+
+            //Even if cancelled, it will have captured stuff (anything up to cancellation)
+            return stdErrorTask.GetAwaiter().GetResult();
+        }
+
+        private static string ReadErrorStreamOutput(Stream stdError)
         {
             using (var reader = new StreamReader(stdError))
             {
-                try
-                {
-                    return reader.ReadToEnd();
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
+                return reader.ReadToEnd();
             }
         }
     }
