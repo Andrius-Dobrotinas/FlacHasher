@@ -72,7 +72,7 @@ namespace Andy.FlacHash.Win
             var decoder = new IO.Audio.Flac.CmdLine.StreamDecoder(
                 decoderFile,
                 new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, processStartDelayMs, showProcessWindowWithOutput));
-            var reader = new IO.Audio.DecodingFileReader(steamFactory, decoder);
+            var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
             var cancellableHasher = new ReportingMultipleFileHasher(

@@ -12,18 +12,18 @@ namespace Andy.FlacHash
 
     public class FileHasher : IFileHasher
     {
-        private readonly IO.IFileReader reader;
+        private readonly IO.IFileDecoder fileDecoder;
         private readonly IHashComputer hashComputer;
 
-        public FileHasher(IO.IFileReader reader, IHashComputer hashComputer)
+        public FileHasher(IO.IFileDecoder decoder, IHashComputer hashComputer)
         {
-            this.reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            this.fileDecoder = decoder ?? throw new ArgumentNullException(nameof(decoder));
             this.hashComputer = hashComputer ?? throw new ArgumentNullException(nameof(hashComputer));
         }
 
         public byte[] ComputerHash(FileInfo sourceFile, CancellationToken cancellation = default)
         {
-            using (Stream contents = reader.Read(sourceFile, cancellation))
+            using (Stream contents = fileDecoder.Read(sourceFile, cancellation))
             {
                 return hashComputer.ComputeHash(contents);
             }

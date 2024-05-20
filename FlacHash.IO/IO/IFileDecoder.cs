@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Andy.FlacHash.IO
 {
-    public interface IFileReader
+    public interface IFileDecoder
     {
         /// <summary>
         /// Returns a specified file as a stream.

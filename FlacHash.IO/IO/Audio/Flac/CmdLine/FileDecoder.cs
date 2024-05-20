@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 {
-    public class FileDecoder : IFileReader
+    public class FileDecoder : IFileDecoder
     {
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;

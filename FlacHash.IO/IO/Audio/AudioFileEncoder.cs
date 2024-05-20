@@ -6,18 +6,18 @@ namespace Andy.FlacHash.IO.Audio
 {
     public class AudioFileEncoder : IAudioFileEncoder
     {
-        private readonly IFileReader fileReader;
+        private readonly IFileDecoder fileDecoder;
         private readonly IAudioEncoder encoder;
 
-        public AudioFileEncoder(IFileReader fileReader, IAudioEncoder encoder)
+        public AudioFileEncoder(IFileDecoder fileDecoder, IAudioEncoder encoder)
         {
-            this.fileReader = fileReader;
+            this.fileDecoder = fileDecoder;
             this.encoder = encoder;
         }
 
         public Stream Encode(FileInfo sourceFile, int compressionLevel)
         {
-            using (Stream rawAudio = fileReader.Read(sourceFile))
+            using (Stream rawAudio = fileDecoder.Read(sourceFile))
             {
                 return encoder.Encode(rawAudio, compressionLevel);
             }
