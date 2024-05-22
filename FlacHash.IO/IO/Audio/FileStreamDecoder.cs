@@ -20,8 +20,9 @@ namespace Andy.FlacHash.IO.Audio
 
         public Stream Read(FileInfo sourceFile, CancellationToken cancellation = default)
         {
-            using (var stream = inputStreamFactory.CreateStream(sourceFile))
-                return decoder.Read(stream, cancellation);
+            // this gets disposed of by the decoder
+            var stream = inputStreamFactory.CreateStream(sourceFile);
+            return decoder.Read(stream, cancellation);
         }
     }
 }

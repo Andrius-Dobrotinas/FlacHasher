@@ -37,12 +37,10 @@ namespace Andy.FlacHash.ExternalProcess
         {
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
             
-            using (var process = new Process { StartInfo = processSettings })
-            {
-                process.Start();
+            var process = new Process { StartInfo = processSettings };
+            process.Start();
 
-                return GetOutputStream(process, cancellation);
-            }
+            return GetOutputStream_WaitProcessExitInParallel(process, cancellation);
         }
 
         /* The idea is:
@@ -53,7 +51,7 @@ namespace Andy.FlacHash.ExternalProcess
         * 
         * In addition to this, it also listens to cancellations and for time-out, which forces the killing of the process
         */
-        public Stream RunAndReadOutput(
+        public ProcessOutputStream RunAndReadOutput(
             FileInfo executableFile,
             IEnumerable<string> arguments,
             Stream inputData,
@@ -64,19 +62,18 @@ namespace Andy.FlacHash.ExternalProcess
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
             processSettings.RedirectStandardInput = true;
 
-            using (var process = new Process { StartInfo = processSettings })
-            {
-                process.Start();
+            var process = new Process { StartInfo = processSettings };
+            
+            process.Start();
 
-                Task.Delay(startDelayMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
+            Task.Delay(startDelayMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
 
-                var writeTask = Task.Run(() => WriteToStdIn(process, inputData));
+            var writeTask = Task.Run(() => WriteToStdInAndDisposeOf(process, inputData));
 
-                return GetOutputStream(process, cancellation);
-            }
+            return GetOutputStream_WaitProcessExitInParallel(process, cancellation);
         }
 
-        private MemoryStream GetOutputStream(Process process, CancellationToken cancellation = default)
+        private ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(Process process, CancellationToken cancellation = default)
         {
             //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
             //The bigger the file, the more is written to the error stream as progress report
@@ -88,62 +85,80 @@ namespace Andy.FlacHash.ExternalProcess
                 stdErrorTask = Task.Run<MemoryStream>(() => ReadStreamCancellable(process.StandardError.BaseStream, errorReadCancellation.Token));
             }
 
-            //the writing operation gets blocked until someone reads the output - when std-out is redirected.
-            var outputReadTask = Task.Run<MemoryStream>(() => ReadStream(process.StandardOutput.BaseStream));
+            //I don't need a return value, but there's no non-generic version of this
+            var outputReadTaskCompletion = new TaskCompletionSource<object>();
 
-            //wait for reading to finish or terminate the process on time-out or cancellation
-            bool timedOut;
+            var processWaitTask = Task.Run(() =>
+            {
+                WaitForOutputRead_AndProcessExitCode(process, outputReadTaskCompletion.Task, stdErrorTask, cancellation);
+            });
+
+            return new ProcessOutputStream(process.StandardOutput.BaseStream, outputReadTaskCompletion, processWaitTask);
+        }
+
+        /// <summary>
+        /// Waits for output or error task to finish and processes the exit code.
+        /// Also, handles cancellation and time-out.
+        /// At the end, disposes of <paramref name="process"/>
+        /// </summary>
+        private void WaitForOutputRead_AndProcessExitCode(Process process, Task outputReadTask, Task<MemoryStream> stdErrorTask = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
+        {
             try
             {
-                var finishedInTime = Task.WaitAll(
-                    new[] { outputReadTask },
-                    timeoutMs,
-                    cancellation);
+                //wait for reading to finish or terminate the process on time-out or cancellation
+                bool timedOut;
+                try
+                {
+                    var finishedInTime = Task.WaitAll(
+                        new[] { outputReadTask },
+                        timeoutMs,
+                        cancellation);
 
-                timedOut = !finishedInTime;
-            }
-            catch (OperationCanceledException)
-            {
-                process.Kill(true);
-                throw;
-            }
-
-            if (timedOut)
-            {
-                //just in case it just finished
-                if (!process.HasExited)
+                    timedOut = !finishedInTime;
+                }
+                catch (OperationCanceledException)
                 {
                     process.Kill(true);
-                    throw new TimeoutException("The process has taken longer than allowed and has been cancelled");
+                    throw;
                 }
+
+                if (timedOut)
+                {
+                    //just in case it just finished
+                    if (!process.HasExited)
+                    {
+                        process.Kill(true);
+                        throw new TimeoutException("The process has taken longer than allowed and has been cancelled");
+                    }
+                    // The process exited before there was a chance to kill it (lucky)
+                }
+
+                // At this point, the std-out-read task is successfully finished and will not block.
+                // It hasn't been cancelled, and hasn't timed-out.
+                // Even if time-out had fired, it must've still finished before it got around to killing the process.
+
+                ProcessExitCode(process, exitTimeoutMs, stdErrorTask, errorReadCancellation);
             }
-         
-            //At this point, the std-out-read task is successfully finished and will not block.
-            //It hasn't been cancelled, and hasn't timed-out - so there will be no exception.
-            //Even if time-out had fired, it must've still finished before it got around to killing the process.
-            var outputStream = outputReadTask.GetAwaiter().GetResult();
-
-            ProcessExitCode(process, exitTimeoutMs, stdErrorTask, errorReadCancellation);
-
-            return outputStream;
+            finally
+            {
+                process.Dispose();
+            }
         }
 
-        private static void WriteToStdIn(Process process, Stream inputData)
+        private static void WriteToStdInAndDisposeOf(Process process, Stream inputData)
         {
-            var stdin = process.StandardInput.BaseStream;
-            inputData.CopyTo(stdin);
+            try
+            {
+                var stdin = process.StandardInput.BaseStream;
+                inputData.CopyTo(stdin);
 
-            //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
-            stdin.Close();
-        }
-
-        private static MemoryStream ReadStream(Stream outputStream)
-        {
-            var processOutput = new MemoryStream();
-            outputStream.CopyTo(processOutput);
-            
-            processOutput.Seek(0, SeekOrigin.Begin);
-            return processOutput;
+                //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
+                stdin.Close();
+            }
+            finally
+            {
+                inputData.Dispose();
+            }
         }
 
         private static MemoryStream ReadStreamCancellable(Stream outputStream, CancellationToken cancellation = default)

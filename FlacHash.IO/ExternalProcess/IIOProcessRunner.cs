@@ -8,9 +8,10 @@ namespace Andy.FlacHash.ExternalProcess
     public interface IIOProcessRunner
     {
         /// <summary>
-        /// Runs the <paramref name="executableFile"/>, feeding it <paramref name="input"/>, and returns output once it finishes
+        /// Runs the <paramref name="executableFile"/>, feeding it <paramref name="input"/>, and returns output once it finishes.
+        /// Disposes of the provided <paramref name="wavAudio"/> when it completes (regardless of whether it was successful)
         /// </summary>
-        Stream RunAndReadOutput(
+        ProcessOutputStream RunAndReadOutput(
             FileInfo executableFile,
             IEnumerable<string> arguments,
             Stream input,

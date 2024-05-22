@@ -6,6 +6,9 @@ namespace Andy.FlacHash.IO.Audio
 {
     public interface IAudioEncoder
     {
+        /// <summary>
+        /// Disposes of the provided <paramref name="wavAudio"/> when it completes (regardless of whether it was successful)
+        /// </summary>
         Stream Encode(Stream wavAudio, int compressionLevel);
     }
 }
