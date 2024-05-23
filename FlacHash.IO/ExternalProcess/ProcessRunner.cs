@@ -38,9 +38,8 @@ namespace Andy.FlacHash.ExternalProcess
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
             
             var process = new Process { StartInfo = processSettings };
-            process.Start();
 
-            return GetOutputStream_WaitProcessExitInParallel(process, cancellation);
+            return GetOutputStream_WaitProcessExitInParallel(process, input: null, cancellation);
         }
 
         /* The idea is:
@@ -63,18 +62,15 @@ namespace Andy.FlacHash.ExternalProcess
             processSettings.RedirectStandardInput = true;
 
             var process = new Process { StartInfo = processSettings };
-            
-            process.Start();
 
-            Task.Delay(startDelayMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
-
-            var writeTask = Task.Run(() => WriteToStdInAndDisposeOf(process, inputData));
-
-            return GetOutputStream_WaitProcessExitInParallel(process, cancellation);
+            return GetOutputStream_WaitProcessExitInParallel(process, inputData, cancellation);
         }
 
-        private ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(Process process, CancellationToken cancellation = default)
+        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(Process process, Stream input = null, CancellationToken cancellation = default)
         {
+            process.Start();
+            Task.Delay(startDelayMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
+
             //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
             //The bigger the file, the more is written to the error stream as progress report
             CancellationTokenSource errorReadCancellation = null;
@@ -84,6 +80,10 @@ namespace Andy.FlacHash.ExternalProcess
                 errorReadCancellation = new CancellationTokenSource();
                 stdErrorTask = Task.Run<MemoryStream>(() => ReadStreamCancellable(process.StandardError.BaseStream, errorReadCancellation.Token));
             }
+
+            var writeTask = input != null
+                ? Task.Run(() => WriteToStdInAndDisposeOf(process.StandardInput.BaseStream, input))
+                : null;
 
             //I don't need a return value, but there's no non-generic version of this
             var outputReadTaskCompletion = new TaskCompletionSource<object>();
@@ -145,15 +145,14 @@ namespace Andy.FlacHash.ExternalProcess
             }
         }
 
-        private static void WriteToStdInAndDisposeOf(Process process, Stream inputData)
+        private static void WriteToStdInAndDisposeOf(Stream target, Stream inputData)
         {
             try
             {
-                var stdin = process.StandardInput.BaseStream;
-                inputData.CopyTo(stdin);
+                inputData.CopyTo(target);
 
                 //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
-                stdin.Close();
+                target.Close();
             }
             finally
             {
