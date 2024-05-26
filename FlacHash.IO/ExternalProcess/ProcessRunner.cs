@@ -39,7 +39,7 @@ namespace Andy.FlacHash.ExternalProcess
             
             var process = new Process { StartInfo = processSettings };
 
-            return GetOutputStream_WaitProcessExitInParallel(process, input: null, cancellation);
+            return GetOutputStream_WaitProcessExitInParallel(process, input: null, process.StartInfo.RedirectStandardError, cancellation);
         }
 
         /* The idea is:
@@ -63,10 +63,10 @@ namespace Andy.FlacHash.ExternalProcess
 
             var process = new Process { StartInfo = processSettings };
 
-            return GetOutputStream_WaitProcessExitInParallel(process, inputData, cancellation);
+            return GetOutputStream_WaitProcessExitInParallel(process, inputData, process.StartInfo.RedirectStandardError, cancellation);
         }
 
-        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(Process process, Stream input = null, CancellationToken cancellation = default)
+        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(Process process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
         {
             process.Start();
             Task.Delay(startDelayMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
@@ -75,7 +75,7 @@ namespace Andy.FlacHash.ExternalProcess
             //The bigger the file, the more is written to the error stream as progress report
             CancellationTokenSource errorReadCancellation = null;
             Task<MemoryStream> stdErrorTask = null;
-            if (process.StartInfo.RedirectStandardError)
+            if (readStderr)
             {
                 errorReadCancellation = new CancellationTokenSource();
                 stdErrorTask = Task.Run<MemoryStream>(() => ReadStreamCancellable(process.StandardError.BaseStream, errorReadCancellation.Token));
