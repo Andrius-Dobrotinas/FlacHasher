@@ -37,7 +37,7 @@ namespace Andy.FlacHash.ExternalProcess
         {
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
             
-            var process = new Process { StartInfo = processSettings };
+            var process = new ExternalProcess { StartInfo = processSettings };
 
             return GetOutputStream_WaitProcessExitInParallel(process, input: null, process.StartInfo.RedirectStandardError, cancellation);
         }
@@ -61,18 +61,19 @@ namespace Andy.FlacHash.ExternalProcess
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
             processSettings.RedirectStandardInput = true;
 
-            var process = new Process { StartInfo = processSettings };
+            var process = new ExternalProcess { StartInfo = processSettings };
 
             return GetOutputStream_WaitProcessExitInParallel(process, inputData, process.StartInfo.RedirectStandardError, cancellation);
         }
 
-        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(Process process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
+        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
         {
             process.Start();
             Task.Delay(startDelayMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
 
-            //Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out.
-            //The bigger the file, the more is written to the error stream as progress report
+            /* Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out
+             * (probably depends on whether stderr and stdout writes sequence or in parallel in the program).
+             * The bigger the input file, the more is written to the error stream as progress report */
             CancellationTokenSource errorReadCancellation = null;
             Task<MemoryStream> stdErrorTask = null;
             if (readStderr)
@@ -101,7 +102,7 @@ namespace Andy.FlacHash.ExternalProcess
         /// Also, handles cancellation and time-out.
         /// At the end, disposes of <paramref name="process"/>
         /// </summary>
-        private void WaitForOutputRead_AndProcessExitCode(Process process, Task outputReadTask, Task<MemoryStream> stdErrorTask = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
+        private void WaitForOutputRead_AndProcessExitCode(IProcess process, Task outputReadTask, Task<MemoryStream> stdErrorTask = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
         {
             try
             {
@@ -118,6 +119,7 @@ namespace Andy.FlacHash.ExternalProcess
                 }
                 catch (OperationCanceledException)
                 {
+                    // When exiting/getting killed, the process (normally) sends EOF to stdout and closes all streams 
                     process.Kill(true);
                     throw;
                 }
@@ -127,6 +129,7 @@ namespace Andy.FlacHash.ExternalProcess
                     //just in case it just finished
                     if (!process.HasExited)
                     {
+                        // When exiting/getting killed, the process (normally) sends EOF to stdout and closes all streams 
                         process.Kill(true);
                         throw new TimeoutException("The process has taken longer than allowed and has been cancelled");
                     }
@@ -149,6 +152,7 @@ namespace Andy.FlacHash.ExternalProcess
         {
             try
             {
+                //This errors out when the process gets closed prematurely (timeout/cancellation) due to stdin getting closed/disposed of
                 inputData.CopyTo(target);
 
                 //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
@@ -178,7 +182,7 @@ namespace Andy.FlacHash.ExternalProcess
             return processOutput;
         }
 
-        private static void ProcessExitCode(Process process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null, CancellationTokenSource errorReadCancellation = null)
+        private static void ProcessExitCode(IProcess process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null, CancellationTokenSource errorReadCancellation = null)
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
