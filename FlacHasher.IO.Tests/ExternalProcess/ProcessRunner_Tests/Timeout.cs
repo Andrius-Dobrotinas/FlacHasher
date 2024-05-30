@@ -27,20 +27,19 @@ namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
             var stderr = redirectStderr
                 ? new EndlessFakeReadStream(delayMs: 100, maxReadSize: 1)
                 : null;
-            using (var cancellation = new CancellationTokenSource())
-            {
-                var process = new ExternalProcessFake(stdout: stdout, stdin: null, stderr, voluntaryExitCompletion: voluntaryExitCompletion);
+            var process = new ExternalProcessFake(stdout: stdout, stdin: null, stderr, voluntaryExitCompletion: voluntaryExitCompletion);
 
-                var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process);
+            var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process);
 
+            Assert.Throws<TimeoutException>(
                 // make sure the test assesses the situation right after the timeout is supposed to happen
-                cancellation.CancelAfter(timeoutSec * 1000 + 50);
-
-                Assert.Throws<TimeoutException>(() => Util.Read(outputStream, cancellation.Token));
-                Assert.IsTrue(voluntaryExitCompletion.Task.Wait(1000), "Process has to exit either way");
-                Assert.IsFalse(voluntaryExitCompletion.Task.Result, "Process has to have been killed");
-                Assert.True(process.IsDisposedOf, "Process has to be disposed of");
-            }
+                () => Util.WithAutoCancellation(
+                    cancellation => Util.Read(outputStream, cancellation),
+                    timeoutMs: timeoutSec * 1000 + 50));
+            
+            Assert.IsTrue(voluntaryExitCompletion.Task.Wait(1000), "Process has to exit either way");
+            Assert.IsFalse(voluntaryExitCompletion.Task.Result, "Process has to have been killed");
+            Assert.True(process.IsDisposedOf, "Process has to be disposed of");
         }
 
         [TestCase(1, 200, true)]
@@ -56,20 +55,18 @@ namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
             var stderr = redirectStderr
                 ? new EndlessFakeReadStream(delayMs: 100, maxReadSize: 1)
                 : null;
-            using (var cancellation = new CancellationTokenSource())
-            {
-                var process = new ExternalProcessPiped(voluntaryExitCompletion: voluntaryExitCompletion, stderr: stderr);
+            var process = new ExternalProcessPiped(voluntaryExitCompletion: voluntaryExitCompletion, stderr: stderr);
 
-                var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: redirectStderr);
+            var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: redirectStderr);
 
-                // weirdly, when running many tests, this timeout has to be longer
-                cancellation.CancelAfter(timeoutSec * 1000 + 1000);
+            Assert.Throws<TimeoutException>(
+                () => Util.WithAutoCancellation(
+                    cancellation => Util.Read(outputStream, cancellation),
+                    timeoutMs: timeoutSec * 1000 + 1000)); // weirdly, when running many tests, this timeout has to be longer
 
-                Assert.Throws<TimeoutException>(() => Util.Read(outputStream, cancellation.Token));
-                Assert.IsTrue(voluntaryExitCompletion.Task.Wait(1000), "Process has to exit either way");
-                Assert.IsFalse(voluntaryExitCompletion.Task.Result, "Process has to have been killed");
-                Assert.True(process.IsDisposedOf, "Process has to be disposed of");
-            }
+            Assert.IsTrue(voluntaryExitCompletion.Task.Wait(1000), "Process has to exit either way");
+            Assert.IsFalse(voluntaryExitCompletion.Task.Result, "Process has to have been killed");
+            Assert.True(process.IsDisposedOf, "Process has to be disposed of");
         }
 
         [TestCase(1, 150)]

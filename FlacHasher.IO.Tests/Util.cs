@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Andy.FlacHash.IO
 {
@@ -23,6 +24,27 @@ namespace Andy.FlacHash.IO
             {
                 stream.CopyToAsync(testStream, cancellation).GetAwaiter().GetResult();
                 return testStream.ToArray();
+            }
+        }
+
+        public static TTask WaitWithTimeout<TTask>(TTask task, int timeoutMs)
+            where TTask : Task
+        {
+            using (var testTimeout = new CancellationTokenSource())
+            {
+                testTimeout.CancelAfter(timeoutMs);
+
+                Task.WaitAll(new[] { task }, testTimeout.Token);
+                return task;
+            }
+        }
+
+        public static T WithAutoCancellation<T> (Func<CancellationToken, T> func, int timeoutMs)
+        {
+            using (var testTimeout = new CancellationTokenSource())
+            {
+                testTimeout.CancelAfter(timeoutMs);
+                return func(testTimeout.Token);
             }
         }
     }

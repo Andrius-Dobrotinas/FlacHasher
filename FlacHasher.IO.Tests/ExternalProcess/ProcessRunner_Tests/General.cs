@@ -18,45 +18,35 @@ namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
         [TestCase(false)]
         public void Must_Return_OutputStream_RightAway_WithoutWaitingFor_StdOutToServeData__WhenUsingInput(bool redirectStderr)
         {
-            var input = new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500);
-
             var target = new ProcessRunner(0, 0, 0, false);
-
+            
+            var input = new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500);
             var stderr = redirectStderr ? new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500) : null;
-            using (var timeout = new CancellationTokenSource())
+            var resultTask = Task.Run(() =>
             {
-                var resultTask = Task.Run(() =>
-                {
-                    // The process' stdout will be waiting for some data to come in through stdin
-                    // This way, both stdout and stdin will be waiting
-                    var process = new ExternalProcessPiped(stderr: stderr);
+                // The process' stdout will be waiting for some data to come in through stdin
+                // This way, both stdout and stdin will be waiting
+                var process = new ExternalProcessPiped(stderr: stderr);
 
-                    // the input stream will start returning data way after stdout is returned
-                    return target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: true);
-                });
+                // the input stream will start returning data way after stdout is returned
+                return target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: true);
+            });
 
-                // just to account for variations in system speed
-                timeout.CancelAfter(100);
-
-                Assert.DoesNotThrow(() => resultTask.Wait(timeout.Token));
-
-                Assert.NotNull(resultTask.Result);
-            }
+            Assert.DoesNotThrow(() => Util.WaitWithTimeout(resultTask, 100));
+            Assert.NotNull(resultTask.Result);
         }
 
         [TestCase(true)]
         [TestCase(false)]
         public void Must_Return_OutputStream_RightAway_WithoutWaitingFor_StdOutToServeData(bool redirectStderr)
         {
-            var input = new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500);
-
             var target = new ProcessRunner(0, 0, 0, false);
-
+            
+            var input = new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500);
             var stderr = redirectStderr ? new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500) : null;
             
             // Waits for data and doesn't release whoever's trying to read until the stream is closed
             using (var stdoutSourcePipe = new AnonymousPipeServerStream(PipeDirection.Out))
-            using (var timeout = new CancellationTokenSource())
             {
                 var resultTask = Task.Run(() =>
                 {
@@ -66,11 +56,7 @@ namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
                     return target.GetOutputStream_WaitProcessExitInParallel(process, readStderr: true);
                 });
 
-                // just to account for variations in system speed
-                timeout.CancelAfter(100);
-
-                Assert.DoesNotThrow(() => resultTask.Wait(timeout.Token));
-
+                Assert.DoesNotThrow(() => Util.WaitWithTimeout(resultTask, 100));
                 Assert.NotNull(resultTask.Result);
             }
         }
