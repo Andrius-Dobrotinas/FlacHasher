@@ -32,10 +32,17 @@ namespace Andy.FlacHash.IO
         {
             using (var testTimeout = new CancellationTokenSource())
             {
+                try
+                {
                 testTimeout.CancelAfter(timeoutMs);
 
                 Task.WaitAll(new[] { task }, testTimeout.Token);
                 return task;
+            }
+                catch (OperationCanceledException)
+                {
+                    throw new TestTimeoutException();
+                }
             }
         }
 
