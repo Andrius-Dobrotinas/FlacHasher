@@ -37,13 +37,40 @@ namespace Andy.FlacHash.ExternalProcess
             if (readCount == 0)
             {
                 EndOfTheLine = true;
-                outputReadTaskCompletion.SetResult(null);
+                try
+                {
+                    outputReadTaskCompletion.SetResult(null);
+                }
+                catch (InvalidOperationException)
+                {
+                    // This may get if Dispose has been called (can't set result on outputReadTaskCompletion twice).
+                    // In such case, I expect processTask to throw a cancellation exception, so it's all good.
+                }
 
                 // intercept cancellation/timeout exception OR
                 // wait for the process to exit and throw an exception if there is one
                 processTask.GetAwaiter().GetResult();
             }
             return readCount;
+        }
+
+        public override void Close()
+        {
+            bool finishedPriorToThis = !outputReadTaskCompletion.TrySetCanceled();
+            if (!finishedPriorToThis)
+            {
+                try
+                {
+                    // Wait for the process to exit
+                    processTask.GetAwaiter().GetResult();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Cancellation on closing has to be quiet
+                }
+            }
+
+            base.Close();
         }
 
         public override long Seek(long offset, SeekOrigin origin)

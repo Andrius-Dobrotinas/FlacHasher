@@ -184,6 +184,117 @@ namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
             }
         }
 
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        public void When_TheStream_IsDisposedOf_While_ProcessIsOutputtingData__Must_TriggerProcessCancellation_DisposeOfIt_AndReturnSuccessfully__WithInput(bool redirectStderr, bool respondToExitRequest)
+        {
+            var target = new ProcessRunner(-1, 0, 0, false);
+
+            var input = new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50);
+            var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
+            var process = new ExternalProcessPiped(respondToExitRequest: respondToExitRequest, stderr: errorStream);
+
+            var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: redirectStderr);
+
+            // read data in the background, with auto cancellation on test timeout
+            var readTask = Task.Run(
+                () => Util.WithAutoCancellation(
+                    cancellation => Util.Read(outputStream, cancellation), timeoutMs: 2000));
+
+            Assert.DoesNotThrow(() =>
+                Util.WaitWithTimeout(() => outputStream.Dispose(), 1000),
+                "Disposing of the stream must be quiet, without any cancellation exceptions");
+
+            Assert.Throws<OperationCanceledException>(
+                () => readTask.GetAwaiter().GetResult(),
+                "The process must be cancelled and return right away");
+                
+            Assert.True(process.IsDisposedOf, "Must dispose of the process");
+        }
+
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        public void When_TheStream_IsDisposedOf_While_ProcessIsOutputtingData__Must_TriggerProcessCancellation_DisposeOfIt_AndReturnSuccessfully(bool redirectStderr, bool respondToExitRequest)
+        {
+            var target = new ProcessRunner(-1, 0, 0, false);
+
+            var data = new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50);
+            var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
+            using (var stdoutPipeServer = new AnonymousPipeServerStream(PipeDirection.Out))
+            {
+                var process = new ExternalProcessPiped(stdoutPipeServer, respondToExitRequest: respondToExitRequest, stderr: errorStream);
+                
+                var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, readStderr: redirectStderr);
+                Task.Run(() =>
+                {
+                    data.CopyTo(stdoutPipeServer);
+                    stdoutPipeServer.Close();
+                });
+
+                // read data in the background, with auto cancellation on test timeout
+                var readTask = Task.Run(
+                    () => Util.WithAutoCancellation(
+                        cancellation => Util.Read(outputStream, cancellation), timeoutMs: 2000));
+
+                Assert.DoesNotThrow(() =>
+                    Util.WaitWithTimeout(() => outputStream.Dispose(), 1000),
+                    "Disposing of the stream must be quiet, without any cancellation exceptions");
+
+                Assert.Throws<OperationCanceledException>(
+                    () => readTask.GetAwaiter().GetResult(),
+                    "The process must be cancelled and return right away");
+
+                Assert.True(process.IsDisposedOf, "Must dispose of th process");
+            }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void When_TheStream_IsDisposedOf_After_ProcessExits__Must_ReturnSuccessfully(bool redirectStderr)
+        {
+            var target = new ProcessRunner(-1, 0, 0, false);
+
+            var data = new MemoryStream(new byte[] { 1,2,3,4});
+            var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
+            using (var stdoutPipeServer = new AnonymousPipeServerStream(PipeDirection.Out))
+            {
+                var process = new ExternalProcessPiped(stdoutPipeServer, stderr: errorStream);
+
+                var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, readStderr: redirectStderr);
+                Task.Run(() =>
+                {
+                    data.CopyTo(stdoutPipeServer);
+                    stdoutPipeServer.Close();
+                });
+
+                Util.Read(outputStream);
+
+                var task = Util.WaitWithTimeout(() => outputStream.Dispose(), 100);
+
+                Assert.DoesNotThrow(() => task.GetAwaiter().GetResult());
+            }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void When_TheStream_IsDisposedOf_After_ProcessExits__Must_ReturnSuccessfully__WithInput(bool redirectStderr)
+        {
+            var target = new ProcessRunner(-1, 0, 0, false);
+
+            var input = new MemoryStream(new byte[] { 1,2,3,4});
+            var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
+            var process = new ExternalProcessPiped(respondToExitRequest: false, stderr: errorStream);
+            
+            var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: redirectStderr);
+            
+            Util.WaitWithTimeout(() => Util.Read(outputStream), 500);
+            Assert.DoesNotThrow(() => outputStream.Dispose());
+        }
+
         static IEnumerable<TestCaseData> GetByteSequences_WithStdErrRedirectFlag()
         {
             yield return new TestCaseData(

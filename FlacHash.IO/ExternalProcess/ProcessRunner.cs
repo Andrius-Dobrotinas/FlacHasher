@@ -110,12 +110,22 @@ namespace Andy.FlacHash.ExternalProcess
                 bool timedOut;
                 try
                 {
-                    var finishedInTime = Task.WaitAll(
-                        new[] { outputReadTask },
-                        timeoutMs,
-                        cancellation);
+                    try
+                    {
+                        var finishedInTime = Task.WaitAll(
+                            new[] { outputReadTask },
+                            timeoutMs,
+                            cancellation);
 
-                    timedOut = !finishedInTime;
+                        timedOut = !finishedInTime;
+                    }
+                    // This gets throw by WaitAll when one of the tasks it's waiting gets cancelled
+                    // When WaitAll gets cancelled (via the cancellation token), it throws OperationCancelledException
+                    catch (AggregateException e)
+                    {
+                        // Simply to unwrap the aggregate exception
+                        throw e.InnerException;
+                    }
                 }
                 catch (OperationCanceledException)
                 {
