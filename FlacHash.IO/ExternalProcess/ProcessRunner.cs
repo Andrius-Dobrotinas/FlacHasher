@@ -10,7 +10,7 @@ namespace Andy.FlacHash.ExternalProcess
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
         private readonly int exitTimeoutMs;
-        private readonly int startDelayMs = 100;
+        private readonly int startWaitMs;
         private readonly int timeoutMs;
         private readonly bool showProcessWindowWithStdErrOutput;
 
@@ -18,15 +18,15 @@ namespace Andy.FlacHash.ExternalProcess
 
         /// <param name="timeoutSec">If a process doesn't finish within a given time (in seconds), it will be termined without returning any result</param>
         /// <param name="exitTimeoutMs">Time to wait (in milliseconds) for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
-        /// <param name="startDelayMs">Time to wait (in milliseconds) before starting interacting with the process' std streams.
+        /// <param name="startWaitMs">Time to wait (in milliseconds) before starting interacting with the process' std streams.
         /// Sometimes (depending on the speed of the computer?) it doesn't have std streams available right away, which results in "Pipe ended" error.</param>
         /// <param name="showProcessWindowWithStdErrOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
         /// When off, captures stderr and includes in exceptions if the process fails</param>
-        public ProcessRunner(int timeoutSec, int exitTimeoutMs, int startDelayMs, bool showProcessWindowWithStdErrOutput)
+        public ProcessRunner(int timeoutSec, int exitTimeoutMs, int startWaitMs, bool showProcessWindowWithStdErrOutput)
         {
             this.timeoutMs = timeoutSec == NoTimeoutValue ? NoTimeoutValue : timeoutSec * 1000;
             this.exitTimeoutMs = exitTimeoutMs;
-            this.startDelayMs = startDelayMs;
+            this.startWaitMs = startWaitMs;
             this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
         }
 
@@ -69,7 +69,7 @@ namespace Andy.FlacHash.ExternalProcess
         public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
         {
             process.Start();
-            Task.Delay(startDelayMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
+            Task.Delay(startWaitMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
 
             /* Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out
              * (probably depends on whether stderr and stdout writes sequence or in parallel in the program).

@@ -20,6 +20,7 @@ namespace Andy.FlacHash.Cmd
                     OutputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat)),
                     ProcessExitTimeoutMs = GetValueInt(defaultSection, nameof(Settings.ProcessExitTimeoutMs)),
                     ProcessTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessTimeoutSec)),
+                    ProcessStartWaitMs = GetValueInt(defaultSection, nameof(Settings.ProcessStartWaitMs)),
                     FailOnError = GetValueBool(defaultSection, nameof(Settings.FailOnError))
                 };
             }

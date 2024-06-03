@@ -10,6 +10,7 @@ namespace Andy.FlacHash.Cmd
         public string OutputFormat { get; set; }
         public int? ProcessExitTimeoutMs { get; set; }
         public int? ProcessTimeoutSec { get; set; }
+        public int? ProcessStartWaitMs { get; set; }
         public bool? FailOnError { get; set; }
     }
 }

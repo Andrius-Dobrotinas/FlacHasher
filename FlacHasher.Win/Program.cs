@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Win
         const string supportedFileExtension = ".flac";
         const string hashFileExtension = ".hash";
         const int processExitTimeoutMsDefault = 1000;
-        const int processStartDelayMsDefault = 100;
+        const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = 180;
         const bool showProcessWindowWithOutput = false; // todo: read this from the settings file
         const bool continueOnErrorDefault = true;
@@ -74,7 +74,7 @@ namespace Andy.FlacHash.Win
                 new ExternalProcess.ProcessRunner(
                     settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
                     settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
-                    processStartDelayMsDefault,
+                    settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
                     showProcessWindowWithOutput));
             var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
