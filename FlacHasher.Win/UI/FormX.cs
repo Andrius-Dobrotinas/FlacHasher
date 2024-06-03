@@ -292,7 +292,7 @@ namespace Andy.FlacHash.Win.UI
         private void ReportExecutionError(Exception exception, FileInfo file)
         {
             finishedWithErrors = true;
-            MessageBox.Show($"Error processing file {file.Name}: {exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Task.Run(() => MessageBox.Show($"Error processing file {file.Name}: {exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error));
         }
 
         public enum Mode
