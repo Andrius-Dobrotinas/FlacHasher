@@ -13,9 +13,9 @@ namespace Andy.FlacHash.Win
         const string settingsFileName = "settings.cfg";
         const string supportedFileExtension = ".flac";
         const string hashFileExtension = ".hash";
-        const int processExitTimeoutMs = 1000; // todo: read this from the settings file
-        const int processStartDelayMs = 100;
-        const int processTimeoutSec = 180; // todo: read this from the settings file
+        const int processExitTimeoutMsDefault = 1000;
+        const int processStartDelayMsDefault = 100;
+        const int processTimeoutSecDefault = 180;
         const bool showProcessWindowWithOutput = false; // todo: read this from the settings file
         const bool continueOnErrorDefault = true;
 
@@ -41,7 +41,7 @@ namespace Andy.FlacHash.Win
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
-                var (hasher, progressReporter) = BuildHasher(settings.Decoder, !settings.FailOnError ?? continueOnErrorDefault);
+                var (hasher, progressReporter) = BuildHasher(settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();
 
                 Application.Run(
@@ -65,18 +65,22 @@ namespace Andy.FlacHash.Win
             }
         }
 
-        private static (IReportingMultipleFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderFile, bool continueOnError)
+        private static (IReportingMultipleFileHasher, FileReadProgressReporter) BuildHasher(Settings settings)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
             var decoder = new IO.Audio.Flac.CmdLine.StreamDecoder(
-                decoderFile,
-                new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, processStartDelayMs, showProcessWindowWithOutput));
+                settings.Decoder,
+                new ExternalProcess.ProcessRunner(
+                    settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
+                    settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
+                    processStartDelayMsDefault,
+                    showProcessWindowWithOutput));
             var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
             var cancellableHasher = new ReportingMultipleFileHasher(
-                new MultipleFileHasher(hasher, continueOnError));
+                new MultipleFileHasher(hasher, !settings.FailOnError ?? continueOnErrorDefault));
 
             return (cancellableHasher, fileReadProgressReporter);
         }
