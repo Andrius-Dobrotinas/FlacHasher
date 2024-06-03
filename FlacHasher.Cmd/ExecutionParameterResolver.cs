@@ -76,5 +76,13 @@ namespace Andy.FlacHash.Cmd
 
             return settings.ProcessTimeoutSec ?? defaultValue;
         }
+
+        public static bool GetContinueOnError(Settings settings, Parameters cmdlineArguments, bool defaultValue)
+        {
+            if (cmdlineArguments.FailOnError != null)
+                return !cmdlineArguments.FailOnError.Value;
+
+            return !settings.FailOnError ?? defaultValue;
+        }
     }
 }

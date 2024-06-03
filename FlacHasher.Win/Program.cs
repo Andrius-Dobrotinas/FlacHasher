@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Win
         const int processStartDelayMs = 100;
         const int processTimeoutSec = 180; // todo: read this from the settings file
         const bool showProcessWindowWithOutput = false; // todo: read this from the settings file
-        const bool continueOnError = true; // todo: read this from the settings file
+        const bool continueOnErrorDefault = true;
 
         [STAThread]
         static void Main()
@@ -41,7 +41,7 @@ namespace Andy.FlacHash.Win
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
-                var (hasher, progressReporter) = BuildHasher(settings.Decoder);
+                var (hasher, progressReporter) = BuildHasher(settings.Decoder, !settings.FailOnError ?? continueOnErrorDefault);
                 var hashFormatter = new PlainLowercaseHashFormatter();
 
                 Application.Run(
@@ -65,7 +65,7 @@ namespace Andy.FlacHash.Win
             }
         }
 
-        private static (IReportingMultipleFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderFile)
+        private static (IReportingMultipleFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderFile, bool continueOnError)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);

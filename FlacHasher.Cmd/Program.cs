@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Cmd
         const int processStartDelayMsDefault = 100;
         const int processTimeoutSecDefault = ProcessRunner.NoTimeoutValue;
         const bool printProcessProgress = true;
-        const bool continueOnError = true; // todo: read this from the settings file && consul
+        const bool continueOnErrorDefault = true;
 
         static int Main(string[] args)
         {
@@ -56,6 +56,7 @@ namespace Andy.FlacHash.Cmd
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 int processExitTimeoutMs = ExecutionParameterResolver.GetProcessExitTimeoutInMs(settings, parameters, processExitTimeoutMsDefault);
                 int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
+                bool continueOnError = ExecutionParameterResolver.GetContinueOnError(settings, parameters, continueOnErrorDefault);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
                 if (!inputFiles.Any())

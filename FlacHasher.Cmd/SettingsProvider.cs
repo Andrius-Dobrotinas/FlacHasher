@@ -14,17 +14,13 @@ namespace Andy.FlacHash.Cmd
             {
                 var defaultSection = settings[defaultSectionName];
 
-                var decoder = GetFile(defaultSection, nameof(Settings.Decoder));
-                var outputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat));
-                var processExitTimeoutMs = GetValueInt(defaultSection, nameof(Settings.ProcessExitTimeoutMs));
-                var processTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessTimeoutSec));
-
                 return new Settings
                 {
-                    Decoder = decoder,
-                    OutputFormat = outputFormat,
-                    ProcessExitTimeoutMs = processExitTimeoutMs,
-                    ProcessTimeoutSec = processTimeoutSec
+                    Decoder = GetFile(defaultSection, nameof(Settings.Decoder)),
+                    OutputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat)),
+                    ProcessExitTimeoutMs = GetValueInt(defaultSection, nameof(Settings.ProcessExitTimeoutMs)),
+                    ProcessTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessTimeoutSec)),
+                    FailOnError = GetValueBool(defaultSection, nameof(Settings.FailOnError))
                 };
             }
 
@@ -52,6 +48,15 @@ namespace Andy.FlacHash.Cmd
             if (string.IsNullOrWhiteSpace(value)) return null;
 
             return int.Parse(value);
+        }
+
+        private static bool? GetValueBool(IDictionary<string, string> section, string key)
+        {
+            var value = GetValue(section, key);
+
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            return bool.Parse(value);
         }
 
         public static Settings GetSettings(FileInfo settingsFile)
