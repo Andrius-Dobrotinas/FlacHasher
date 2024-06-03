@@ -49,7 +49,7 @@ namespace Andy.FlacHash.Win
                         new UI.HashCalculationServiceFactory(
                             hasher,
                             new ProgressReportingOperationRunner()),
-                        new InteractiveTextFileWriter(saveHashesToFileDialog),
+                        new UI.InteractiveTextFileWriter(saveHashesToFileDialog),
                         progressReporter,
                         directoryResolver,
                         new TargetFileResolver(

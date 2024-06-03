@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Win.UI
 {
     public class InteractiveTextFileWriter
     {
