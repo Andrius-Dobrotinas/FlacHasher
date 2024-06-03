@@ -95,30 +95,32 @@ namespace Andy.FlacHash.Cmd
             catch (ConfigurationException e)
             {
                 WriteUserLine(e.Message);
-
                 return (int)ReturnValue.ConfigurationError;
             }
             catch (IO.IOException e)
             {
                 WriteUserLine(e.Message);
-
                 return (int)ReturnValue.InputReadingFailure;
             }
             catch (OperationCanceledException e)
             {
                 WriteUserLine("The operation was cancelled");
-
                 return (int)ReturnValue.Cancellation;
+            }
+            catch (ExecutionException e)
+            {
+                WriteUserLine($"Process exited with code {e.ExitCode}");
+                if (!printProcessProgress)
+                    WriteUserLine($"Process output:\n{e.ProcessErrorOutput}");
+                return (int)ReturnValue.ExecutionFailure;
             }
             catch (Exception e)
             {
                 WriteUserLine(e.Message);
-
                 return (int)ReturnValue.ExecutionFailure;
             }
 
             WriteUserLine("Done!");
-
             return (int)ReturnValue.Success;
         }
 
