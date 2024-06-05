@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Verification
 {
     public class HashFileUtil_NameBased_Tests
     {
