@@ -1,31 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using static Andy.FlacHash.Win.CancellableBackgroundOperationRunner;
 
 namespace Andy.FlacHash.Win.UI
 {
     public class HashCalculationServiceFactory
     {
         private readonly IReportingMultipleFileHasher hasher;
-        private readonly ProgressReportingOperationRunner nonUiActionRunner;
 
         public HashCalculationServiceFactory(
-            IReportingMultipleFileHasher hasher,
-            ProgressReportingOperationRunner nonUiActionRunner)
+            IReportingMultipleFileHasher hasher)
         {
             this.hasher = hasher;
-            this.nonUiActionRunner = nonUiActionRunner;
         }
 
         public NonBlockingHashCalculationService Build(
             Control uiUpdateContext,
-            CancellableActionRunner.CompletionHandler reportCompletion,
+            CompletionHandler reportCompletion,
             Action<Exception> reportFailure,
-            CancellableActionRunner.StateChangeHandler stateChanged)
+            StateChangeHandler stateChanged)
         {
             return new NonBlockingHashCalculationService(
-                new HashCalcOnSeparateThreadService(hasher, nonUiActionRunner, uiUpdateContext),
-                new CancellableActionRunner(reportCompletion, reportFailure, stateChanged));
+                new CancellableBackgroundOperationRunner(uiUpdateContext),
+                hasher,
+                reportCompletion, reportFailure, stateChanged);
         }
     }
 }
