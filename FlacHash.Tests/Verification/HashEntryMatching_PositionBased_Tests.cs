@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public class HashFileUtil_PositionBased_Tests
+    public class HashEntryMatching_PositionBased_Tests
     {
         const string hash1 = "659e7-hash1";
         const string hash2 = "5ea29-hash2";
@@ -26,7 +26,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_NumberOfFilesMatchesHashes))]
         public void When_Theres_TheSameNumber_OfFiles_As_TheNumberOf_Hashes__Must_Return_AllHashes_MatchedWithFilesAtRespectiveIndexes_And_No_MissingFiles(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+            var (result_presentItems, result_missing) = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
 
             Assert.IsNotEmpty(result_presentItems);
 
@@ -46,7 +46,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_MoreFilesThanExpected))]
         public void When_Theres_MoreFiles_Than_Hashes__Must_Return_AllHashes_PairedWithTheSameNumberOfFirstFiles_And_No_MissingFiles(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+            var (result_presentItems, result_missing) = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
 
             Assert.IsNotEmpty(result_presentItems);
 
@@ -66,7 +66,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_FewerFilesThanExpected))]
         public void When_Theres_FewerFiles_Than_ExpectedHashes__Must_Return_TheSameNumberOfFirstHashes_PairedWithFiles(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<string> _)
         {
-            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+            var (result_presentItems, result_missing) = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
 
             Assert.IsNotEmpty(result_presentItems);
 
@@ -84,14 +84,14 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_FewerFilesThanExpected))]
         public void When_Theres_FewerFiles_Than_ExpectedHashes__Must_Return_TheExcessHashes_As_MissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<string> expected)
         {
-            var (result_presentItems, result_missingItems) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
 
             Assert.IsNotEmpty(result_missingItems);
 
             Assert.Multiple(() =>
             {
                 var distinctValues = result_missingItems.Select(x => x.Key.Name).Distinct();
-                Assert.AreEqual(HashFileUtil.MissingFileKey, distinctValues.First(), "Missing file info Name");
+                Assert.AreEqual(HashEntryMatching.MissingFileKey, distinctValues.First(), "Missing file info Name");
                 Assert.AreEqual(1, distinctValues.Count(), "Use the same name for a missing file");
             });
 
@@ -106,7 +106,7 @@ namespace Andy.FlacHash.Verification
         {
             var expectedHashes = inputHashes.Select(x => x.Value).ToList();
 
-            var (result_presentItems, result_missing) = HashFileUtil.MatchFilesToHashesPositionBased(inputHashes, Array.Empty<FileInfo>());
+            var (result_presentItems, result_missing) = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, Array.Empty<FileInfo>());
 
             Assert.IsEmpty(result_presentItems);
             Assert.IsNotEmpty(result_missing);
@@ -114,7 +114,7 @@ namespace Andy.FlacHash.Verification
             Assert.Multiple(() =>
             {
                 var distinctValues = result_missing.Select(x => x.Key.Name).Distinct();
-                Assert.AreEqual(HashFileUtil.MissingFileKey, distinctValues.First(), "Missing file info Name");
+                Assert.AreEqual(HashEntryMatching.MissingFileKey, distinctValues.First(), "Missing file info Name");
                 Assert.AreEqual(1, distinctValues.Count(), "Use the same name for a missing file");
             });
 

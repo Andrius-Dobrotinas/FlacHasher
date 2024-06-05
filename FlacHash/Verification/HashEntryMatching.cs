@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Andy.FlacHash.Verification
 {
-    public static class HashFileUtil
+    public static class HashEntryMatching
     {
         public const string MissingFileKey = "{FILE_MISSING}";
 

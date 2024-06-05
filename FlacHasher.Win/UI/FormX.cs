@@ -186,8 +186,8 @@ namespace Andy.FlacHash.Win.UI
         private void VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
         {
             var (existingFileHashes, missingFileHashes) = expectedHashes.IsPositionBased
-                    ? HashFileUtil.MatchFilesToHashesPositionBased(expectedHashes.Hashes, files)
-                    : HashFileUtil.MatchFilesToHashes(expectedHashes.Hashes, files);
+                    ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedHashes.Hashes, files)
+                    : HashEntryMatching.MatchFilesToHashes(expectedHashes.Hashes, files);
 
             var existingFiles = existingFileHashes.Select(x => x.Key).ToList();
 
