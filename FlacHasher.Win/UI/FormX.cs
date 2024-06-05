@@ -13,7 +13,7 @@ namespace Andy.FlacHash.Win.UI
 {
     public partial class FormX : Form
     {
-        private readonly NonBlockingHashCalculationService hasherService;
+        private readonly NonBlockingHashComputation hasherService;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
 

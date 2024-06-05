@@ -6,7 +6,7 @@ using static Andy.FlacHash.Win.CancellableBackgroundOperationRunner;
 
 namespace Andy.FlacHash.Win.UI
 {
-    public class NonBlockingHashCalculationService
+    public class NonBlockingHashComputation
     {
         private readonly CancellableBackgroundOperationRunner operationRunner;
         private readonly IReportingMultipleFileHasher hasher;
@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly Action<Exception> reportFailure;
         private readonly StateChangeHandler stateChanged;
 
-        public NonBlockingHashCalculationService(
+        public NonBlockingHashComputation(
             CancellableBackgroundOperationRunner operationRunner,
             IReportingMultipleFileHasher hasher,
             CompletionHandler reportCompletion, 

@@ -15,13 +15,13 @@ namespace Andy.FlacHash.Win.UI
             this.hasher = hasher;
         }
 
-        public NonBlockingHashCalculationService Build(
+        public NonBlockingHashComputation Build(
             Control uiUpdateContext,
             CompletionHandler reportCompletion,
             Action<Exception> reportFailure,
             StateChangeHandler stateChanged)
         {
-            return new NonBlockingHashCalculationService(
+            return new NonBlockingHashComputation(
                 new CancellableBackgroundOperationRunner(uiUpdateContext),
                 hasher,
                 reportCompletion, reportFailure, stateChanged);
