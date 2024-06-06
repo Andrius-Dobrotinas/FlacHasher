@@ -134,7 +134,7 @@ namespace Andy.FlacHash.Win.UI
                 MessageBox.Show("Hashes saved!");
         }
 
-        private void Btn_Go_Click(object sender, EventArgs e)
+        private async void Btn_Go_Click(object sender, EventArgs e)
         {
             if (!hasherService.InProgress)
             {
@@ -146,14 +146,14 @@ namespace Andy.FlacHash.Win.UI
                         {
                             BeforeCalc(files);
 
-                            hasherService.Start(files, UpdateUIWithCalcResult);
+                            ComputeHashes(files);
                             return;
                         }
                     case Mode.Verification:
                         {
                             var expectedHashes = GetExpectedHashes();
 
-                            VerifyHashes(files, expectedHashes);
+                            await VerifyHashes(files, expectedHashes);
 
                             return;
                         }
@@ -183,7 +183,7 @@ namespace Andy.FlacHash.Win.UI
             return hashFileParser.Read(hashFile);
         }
 
-        private void VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
+        private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
         {
             var (existingFileHashes, missingFileHashes) = expectedHashes.IsPositionBased
                     ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedHashes.Hashes, files)
@@ -193,9 +193,8 @@ namespace Andy.FlacHash.Win.UI
 
             BeforeCalc(existingFiles);
 
-            var actualFileCount = existingFileHashes.Count;
             int i = 0;
-            hasherService.Start(existingFiles,
+            await hasherService.Start(existingFiles,
                 (FileHashResult calcResult) =>
                 {
                     if (calcResult.Exception == null)
@@ -210,14 +209,10 @@ namespace Andy.FlacHash.Win.UI
                     }
 
                     i++;
-
-                    // When finished, add all missing files to the list
-                    if (i == actualFileCount)
-                    {
-                        foreach (var item in missingFileHashes)
-                            list_verification_results.Add(item.Key, false);
-                    }
                 });
+
+            foreach (var item in missingFileHashes)
+                    list_verification_results.Add(item.Key, false);
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
@@ -269,6 +264,11 @@ namespace Andy.FlacHash.Win.UI
             label_Status.Text = "Failed";
 
             MessageBox.Show($"Error processing file(s): {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void ComputeHashes(IEnumerable<FileInfo> files)
+        {
+            hasherService.Start(files, UpdateUIWithCalcResult);
         }
 
         private void UpdateUIWithCalcResult(FileHashResult result)
