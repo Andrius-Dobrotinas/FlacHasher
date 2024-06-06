@@ -144,17 +144,13 @@ namespace Andy.FlacHash.Win.UI
                 {
                     case Mode.Calculation:
                         {
-                            BeforeCalc(files);
-
                             ComputeHashes(files);
                             return;
                         }
                     case Mode.Verification:
                         {
                             var expectedHashes = GetExpectedHashes();
-
                             await VerifyHashes(files, expectedHashes);
-
                             return;
                         }
                     default:
@@ -189,17 +185,25 @@ namespace Andy.FlacHash.Win.UI
                     ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedHashes.Hashes, files)
                     : HashEntryMatching.MatchFilesToHashes(expectedHashes.Hashes, files);
 
-            var existingFiles = existingFileHashes.Select(x => x.Key).ToList();
+            var existingFileHashDictionary = existingFileHashes.ToDictionary(x => x.Key, x => x.Value);
 
-            BeforeCalc(existingFiles);
+            BeforeCalc(existingFileHashDictionary.Keys);
+            await VerifyHashes(existingFileHashDictionary);
 
-            int i = 0;
-            await hasherService.Start(existingFiles,
+            foreach (var item in missingFileHashes)
+                list_verification_results.Add(item.Key, false);
+        }
+
+        private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
+        {
+            var files = expectedHashes.Keys;
+
+            await hasherService.Start(files,
                 (FileHashResult calcResult) =>
                 {
                     if (calcResult.Exception == null)
                     {
-                        var isMatch = hashVerifier.DoesMatch(existingFileHashes, i, calcResult.Hash);
+                        var isMatch = hashVerifier.DoesMatch(expectedHashes, calcResult.File, calcResult.Hash);
 
                         list_verification_results.Add(calcResult.File, isMatch);
                     }
@@ -207,12 +211,7 @@ namespace Andy.FlacHash.Win.UI
                     {
                         ReportExecutionError(calcResult.Exception, calcResult.File);
                     }
-
-                    i++;
                 });
-
-            foreach (var item in missingFileHashes)
-                    list_verification_results.Add(item.Key, false);
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
@@ -268,6 +267,7 @@ namespace Andy.FlacHash.Win.UI
 
         private void ComputeHashes(IEnumerable<FileInfo> files)
         {
+            BeforeCalc(files);
             hasherService.Start(files, UpdateUIWithCalcResult);
         }
 

@@ -14,9 +14,9 @@ namespace Andy.FlacHash.Verification
             this.hashFormatter = hashFormatter;
         }
 
-        public bool DoesMatch(IList<KeyValuePair<FileInfo, string>> expectedHashes, int hashIndex, byte[] actualHash)
+        public bool DoesMatch(IDictionary<FileInfo, string> expectedHashes, FileInfo file, byte[] actualHash)
         {
-            var targetHash = expectedHashes[hashIndex].Value;
+            var targetHash = expectedHashes[file];
             var actualHashString = hashFormatter.GetString(actualHash);
             var isMatch = AreEqualOrdinalCaseInsensitive(targetHash, actualHashString);
 
