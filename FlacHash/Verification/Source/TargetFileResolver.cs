@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Verification.Source
 {
     public class TargetFileResolver
     {
@@ -20,7 +20,7 @@ namespace Andy.FlacHash.Win
 
         public (FileInfo[], FileInfo[])? GetFiles(DirectoryInfo directory)
         {
-            var allFiles = IOUtil.FindFiles(directory, new string[] { sourceFileFilter, hashFileFilter })
+            var allFiles = FileUtil.FindFiles(directory, new string[] { sourceFileFilter, hashFileFilter })
                 .GroupBy(x => x.Extension)
                 .ToArray()
                 .ToDictionary(x => x.Key, x => x.ToArray());

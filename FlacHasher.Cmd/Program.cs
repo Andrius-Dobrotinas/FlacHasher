@@ -34,9 +34,11 @@ namespace Andy.FlacHash.Cmd
             }
 
             Parameters parameters;
+            bool isVerification;
             try
             {
                 var argumentDictionary = ArgumentSplitter.GetArguments(args);
+                isVerification = argumentDictionary.ContainsKey(ArgumentNames.ModeVerify);
                 parameters = ParameterReader.GetParameters(argumentDictionary);
             }
             catch (CmdLineArgNotFoundException e)
@@ -61,10 +63,7 @@ namespace Andy.FlacHash.Cmd
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
                 if (!inputFiles.Any())
-                {
-                    WriteUserLine("No files provided/found");
-                    return (int)ReturnValue.NoFilesToProcess;
-                }
+                    throw new TargetFileNotFoundException("No files provided/found");
 
                 var cancellation = new CancellationTokenSource();
                 Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
@@ -73,25 +72,21 @@ namespace Andy.FlacHash.Cmd
                     cancellation.Cancel();
                 };
 
-                var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
-                    decoderFile,
-                    new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, processStartWaitMs, printProcessProgress));
+                var processRunner = new ExternalProcess.ProcessRunner(
+                    settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
+                    settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
+                    settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
+                    printProcessProgress);
 
-                var hasher = new FileHasher(decoder, new Sha256HashComputer());
-                var multiHasher = new MultipleFileHasher(hasher, continueOnError);
-
-                IEnumerable<FileHashResult> computations = multiHasher
-                        .ComputeHashes(inputFiles, cancellation.Token);
-
-                // The hashes should be computed on this enumeration, and therefore will be output as they're computed
-                foreach (var result in computations)
+                if (isVerification)
                 {
-                    if (result.Exception == null)
-                        OutputHash(result.Hash, outputFomat, result.File);
-                    else
-                        if (!printProcessProgress)
-                            WriteUserLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
-                };
+                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, cancellation.Token);
+                }
+                else
+                {
+                    var hasher = BuildHasher(decoderFile, processRunner, continueOnError);
+                    ComputeHashes(hasher, inputFiles, outputFomat, cancellation.Token);
+                }
             }
             catch (ConfigurationException e)
             {
@@ -115,6 +110,11 @@ namespace Andy.FlacHash.Cmd
                     WriteUserLine($"Process output:\n{e.ProcessErrorOutput}");
                 return (int)ReturnValue.ExecutionFailure;
             }
+            catch (TargetFileNotFoundException e)
+            {
+                WriteUserLine(e.Message);
+                return (int)ReturnValue.NoFilesToProcess;
+            }
             catch (Exception e)
             {
                 WriteUserLine(e.Message);
@@ -123,6 +123,32 @@ namespace Andy.FlacHash.Cmd
 
             WriteUserLine("Done!");
             return (int)ReturnValue.Success;
+        }
+
+        static MultipleFileHasher BuildHasher(FileInfo decoderFile, ExternalProcess.ProcessRunner processRunner, bool continueOnError)
+        {
+            var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
+                    decoderFile,
+                    processRunner);
+
+            var hasher = new FileHasher(decoder, new Sha256HashComputer());
+            return new MultipleFileHasher(hasher, continueOnError);
+        }
+
+        static void ComputeHashes(MultipleFileHasher multiHasher, IEnumerable<FileInfo> inputFiles, string outputFormat, CancellationToken cancellation)
+        {
+            IEnumerable<FileHashResult> computations = multiHasher
+                    .ComputeHashes(inputFiles, cancellation);
+
+            // The hashes should be computed on this enumeration, and therefore will be output as they're computed
+            foreach (var result in computations)
+            {
+                if (result.Exception == null)
+                    OutputHash(result.Hash, outputFormat, result.File);
+                else
+                    if (!printProcessProgress)
+                    WriteUserLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
+            };
         }
 
         static void OutputHash(byte[] hash, string format, FileInfo sourceFile)

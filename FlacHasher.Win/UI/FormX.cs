@@ -1,4 +1,5 @@
 ﻿using Andy.FlacHash.Verification;
+using Andy.FlacHash.Verification.Source;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -181,10 +182,7 @@ namespace Andy.FlacHash.Win.UI
 
         private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
         {
-            var (existingFileHashes, missingFileHashes) = expectedHashes.IsPositionBased
-                    ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedHashes.Hashes, files)
-                    : HashEntryMatching.MatchFilesToHashes(expectedHashes.Hashes, files);
-
+            var (existingFileHashes, missingFileHashes) = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
             var existingFileHashDictionary = existingFileHashes.ToDictionary(x => x.Key, x => x.Value);
 
             BeforeCalc(existingFileHashDictionary.Keys);

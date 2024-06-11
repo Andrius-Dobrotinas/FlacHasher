@@ -10,5 +10,7 @@
         public const string ProcessExitTimeoutMs = "--process-exit-timeout";
         public const string ProcessTimeoutSec = "--process-timeout";
         public const string FailOnError = "--fail-fast";
+
+        public const string ModeVerify = "verify";
     }
 }

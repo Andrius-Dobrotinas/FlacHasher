@@ -54,7 +54,7 @@ namespace Andy.FlacHash.Verification
         public static (
             IList<KeyValuePair<FileInfo, string>> present,
             IList<KeyValuePair<FileInfo, string>> missing)
-            MatchFilesToHashes(
+            MatchFilesToHashesNameBased(
             IList<KeyValuePair<string, string>> expectedHashes, 
             IEnumerable<FileInfo> files)
         {
@@ -79,6 +79,19 @@ namespace Andy.FlacHash.Verification
             }
 
             return (result, missing);
+        }
+
+        /// <summary>
+        /// Matches <paramref name="files"/> with <paramref name="expectedFileHashMap"/> depending on how <paramref name="expectedFileHashMap"/> is defined.
+        /// </summary>
+        public static (
+            IList<KeyValuePair<FileInfo, string>> present,
+            IList<KeyValuePair<FileInfo, string>> missing)
+            MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
+        {
+            return expectedFileHashMap.IsPositionBased
+                    ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedFileHashMap.Hashes, files)
+                    : HashEntryMatching.MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files);
         }
     }
 }

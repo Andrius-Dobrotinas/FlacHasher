@@ -1,5 +1,6 @@
 using Andy.FlacHash.Cmd;
 using Andy.FlacHash.Verification;
+using Andy.FlacHash.Verification.Source;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -55,11 +56,7 @@ namespace Andy.FlacHash.Win
                             supportedFileExtension,
                             hashFileExtension),
                         hashFormatter,
-                        new HashFileReader(
-                            new HashMapParser(
-                                new HashEntryCollectionParser(
-                                    new HashEntryParser()),
-                                new CaseInsensitiveOrdinalStringComparer())),
+                        Cmd.Verification.BuildHashfileReader(),
                         new HashVerifier(hashFormatter)));
             }
         }

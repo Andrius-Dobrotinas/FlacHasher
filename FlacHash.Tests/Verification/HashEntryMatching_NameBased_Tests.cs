@@ -28,7 +28,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_SameNumberOfFiles_AsHashes))]
         public void When_All_FilesReferencedByHashlist_ArePresent__Must_Return_AllHashes_WithCorrespondingFiles_InOriginalHashOrder__And_No_MissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashes(inputHashes, inputFiles);
+            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
                 result_presentItems.Select(x => x.Key),
@@ -49,7 +49,7 @@ namespace Andy.FlacHash.Verification
         {
             var expected = inputHashes.ToList();
 
-            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashes(inputHashes, inputFiles);
+            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
                 result_presentItems.Select(x => x.Key.Name),
@@ -67,7 +67,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_FewerFilesPresent_ThanExpected))]
         public void When_SomeReferencedFilesAreMissing__Must_Return_JustTheHashesForMatchingFiles(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<string, string>> _)
         {
-            var (result_presentItems, __) = HashEntryMatching.MatchFilesToHashes(inputHashes, inputFiles);
+            var (result_presentItems, __) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
                 result_presentItems.Select(x => x.Key),
@@ -84,7 +84,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_FewerFilesPresent_ThanExpected))]
         public void When_SomeReferencedFilesAreMissing__Must_Return_MissingItems_AsFileInfoWithSameName(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<KeyValuePair<string, string>> expected)
         {
-            var (__, result_missingItems) = HashEntryMatching.MatchFilesToHashes(inputHashes, inputFiles);
+            var (__, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
                 result_missingItems.Select(x => x.Key.Name),
@@ -100,7 +100,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_SomeMissing_SomeExtra))]
         public void When_SomeReferencedFilesAreMissing_AndExtraFilesArePresent__Must_Return_HashesForFiles_ThatAreReferencedAndPresent(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<string, string>> _)
         {
-            var (result_presentItems, __) = HashEntryMatching.MatchFilesToHashes(inputHashes, inputFiles);
+            var (result_presentItems, __) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
                 result_presentItems.Select(x => x.Key),
@@ -117,7 +117,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_SomeMissing_SomeExtra))]
         public void When_SomeReferencedFilesAreMissing_AndExtraFilesArePresent__Must_Return_MissingReferencedFiles_AsMissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<KeyValuePair<string, string>> expected)
         {
-            var (__, result_missingItems) = HashEntryMatching.MatchFilesToHashes(inputHashes, inputFiles);
+            var (__, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
                 result_missingItems.Select(x => x.Key.Name),
@@ -136,7 +136,7 @@ namespace Andy.FlacHash.Verification
             var expectedNames = inputHashes.Select(x => x.Key).ToList();
             var expectedHashes = inputHashes.Select(x => x.Value).ToList();
 
-            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashes(inputHashes, Array.Empty<FileInfo>());
+            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, Array.Empty<FileInfo>());
 
             Assert.IsEmpty(result_presentItems, "Present items");
             Assert.IsNotEmpty(result_missingItems, "Missing items");
@@ -158,7 +158,7 @@ namespace Andy.FlacHash.Verification
             var expectedNames = inputHashes.Select(x => x.Key).ToList();
             var expectedHashes = inputHashes.Select(x => x.Value).ToList();
 
-            var (result_present, result_missingItems) = HashEntryMatching.MatchFilesToHashes(inputHashes, inputFiles);
+            var (result_present, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
                 result_missingItems.Select(x => x.Key.Name),
@@ -181,7 +181,7 @@ namespace Andy.FlacHash.Verification
                 new KeyValuePair<string, string>(filename3, "hash3")
             };
 
-            var (_, result_missingItems) = HashEntryMatching.MatchFilesToHashes(inputHashes, new FileInfo[0]);
+            var (_, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, new FileInfo[0]);
 
             AssertThat.CollectionsMatchExactly(
                 result_missingItems.Select(x => x.Key.Name),
