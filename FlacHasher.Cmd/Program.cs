@@ -1,5 +1,4 @@
 ﻿using Andy.Cmd;
-using Andy.FlacHash.Crypto;
 using Andy.FlacHash.ExternalProcess;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,6 @@ namespace Andy.FlacHash.Cmd
     class Program
     {
         const string settingsFileName = "settings.cfg";
-        const char newlineChar = '\n';
         const int processExitTimeoutMsDefault = 2000;
         const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = ProcessRunner.NoTimeoutValue;
@@ -84,8 +82,7 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                 {
-                    var hasher = BuildHasher(decoderFile, processRunner, continueOnError);
-                    ComputeHashes(hasher, inputFiles, outputFomat, cancellation.Token);
+                    Computation.ComputeHashes(inputFiles, outputFomat, decoderFile, processRunner, continueOnError, printProcessProgress, WriteUserLine, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)
@@ -123,47 +120,6 @@ namespace Andy.FlacHash.Cmd
 
             WriteUserLine("Done!");
             return (int)ReturnValue.Success;
-        }
-
-        static MultipleFileHasher BuildHasher(FileInfo decoderFile, ExternalProcess.ProcessRunner processRunner, bool continueOnError)
-        {
-            var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
-                    decoderFile,
-                    processRunner);
-
-            var hasher = new FileHasher(decoder, new Sha256HashComputer());
-            return new MultipleFileHasher(hasher, continueOnError);
-        }
-
-        static void ComputeHashes(MultipleFileHasher multiHasher, IEnumerable<FileInfo> inputFiles, string outputFormat, CancellationToken cancellation)
-        {
-            IEnumerable<FileHashResult> computations = multiHasher
-                    .ComputeHashes(inputFiles, cancellation);
-
-            // The hashes should be computed on this enumeration, and therefore will be output as they're computed
-            foreach (var result in computations)
-            {
-                if (result.Exception == null)
-                    OutputHash(result.Hash, outputFormat, result.File);
-                else
-                    if (!printProcessProgress)
-                    WriteUserLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
-            };
-        }
-
-        static void OutputHash(byte[] hash, string format, FileInfo sourceFile)
-        {
-            if (string.IsNullOrEmpty(format))
-            {
-                var stdout = Console.OpenStandardOutput();
-                stdout.Write(hash, 0, hash.Length);
-                stdout.Write(stackalloc byte[] { (byte)newlineChar });
-            }
-            else
-            {
-                string formattedOutput = OutputFormatting.GetFormattedString(format, hash, sourceFile);
-                Console.WriteLine(formattedOutput);
-            }
         }
 
         static void WriteUserLine(string text)
