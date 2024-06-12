@@ -82,7 +82,7 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                 {
-                    Computation.ComputeHashes(inputFiles, outputFomat, decoderFile, processRunner, continueOnError, printProcessProgress, WriteUserLine, cancellation.Token);
+                    Computation.ComputeHashes(inputFiles, outputFomat, decoderFile, processRunner, continueOnError, printProcessProgress, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)
