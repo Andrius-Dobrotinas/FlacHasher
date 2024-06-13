@@ -33,20 +33,20 @@ namespace Andy.FlacHash.Cmd
         {
             var (results, resultsMissing) = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
 
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine("======== Results =========");
-            Console.WriteLine("File\t=>\tIsMatch");
+            WriteUserLine();
+            WriteUserLine();
+            WriteUserLine("======== Results =========");
+            WriteUserLine("File\t=>\tIsMatch");
             foreach (var result in results)
             {
-                ReportResult(result.Key, result.Value);
+                WriteUserLine($"{result.Key} => {result.Value}");
             }
 
             foreach (var result in resultsMissing)
             {
-                Console.WriteLine($"{result.Name} Not Found");
+                WriteUserLine($"{result.Name} Not Found");
             }
-            Console.WriteLine("======== The End =========");
+            WriteUserLine("======== The End =========");
         }
 
         private static (IList<KeyValuePair<FileInfo, bool>> results, IList<FileInfo> missingFiles)
@@ -63,22 +63,17 @@ namespace Andy.FlacHash.Cmd
                     if (calcResult.Exception == null)
                     {
                         var isMatch = hashVerifier.DoesMatch(existingFileHashDictionary, calcResult.File, calcResult.Hash);
-                        ReportResult(calcResult.File, isMatch);
+                        Console.WriteLine($"{calcResult.File.Name} => {isMatch}");
                         results.Add(new KeyValuePair<FileInfo, bool>(calcResult.File, isMatch));
                     }
                     else
                     {
-                        Console.WriteLine($"Error processing file {calcResult.File.Name}: {calcResult.Exception.Message}");
+                        Console.WriteLine($"{calcResult.File.Name} => Error: {calcResult.Exception.Message}");
                     }
                 },
                 cancellation);
 
             return (results, missingFileHashes.Select(x => x.Key).ToList());
-        }
-
-        static void ReportResult(FileInfo file, bool isMatch)
-        {
-            Console.WriteLine($"{file.Name} => {isMatch}");
         }
 
         public static HashFileReader BuildHashfileReader()
@@ -109,6 +104,16 @@ namespace Andy.FlacHash.Cmd
                 new MultipleFileHasher(hasher, continueOnError));
 
             return cancellableHasher;
+        }
+
+        static void WriteUserLine(string text)
+        {
+            Console.Error.WriteLine(text);
+        }
+
+        static void WriteUserLine()
+        {
+            Console.Error.WriteLine();
         }
     }
 }
