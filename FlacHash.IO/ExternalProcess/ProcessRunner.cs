@@ -13,7 +13,8 @@ namespace Andy.FlacHash.ExternalProcess
         private readonly int startWaitMs;
         private readonly int timeoutMs;
         private readonly bool showProcessWindowWithStdErrOutput;
-
+        
+        private const int ExitCode_CtrlC = -1073741510;
         public const int NoTimeoutValue = -1;
 
         /// <param name="timeoutSec">If a process doesn't finish within a given time (in seconds), it will be termined without returning any result</param>
@@ -200,7 +201,10 @@ namespace Andy.FlacHash.ExternalProcess
 
             if (process.ExitCode != 0)
             {
-                if (stdErrorTask == null)
+                // This happens when this is run by a cmd-line application and it gets Ctrl+C'd as it relays the command to the spawned process (so far, return code was only confirmed on Windows)
+                if (process.ExitCode == ExitCode_CtrlC)
+                    throw new OperationCanceledException("Process has been cancelled");
+                else if (stdErrorTask == null)
                     throw new ExecutionException(process.ExitCode);
 
                 try
