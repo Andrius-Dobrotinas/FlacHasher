@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                     if (!printProcessProgress) // Decoder's output would indicate an error
-                        WriteUserLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
+                        WriteStdErrLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
             };
 
             /* Summary at the end just for user's convenience.
@@ -51,13 +51,13 @@ namespace Andy.FlacHash.Cmd
              * this presents the results in one place without having to go through the whole process' progress output.*/
             if (printProcessProgress && !string.IsNullOrEmpty(outputFormat))
             {
-                WriteUserLine("\n======== Results =========");
+                WriteStdErrLine("\n======== Results =========");
                 foreach (var result in results)
                 {
                     string formattedOutput = OutputFormatting.GetFormattedString(outputFormat, result.Hash, result.File);
-                    WriteUserLine(formattedOutput);
+                    WriteStdErrLine(formattedOutput);
                 }
-                WriteUserLine("======== The End =========");
+                WriteStdErrLine("======== The End =========");
             }
         }
 
@@ -80,7 +80,7 @@ namespace Andy.FlacHash.Cmd
             }
         }
 
-        static void WriteUserLine(string text)
+        static void WriteStdErrLine(string text)
         {
             Console.Error.WriteLine(text);
         }

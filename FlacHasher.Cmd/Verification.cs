@@ -33,20 +33,20 @@ namespace Andy.FlacHash.Cmd
         {
             var (results, resultsMissing) = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
 
-            WriteUserLine();
-            WriteUserLine();
-            WriteUserLine("======== Results =========");
-            WriteUserLine("File\t=>\tIsMatch");
+            WriteStdErrLine();
+            WriteStdErrLine();
+            WriteStdErrLine("======== Results =========");
+            WriteStdErrLine("File\t=>\tIsMatch");
             foreach (var result in results)
             {
-                WriteUserLine($"{result.Key} => {result.Value}");
+                WriteStdErrLine($"{result.Key} => {result.Value}");
             }
 
             foreach (var result in resultsMissing)
             {
-                WriteUserLine($"{result.Name} Not Found");
+                WriteStdErrLine($"{result.Name} Not Found");
             }
-            WriteUserLine("======== The End =========");
+            WriteStdErrLine("======== The End =========");
         }
 
         private static (IList<KeyValuePair<FileInfo, bool>> results, IList<FileInfo> missingFiles)
@@ -106,12 +106,12 @@ namespace Andy.FlacHash.Cmd
             return cancellableHasher;
         }
 
-        static void WriteUserLine(string text)
+        static void WriteStdErrLine(string text)
         {
             Console.Error.WriteLine(text);
         }
 
-        static void WriteUserLine()
+        static void WriteStdErrLine()
         {
             Console.Error.WriteLine();
         }
