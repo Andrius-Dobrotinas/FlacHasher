@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Verification.Source
             this.hashFileFilter = hashFileFilter;
         }
 
-        public (FileInfo[], FileInfo[])? GetFiles(DirectoryInfo directory)
+        public (FileInfo[], FileInfo[]) GetFiles(DirectoryInfo directory)
         {
             var allFiles = FileUtil.FindFiles(directory, new string[] { sourceFileFilter, hashFileFilter })
                 .GroupBy(x => x.Extension)
