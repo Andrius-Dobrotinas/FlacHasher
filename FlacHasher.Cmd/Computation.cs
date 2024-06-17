@@ -29,6 +29,7 @@ namespace Andy.FlacHash.Cmd
 
         static void ComputeHashes(MultipleFileHasher multiHasher, IEnumerable<FileInfo> inputFiles, string outputFormat, bool printProcessProgress, CancellationToken cancellation)
         {
+            // On cancellation, simply errors out
             IEnumerable<FileHashResult> computations = multiHasher
                     .ComputeHashes(inputFiles, cancellation);
 
