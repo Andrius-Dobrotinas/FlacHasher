@@ -39,7 +39,7 @@ namespace Andy.FlacHash.Cmd
             WriteStdErrLine("File\t=>\tIsMatch");
             foreach (var result in results)
             {
-                WriteStdErrLine($"{result.Key} => {result.Value}");
+                WriteStdErrLine($"{result.Key.Name} => {result.Value}");
             }
 
             foreach (var result in resultsMissing)
