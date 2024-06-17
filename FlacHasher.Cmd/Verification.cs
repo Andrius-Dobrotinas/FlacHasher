@@ -29,10 +29,10 @@ namespace Andy.FlacHash.Cmd
             Verify(hasher, verifier, targetFiles, fileHashMap, cancellation);
         }
 
-        public static void Verify(IReportingMultipleFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, CancellationToken cancellation)
+        public static void Verify(IMultipleFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, CancellationToken cancellation)
         {
             var (results, resultsMissing) = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
-
+          
             WriteStdErrLine();
             WriteStdErrLine();
             WriteStdErrLine("======== Results =========");
@@ -49,34 +49,32 @@ namespace Andy.FlacHash.Cmd
             WriteStdErrLine("======== The End =========");
         }
 
-        private static (IList<KeyValuePair<FileInfo, bool>> results, IList<FileInfo> missingFiles)
-        VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IReportingMultipleFileHasher hasher, CancellationToken cancellation)
+        private static (IList<KeyValuePair<FileInfo, bool>> results, IList<FileInfo> missingFiles) 
+            VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultipleFileHasher hasher, CancellationToken cancellation)
         {
             var (existingFileHashes, missingFileHashes) = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
             var existingFileHashDictionary = existingFileHashes.ToDictionary(x => x.Key, x => x.Value);
-
+            
             var results = new List<KeyValuePair<FileInfo, bool>>();
 
-            hasher.ComputeHashes(existingFileHashDictionary.Keys,
-                (FileHashResult calcResult) =>
+            foreach (FileHashResult calcResult in hasher.ComputeHashes(existingFileHashDictionary.Keys, cancellation))
                 {
-                    if (calcResult.Exception == null)
-                    {
-                        var isMatch = hashVerifier.DoesMatch(existingFileHashDictionary, calcResult.File, calcResult.Hash);
-                        Console.WriteLine($"{calcResult.File.Name} => {isMatch}");
-                        results.Add(new KeyValuePair<FileInfo, bool>(calcResult.File, isMatch));
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{calcResult.File.Name} => Error: {calcResult.Exception.Message}");
-                    }
-                },
-                cancellation);
+                    cancellation.ThrowIfCancellationRequested();
 
-            /* hasher.ComputeHashes quietly returns on cancellation.
-             * There's a small chance that cancellation was triggered when all files were already processed,
-             * but it's not worth it */
-            cancellation.ThrowIfCancellationRequested();
+                if (calcResult.Exception == null)
+                {
+                    var isMatch = hashVerifier.DoesMatch(existingFileHashDictionary, calcResult.File, calcResult.Hash);
+                    Console.WriteLine($"{calcResult.File.Name} => {isMatch}");
+                    results.Add(new KeyValuePair<FileInfo, bool>(calcResult.File, isMatch));
+                }
+                else
+                {
+                    Console.WriteLine($"{calcResult.File.Name} => Error: {calcResult.Exception.Message}");
+                }
+
+                //so it doesn't go back to the enumerator, which would result in launching decoding the next file
+                cancellation.ThrowIfCancellationRequested();
+            }
 
             return (results, missingFileHashes.Select(x => x.Key).ToList());
         }
@@ -96,7 +94,7 @@ namespace Andy.FlacHash.Cmd
             return new HashVerifier(hashFormatter);
         }
 
-        public static IReportingMultipleFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError)
+        public static IMultipleFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError)
         {
             var steamFactory = new IO.ReadStreamFactory();
             var decoder = new IO.Audio.Flac.CmdLine.StreamDecoder(
@@ -105,10 +103,7 @@ namespace Andy.FlacHash.Cmd
             var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
-            var cancellableHasher = new ReportingMultipleFileHasher(
-                new MultipleFileHasher(hasher, continueOnError));
-
-            return cancellableHasher;
+            return new MultipleFileHasher(hasher, continueOnError);
         }
 
         static void WriteStdErrLine(string text)
