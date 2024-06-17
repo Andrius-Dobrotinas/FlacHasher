@@ -73,6 +73,11 @@ namespace Andy.FlacHash.Cmd
                 },
                 cancellation);
 
+            /* hasher.ComputeHashes quietly returns on cancellation.
+             * There's a small chance that cancellation was triggered when all files were already processed,
+             * but it's not worth it */
+            cancellation.ThrowIfCancellationRequested();
+
             return (results, missingFileHashes.Select(x => x.Key).ToList());
         }
 
