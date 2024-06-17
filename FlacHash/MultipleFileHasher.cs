@@ -31,6 +31,8 @@ namespace Andy.FlacHash
                 file => {
                     try
                     {
+                        cancellation.ThrowIfCancellationRequested();
+                        
                         return new FileHashResult
                         {
                             File = file,
