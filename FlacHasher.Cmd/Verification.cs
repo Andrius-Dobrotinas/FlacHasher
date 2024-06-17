@@ -49,13 +49,13 @@ namespace Andy.FlacHash.Cmd
             WriteStdErrLine("======== The End =========");
         }
 
-        private static (IList<KeyValuePair<FileInfo, bool>> results, IList<FileInfo> missingFiles) 
+        private static (IList<KeyValuePair<FileInfo, HashMatch>> results, IList<FileInfo> missingFiles) 
             VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultipleFileHasher hasher, CancellationToken cancellation)
         {
             var (existingFileHashes, missingFileHashes) = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
             var existingFileHashDictionary = existingFileHashes.ToDictionary(x => x.Key, x => x.Value);
             
-            var results = new List<KeyValuePair<FileInfo, bool>>();
+            var results = new List<KeyValuePair<FileInfo, HashMatch>>();
 
             foreach (FileHashResult calcResult in hasher.ComputeHashes(existingFileHashDictionary.Keys, cancellation))
                 {
@@ -65,10 +65,11 @@ namespace Andy.FlacHash.Cmd
                 {
                     var isMatch = hashVerifier.DoesMatch(existingFileHashDictionary, calcResult.File, calcResult.Hash);
                     Console.WriteLine($"{calcResult.File.Name} => {isMatch}");
-                    results.Add(new KeyValuePair<FileInfo, bool>(calcResult.File, isMatch));
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, isMatch ? HashMatch.True : HashMatch.False));
                 }
                 else
                 {
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, HashMatch.Error));
                     Console.WriteLine($"{calcResult.File.Name} => Error: {calcResult.Exception.Message}");
                 }
 

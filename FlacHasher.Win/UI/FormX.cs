@@ -186,7 +186,7 @@ namespace Andy.FlacHash.Win.UI
             await VerifyHashes(existingFileHashDictionary);
 
             foreach (var item in missingFileHashes)
-                list_verification_results.Add(item.Key, false);
+                list_verification_results.Add(item.Key, HashMatch.False);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
@@ -200,10 +200,11 @@ namespace Andy.FlacHash.Win.UI
                     {
                         var isMatch = hashVerifier.DoesMatch(expectedHashes, calcResult.File, calcResult.Hash);
 
-                        list_verification_results.Add(calcResult.File, isMatch);
+                        list_verification_results.Add(calcResult.File, isMatch ? HashMatch.True : HashMatch.False);
                     }
                     else
                     {
+                        list_verification_results.Add(calcResult.File, HashMatch.Error);
                         ReportExecutionError(calcResult.Exception, calcResult.File);
                     }
                 });

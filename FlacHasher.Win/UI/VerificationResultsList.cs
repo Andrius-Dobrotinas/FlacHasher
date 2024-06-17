@@ -8,12 +8,12 @@ namespace Andy.FlacHash.Win.UI
 {
     public class VerificationResultsList : ListView
     {
-        public void Add(FileInfo file, bool isMatch)
+        public void Add(FileInfo file, HashMatch isMatch)
         {
             var item = new ListViewItem
             {
                 Text = file.Name == HashEntryMatching.MissingFileKey ? "File's missing" : file.Name,
-                ImageIndex = isMatch ? 0 : 1,
+                ImageIndex = (int)isMatch
             };
 
             item.SubItems.Add(isMatch.ToString());

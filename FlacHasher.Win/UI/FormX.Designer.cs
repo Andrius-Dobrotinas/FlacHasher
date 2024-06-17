@@ -262,8 +262,9 @@
             this.imgList_verification.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
             this.imgList_verification.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgList_verification.ImageStream")));
             this.imgList_verification.TransparentColor = System.Drawing.Color.Transparent;
-            this.imgList_verification.Images.SetKeyName(0, "good");
-            this.imgList_verification.Images.SetKeyName(1, "bad");
+            this.imgList_verification.Images.SetKeyName(0, "bad");
+            this.imgList_verification.Images.SetKeyName(1, "good");
+            this.imgList_verification.Images.SetKeyName(2, "error.png");
             // 
             // FormX
             // 
