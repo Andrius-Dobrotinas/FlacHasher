@@ -4,6 +4,7 @@
     {
         False = 0,
         True = 1,
-        Error = 2
+        Error = 2,
+        NotFound = 3
     }
 }

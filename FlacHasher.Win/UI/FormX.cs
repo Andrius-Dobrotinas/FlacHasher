@@ -186,7 +186,7 @@ namespace Andy.FlacHash.Win.UI
             await VerifyHashes(existingFileHashDictionary);
 
             foreach (var item in missingFileHashes)
-                list_verification_results.Add(item.Key, HashMatch.False);
+                list_verification_results.Add(item.Key, HashMatch.NotFound);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
