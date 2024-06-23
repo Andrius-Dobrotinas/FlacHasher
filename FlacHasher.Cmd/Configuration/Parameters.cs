@@ -13,5 +13,7 @@ namespace Andy.FlacHash.Cmd
         public int? ProcessExitTimeoutMs { get; set; }
         public int? ProcessTimeoutSec { get; set; }
         public bool? FailOnError { get; set; }
+
+        public string HashFile { get; set; }
     }
 }

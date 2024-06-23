@@ -18,6 +18,7 @@ namespace Andy.FlacHash.Cmd
                 InputFiles = Parameter.GetValueOptional<string[]>(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
                 InputDirectory = Parameter.GetValueOptional(arguments, ArgumentNames.InputDirectory),
                 TargetFileExtension = Parameter.GetValueOptional(arguments, ArgumentNames.FileExtension),
+                HashFile = Parameter.GetValueOptional(arguments, ArgumentNames.HashFile),
                 OutputFormat = Parameter.GetValueOptional(arguments, ArgumentNames.OutputFormat),
                 ProcessExitTimeoutMs = Parameter.GetValueOptional<int?>(arguments, ArgumentNames.ProcessExitTimeoutMs, value => int.Parse(value)),
                 ProcessTimeoutSec = Parameter.GetValueOptional<int?>(arguments, ArgumentNames.ProcessTimeoutSec, value => int.Parse(value)),

@@ -16,8 +16,12 @@ namespace Andy.FlacHash.Cmd
         /// </summary>
         public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, CancellationToken cancellation)
         {
-            var hashfile = DirectoryScanner.GetFiles(new DirectoryInfo(parameters.InputDirectory), "hash").FirstOrDefault();
-            if (hashfile == null)
+            var hashfile = parameters.HashFile != null
+                ? new FileInfo(parameters.HashFile)
+                : DirectoryScanner.GetFiles(new DirectoryInfo(parameters.InputDirectory), "hash").FirstOrDefault();
+
+            Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
+            if (hashfile == null || !hashfile.Exists)
                 throw new TargetFileNotFoundException("Hash file not found");
 
             var hashfileReader = BuildHashfileReader();
