@@ -49,7 +49,7 @@ namespace Andy.Cmd
 
             return arguments.TryGetValue(argName, out value)
                 ? string.IsNullOrWhiteSpace(value)
-                    ? throw new ArgumentException("Parameter supplied without value", argName)
+                    ? throw new ParameterException("Parameter supplied without value", argName)
                     : value
                 : null;
         }

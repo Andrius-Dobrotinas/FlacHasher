@@ -3,7 +3,7 @@
     public enum ReturnValue
     {
         Success = 0,
-        ArgumentNotFound = -1,
+        ArgumentNotProvided = -1,
         ArgumentError = -2,
         NoFilesToProcess = -3,
         Cancellation = -99,

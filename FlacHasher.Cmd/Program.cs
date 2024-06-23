@@ -39,12 +39,12 @@ namespace Andy.FlacHash.Cmd
                 isVerification = argumentDictionary.ContainsKey(ArgumentNames.ModeVerify);
                 parameters = ParameterReader.GetParameters(argumentDictionary);
             }
-            catch (CmdLineArgNotFoundException e)
+            catch (ParameterMissingException e)
             {
                 WriteUserLine(e.Message);
-                return (int)ReturnValue.ArgumentNotFound;
+                return (int)ReturnValue.ArgumentNotProvided;
             }
-            catch (Exception e)
+            catch (ParameterException e)
             {
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ArgumentError;
