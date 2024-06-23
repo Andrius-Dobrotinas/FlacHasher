@@ -16,10 +16,7 @@ namespace Andy.FlacHash.Cmd
         /// </summary>
         public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, CancellationToken cancellation)
         {
-            var hashfile = parameters.HashFile != null
-                ? new FileInfo(parameters.HashFile)
-                : DirectoryScanner.GetFiles(new DirectoryInfo(parameters.InputDirectory), "hash").FirstOrDefault();
-
+            var hashfile = GetHashFile(parameters);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
             if (hashfile == null || !hashfile.Exists)
                 throw new TargetFileNotFoundException("Hash file not found");
@@ -109,6 +106,29 @@ namespace Andy.FlacHash.Cmd
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
             return new MultipleFileHasher(hasher, continueOnError);
+        }
+
+        static FileInfo GetHashFile(Parameters parameters)
+        {
+            if (parameters.HashFile != null)
+            {
+                if (parameters.InputDirectory != null)
+                {
+                    var isAbsolute = Path.IsPathRooted(parameters.HashFile);
+                    if (isAbsolute)
+                        return new FileInfo(parameters.HashFile);
+                    else
+                        return new FileInfo(Path.Combine(parameters.InputDirectory, parameters.HashFile));
+                }
+                else
+                {
+                    return new FileInfo(parameters.HashFile);
+                }
+            }
+            else if (parameters.InputDirectory != null)
+                return DirectoryScanner.GetFiles(new DirectoryInfo(parameters.InputDirectory), "hash").FirstOrDefault();
+            else
+                return null;
         }
 
         static void WriteStdErrLine(string text)
