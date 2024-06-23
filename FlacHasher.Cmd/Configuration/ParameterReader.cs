@@ -14,13 +14,13 @@ namespace Andy.FlacHash.Cmd
         {
             return new Parameters
             {
-                Decoder = Parameter.GetValue(arguments, ArgumentNames.Decoder),
-                InputFiles = Parameter.GetValue<string[]>(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
-                InputDirectory = Parameter.GetValue(arguments, ArgumentNames.InputDirectory),
-                TargetFileExtension = Parameter.GetValue(arguments, ArgumentNames.FileExtension),
-                OutputFormat = Parameter.GetValue(arguments, ArgumentNames.OutputFormat),
-                ProcessExitTimeoutMs = Parameter.GetValue<int?>(arguments, ArgumentNames.ProcessExitTimeoutMs, value => int.Parse(value)),
-                ProcessTimeoutSec = Parameter.GetValue<int?>(arguments, ArgumentNames.ProcessTimeoutSec, value => int.Parse(value)),
+                Decoder = Parameter.GetValueOptional(arguments, ArgumentNames.Decoder),
+                InputFiles = Parameter.GetValueOptional<string[]>(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
+                InputDirectory = Parameter.GetValueOptional(arguments, ArgumentNames.InputDirectory),
+                TargetFileExtension = Parameter.GetValueOptional(arguments, ArgumentNames.FileExtension),
+                OutputFormat = Parameter.GetValueOptional(arguments, ArgumentNames.OutputFormat),
+                ProcessExitTimeoutMs = Parameter.GetValueOptional<int?>(arguments, ArgumentNames.ProcessExitTimeoutMs, value => int.Parse(value)),
+                ProcessTimeoutSec = Parameter.GetValueOptional<int?>(arguments, ArgumentNames.ProcessTimeoutSec, value => int.Parse(value)),
                 FailOnError = Parameter.GetBoolValue(arguments, ArgumentNames.FailOnError)
             };
         }

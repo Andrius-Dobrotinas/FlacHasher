@@ -10,28 +10,47 @@ namespace Andy.Cmd
             if (!arguments.ContainsKey(argName))
                 return null;
 
-            string value = GetValue(arguments, argName);
+            string value = TryGetValueAllowingEmpty(arguments, argName);
 
             return String.IsNullOrEmpty(value)
                 ? true
                 : bool.Parse(value);
         }
 
-        public static T GetValue<T>(IDictionary<string, string> arguments, string argName, Func<string, T> createAnInstance)
+        public static T GetValueOptional<T>(IDictionary<string, string> arguments, string argName, Func<string, T> createAnInstance)
         {
-            string value = GetValue(arguments, argName);
+            string value = GetValueOptional(arguments, argName);
 
-            return String.IsNullOrEmpty(value)
+            return value == null
                 ? default(T)
                 : createAnInstance(value);
         }
 
-        public static string GetValue(IDictionary<string, string> arguments, string argName)
+        /// <summary>
+        /// If the argument is present, returns its value regardless whether it actually has one (eg empty string).
+        /// If the argument is not present, returns null.
+        /// </summary>
+        public static string TryGetValueAllowingEmpty(IDictionary<string, string> arguments, string argName)
         {
             string value;
 
             return arguments.TryGetValue(argName, out value)
                 ? value ?? ""
+                : null;
+        }
+
+        /// <summary>
+        /// If the argument is present, returns the value or throws an exception if it's empty.
+        /// If the argument is not found, returns null.
+        /// </summary>
+        public static string GetValueOptional(IDictionary<string, string> arguments, string argName)
+        {
+            string value;
+
+            return arguments.TryGetValue(argName, out value)
+                ? string.IsNullOrWhiteSpace(value)
+                    ? throw new ArgumentException("Parameter supplied without value", argName)
+                    : value
                 : null;
         }
     }

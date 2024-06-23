@@ -16,12 +16,12 @@ namespace Andy.FlacHash.CompressionLevel
                 .FirstOrDefault(x => x.Key.StartsWith(ArgumentNames.Prefix) == false)
                 .Key;
 
-            var compressioNlevel = Parameter.GetValue(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.CompressionLevel}");
+            var compressioNlevel = Parameter.TryGetValueAllowingEmpty(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.CompressionLevel}");
 
             return new Parameters
             {
                 SourceFile = sourceFilePath,
-                FlacExec = Parameter.GetValue(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.FlacExec}"),
+                FlacExec = Parameter.TryGetValueAllowingEmpty(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.FlacExec}"),
                 CompressionLevel = compressioNlevel == null ? (int?)null : int.Parse(compressioNlevel)
             };
         }        
