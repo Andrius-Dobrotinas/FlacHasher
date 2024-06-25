@@ -49,19 +49,17 @@ namespace Andy.FlacHash.Verification
 
         /// <summary>
         /// Matches <paramref name="files"/> with <paramref name="expectedHashes"/> based on file name.
+        /// For <paramref name="expectedHashes"/> that don't have a corresponding file, returns a <see cref="FileInfo"/>s with
+        /// the expected file name with "current" working dir path.
         /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
-        public static (
-            IList<KeyValuePair<FileInfo, string>> present,
-            IList<KeyValuePair<FileInfo, string>> missing)
-            MatchFilesToHashesNameBased(
+        public static IList<KeyValuePair<FileInfo, string>> MatchFilesToHashesNameBased(
             IList<KeyValuePair<string, string>> expectedHashes, 
             IEnumerable<FileInfo> files)
         {
             var fileDictionary = files.ToDictionary(x => x.Name, x => x);
 
             var result = new List<KeyValuePair<FileInfo, string>>();
-            var missing = new List<KeyValuePair<FileInfo, string>>();
 
             for (int i = 0; i < expectedHashes.Count; i++)
             {
@@ -72,13 +70,13 @@ namespace Andy.FlacHash.Verification
                     result.Add(
                         new KeyValuePair<FileInfo, string>(matchingFile, expected.Value));
                 else
-                    missing.Add(
+                    result.Add(
                         new KeyValuePair<FileInfo, string>(
                             new FileInfo(expected.Key),
                             expected.Value));
             }
 
-            return (result, missing);
+            return result;
         }
 
         /// <summary>
@@ -91,7 +89,7 @@ namespace Andy.FlacHash.Verification
         {
             return expectedFileHashMap.IsPositionBased
                     ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedFileHashMap.Hashes, files)
-                    : HashEntryMatching.MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files);
+                    : (HashEntryMatching.MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files), null);
         }
     }
 }

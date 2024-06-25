@@ -26,147 +26,108 @@ namespace Andy.FlacHash.Verification
         static string FileToString(FileInfo file) => file.Name;
 
         [TestCaseSource(nameof(GetCases_SameNumberOfFiles_AsHashes))]
-        public void When_All_FilesReferencedByHashlist_ArePresent__Must_Return_AllHashes_WithCorrespondingFiles_InOriginalHashOrder__And_No_MissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
+        public void When_All_FilesReferencedByHashlist_ArePresent__Must_Return_AllHashes_WithCorrespondingFiles_InOriginalHashOrder(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
+            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Key),
+                result.Select(x => x.Key),
                 expected.Select(x => x.Key),
                 FileToString,
                 "File infos");
 
             AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Value),
+                result.Select(x => x.Value),
                 expected.Select(x => x.Value),
                 "Hash values");
-
-            Assert.IsEmpty(result_missingItems, "Missing items");
         }
 
         [TestCaseSource(nameof(GetCases_AllMatches_WithExtraFiles))]
-        public void When_ThereAreExtraUnreferencedFiles__Must_Return_JustHashedFiles__And_No_MissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
+        public void When_All_FilesReferencedByHashlist_ArePresent_And_ThereAreExtraUnreferencedFiles__Must_IgnoreThem(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
         {
             var expected = inputHashes.ToList();
 
-            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
+            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Key.Name),
+                result.Select(x => x.Key.Name),
                 expected.Select(x => x.Key),
                 "File infos");
 
             AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Value),
-                expected.Select(x => x.Value),
-                "Hash values");
-
-            Assert.IsEmpty(result_missingItems, "Missing items");
-        }
-
-        [TestCaseSource(nameof(GetCases_FewerFilesPresent_ThanExpected))]
-        public void When_SomeReferencedFilesAreMissing__Must_Return_JustTheHashesForMatchingFiles(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<string, string>> _)
-        {
-            var (result_presentItems, __) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
-
-            AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Key),
-                expected.Select(x => x.Key),
-                FileToString,
-                "File infos");
-
-            AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Value),
+                result.Select(x => x.Value),
                 expected.Select(x => x.Value),
                 "Hash values");
         }
         
         [TestCaseSource(nameof(GetCases_FewerFilesPresent_ThanExpected))]
-        public void When_SomeReferencedFilesAreMissing__Must_Return_MissingItems_AsFileInfoWithSameName(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<KeyValuePair<string, string>> expected)
+        public void When_Some_ReferencedFilesAreMissing__Must_Return_Them_AsFileInfoWithSameName_InTheSamePositions(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var (__, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
+            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Key.Name),
-                expected.Select(x => x.Key),
+                result.Select(x => x.Key.Name),
+                expected.Select(x => x.Key.Name),
                 "File infos");
 
             AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Value),
+                result.Select(x => x.Value),
                 expected.Select(x => x.Value),
                 "Hash values");
         }
 
         [TestCaseSource(nameof(GetCases_SomeMissing_SomeExtra))]
-        public void When_SomeReferencedFilesAreMissing_AndExtraFilesArePresent__Must_Return_HashesForFiles_ThatAreReferencedAndPresent(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected, IList<KeyValuePair<string, string>> _)
+        public void When_Some_ReferencedFilesAreMissing_And_ExtraFilesArePresent__Must_Return_Hashes_OnlyForReferencedFiles_ThatArePresent(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var (result_presentItems, __) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
+            var results = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Key),
-                expected.Select(x => x.Key),
-                FileToString,
+                results.Select(x => x.Key.Name),
+                expected.Select(x => x.Key.Name),
                 "File infos");
 
             AssertThat.CollectionsMatchExactly(
-                result_presentItems.Select(x => x.Value),
-                expected.Select(x => x.Value),
-                "Hash values");
-        }
-
-        [TestCaseSource(nameof(GetCases_SomeMissing_SomeExtra))]
-        public void When_SomeReferencedFilesAreMissing_AndExtraFilesArePresent__Must_Return_MissingReferencedFiles_AsMissingItems(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> _, IList<KeyValuePair<string, string>> expected)
-        {
-            var (__, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
-
-            AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Key.Name),
-                expected.Select(x => x.Key),
-                "File infos");
-
-            AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Value),
+                results.Select(x => x.Value),
                 expected.Select(x => x.Value),
                 "Hash values");
         }
 
         [TestCaseSource(nameof(GetCases_NoInputFilesPresent))]
-        public void When_All_FilesReferencedByHashlist_AreMissing__Must_ReturnAllHashes_As_MissingItems(IList<KeyValuePair<string, string>> inputHashes)
+        public void When_All_FilesReferencedByHashlist_AreMissing__Must_Return_Them_AsFileInfoWithSameName_InTheSamePositions(IList<KeyValuePair<string, string>> inputHashes)
         {
             var expectedNames = inputHashes.Select(x => x.Key).ToList();
             var expectedHashes = inputHashes.Select(x => x.Value).ToList();
 
-            var (result_presentItems, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, Array.Empty<FileInfo>());
+            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, Array.Empty<FileInfo>());
 
-            Assert.IsEmpty(result_presentItems, "Present items");
-            Assert.IsNotEmpty(result_missingItems, "Missing items");
+            Assert.IsNotEmpty(result, "Missing items");
 
             AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Key.Name),
+                result.Select(x => x.Key.Name),
                 expectedNames,
                 "File infos");
 
             AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Value),
+                result.Select(x => x.Value),
                 expectedHashes,
                 "Hash values");
         }
 
         [TestCaseSource(nameof(GetCases_AllMissing_SomeExtra))]
-        public void When_All_FilesReferencedByHashlist_AreMissing_AndExtraFilesArePresent__Must_Return_AllReferencedOnes_AsMissingItems(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
+        public void When_All_FilesReferencedByHashlist_AreMissing_AndExtraFilesArePresent__Must_Return_OnlyReferencedFiles_AsFileInfoWithSameName(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
         {
             var expectedNames = inputHashes.Select(x => x.Key).ToList();
             var expectedHashes = inputHashes.Select(x => x.Value).ToList();
 
-            var (result_present, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
+            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles);
 
             AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Key.Name),
+                result.Select(x => x.Key.Name),
                 expectedNames,
                 "File infos");
 
             AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Value),
+                result.Select(x => x.Value),
                 expectedHashes,
                 "Hash values");
         }
@@ -181,10 +142,10 @@ namespace Andy.FlacHash.Verification
                 new KeyValuePair<string, string>(filename3, "hash3")
             };
 
-            var (_, result_missingItems) = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, new FileInfo[0]);
+            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, new FileInfo[0]);
 
             AssertThat.CollectionsMatchExactly(
-                result_missingItems.Select(x => x.Key.Name),
+                result.Select(x => x.Key.Name),
                 new string[]
                 { filename1, filename2, filename3 },
                 "File infos");
@@ -215,11 +176,8 @@ namespace Andy.FlacHash.Verification
                 new List<KeyValuePair<FileInfo, string>> // expected items
                 {
                     new KeyValuePair<FileInfo, string>(file1, hash1),
-                    new KeyValuePair<FileInfo, string>(file2, hash2)
-                },
-                new List<KeyValuePair<string, string>> // expected missing items
-                {
-                    new KeyValuePair<string, string>(filename3, hash3)
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename3), hash3),
                 });
 
             yield return new TestCaseData(
@@ -237,12 +195,9 @@ namespace Andy.FlacHash.Verification
                 },
                 new List<KeyValuePair<FileInfo, string>> // expected items
                 {
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename3), hash3),
                     new KeyValuePair<FileInfo, string>(file1, hash1),
                     new KeyValuePair<FileInfo, string>(file2, hash2)
-                },
-                new List<KeyValuePair<string, string>> // expected missing items
-                {
-                    new KeyValuePair<string, string>(filename3, hash3)
                 });
 
             yield return new TestCaseData(
@@ -263,14 +218,11 @@ namespace Andy.FlacHash.Verification
                 new List<KeyValuePair<FileInfo, string>> // expected items
                 {
                     new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename3), hash3),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename4), hash4),
                     new KeyValuePair<FileInfo, string>(file2, hash2),
-                    new KeyValuePair<FileInfo, string>(file5, hash5)
-                },
-                new List<KeyValuePair<string, string>> // expected missing items
-                {
-                    new KeyValuePair<string, string>(filename3, hash3),
-                    new KeyValuePair<string, string>(filename4, hash4),
-                    new KeyValuePair<string, string>(filename6, hash6)
+                    new KeyValuePair<FileInfo, string>(file5, hash5),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename6), hash6)
                 });
 
             yield return new TestCaseData(
@@ -286,19 +238,16 @@ namespace Andy.FlacHash.Verification
                 },
                 new FileInfo[] // input files
                 {
-                    file2, file5, file1 
+                    file2, file5, file1
                 },
                 new List<KeyValuePair<FileInfo, string>> // expected items
                 {
                     new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename3), hash3),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename4), hash4),
                     new KeyValuePair<FileInfo, string>(file2, hash2),
-                    new KeyValuePair<FileInfo, string>(file5, hash5)
-                },
-                new List<KeyValuePair<string, string>> // expected missing items
-                {
-                    new KeyValuePair<string, string>(filename3, hash3),
-                    new KeyValuePair<string, string>(filename4, hash4),
-                    new KeyValuePair<string, string>(filename6, hash6)
+                    new KeyValuePair<FileInfo, string>(file5, hash5),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename6), hash6)
                 });
         }
 
@@ -328,11 +277,8 @@ namespace Andy.FlacHash.Verification
                 new List<KeyValuePair<FileInfo, string>> // expected items
                 {
                     new KeyValuePair<FileInfo, string>(file1, hash1),
-                    new KeyValuePair<FileInfo, string>(file2, hash2)
-                },
-                new List<KeyValuePair<string, string>> // expected missing items
-                {
-                    new KeyValuePair<string, string>(filename3, hash3)
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename3), hash3)
                 });
 
             yield return new TestCaseData(
@@ -352,13 +298,10 @@ namespace Andy.FlacHash.Verification
                 },
                 new List<KeyValuePair<FileInfo, string>> // expected items
                 {
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename2), hash2),
                     new KeyValuePair<FileInfo, string>(file3, hash3),
-                    new KeyValuePair<FileInfo, string>(file1, hash1)
-                },
-                new List<KeyValuePair<string, string>> // expected missing items
-                {
-                    new KeyValuePair<string, string>(filename2, hash2),
-                    new KeyValuePair<string, string>(filename4, hash4)
+                    new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename4), hash4)
                 });
 
             yield return new TestCaseData(
@@ -382,11 +325,8 @@ namespace Andy.FlacHash.Verification
                 {
                     new KeyValuePair<FileInfo, string>(file2, hash2),
                     new KeyValuePair<FileInfo, string>(file5, hash5),
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename4), hash4),
                     new KeyValuePair<FileInfo, string>(file1, hash1),
-                },
-                new List<KeyValuePair<string, string>> // expected missing items
-                {
-                    new KeyValuePair<string, string>(filename4, hash4)
                 });
         }
 

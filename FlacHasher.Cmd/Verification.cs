@@ -43,10 +43,12 @@ namespace Andy.FlacHash.Cmd
                 WriteStdErrLine($"{result.Key.Name} => {result.Value}");
             }
 
-            foreach (var result in resultsMissing)
-            {
-                WriteStdErrLine($"{result.Name} Not Found");
-            }
+            if (resultsMissing != null)
+                foreach (var result in resultsMissing)
+                {
+                    WriteStdErrLine($"{result.Name} Not Found");
+                }
+
             WriteStdErrLine("======== The End =========");
         }
 
@@ -70,7 +72,10 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                 {
-                    results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, HashMatch.Error));
+                    var result = (calcResult.Exception is FileNotFoundException)
+                            ? HashMatch.NotFound
+                            : HashMatch.Error;
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, result));
                     Console.WriteLine($"{calcResult.File.Name} => Error: {calcResult.Exception.Message}");
                 }
 
@@ -78,7 +83,7 @@ namespace Andy.FlacHash.Cmd
                 cancellation.ThrowIfCancellationRequested();
             }
 
-            return (results, missingFileHashes.Select(x => x.Key).ToList());
+            return (results, missingFileHashes?.Select(x => x.Key).ToList());
         }
 
         public static HashFileReader BuildHashfileReader()

@@ -185,8 +185,9 @@ namespace Andy.FlacHash.Win.UI
             BeforeCalc(existingFileHashDictionary.Keys);
             await VerifyHashes(existingFileHashDictionary);
 
-            foreach (var item in missingFileHashes)
-                list_verification_results.Add(item.Key, HashMatch.NotFound);
+            if (missingFileHashes != null)
+                foreach (var item in missingFileHashes)
+                    list_verification_results.Add(item.Key, HashMatch.NotFound);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
@@ -204,7 +205,10 @@ namespace Andy.FlacHash.Win.UI
                     }
                     else
                     {
-                        list_verification_results.Add(calcResult.File, HashMatch.Error);
+                        var result = (calcResult.Exception is FileNotFoundException)
+                            ? HashMatch.NotFound
+                            : HashMatch.Error;
+                        list_verification_results.Add(calcResult.File, result);
                         ReportExecutionError(calcResult.Exception, calcResult.File);
                     }
                 });
@@ -217,7 +221,8 @@ namespace Andy.FlacHash.Win.UI
             list_results.ClearList();
             list_verification_results.Items.Clear();
 
-            long totalSize = files.Select(file => file.Length).Sum();
+            // Name-based verification includes files even if they don't exist just so they can be reported in the correct order
+            long totalSize = files.Select(file => file.Exists ? file.Length : 0).Sum();
             progressReporter.Reset(totalSize);
         }
 
