@@ -12,7 +12,7 @@ namespace Andy.FlacHash.Win.UI
         {
             var item = new ListViewItem
             {
-                Text = file.Name == HashEntryMatching.MissingFileKey ? "File's missing" : file.Name,
+                Text = file.Name,
                 ImageIndex = (int)(isMatch == HashMatch.NotFound ? HashMatch.Error : isMatch)
             };
 

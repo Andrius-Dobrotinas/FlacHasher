@@ -179,15 +179,11 @@ namespace Andy.FlacHash.Win.UI
 
         private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
         {
-            var (existingFileHashes, missingFileHashes) = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
-            var existingFileHashDictionary = existingFileHashes.ToDictionary(x => x.Key, x => x.Value);
+            var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
+            var existingFileHashDictionary = fileHashes.ToDictionary(x => x.Key, x => x.Value);
 
             BeforeCalc(existingFileHashDictionary.Keys);
             await VerifyHashes(existingFileHashDictionary);
-
-            if (missingFileHashes != null)
-                foreach (var item in missingFileHashes)
-                    list_verification_results.Add(item.Key, HashMatch.NotFound);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)

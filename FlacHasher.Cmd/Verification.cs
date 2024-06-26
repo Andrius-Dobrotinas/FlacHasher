@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Cmd
 
         public static void Verify(IMultipleFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, CancellationToken cancellation)
         {
-            var (results, resultsMissing) = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
+            var results = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
           
             WriteStdErrLine();
             WriteStdErrLine();
@@ -43,20 +43,13 @@ namespace Andy.FlacHash.Cmd
                 WriteStdErrLine($"{result.Key.Name} => {result.Value}");
             }
 
-            if (resultsMissing != null)
-                foreach (var result in resultsMissing)
-                {
-                    WriteStdErrLine($"{result.Name} Not Found");
-                }
-
             WriteStdErrLine("======== The End =========");
         }
 
-        private static (IList<KeyValuePair<FileInfo, HashMatch>> results, IList<FileInfo> missingFiles) 
-            VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultipleFileHasher hasher, CancellationToken cancellation)
+        private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultipleFileHasher hasher, CancellationToken cancellation)
         {
-            var (existingFileHashes, missingFileHashes) = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
-            var existingFileHashDictionary = existingFileHashes.ToDictionary(x => x.Key, x => x.Value);
+            var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
+            var existingFileHashDictionary = fileHashes.ToDictionary(x => x.Key, x => x.Value);
             
             var results = new List<KeyValuePair<FileInfo, HashMatch>>();
 
@@ -83,7 +76,7 @@ namespace Andy.FlacHash.Cmd
                 cancellation.ThrowIfCancellationRequested();
             }
 
-            return (results, missingFileHashes?.Select(x => x.Key).ToList());
+            return results;
         }
 
         public static HashFileReader BuildHashfileReader()

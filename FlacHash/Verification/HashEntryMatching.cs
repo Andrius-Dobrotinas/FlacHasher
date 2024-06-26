@@ -7,24 +7,21 @@ namespace Andy.FlacHash.Verification
 {
     public static class HashEntryMatching
     {
-        public const string MissingFileKey = "{FILE_MISSING}";
+        public const string MissingFileKey = "{{File {0}}}";
 
         /// <summary>
-        /// Matches <paramref name="files"/> with <paramref name="expectedHashes"/> based on their position, not file name.
-        /// For each file that's not found, return file info with <see cref="MissingFileKey"/> as file name.
+        /// Matches <paramref name="files"/> with <paramref name="expectedHashes"/> based on their positions, not file name.
+        /// For <paramref name="expectedHashes"/> that don't have a corresponding file, returns <see cref="FileInfo"/>s with
+        /// <see cref="MissingFileKey"/> with expected file position as file name and "current" working dir path.
         /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
-        public static (
-            IList<KeyValuePair<FileInfo, string>> present, 
-            IList<KeyValuePair<FileInfo, string>> missing)
-            MatchFilesToHashesPositionBased(
+        public static IList<KeyValuePair<FileInfo, string>> MatchFilesToHashesPositionBased(
             IList<KeyValuePair<string, string>> expectedHashes, 
             IEnumerable<FileInfo> files)
         {
             var filesTargetedByTheHashes = files.Take(expectedHashes.Count).ToList();
 
             var result = new List<KeyValuePair<FileInfo, string>>();
-            var missing = new List<KeyValuePair<FileInfo, string>>();
 
             for (int i = 0; i < expectedHashes.Count; i++)
             {
@@ -34,17 +31,13 @@ namespace Andy.FlacHash.Verification
                     ? filesTargetedByTheHashes[i]
                     : null;
 
-                if (matchingFile != null)
-                    result.Add(
-                        new KeyValuePair<FileInfo, string>(matchingFile, expected.Value));
-                else
-                    missing.Add(
-                        new KeyValuePair<FileInfo, string>(
-                            new FileInfo(MissingFileKey),
-                            expected.Value));
+                result.Add(
+                    new KeyValuePair<FileInfo, string>(
+                        matchingFile ?? new FileInfo(string.Format(MissingFileKey, i+1)),
+                        expected.Value));
             }
 
-            return (result, missing);
+            return result;
         }
 
         /// <summary>
@@ -82,14 +75,11 @@ namespace Andy.FlacHash.Verification
         /// <summary>
         /// Matches <paramref name="files"/> with <paramref name="expectedFileHashMap"/> depending on how <paramref name="expectedFileHashMap"/> is defined.
         /// </summary>
-        public static (
-            IList<KeyValuePair<FileInfo, string>> present,
-            IList<KeyValuePair<FileInfo, string>> missing)
-            MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
+        public static IList<KeyValuePair<FileInfo, string>> MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
         {
             return expectedFileHashMap.IsPositionBased
                     ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedFileHashMap.Hashes, files)
-                    : (HashEntryMatching.MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files), null);
+                    : HashEntryMatching.MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files);
         }
     }
 }
