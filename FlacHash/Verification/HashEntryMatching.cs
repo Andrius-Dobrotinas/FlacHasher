@@ -59,14 +59,10 @@ namespace Andy.FlacHash.Verification
                 var expected = expectedHashes[i];
                 var matchingFile = fileDictionary.GetValueOrDefault(expected.Key);
 
-                if (matchingFile != null)
-                    result.Add(
-                        new KeyValuePair<FileInfo, string>(matchingFile, expected.Value));
-                else
-                    result.Add(
-                        new KeyValuePair<FileInfo, string>(
-                            new FileInfo(expected.Key),
-                            expected.Value));
+                result.Add(
+                    new KeyValuePair<FileInfo, string>(
+                        matchingFile ?? new FileInfo(expected.Key),
+                        expected.Value));
             }
 
             return result;
