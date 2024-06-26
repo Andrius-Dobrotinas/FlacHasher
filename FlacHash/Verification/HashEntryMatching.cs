@@ -15,13 +15,11 @@ namespace Andy.FlacHash.Verification
         /// <see cref="MissingFileKey"/> with expected file position as file name and "current" working dir path.
         /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
-        public static IList<KeyValuePair<FileInfo, string>> MatchFilesToHashesPositionBased(
+        public static IEnumerable<KeyValuePair<FileInfo, string>> MatchFilesToHashesPositionBased(
             IList<KeyValuePair<string, string>> expectedHashes, 
             IEnumerable<FileInfo> files)
         {
             var filesTargetedByTheHashes = files.Take(expectedHashes.Count).ToList();
-
-            var result = new List<KeyValuePair<FileInfo, string>>();
 
             for (int i = 0; i < expectedHashes.Count; i++)
             {
@@ -31,13 +29,10 @@ namespace Andy.FlacHash.Verification
                     ? filesTargetedByTheHashes[i]
                     : null;
 
-                result.Add(
-                    new KeyValuePair<FileInfo, string>(
+                yield return new KeyValuePair<FileInfo, string>(
                         matchingFile ?? new FileInfo(string.Format(MissingFileKey, i+1)),
-                        expected.Value));
+                        expected.Value);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -46,32 +41,27 @@ namespace Andy.FlacHash.Verification
         /// the expected file name with "current" working dir path.
         /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
-        public static IList<KeyValuePair<FileInfo, string>> MatchFilesToHashesNameBased(
+        public static IEnumerable<KeyValuePair<FileInfo, string>> MatchFilesToHashesNameBased(
             IList<KeyValuePair<string, string>> expectedHashes, 
             IEnumerable<FileInfo> files)
         {
             var fileDictionary = files.ToDictionary(x => x.Name, x => x);
-
-            var result = new List<KeyValuePair<FileInfo, string>>();
 
             for (int i = 0; i < expectedHashes.Count; i++)
             {
                 var expected = expectedHashes[i];
                 var matchingFile = fileDictionary.GetValueOrDefault(expected.Key);
 
-                result.Add(
-                    new KeyValuePair<FileInfo, string>(
+                yield return new KeyValuePair<FileInfo, string>(
                         matchingFile ?? new FileInfo(expected.Key),
-                        expected.Value));
+                        expected.Value);
             }
-
-            return result;
         }
 
         /// <summary>
         /// Matches <paramref name="files"/> with <paramref name="expectedFileHashMap"/> depending on how <paramref name="expectedFileHashMap"/> is defined.
         /// </summary>
-        public static IList<KeyValuePair<FileInfo, string>> MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
+        public static IEnumerable<KeyValuePair<FileInfo, string>> MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
         {
             return expectedFileHashMap.IsPositionBased
                     ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedFileHashMap.Hashes, files)

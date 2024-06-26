@@ -26,7 +26,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_NumberOfFilesMatchesHashes))]
         public void When_Theres_TheSameNumber_OfFiles_As_TheNumberOf_Hashes__Must_Return_AllHashes_MatchedWithFilesAtRespectiveIndexes(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles).ToList();
 
             Assert.IsNotEmpty(result);
 
@@ -44,7 +44,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_MoreFilesThanExpected))]
         public void When_Theres_MoreFiles_Than_Hashes__Must_Must_Return_AllHashes_MatchedWithFilesAtRespectiveIndexes_IgnoringExtraFiles(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
-            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles).ToList();
 
             Assert.IsNotEmpty(result);
 
@@ -62,7 +62,7 @@ namespace Andy.FlacHash.Verification
         [TestCaseSource(nameof(GetCases_FewerFilesThanExpected))]
         public void When_Theres_FewerFiles_Than_ExpectedHashes__Must_Return_HashesPairedWithFiles_FollowedBy_MissingHashesWithSpecialMissingFileInfos(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expectedPresentOnes, IList<KeyValuePair<FileInfo, string>> expectedMissingOnes)
         {
-            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles);
+            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles).ToList();
 
             Assert.IsNotEmpty(result);
 
@@ -92,7 +92,7 @@ namespace Andy.FlacHash.Verification
         {
             var expectedHashes = inputHashes.Select(x => x.Value).ToList();
 
-            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, Array.Empty<FileInfo>());
+            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, Array.Empty<FileInfo>()).ToList();
 
             Assert.IsNotEmpty(result);
 
