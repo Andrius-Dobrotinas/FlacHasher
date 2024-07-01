@@ -1,4 +1,5 @@
 ﻿using Andy.FlacHash.ExternalProcess;
+using Andy.FlacHash.IO;
 using Andy.FlacHash.Verification;
 using System;
 using System.Collections.Generic;
@@ -63,7 +64,7 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                 {
-                    var result = (calcResult.Exception is FileNotFoundException)
+                    var result = (calcResult.Exception is SourceFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
                     results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, result));

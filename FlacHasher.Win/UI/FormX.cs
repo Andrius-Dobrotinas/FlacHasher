@@ -1,4 +1,5 @@
-﻿using Andy.FlacHash.Verification;
+﻿using Andy.FlacHash.IO;
+using Andy.FlacHash.Verification;
 using Andy.FlacHash.Verification.Source;
 using System;
 using System.Collections.Generic;
@@ -172,7 +173,7 @@ namespace Andy.FlacHash.Win.UI
             var hashFile = list_hashFiles.GetSelectedItem();
 
             if (hashFile.Exists == false)
-                throw new FileNotFoundException($"Hash file doesn't exist: {hashFile.FullName}");
+                throw new Exception($"Hash file doesn't exist: {hashFile.FullName}");
 
             return hashFileParser.Read(hashFile);
         }
@@ -200,7 +201,7 @@ namespace Andy.FlacHash.Win.UI
                     }
                     else
                     {
-                        var result = (calcResult.Exception is FileNotFoundException)
+                        var result = (calcResult.Exception is SourceFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
                         list_verification_results.Add(calcResult.File, result);
