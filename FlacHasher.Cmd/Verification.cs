@@ -49,17 +49,15 @@ namespace Andy.FlacHash.Cmd
         private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultipleFileHasher hasher, CancellationToken cancellation)
         {
             var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
-            var existingFileHashDictionary = fileHashes.ToDictionary(x => x.Key, x => x.Value);
-            
             var results = new List<KeyValuePair<FileInfo, HashMatch>>();
 
-            foreach (FileHashResult calcResult in hasher.ComputeHashes(existingFileHashDictionary.Keys, cancellation))
+            foreach (FileHashResult calcResult in hasher.ComputeHashes(fileHashes.Keys, cancellation))
                 {
                     cancellation.ThrowIfCancellationRequested();
 
                 if (calcResult.Exception == null)
                 {
-                    var isMatch = hashVerifier.DoesMatch(existingFileHashDictionary, calcResult.File, calcResult.Hash);
+                    var isMatch = hashVerifier.DoesMatch(fileHashes, calcResult.File, calcResult.Hash);
                     Console.WriteLine($"{calcResult.File.Name} => {isMatch}");
                     results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, isMatch ? HashMatch.True : HashMatch.False));
                 }

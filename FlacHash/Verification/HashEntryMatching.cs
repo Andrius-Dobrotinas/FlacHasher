@@ -60,12 +60,15 @@ namespace Andy.FlacHash.Verification
 
         /// <summary>
         /// Matches <paramref name="files"/> with <paramref name="expectedFileHashMap"/> depending on how <paramref name="expectedFileHashMap"/> is defined.
+        /// Returns a dictionary of File > Hash
         /// </summary>
-        public static IEnumerable<KeyValuePair<FileInfo, string>> MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
+        public static IDictionary<FileInfo, string> MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
         {
-            return expectedFileHashMap.IsPositionBased
+            var result = expectedFileHashMap.IsPositionBased
                     ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedFileHashMap.Hashes, files)
                     : HashEntryMatching.MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files);
+
+            return result.ToDictionary(x => x.Key, x => x.Value);
         }
     }
 }

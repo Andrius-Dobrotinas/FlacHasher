@@ -180,10 +180,9 @@ namespace Andy.FlacHash.Win.UI
         private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
         {
             var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
-            var existingFileHashDictionary = fileHashes.ToDictionary(x => x.Key, x => x.Value);
 
-            BeforeCalc(existingFileHashDictionary.Keys);
-            await VerifyHashes(existingFileHashDictionary);
+            BeforeCalc(fileHashes.Keys);
+            await VerifyHashes(fileHashes);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
