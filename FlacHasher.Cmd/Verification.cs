@@ -19,7 +19,7 @@ namespace Andy.FlacHash.Cmd
             var hashfile = GetHashFile(parameters);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
             if (hashfile == null || !hashfile.Exists)
-                throw new TargetFileNotFoundException("Hash file not found");
+                throw new InputFileMissingException("Hash file not found");
 
             var hashfileReader = BuildHashfileReader();
             var fileHashMap = hashfileReader.Read(hashfile);

@@ -61,7 +61,7 @@ namespace Andy.FlacHash.Cmd
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
 
                 if (!inputFiles.Any())
-                    throw new TargetFileNotFoundException("No files provided/found");
+                    throw new InputFileMissingException("No files provided/found");
 
                 var cancellation = new CancellationTokenSource();
                 Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
@@ -107,7 +107,7 @@ namespace Andy.FlacHash.Cmd
                     WriteUserLine($"Process output:\n{e.ProcessErrorOutput}");
                 return (int)ReturnValue.ExecutionFailure;
             }
-            catch (TargetFileNotFoundException e)
+            catch (InputFileMissingException e)
             {
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.NoFilesToProcess;
