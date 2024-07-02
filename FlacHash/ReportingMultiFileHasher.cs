@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Andy.FlacHash
 {
-    public interface IReportingMultipleFileHasher
+    public interface IReportingMultiFileHasher
     {
         /// <summary>
         /// Calculates hashes for each file and reports the hash as soon as it's calculated.
@@ -17,11 +17,11 @@ namespace Andy.FlacHash
             CancellationToken cancellationToken);
     }
 
-    public class ReportingMultipleFileHasher : IReportingMultipleFileHasher
+    public class ReportingMultiFileHasher : IReportingMultiFileHasher
     {
         private readonly IMultipleFileHasher hasher;
 
-        public ReportingMultipleFileHasher(IMultipleFileHasher hasher)
+        public ReportingMultiFileHasher(IMultipleFileHasher hasher)
         {
             this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
         }

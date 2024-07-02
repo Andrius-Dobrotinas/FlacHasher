@@ -61,7 +61,7 @@ namespace Andy.FlacHash.Win
             }
         }
 
-        private static (IReportingMultipleFileHasher, FileReadProgressReporter) BuildHasher(Settings settings)
+        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(Settings settings)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
@@ -75,7 +75,7 @@ namespace Andy.FlacHash.Win
             var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
-            var cancellableHasher = new ReportingMultipleFileHasher(
+            var cancellableHasher = new ReportingMultiFileHasher(
                 new MultipleFileHasher(hasher, !settings.FailOnError ?? continueOnErrorDefault));
 
             return (cancellableHasher, fileReadProgressReporter);

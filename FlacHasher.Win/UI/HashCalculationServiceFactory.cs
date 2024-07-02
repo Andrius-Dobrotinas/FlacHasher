@@ -7,10 +7,10 @@ namespace Andy.FlacHash.Win.UI
 {
     public class HashCalculationServiceFactory
     {
-        private readonly IReportingMultipleFileHasher hasher;
+        private readonly IReportingMultiFileHasher hasher;
 
         public HashCalculationServiceFactory(
-            IReportingMultipleFileHasher hasher)
+            IReportingMultiFileHasher hasher)
         {
             this.hasher = hasher;
         }

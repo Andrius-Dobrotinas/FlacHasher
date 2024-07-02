@@ -9,14 +9,14 @@ namespace Andy.FlacHash.Win.UI
     public class NonBlockingHashComputation
     {
         private readonly CancellableBackgroundOperationRunner operationRunner;
-        private readonly IReportingMultipleFileHasher hasher;
+        private readonly IReportingMultiFileHasher hasher;
         private readonly CompletionHandler reportCompletion;
         private readonly Action<Exception> reportFailure;
         private readonly StateChangeHandler stateChanged;
 
         public NonBlockingHashComputation(
             CancellableBackgroundOperationRunner operationRunner,
-            IReportingMultipleFileHasher hasher,
+            IReportingMultiFileHasher hasher,
             CompletionHandler reportCompletion, 
             Action<Exception> reportFailure, 
             StateChangeHandler stateChanged)
