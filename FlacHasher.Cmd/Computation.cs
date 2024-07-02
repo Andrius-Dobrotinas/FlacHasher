@@ -17,17 +17,17 @@ namespace Andy.FlacHash.Cmd
             ComputeHashes(hasher, inputFiles, outputFomat, printProcessProgress, cancellation);
         }
 
-        static MultipleFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError)
+        static MultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError)
         {
             var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
                     decoderFile,
                     processRunner);
 
             var hasher = new FileHasher(decoder, new Sha256HashComputer());
-            return new MultipleFileHasher(hasher, continueOnError);
+            return new MultiFileHasher(hasher, continueOnError);
         }
 
-        static void ComputeHashes(MultipleFileHasher multiHasher, IEnumerable<FileInfo> inputFiles, string outputFormat, bool printProcessProgress, CancellationToken cancellation)
+        static void ComputeHashes(MultiFileHasher multiHasher, IEnumerable<FileInfo> inputFiles, string outputFormat, bool printProcessProgress, CancellationToken cancellation)
         {
             // On cancellation, simply errors out
             IEnumerable<FileHashResult> computations = multiHasher

@@ -31,7 +31,7 @@ namespace Andy.FlacHash.Cmd
             Verify(hasher, verifier, targetFiles, fileHashMap, cancellation);
         }
 
-        public static void Verify(IMultipleFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, CancellationToken cancellation)
+        public static void Verify(IMultiFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, CancellationToken cancellation)
         {
             var results = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
           
@@ -47,7 +47,7 @@ namespace Andy.FlacHash.Cmd
             WriteStdErrLine("======== The End =========");
         }
 
-        private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultipleFileHasher hasher, CancellationToken cancellation)
+        private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultiFileHasher hasher, CancellationToken cancellation)
         {
             var filesUnique = files
                 .Distinct(new FileInfoEqualityComprarer())
@@ -97,7 +97,7 @@ namespace Andy.FlacHash.Cmd
             return new HashVerifier(hashFormatter);
         }
 
-        public static IMultipleFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError)
+        public static IMultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError)
         {
             var steamFactory = new IO.ReadStreamFactory();
             var decoder = new IO.Audio.Flac.CmdLine.StreamDecoder(
@@ -106,7 +106,7 @@ namespace Andy.FlacHash.Cmd
             var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
-            return new MultipleFileHasher(hasher, continueOnError);
+            return new MultiFileHasher(hasher, continueOnError);
         }
 
         static FileInfo GetHashFile(Parameters parameters)

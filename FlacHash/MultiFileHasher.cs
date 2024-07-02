@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Andy.FlacHash
 {
-    public interface IMultipleFileHasher
+    public interface IMultiFileHasher
     {
         /// <summary>
         /// Calculates hashes for each file upon enumeration.
@@ -15,12 +15,12 @@ namespace Andy.FlacHash
         IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files, CancellationToken cancellation = default);
     }
 
-    public class MultipleFileHasher : IMultipleFileHasher
+    public class MultiFileHasher : IMultiFileHasher
     {
         private readonly IFileHasher hasher;
         private readonly bool continueOnError;
 
-        public MultipleFileHasher(IFileHasher hasher, bool continueOnError)
+        public MultiFileHasher(IFileHasher hasher, bool continueOnError)
         {
             this.hasher = hasher;
             this.continueOnError = continueOnError;

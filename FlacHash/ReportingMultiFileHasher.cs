@@ -19,9 +19,9 @@ namespace Andy.FlacHash
 
     public class ReportingMultiFileHasher : IReportingMultiFileHasher
     {
-        private readonly IMultipleFileHasher hasher;
+        private readonly IMultiFileHasher hasher;
 
-        public ReportingMultiFileHasher(IMultipleFileHasher hasher)
+        public ReportingMultiFileHasher(IMultiFileHasher hasher)
         {
             this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
         }

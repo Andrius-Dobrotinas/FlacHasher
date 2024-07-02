@@ -10,19 +10,19 @@ namespace Andy.FlacHash
 {
     public class MultipleFileHasherTests
     {
-        private MultipleFileHasher target;
+        private MultiFileHasher target;
         private Mock<IFileHasher> hasher;
 
         [SetUp]
         public void Setup()
         {
             hasher = new Mock<IFileHasher>();
-            target = new MultipleFileHasher(hasher.Object, true);
+            target = new MultiFileHasher(hasher.Object, true);
         }
 
-        MultipleFileHasher CreateTarget(bool failOnError)
+        MultiFileHasher CreateTarget(bool failOnError)
         {
-            return new MultipleFileHasher(hasher.Object, failOnError);
+            return new MultiFileHasher(hasher.Object, failOnError);
         }
 
         [TestCaseSource(nameof(GetFiles))]
