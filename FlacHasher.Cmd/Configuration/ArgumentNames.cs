@@ -4,7 +4,12 @@
     {
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
+
+        /// <summary>
+        /// Files will be processed in the order they're provided
+        /// </summary>
         public const string InputFiles = "--input";
+
         public const string InputDirectory = "--inputDir";
         public const string FileExtension = "--file-extension";
         public const string ProcessExitTimeoutMs = "--process-exit-timeout";
