@@ -7,7 +7,7 @@ namespace Andy.FlacHash
 {
     public interface IFileHasher
     {
-        byte[] ComputerHash(FileInfo sourceFile, CancellationToken cancellation);
+        byte[] ComputeHash(FileInfo sourceFile, CancellationToken cancellation);
     }
 
     public class FileHasher : IFileHasher
@@ -21,7 +21,7 @@ namespace Andy.FlacHash
             this.hashComputer = hashComputer ?? throw new ArgumentNullException(nameof(hashComputer));
         }
 
-        public byte[] ComputerHash(FileInfo sourceFile, CancellationToken cancellation = default)
+        public byte[] ComputeHash(FileInfo sourceFile, CancellationToken cancellation = default)
         {
             using (Stream contents = fileDecoder.Read(sourceFile, cancellation))
             {

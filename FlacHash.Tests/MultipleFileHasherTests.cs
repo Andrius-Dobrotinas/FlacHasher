@@ -31,7 +31,7 @@ namespace Andy.FlacHash
             target.ComputeHashes(files);
 
             hasher.Verify(
-                x => x.ComputerHash(
+                x => x.ComputeHash(
                     It.IsAny<FileInfo>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never,
@@ -47,7 +47,7 @@ namespace Andy.FlacHash
                 .ToArray();
 
             hasher.Verify(
-                x => x.ComputerHash(
+                x => x.ComputeHash(
                     It.IsAny<FileInfo>(),
                     It.Is<CancellationToken>(arg => arg == cancellation)),
                 Times.Exactly(files.Count),
@@ -56,7 +56,7 @@ namespace Andy.FlacHash
             for (int i = 0; i < files.Count; i++)
             {
                 hasher.Verify(
-                x => x.ComputerHash(
+                x => x.ComputeHash(
                     It.Is<FileInfo>(
                         arg => arg == files[i]),
                     It.IsAny<CancellationToken>()),
@@ -72,7 +72,7 @@ namespace Andy.FlacHash
 
             foreach (var (file, hash) in filesWithResults)
                 hasher.Setup(
-                    x => x.ComputerHash(
+                    x => x.ComputeHash(
                         It.Is<FileInfo>(arg => arg == file),
                         It.IsAny<CancellationToken>()))
                     .Returns(hash);
@@ -91,7 +91,7 @@ namespace Andy.FlacHash
 
             foreach (var (file, hash, exception) in filesWithResults)
                 hasher.Setup(
-                    x => x.ComputerHash(
+                    x => x.ComputeHash(
                         It.Is<FileInfo>(arg => arg == file),
                         It.IsAny<CancellationToken>()))
                     .Returns<FileInfo, CancellationToken>((f, c) => hash ?? throw new OperationCanceledException("!!"));
@@ -109,7 +109,7 @@ namespace Andy.FlacHash
 
             foreach (var item in expected)
                 hasher.Setup(
-                    x => x.ComputerHash(
+                    x => x.ComputeHash(
                         It.Is<FileInfo>(arg => arg == item.File),
                         It.IsAny<CancellationToken>()))
                     .Returns<FileInfo, CancellationToken>((f, c) => item.Hash ?? throw item.Exception);
@@ -132,7 +132,7 @@ namespace Andy.FlacHash
 
             foreach (var (file, hash, exception) in filesWithResults)
                 hasher.Setup(
-                    x => x.ComputerHash(
+                    x => x.ComputeHash(
                         It.Is<FileInfo>(arg => arg == file),
                         It.IsAny<CancellationToken>()))
                     .Returns<FileInfo, CancellationToken>((f, c) => hash ?? throw exception);

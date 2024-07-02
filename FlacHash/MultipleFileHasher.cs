@@ -37,7 +37,7 @@ namespace Andy.FlacHash
                         return new FileHashResult
                         {
                             File = file,
-                            Hash = hasher.ComputerHash(file, cancellation)
+                            Hash = hasher.ComputeHash(file, cancellation)
                         };
                     }
                     catch (OperationCanceledException)
