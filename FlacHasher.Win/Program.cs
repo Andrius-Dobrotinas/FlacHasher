@@ -51,7 +51,7 @@ namespace Andy.FlacHash.Win
                         new UI.InteractiveTextFileWriter(saveHashesToFileDialog),
                         progressReporter,
                         directoryResolver,
-                        new TargetFileResolver(
+                        new InputFileResolver(
                             supportedFileExtension,
                             hashFileExtension),
                         hashFormatter,

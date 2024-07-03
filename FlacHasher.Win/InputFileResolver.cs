@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace Andy.FlacHash.Win
 {
-    public class TargetFileResolver
+    public class InputFileResolver
     {
         private readonly string sourceFileExtension;
         private readonly string hashFileExtension;
 
-        public TargetFileResolver(
+        public InputFileResolver(
             string sourceFileExtension,
             string hashFileExtension)
         {

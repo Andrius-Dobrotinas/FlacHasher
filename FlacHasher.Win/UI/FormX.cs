@@ -19,7 +19,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly FileSizeProgressBarAdapter progressReporter;
 
         private readonly InteractiveDirectoryGetter dirBrowser;
-        private readonly TargetFileResolver targetFileResolver;
+        private readonly InputFileResolver targetFileResolver;
 
         private readonly IHashFormatter hashFormatter;
         private readonly HashFileReader hashFileParser;
@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Win.UI
             InteractiveTextFileWriter hashFileWriter,
             IO.IFileReadEventSource fileReadEventSource,
             InteractiveDirectoryGetter dirBrowser,
-            TargetFileResolver targetFileResolver,
+            InputFileResolver targetFileResolver,
             IHashFormatter hashFormatter,
             HashFileReader hashFileParser,
             HashVerifier hashVerifier)
