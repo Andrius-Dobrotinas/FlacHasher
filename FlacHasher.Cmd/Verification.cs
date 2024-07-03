@@ -113,18 +113,11 @@ namespace Andy.FlacHash.Cmd
         {
             if (parameters.HashFile != null)
             {
-                if (parameters.InputDirectory != null)
-                {
-                    var isAbsolute = Path.IsPathRooted(parameters.HashFile);
-                    if (isAbsolute)
-                        return new FileInfo(parameters.HashFile);
-                    else
-                        return new FileInfo(Path.Combine(parameters.InputDirectory, parameters.HashFile));
-                }
+                var isAbsolute = Path.IsPathRooted(parameters.HashFile);
+                if (!isAbsolute && parameters.InputDirectory != null)
+                    return new FileInfo(Path.Combine(parameters.InputDirectory, parameters.HashFile));
                 else
-                {
                     return new FileInfo(parameters.HashFile);
-                }
             }
             else if (parameters.InputDirectory != null)
                 return FileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "hash").FirstOrDefault();
