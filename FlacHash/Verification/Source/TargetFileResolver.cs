@@ -11,11 +11,11 @@ namespace Andy.FlacHash.Verification.Source
         private readonly string hashFileFilter;
 
         public TargetFileResolver(
-            string sourceFileFilter,
-            string hashFileFilter)
+            string sourceFileExtension,
+            string hashFileExtension)
         {
-            this.sourceFileFilter = sourceFileFilter;
-            this.hashFileFilter = hashFileFilter;
+            this.sourceFileFilter = $".{sourceFileExtension}";
+            this.hashFileFilter = $".{hashFileExtension}";
         }
 
         public (FileInfo[], FileInfo[]) GetFiles(DirectoryInfo directory)

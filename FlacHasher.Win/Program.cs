@@ -12,8 +12,8 @@ namespace Andy.FlacHash.Win
     static class Program
     {
         const string settingsFileName = "settings.cfg";
-        const string supportedFileExtension = ".flac";
-        const string hashFileExtension = ".hash";
+        const string supportedFileExtension = "flac";
+        const string hashFileExtension = "hash";
         const int processExitTimeoutMsDefault = 1000;
         const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = 180;
