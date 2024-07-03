@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Verification.Source
+namespace Andy.FlacHash.Win
 {
     public class TargetFileResolver
     {

@@ -1,6 +1,5 @@
 ﻿using Andy.FlacHash.IO;
 using Andy.FlacHash.Verification;
-using Andy.FlacHash.Verification.Source;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
