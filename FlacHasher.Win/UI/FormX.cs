@@ -89,7 +89,7 @@ namespace Andy.FlacHash.Win.UI
             var directory = dirBrowser.GetDirectory();
             if (directory == null) return;
 
-            var (files, hashFiles) = targetFileResolver.GetFiles(directory);
+            var (files, hashFiles) = targetFileResolver.FindFiles(directory);
 
             if (files.Any() == false)
                 label_Status.Text = "The selected directory doesn't contain suitable files";
