@@ -127,7 +127,7 @@ namespace Andy.FlacHash.Cmd
                 }
             }
             else if (parameters.InputDirectory != null)
-                return DirectoryScanner.GetFiles(new DirectoryInfo(parameters.InputDirectory), "hash").FirstOrDefault();
+                return FileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "hash").FirstOrDefault();
             else
                 return null;
         }

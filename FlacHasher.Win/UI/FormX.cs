@@ -104,7 +104,7 @@ namespace Andy.FlacHash.Win.UI
         {
             list_files.ReplaceItems(files);
 
-            if (hashFiles != null)
+            if (hashFiles.Any())
             {
                 list_hashFiles.ReplaceItems(hashFiles);
                 list_hashFiles.SelectedIndex = 0;

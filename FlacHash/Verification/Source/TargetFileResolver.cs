@@ -7,31 +7,21 @@ namespace Andy.FlacHash.Verification.Source
 {
     public class TargetFileResolver
     {
-        private readonly string sourceFileFilter;
-        private readonly string hashFileFilter;
+        private readonly string sourceFileExtension;
+        private readonly string hashFileExtension;
 
         public TargetFileResolver(
             string sourceFileExtension,
             string hashFileExtension)
         {
-            this.sourceFileFilter = $".{sourceFileExtension}";
-            this.hashFileFilter = $".{hashFileExtension}";
+            this.sourceFileExtension = sourceFileExtension;
+            this.hashFileExtension = hashFileExtension;
         }
 
         public (FileInfo[], FileInfo[]) GetFiles(DirectoryInfo directory)
         {
-            var allFiles = FileUtil.FindFiles(directory, new string[] { sourceFileFilter, hashFileFilter })
-                .GroupBy(x => x.Extension)
-                .ToArray()
-                .ToDictionary(x => x.Key, x => x.ToArray());
-
-            var files = allFiles.ContainsKey(sourceFileFilter)
-                ? allFiles[sourceFileFilter]
-                : new FileInfo[0];
-
-            var hashFiles = allFiles.ContainsKey(hashFileFilter)
-                ? allFiles[hashFileFilter]
-                : null;
+            var files = FileSearch.FindFiles(directory, sourceFileExtension).ToArray();
+            var hashFiles = FileSearch.FindFiles(directory, hashFileExtension).ToArray();
 
             return (files, hashFiles);
         }
