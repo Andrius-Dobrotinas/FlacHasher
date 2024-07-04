@@ -34,7 +34,7 @@ namespace Andy.FlacHash.Cmd
         public static void Verify(IMultiFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, CancellationToken cancellation)
         {
             var results = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
-          
+
             WriteStdErrLine();
             WriteStdErrLine();
             WriteStdErrLine("======== Results =========");
@@ -121,9 +121,9 @@ namespace Andy.FlacHash.Cmd
             }
             else if (parameters.InputDirectory != null)
             {
-                var hashfileExtensions = GetHashFileExtensions(implicitHashfileExtensionsSetting);
+                var hashfileExtensions = Settings.GetHashFileExtensions(implicitHashfileExtensionsSetting);
                 WriteStdErrLine($"Looking for a hashfile with extension(s): {string.Join(',', hashfileExtensions)}");
-                
+
                 return FileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "*")
                     .FirstOrDefault(file => hashfileExtensions.Contains(file.Extension));
             }
@@ -131,18 +131,21 @@ namespace Andy.FlacHash.Cmd
                 return null;
         }
 
-        static string[] GetHashFileExtensions(string hashfileExtensionsString)
+        public static class Settings
         {
-            var hashfileExtensions = string.IsNullOrWhiteSpace(hashfileExtensionsString)
-                        ? null
-                        : hashfileExtensionsString.Split(',')
-                            .Select(x => $".{x.Trim()}")
-                            .ToArray();
+            public static string[] GetHashFileExtensions(string hashfileExtensionsString)
+            {
+                var hashfileExtensions = string.IsNullOrWhiteSpace(hashfileExtensionsString)
+                            ? null
+                            : hashfileExtensionsString.Split(',')
+                                .Select(x => $".{x.Trim()}")
+                                .ToArray();
 
-            if (hashfileExtensions == null || !hashfileExtensions.Any())
-                hashfileExtensions = new string[] { $".{FileHashMap.DefaultExtension}" };
+                if (hashfileExtensions == null || !hashfileExtensions.Any())
+                    hashfileExtensions = new string[] { $".{FileHashMap.DefaultExtension}" };
 
-            return hashfileExtensions;
+                return hashfileExtensions;
+            }
         }
 
         static void WriteStdErrLine(string text)

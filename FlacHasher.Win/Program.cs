@@ -33,6 +33,8 @@ namespace Andy.FlacHash.Win
                 return;
             }
 
+            var hashfileExtensions = Cmd.Verification.Settings.GetHashFileExtensions(settings.HashfileExtensions);
+
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -52,7 +54,7 @@ namespace Andy.FlacHash.Win
                         directoryResolver,
                         new InputFileResolver(
                             supportedFileExtension,
-                            FileHashMap.DefaultExtension),
+                            hashfileExtensions),
                         hashFormatter,
                         Cmd.Verification.BuildHashfileReader(),
                         new HashVerifier(hashFormatter)));
