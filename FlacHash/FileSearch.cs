@@ -21,7 +21,7 @@ namespace Andy.FlacHash
                 MatchType = MatchType.Simple,
                 RecurseSubdirectories = false,
                 MatchCasing = MatchCasing.CaseInsensitive,
-                AttributesToSkip = FileAttributes.System
+                AttributesToSkip = FileAttributes.System | FileAttributes.Directory
             };
             if (!includeHidden)
                 settings.AttributesToSkip = settings.AttributesToSkip | FileAttributes.Hidden;
