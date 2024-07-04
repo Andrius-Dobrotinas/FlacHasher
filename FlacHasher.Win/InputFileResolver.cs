@@ -9,19 +9,22 @@ namespace Andy.FlacHash.Win
     {
         private readonly string sourceFileExtension;
         private readonly ICollection<string> hashFileExtensions;
+        private readonly FileSearch fileSearch;
 
         public InputFileResolver(
             string sourceFileExtension,
-            ICollection<string> hashFileExtensions)
+            ICollection<string> hashFileExtensions,
+            FileSearch fileSearch)
         {
             this.sourceFileExtension = sourceFileExtension;
             this.hashFileExtensions = hashFileExtensions;
+            this.fileSearch = fileSearch;
         }
 
         public (FileInfo[], FileInfo[]) FindFiles(DirectoryInfo directory)
         {
-            var files = FileSearch.FindFiles(directory, sourceFileExtension).ToArray();
-            var hashFiles = FileSearch.FindFiles(directory, "*")
+            var files = fileSearch.FindFiles(directory, sourceFileExtension).ToArray();
+            var hashFiles = fileSearch.FindFiles(directory, "*")
                 .Where(file => hashFileExtensions.Contains(file.Extension))
                 .ToArray();
 

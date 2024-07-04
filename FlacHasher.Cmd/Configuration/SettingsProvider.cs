@@ -22,7 +22,8 @@ namespace Andy.FlacHash.Cmd
                     ProcessTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessTimeoutSec)),
                     ProcessStartWaitMs = GetValueInt(defaultSection, nameof(Settings.ProcessStartWaitMs)),
                     FailOnError = GetValueBool(defaultSection, nameof(Settings.FailOnError)),
-                    HashfileExtensions = GetValue(defaultSection, nameof(Settings.HashfileExtensions))
+                    HashfileExtensions = GetValue(defaultSection, nameof(Settings.HashfileExtensions)),
+                    FileLookupIncludeHidden = GetValueBool(defaultSection, nameof(Settings.FileLookupIncludeHidden)) ?? false
                 };
             }
 

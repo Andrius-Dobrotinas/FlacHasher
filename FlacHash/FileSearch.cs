@@ -5,20 +5,37 @@ using System.Linq;
 
 namespace Andy.FlacHash
 {
-    public static class FileSearch
+    public class FileSearch
     {
-        public static IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, string fileExtension)
+        private bool includeHidden;
+
+        public FileSearch(bool includeHidden)
+        {
+            this.includeHidden = includeHidden;
+        }
+
+        public IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, string fileExtension)
+        {
+            var settings = new EnumerationOptions
+            {
+                MatchType = MatchType.Simple,
+                RecurseSubdirectories = false,
+                MatchCasing = MatchCasing.CaseInsensitive,
+                AttributesToSkip = FileAttributes.System
+            };
+            if (!includeHidden)
+                settings.AttributesToSkip = settings.AttributesToSkip | FileAttributes.Hidden;
+
+            return FindFiles(directory, fileExtension, settings);
+        }
+
+
+        public static IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, string fileExtension, EnumerationOptions settings)
         {
             return directory
                 .EnumerateFiles(
                     $"*.{fileExtension}",
-                    new EnumerationOptions
-                    {
-                        MatchType = MatchType.Simple,
-                        RecurseSubdirectories = false,
-                        AttributesToSkip = FileAttributes.Hidden, // TODO: make configurable
-                        MatchCasing = MatchCasing.CaseInsensitive, // TODO: make configurable
-                    });
+                    settings);
         }
     }
 }

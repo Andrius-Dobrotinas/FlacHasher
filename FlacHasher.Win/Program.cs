@@ -34,6 +34,7 @@ namespace Andy.FlacHash.Win
             }
 
             var hashfileExtensions = Cmd.Verification.Settings.GetHashFileExtensions(settings.HashfileExtensions);
+            var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
@@ -54,7 +55,8 @@ namespace Andy.FlacHash.Win
                         directoryResolver,
                         new InputFileResolver(
                             supportedFileExtension,
-                            hashfileExtensions),
+                            hashfileExtensions,
+                            fileSearch),
                         hashFormatter,
                         Cmd.Verification.BuildHashfileReader(),
                         new HashVerifier(hashFormatter)));

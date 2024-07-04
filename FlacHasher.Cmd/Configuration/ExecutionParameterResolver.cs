@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Cmd
             return null;
         }
 
-        public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments)
+        public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, FileSearch fileSearch)
         {
             if (cmdlineArguments.InputFiles != null)
             {
@@ -46,7 +46,7 @@ namespace Andy.FlacHash.Cmd
                 if (String.IsNullOrEmpty(fileExtension))
                     throw new Exception("Target file extension must be specified when scanning a directory");
 
-                return FileSearch.FindFiles(new DirectoryInfo(cmdlineArguments.InputDirectory), fileExtension)
+                return fileSearch.FindFiles(new DirectoryInfo(cmdlineArguments.InputDirectory), fileExtension)
                     .ToList();
             }
 

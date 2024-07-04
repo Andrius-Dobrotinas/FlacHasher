@@ -15,9 +15,9 @@ namespace Andy.FlacHash.Cmd
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string implicitHashfileExtensionsSetting, CancellationToken cancellation)
+        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string implicitHashfileExtensionsSetting, FileSearch fileSearch, CancellationToken cancellation)
         {
-            var hashfile = GetHashFile(parameters, implicitHashfileExtensionsSetting);
+            var hashfile = GetHashFile(parameters, implicitHashfileExtensionsSetting, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
             if (hashfile == null || !hashfile.Exists)
                 throw new InputFileMissingException("Hash file not found");
@@ -109,7 +109,7 @@ namespace Andy.FlacHash.Cmd
             return new MultiFileHasher(hasher, continueOnError);
         }
 
-        static FileInfo GetHashFile(Parameters parameters, string implicitHashfileExtensionsSetting)
+        static FileInfo GetHashFile(Parameters parameters, string implicitHashfileExtensionsSetting, FileSearch fileSearch)
         {
             if (parameters.HashFile != null)
             {
@@ -124,7 +124,7 @@ namespace Andy.FlacHash.Cmd
                 var hashfileExtensions = Settings.GetHashFileExtensions(implicitHashfileExtensionsSetting);
                 WriteStdErrLine($"Looking for a hashfile with extension(s): {string.Join(',', hashfileExtensions)}");
 
-                return FileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "*")
+                return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "*")
                     .FirstOrDefault(file => hashfileExtensions.Contains(file.Extension));
             }
             else

@@ -52,13 +52,14 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
+                var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
                 FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 int processExitTimeoutMs = ExecutionParameterResolver.GetProcessExitTimeoutInMs(settings, parameters, processExitTimeoutMsDefault);
                 int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
                 int processStartWaitMs = settings.ProcessStartWaitMs ?? processStartWaitMsDefault;
                 bool continueOnError = ExecutionParameterResolver.GetContinueOnError(settings, parameters, continueOnErrorDefault);
-                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters);
+                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters, fileSearch);
 
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");
@@ -78,7 +79,7 @@ namespace Andy.FlacHash.Cmd
 
                 if (isVerification)
                 {
-                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, settings.HashfileExtensions, cancellation.Token);
+                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, settings.HashfileExtensions, fileSearch, cancellation.Token);
                 }
                 else
                 {
