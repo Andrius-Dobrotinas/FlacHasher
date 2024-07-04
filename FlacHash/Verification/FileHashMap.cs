@@ -5,6 +5,8 @@ namespace Andy.FlacHash.Verification
 {
     public class FileHashMap
     {
+        public const string DefaultExtension = "hash";
+
         public IList<KeyValuePair<string, string>> Hashes { get; }
         public bool IsPositionBased { get; }
 

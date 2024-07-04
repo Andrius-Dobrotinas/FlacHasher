@@ -12,7 +12,6 @@ namespace Andy.FlacHash.Win
     {
         const string settingsFileName = "settings.cfg";
         const string supportedFileExtension = "flac";
-        const string hashFileExtension = "hash";
         const int processExitTimeoutMsDefault = 1000;
         const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = 180;
@@ -53,7 +52,7 @@ namespace Andy.FlacHash.Win
                         directoryResolver,
                         new InputFileResolver(
                             supportedFileExtension,
-                            hashFileExtension),
+                            FileHashMap.DefaultExtension),
                         hashFormatter,
                         Cmd.Verification.BuildHashfileReader(),
                         new HashVerifier(hashFormatter)));

@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Cmd
 
                 if (isVerification)
                 {
-                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, cancellation.Token);
+                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, settings.HashfileExtensions, cancellation.Token);
                 }
                 else
                 {
