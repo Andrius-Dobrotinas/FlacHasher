@@ -15,14 +15,14 @@ namespace Andy.FlacHash.Cmd
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string implicitHashfileExtensionsSetting, FileSearch fileSearch, CancellationToken cancellation)
+        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string implicitHashfileExtensionsSetting, string hashfileEntrySeparator, FileSearch fileSearch, CancellationToken cancellation)
         {
             var hashfile = GetHashFile(parameters, implicitHashfileExtensionsSetting, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
             if (hashfile == null || !hashfile.Exists)
                 throw new InputFileMissingException("Hash file not found");
 
-            var hashfileReader = BuildHashfileReader();
+            var hashfileReader = BuildHashfileReader(hashfileEntrySeparator);
             var fileHashMap = hashfileReader.Read(hashfile);
 
             var hasher = BuildHasher(decoderFile, processRunner, continueOnError);
@@ -82,12 +82,13 @@ namespace Andy.FlacHash.Cmd
             return results;
         }
 
-        public static HashFileReader BuildHashfileReader()
+        public static HashFileReader BuildHashfileReader(string hashfileEntrySeparator)
         {
             return new HashFileReader(
                         new HashMapParser(
                             new HashEntryCollectionParser(
-                                new HashEntryParser(":")),
+                                new HashEntryParser(
+                                    string.IsNullOrEmpty(hashfileEntrySeparator) ? ":" : hashfileEntrySeparator)),
                             new CaseInsensitiveOrdinalStringComparer()));
         }
 

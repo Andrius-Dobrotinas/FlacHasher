@@ -23,6 +23,7 @@ namespace Andy.FlacHash.Cmd
                     ProcessStartWaitMs = GetValueInt(defaultSection, nameof(Settings.ProcessStartWaitMs)),
                     FailOnError = GetValueBool(defaultSection, nameof(Settings.FailOnError)),
                     HashfileExtensions = GetValue(defaultSection, nameof(Settings.HashfileExtensions)),
+                    HashfileEntrySeparator = GetValue(defaultSection, nameof(Settings.HashfileEntrySeparator)),
                     FileLookupIncludeHidden = GetValueBool(defaultSection, nameof(Settings.FileLookupIncludeHidden)) ?? false
                 };
             }

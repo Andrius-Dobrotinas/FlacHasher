@@ -58,7 +58,7 @@ namespace Andy.FlacHash.Win
                             hashfileExtensions,
                             fileSearch),
                         hashFormatter,
-                        Cmd.Verification.BuildHashfileReader(),
+                        Cmd.Verification.BuildHashfileReader(settings.HashfileEntrySeparator),
                         new HashVerifier(hashFormatter)));
             }
         }
