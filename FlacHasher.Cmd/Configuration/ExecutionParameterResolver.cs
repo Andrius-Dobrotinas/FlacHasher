@@ -69,7 +69,7 @@ namespace Andy.FlacHash.Cmd
                 return Settings.Defaults.HashAlgorithm;
 
             Algorithm value;
-            if (!Enum.TryParse(algo, out value))
+            if (!Enum.TryParse(algo.ToUpperInvariant(), out value))
                 throw new ConfigurationException($"The specified Hash algorithm is not supported: {algo}");
             return value;
         }
