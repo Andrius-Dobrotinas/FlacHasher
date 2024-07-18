@@ -7,7 +7,7 @@ namespace Andy.FlacHash.Crypto
     {
         public byte[] ComputeHash(Stream data)
         {
-            using (var algorithm = System.Security.Cryptography.HashAlgorithm.Create("System.Security.Cryptography.SHA256Managed"))
+            using (var algorithm = System.Security.Cryptography.HashAlgorithm.Create(typeof(System.Security.Cryptography.SHA256Managed).FullName))
             {
                 return algorithm.ComputeHash(data);
             }
