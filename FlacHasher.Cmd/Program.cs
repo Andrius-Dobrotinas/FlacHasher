@@ -54,6 +54,7 @@ namespace Andy.FlacHash.Cmd
             {
                 var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
                 FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
+                string hashAlgorithm = ExecutionParameterResolver.ResolveHashAlgorithm(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 int processExitTimeoutMs = ExecutionParameterResolver.GetProcessExitTimeoutInMs(settings, parameters, processExitTimeoutMsDefault);
                 int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
@@ -63,6 +64,8 @@ namespace Andy.FlacHash.Cmd
 
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");
+
+                WriteUserLine($"Hash algorithm: {hashAlgorithm}");
 
                 var cancellation = new CancellationTokenSource();
                 Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
@@ -77,7 +80,6 @@ namespace Andy.FlacHash.Cmd
                     settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
                     printProcessProgress);
 
-                var hashAlgorithm = settings.HashAlgorithm;
                 if (isVerification)
                 {
                     Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, settings.HashfileExtensions, settings.HashfileEntrySeparator, hashAlgorithm, fileSearch, cancellation.Token);

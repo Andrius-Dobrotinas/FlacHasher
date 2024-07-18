@@ -61,6 +61,11 @@ namespace Andy.FlacHash.Cmd
             return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
         }
 
+        public static string ResolveHashAlgorithm(Settings settings, Parameters cmdlineArguments)
+        {
+            return cmdlineArguments.HashAlgorithm ?? settings.HashAlgorithm ?? throw new ConfigurationException($"A hash algorightm has to be specified");
+        }
+
         public static int GetProcessExitTimeoutInMs(Settings settings, Parameters cmdlineArguments, int defaultValue)
         {
             if (cmdlineArguments.ProcessExitTimeoutMs != null)

@@ -4,6 +4,7 @@
     {
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
+        public const string HashAlgorithm = "--algorithm";
 
         /// <summary>
         /// Files will be processed in the order they're provided
