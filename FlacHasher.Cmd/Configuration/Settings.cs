@@ -16,5 +16,10 @@ namespace Andy.FlacHash.Cmd
         public int? ProcessTimeoutSec { get; set; }
         public int? ProcessStartWaitMs { get; set; }
         public bool? FailOnError { get; set; }
+
+        public static class Defaults
+        {
+            public static string HashAlgorithm = "SHA256";
+        }
     }
 }

@@ -63,7 +63,7 @@ namespace Andy.FlacHash.Cmd
 
         public static string ResolveHashAlgorithm(Settings settings, Parameters cmdlineArguments)
         {
-            return cmdlineArguments.HashAlgorithm ?? settings.HashAlgorithm ?? throw new ConfigurationException($"A hash algorightm has to be specified");
+            return cmdlineArguments.HashAlgorithm ?? settings.HashAlgorithm ?? Settings.Defaults.HashAlgorithm;
         }
 
         public static int GetProcessExitTimeoutInMs(Settings settings, Parameters cmdlineArguments, int defaultValue)
