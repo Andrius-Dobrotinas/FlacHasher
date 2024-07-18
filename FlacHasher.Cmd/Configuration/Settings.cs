@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Andy.FlacHash.Crypto;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -19,7 +20,7 @@ namespace Andy.FlacHash.Cmd
 
         public static class Defaults
         {
-            public static string HashAlgorithm = "SHA256";
+            public static Algorithm HashAlgorithm = Algorithm.SHA256;
         }
     }
 }

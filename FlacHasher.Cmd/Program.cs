@@ -1,4 +1,5 @@
 ﻿using Andy.Cmd;
+using Andy.FlacHash.Crypto;
 using Andy.FlacHash.ExternalProcess;
 using System;
 using System.Collections.Generic;
@@ -54,7 +55,7 @@ namespace Andy.FlacHash.Cmd
             {
                 var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
                 FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
-                string hashAlgorithm = ExecutionParameterResolver.ResolveHashAlgorithm(settings, parameters);
+                Algorithm hashAlgorithm = ExecutionParameterResolver.ResolveHashAlgorithm(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
                 int processExitTimeoutMs = ExecutionParameterResolver.GetProcessExitTimeoutInMs(settings, parameters, processExitTimeoutMsDefault);
                 int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);

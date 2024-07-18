@@ -11,13 +11,13 @@ namespace Andy.FlacHash.Cmd
     {
         const char newlineChar = '\n';
 
-        public static void ComputeHashes(IList<FileInfo> inputFiles, string outputFomat, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, bool printProcessProgress, string hashAlgorithm, CancellationToken cancellation)
+        public static void ComputeHashes(IList<FileInfo> inputFiles, string outputFomat, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, bool printProcessProgress, Algorithm hashAlgorithm, CancellationToken cancellation)
         {
             var hasher = BuildHasher(decoderFile, processRunner, continueOnError, hashAlgorithm);
             ComputeHashes(hasher, inputFiles, outputFomat, printProcessProgress, cancellation);
         }
 
-        static MultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string hashAlgorithm)
+        static MultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, Algorithm hashAlgorithm)
         {
             var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
                     decoderFile,

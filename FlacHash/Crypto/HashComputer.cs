@@ -8,15 +8,9 @@ namespace Andy.FlacHash.Crypto
     {
         private readonly string algo;
 
-        public HashComputer(string algorithm)
+        public HashComputer(Algorithm algorithm)
         {
-            if (algorithm == null)
-                throw new ArgumentNullException(nameof(algorithm));
-
-            if (algorithm != nameof(MD5) && algorithm != nameof(SHA1) && algorithm != nameof(SHA256) && algorithm != nameof(SHA512))
-                throw new ArgumentException(nameof(algorithm), $"Valid algorithm values are: {nameof(MD5)}, {nameof(SHA1)}, {nameof(SHA256)}, {nameof(SHA512)}");
-
-            this.algo = algorithm;
+            this.algo = algorithm.ToString();
         }
 
         public byte[] ComputeHash(Stream data)

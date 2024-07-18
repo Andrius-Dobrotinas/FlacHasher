@@ -1,4 +1,5 @@
-﻿using Andy.FlacHash.ExternalProcess;
+﻿using Andy.FlacHash.Crypto;
+using Andy.FlacHash.ExternalProcess;
 using Andy.FlacHash.IO;
 using Andy.FlacHash.Verification;
 using System;
@@ -15,7 +16,7 @@ namespace Andy.FlacHash.Cmd
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string implicitHashfileExtensionsSetting, string hashfileEntrySeparator, string hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
+        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string implicitHashfileExtensionsSetting, string hashfileEntrySeparator, Algorithm hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
         {
             var hashfile = GetHashFile(parameters, implicitHashfileExtensionsSetting, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
@@ -98,7 +99,7 @@ namespace Andy.FlacHash.Cmd
             return new HashVerifier(hashFormatter);
         }
 
-        public static IMultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string hashAlgorithm)
+        public static IMultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, Algorithm hashAlgorithm)
         {
             var steamFactory = new IO.ReadStreamFactory();
             var decoder = new IO.Audio.Flac.CmdLine.StreamDecoder(

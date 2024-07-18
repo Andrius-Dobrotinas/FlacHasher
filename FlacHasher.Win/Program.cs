@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Win
 
             var hasher = new FileHasher(
                 reader,
-                new Crypto.HashComputer(settings.HashAlgorithm ?? Settings.Defaults.HashAlgorithm));
+                new Crypto.HashComputer(ExecutionParameterResolver.ResolveHashAlgorithm(settings, null)));
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(hasher, !settings.FailOnError ?? continueOnErrorDefault));
 

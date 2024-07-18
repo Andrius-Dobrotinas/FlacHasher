@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Andy.FlacHash.Crypto;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,9 +62,16 @@ namespace Andy.FlacHash.Cmd
             return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
         }
 
-        public static string ResolveHashAlgorithm(Settings settings, Parameters cmdlineArguments)
+        public static Algorithm ResolveHashAlgorithm(Settings settings, Parameters cmdlineArguments)
         {
-            return cmdlineArguments.HashAlgorithm ?? settings.HashAlgorithm ?? Settings.Defaults.HashAlgorithm;
+            var algo = cmdlineArguments?.HashAlgorithm ?? settings.HashAlgorithm;
+            if (algo == null)
+                return Settings.Defaults.HashAlgorithm;
+
+            Algorithm value;
+            if (!Enum.TryParse(algo, out value))
+                throw new ConfigurationException($"The specified Hash algorithm is not supported: {algo}");
+            return value;
         }
 
         public static int GetProcessExitTimeoutInMs(Settings settings, Parameters cmdlineArguments, int defaultValue)
