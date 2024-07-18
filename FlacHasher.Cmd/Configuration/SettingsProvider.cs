@@ -24,6 +24,7 @@ namespace Andy.FlacHash.Cmd
                     FailOnError = GetValueBool(defaultSection, nameof(Settings.FailOnError)),
                     HashfileExtensions = GetValue(defaultSection, nameof(Settings.HashfileExtensions)),
                     HashfileEntrySeparator = GetValue(defaultSection, nameof(Settings.HashfileEntrySeparator)),
+                    HashAlgorithm = GetValue(defaultSection, nameof(Settings.HashAlgorithm)),
                     FileLookupIncludeHidden = GetValueBool(defaultSection, nameof(Settings.FileLookupIncludeHidden)) ?? false
                 };
             }

@@ -9,6 +9,7 @@ namespace Andy.FlacHash.Cmd
         public FileInfo Decoder { get; set; }
         public string HashfileExtensions { get; set; }
         public string HashfileEntrySeparator { get; set; }
+        public string HashAlgorithm { get; set; }
         public bool FileLookupIncludeHidden { get; set; }
         public string OutputFormat { get; set; }
         public int? ProcessExitTimeoutMs { get; set; }

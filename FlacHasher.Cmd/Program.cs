@@ -77,13 +77,14 @@ namespace Andy.FlacHash.Cmd
                     settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
                     printProcessProgress);
 
+                var hashAlgorithm = settings.HashAlgorithm;
                 if (isVerification)
                 {
-                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, settings.HashfileExtensions, settings.HashfileEntrySeparator, fileSearch, cancellation.Token);
+                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, settings.HashfileExtensions, settings.HashfileEntrySeparator, hashAlgorithm, fileSearch, cancellation.Token);
                 }
                 else
                 {
-                    Computation.ComputeHashes(inputFiles, outputFomat, decoderFile, processRunner, continueOnError, printProcessProgress, cancellation.Token);
+                    Computation.ComputeHashes(inputFiles, outputFomat, decoderFile, processRunner, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)

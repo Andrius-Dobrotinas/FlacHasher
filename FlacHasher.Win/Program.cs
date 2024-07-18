@@ -76,7 +76,7 @@ namespace Andy.FlacHash.Win
                     showProcessWindowWithOutput));
             var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
-            var hasher = new FileHasher(reader, new Crypto.Sha256HashComputer());
+            var hasher = new FileHasher(reader, new Crypto.HashComputer(settings.HashAlgorithm));
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(hasher, !settings.FailOnError ?? continueOnErrorDefault));
 
