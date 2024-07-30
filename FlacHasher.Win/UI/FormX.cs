@@ -326,12 +326,6 @@ namespace Andy.FlacHash.Win.UI
             Task.Run(() => MessageBox.Show($"Error processing file {file.Name}: {exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error));
         }
 
-        public enum Mode
-        {
-            Calculation,
-            Verification
-        }
-
         private Mode mode;
 
         private void mode_Calc_CheckedChanged(object sender, EventArgs e)
