@@ -58,7 +58,7 @@ namespace Andy.FlacHash.Win.UI
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
 
-            ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, SaveHashes);
+            ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
             this.label_Status.Text = "Select a directory";
             this.btn_go.Enabled = false;
@@ -77,6 +77,31 @@ namespace Andy.FlacHash.Win.UI
             list_verification_results.Resize += List_verification_results_Resize;
             List_verification_results_Resize(null, null);
         }
+
+        private async Task WithTryCatch(Func<Task> function)
+        {
+            try
+            {
+                await function();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void WithTryCatch(Action function)
+        {
+            try
+            {
+                function();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void List_verification_results_Resize(object sender, EventArgs e)
         {
             var newWidth = list_verification_results.Width - col_results_verification_isMatch.Width;
@@ -85,6 +110,11 @@ namespace Andy.FlacHash.Win.UI
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
+        {
+            WithTryCatch(ChooseDir);
+        }
+
+        private void ChooseDir()
         {
             var directory = dirBrowser.GetDirectory();
             if (directory == null) return;
@@ -133,6 +163,11 @@ namespace Andy.FlacHash.Win.UI
         }
 
         private async void Btn_Go_Click(object sender, EventArgs e)
+        {
+            await WithTryCatch(Go);
+        }
+
+        private async Task Go()
         {
             if (!hasherService.InProgress)
             {
