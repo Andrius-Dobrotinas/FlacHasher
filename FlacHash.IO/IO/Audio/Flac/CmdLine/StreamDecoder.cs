@@ -22,14 +22,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
         {
             var arguments = GetProcessArguments();
 
-            try
-            {
-                return processRunner.RunAndReadOutput(decoderExecutableFile, arguments, wavAudio, cancellation);
-            }
-            catch (ExternalProcess.ExecutionException e)
-            {
-                throw new FlacCompressionException("Failed to read the input file", e);
-            }
+            return processRunner.RunAndReadOutput(decoderExecutableFile, arguments, wavAudio, cancellation);
         }
 
         private static string[] GetProcessArguments()

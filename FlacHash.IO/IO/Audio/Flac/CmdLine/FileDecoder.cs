@@ -26,17 +26,10 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 
             var arguments = GetProcessArguments(sourceFile);
 
-            try
-            {
-                return processRunner.RunAndReadOutput(
-                    decoderExecutableFile,
-                    arguments,
-                    cancellation);
-            }
-            catch(ExternalProcess.ExecutionException e)
-            {
-                throw new FlacCompressionException("Failed to decode the file", e);
-            }
+            return processRunner.RunAndReadOutput(
+                decoderExecutableFile,
+                arguments,
+                cancellation);
         }
 
         private static string[] GetProcessArguments(FileInfo sourceFile)

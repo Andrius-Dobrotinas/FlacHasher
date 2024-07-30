@@ -24,17 +24,10 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 
             var arguments = GetProcessArguments(compressionLevel);
 
-            try
-            {
-                return processRunner.RunAndReadOutput(
-                    decoderExecutableFile,
-                    arguments,
-                    wavAudio);
-            }
-            catch (ExternalProcess.ExecutionException e)
-            {
-                throw new FlacCompressionException("Failed to encode the file", e);
-            }
+            return processRunner.RunAndReadOutput(
+                decoderExecutableFile,
+                arguments,
+                wavAudio);
         }
 
         private static string[] GetProcessArguments(int compressionLevel)
