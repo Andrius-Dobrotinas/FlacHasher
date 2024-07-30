@@ -52,7 +52,7 @@ namespace Andy.FlacHash.Verification
 
                 if ((hasFilename && !firstItemHasFileName)
                     || (!hasFilename && firstItemHasFileName))
-                    throw new MissingFileNameException();
+                    throw new MissingFileNameException(index + 1); // todo include index
             }
 
             if (firstItemHasFileName)

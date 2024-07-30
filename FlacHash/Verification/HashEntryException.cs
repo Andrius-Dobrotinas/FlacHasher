@@ -12,9 +12,8 @@ namespace Andy.FlacHash.Verification
 
     public class MissingFileNameException : HashEntryException
     {
-        public MissingFileNameException() : base("Hash entry is missing a file name")
+        public MissingFileNameException(int entryNumber) : base($"Hash entry is missing a file name. Entry number: {entryNumber}")
         {
-
         }
     }
 
