@@ -17,7 +17,7 @@ namespace Andy.FlacHash.IO.Audio
 
         public Stream Encode(FileInfo sourceFile, int compressionLevel)
         {
-            // this gets disposed of by the decoder
+            // this gets disposed of by the encoder
             Stream rawAudio = fileDecoder.Read(sourceFile);
             return encoder.Encode(rawAudio, compressionLevel);
         }
