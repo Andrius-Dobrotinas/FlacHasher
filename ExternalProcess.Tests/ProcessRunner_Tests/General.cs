@@ -31,7 +31,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
                 return target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: true);
             });
 
-            Assert.DoesNotThrow(() => Util.WaitWithTimeout(resultTask, 100));
+            Assert.DoesNotThrow(() => Run.WaitWithTimeout(resultTask, 100));
             Assert.NotNull(resultTask.Result);
         }
 
@@ -55,7 +55,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
                     return target.GetOutputStream_WaitProcessExitInParallel(process, readStderr: true);
                 });
 
-                Assert.DoesNotThrow(() => Util.WaitWithTimeout(resultTask, 100));
+                Assert.DoesNotThrow(() => Run.WaitWithTimeout(resultTask, 100));
                 Assert.NotNull(resultTask.Result);
             }
         }
@@ -199,11 +199,11 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             // read data in the background, with auto cancellation on test timeout
             var readTask = Task.Run(
-                () => Util.WithAutoCancellation(
+                () => Run.WithAutoCancellation(
                     cancellation => Util.Read(outputStream, cancellation), timeoutMs: 2000));
 
             Assert.DoesNotThrow(() =>
-                Util.WaitWithTimeout(() => outputStream.Dispose(), 1000),
+                Run.WaitWithTimeout(() => outputStream.Dispose(), 1000),
                 "Disposing of the stream must be quiet, without any cancellation exceptions");
 
             Assert.Throws<OperationCanceledException>(
@@ -236,11 +236,11 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
                 // read data in the background, with auto cancellation on test timeout
                 var readTask = Task.Run(
-                    () => Util.WithAutoCancellation(
+                    () => Run.WithAutoCancellation(
                         cancellation => Util.Read(outputStream, cancellation), timeoutMs: 2000));
 
                 Assert.DoesNotThrow(() =>
-                    Util.WaitWithTimeout(() => outputStream.Dispose(), 1000),
+                    Run.WaitWithTimeout(() => outputStream.Dispose(), 1000),
                     "Disposing of the stream must be quiet, without any cancellation exceptions");
 
                 Assert.Throws<OperationCanceledException>(
@@ -272,7 +272,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
                 Util.Read(outputStream);
 
-                var task = Util.WaitWithTimeout(() => outputStream.Dispose(), 100);
+                var task = Run.WaitWithTimeout(() => outputStream.Dispose(), 100);
 
                 Assert.DoesNotThrow(() => task.GetAwaiter().GetResult());
             }
@@ -289,8 +289,8 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             var process = new ExternalProcessPiped(respondToExitRequest: false, stderr: errorStream);
             
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: redirectStderr);
-            
-            Util.WaitWithTimeout(() => Util.Read(outputStream), 500);
+
+            Run.WaitWithTimeout(() => Util.Read(outputStream), 500);
             Assert.DoesNotThrow(() => outputStream.Dispose());
         }
 

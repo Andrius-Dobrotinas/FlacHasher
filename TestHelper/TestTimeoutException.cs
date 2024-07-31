@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 
-namespace Andy.ExternalProcess
+namespace Andy
 {
     class TestTimeoutException : AssertionException
     {

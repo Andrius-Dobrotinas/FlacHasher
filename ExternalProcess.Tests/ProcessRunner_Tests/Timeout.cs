@@ -32,7 +32,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             Assert.Throws<TimeoutException>(
                 // make sure the test assesses the situation right after the timeout is supposed to happen
-                () => Util.WithAutoCancellation(
+                () => Run.WithAutoCancellation(
                     cancellation => Util.Read(outputStream, cancellation),
                     timeoutMs: timeoutSec * 1000 + 50));
             
@@ -59,7 +59,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: redirectStderr);
 
             Assert.Throws<TimeoutException>(
-                () => Util.WithAutoCancellation(
+                () => Run.WithAutoCancellation(
                     cancellation => Util.Read(outputStream, cancellation),
                     timeoutMs: timeoutSec * 1000 + 1000)); // weirdly, when running many tests, this timeout has to be longer
 
