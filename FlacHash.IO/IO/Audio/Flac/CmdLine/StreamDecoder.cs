@@ -20,18 +20,9 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 
         public Stream Read(Stream wavAudio, CancellationToken cancellation = default)
         {
-            var arguments = GetProcessArguments();
+            var arguments = Parameters.Decode.Stream;
 
             return processRunner.RunAndReadOutput(decoderExecutableFile, arguments, wavAudio, cancellation);
-        }
-
-        private static string[] GetProcessArguments()
-        {
-            return new string[]
-            {
-                DecoderOptions.Decode,
-                DecoderOptions.ReadFromStdIn,
-            };
         }
     }
 }

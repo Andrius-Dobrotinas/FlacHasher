@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
@@ -34,12 +35,12 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
 
         private static string[] GetProcessArguments(FileInfo sourceFile)
         {
-            return new string[]
-            {
-                DecoderOptions.Decode,
-                DecoderOptions.WriteToSdtOut,
-                sourceFile.FullName
-            };
+            return Parameters.Decode.File
+                .Select(x =>
+                    x.Equals(Parameters.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase)
+                        ? sourceFile.FullName 
+                        : x)
+                .ToArray();
         }
     }
 }
