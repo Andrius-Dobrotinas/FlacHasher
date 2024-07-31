@@ -1,5 +1,5 @@
-using Andy.FlacHash.IO.Audio;
-using Andy.FlacHash.IO.Audio.Flac.CmdLine;
+using Andy.FlacHash.Audio;
+using Andy.FlacHash.Audio.Flac.CmdLine;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,14 +10,14 @@ namespace Andy.FlacHash.Win
 {
     static class Program
     {
-        private const int defaultCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Highest;
+        private const int defaultCompressionLevel = (int)Audio.Flac.CompressionLevel.Highest;
         private const int processExitTimeoutMs = 1000;
         private const int processStartDelayMs = 100;
         const int processTimeoutSec = 180;
 
         // todo: these values must be stored somewhere else
-        private const int maxCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Highest;
-        private const int minCompressionLevel = (int)IO.Audio.Flac.CompressionLevel.Lowest;
+        private const int maxCompressionLevel = (int)Audio.Flac.CompressionLevel.Highest;
+        private const int minCompressionLevel = (int)Audio.Flac.CompressionLevel.Lowest;
 
         [STAThread]
         static void Main()

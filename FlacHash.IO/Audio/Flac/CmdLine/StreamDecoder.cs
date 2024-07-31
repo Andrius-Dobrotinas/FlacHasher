@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Andy.FlacHash.Audio;
 
-namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
+namespace Andy.FlacHash.Audio.Flac.CmdLine
 {
     public class StreamDecoder : IAudioDecoder
     {

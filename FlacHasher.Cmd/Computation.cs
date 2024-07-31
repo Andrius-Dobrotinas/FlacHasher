@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Cmd
 
         static MultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, Algorithm hashAlgorithm)
         {
-            var decoder = new IO.Audio.Flac.CmdLine.FileDecoder(
+            var decoder = new Audio.Flac.CmdLine.FileDecoder(
                     decoderFile,
                     processRunner);
 

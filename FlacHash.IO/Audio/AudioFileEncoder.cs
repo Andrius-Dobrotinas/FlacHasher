@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace Andy.FlacHash.IO.Audio
+namespace Andy.FlacHash.Audio
 {
     public class AudioFileEncoder : IAudioFileEncoder
     {

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Andy.FlacHash.Audio;
+using Andy.FlacHash.Audio.Flac;
 
-namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
+namespace Andy.FlacHash.Audio.Flac.CmdLine
 {
     public class StreamEncoder : IAudioEncoder
     {
@@ -12,7 +14,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
         public StreamEncoder(FileInfo encoderExecutableFile,
             ExternalProcess.IIOProcessRunner processRunner)
         {
-            this.decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
+            decoderExecutableFile = encoderExecutableFile ?? throw new ArgumentNullException(nameof(encoderExecutableFile));
 
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
         }

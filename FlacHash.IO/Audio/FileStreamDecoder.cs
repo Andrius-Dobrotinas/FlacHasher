@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Andy.FlacHash.IO;
 
-namespace Andy.FlacHash.IO.Audio
+namespace Andy.FlacHash.Audio
 {
     public class FileStreamDecoder : IFileDecoder
     {
@@ -15,7 +16,7 @@ namespace Andy.FlacHash.IO.Audio
             IAudioDecoder decoder)
         {
             this.decoder = decoder;
-            this.inputStreamFactory = streamFactory;
+            inputStreamFactory = streamFactory;
         }
 
         public Stream Read(FileInfo sourceFile, CancellationToken cancellation = default)

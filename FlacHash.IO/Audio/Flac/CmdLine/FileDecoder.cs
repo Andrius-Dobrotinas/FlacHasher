@@ -2,8 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Andy.FlacHash.IO;
 
-namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
+namespace Andy.FlacHash.Audio.Flac.CmdLine
 {
     public class FileDecoder : IFileDecoder
     {
@@ -38,7 +39,7 @@ namespace Andy.FlacHash.IO.Audio.Flac.CmdLine
             return Parameters.Decode.File
                 .Select(x =>
                     x.Equals(Parameters.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase)
-                        ? sourceFile.FullName 
+                        ? sourceFile.FullName
                         : x)
                 .ToArray();
         }

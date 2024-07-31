@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Andy.FlacHash.IO.Audio
+namespace Andy.FlacHash.Audio
 {
     public interface IAudioFileEncoder
     {

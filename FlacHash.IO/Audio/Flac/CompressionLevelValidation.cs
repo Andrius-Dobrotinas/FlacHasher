@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Andy.FlacHash.IO.Audio.Flac
+namespace Andy.FlacHash.Audio.Flac
 {
     public static class CompressionLevelValidation
     {

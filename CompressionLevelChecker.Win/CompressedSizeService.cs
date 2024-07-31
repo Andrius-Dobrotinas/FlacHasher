@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Andy.FlacHash.Audio;
 
 namespace Andy.FlacHash.Win
 {
@@ -11,9 +12,9 @@ namespace Andy.FlacHash.Win
 
     public class CompressedSizeService : ICompressedSizeService
     {
-        private readonly IO.Audio.IAudioFileEncoder encoder;
+        private readonly IAudioFileEncoder encoder;
 
-        public CompressedSizeService(IO.Audio.IAudioFileEncoder encoder)
+        public CompressedSizeService(IAudioFileEncoder encoder)
         {
             this.encoder = encoder;
         }
