@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace Andy.FlacHash.IO
+namespace Andy.ExternalProcess
 {
     class SignalWaitingMemoryStream : MemoryStream
     {

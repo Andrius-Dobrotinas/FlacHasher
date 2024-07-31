@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.ExternalProcess
+namespace Andy.ExternalProcess
 {
     /// <summary>
     /// Indicates that an external process exited with an error

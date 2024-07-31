@@ -6,4 +6,8 @@
     <AssemblyName>FlacHash.IO</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ExternalProcess\ExternalProcess.csproj" />
+  </ItemGroup>
+
 </Project>

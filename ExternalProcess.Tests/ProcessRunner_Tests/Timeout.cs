@@ -1,4 +1,3 @@
-using Andy.FlacHash.ExternalProcess;
 using NUnit.Framework;
 using Moq;
 using System.IO;
@@ -9,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
+namespace Andy.ExternalProcess.ProcessRunner_Tests
 {
     [NonParallelizable]
     public class Timeout

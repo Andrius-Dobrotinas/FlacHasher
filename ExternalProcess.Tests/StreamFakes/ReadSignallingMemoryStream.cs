@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace Andy.FlacHash.IO
+namespace Andy.ExternalProcess
 {
     /// <summary>
     /// Signals on reads and closing

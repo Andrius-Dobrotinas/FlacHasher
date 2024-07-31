@@ -1,4 +1,3 @@
-using Andy.FlacHash.ExternalProcess;
 using NUnit.Framework;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
+namespace Andy.ExternalProcess.ProcessRunner_Tests
 {
     [NonParallelizable]
     public class General

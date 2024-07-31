@@ -5,7 +5,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <RootNamespace>Andy.FlacHash.IO</RootNamespace>
+    <RootNamespace>Andy.ExternalProcess</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FlacHash.IO\FlacHash.IO.csproj" />
+    <ProjectReference Include="..\ExternalProcess\ExternalProcess.csproj" />
     <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
   </ItemGroup>
 

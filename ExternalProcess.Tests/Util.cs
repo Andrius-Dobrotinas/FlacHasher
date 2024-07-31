@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andy.FlacHash.IO
+namespace Andy.ExternalProcess
 {
     static class Util
     {

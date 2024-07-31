@@ -1,4 +1,3 @@
-using Andy.FlacHash.ExternalProcess;
 using NUnit.Framework;
 using Moq;
 using System.IO;
@@ -10,7 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace Andy.FlacHash.IO.ExternalProcess.ProcessRunner_Tests
+namespace Andy.ExternalProcess.ProcessRunner_Tests
 {
     [NonParallelizable]
     public class OnCancellation

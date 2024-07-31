@@ -4,7 +4,7 @@ using System.IO.Pipes;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Andy.FlacHash.IO.ExternalProcess
+namespace Andy.ExternalProcess
 {
     class ExternalProcessPiped : ExternalProcessFake
     {

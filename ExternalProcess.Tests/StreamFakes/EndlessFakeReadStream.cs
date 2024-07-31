@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Andy.FlacHash.IO
+namespace Andy.ExternalProcess
 {
     /// <summary>
     /// Keeps the stream pumping data, with a delay between each read, until <see cref="Close"/>d.

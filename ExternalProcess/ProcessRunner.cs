@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andy.FlacHash.ExternalProcess
+namespace Andy.ExternalProcess
 {
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {

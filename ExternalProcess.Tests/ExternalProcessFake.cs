@@ -1,11 +1,10 @@
-﻿using Andy.FlacHash.ExternalProcess;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andy.FlacHash.IO.ExternalProcess
+namespace Andy.ExternalProcess
 {
     class ExternalProcessFake : IProcess
     {

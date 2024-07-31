@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andy.FlacHash.IO
+namespace Andy.ExternalProcess
 {
     class DelayingMemoryStream : MemoryStream
     {

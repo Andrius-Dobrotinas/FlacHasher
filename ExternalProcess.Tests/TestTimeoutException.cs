@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 
-namespace Andy.FlacHash.IO
+namespace Andy.ExternalProcess
 {
     class TestTimeoutException : AssertionException
     {

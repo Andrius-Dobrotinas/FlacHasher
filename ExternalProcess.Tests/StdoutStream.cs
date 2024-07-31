@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace Andy.FlacHash.IO.ExternalProcess
+namespace Andy.ExternalProcess
 {
     /// <summary>
     /// Emulates the behavior of process.stdout where, once the stream is closed,
