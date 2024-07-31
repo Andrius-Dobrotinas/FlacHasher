@@ -1,5 +1,6 @@
 using Andy.FlacHash.Cmd;
-using Andy.FlacHash.Verification;
+using Andy.FlacHash.Hashing;
+using Andy.FlacHash.Hashing.Verification;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -78,7 +79,7 @@ namespace Andy.FlacHash.Win
 
             var hasher = new FileHasher(
                 reader,
-                new Crypto.HashComputer(ExecutionParameterResolver.ResolveHashAlgorithm(settings, null)));
+                new Hashing.Crypto.HashComputer(ExecutionParameterResolver.ResolveHashAlgorithm(settings, null)));
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(hasher, !settings.FailOnError ?? continueOnErrorDefault));
 

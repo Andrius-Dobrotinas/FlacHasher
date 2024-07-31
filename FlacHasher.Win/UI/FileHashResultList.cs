@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Andy.FlacHash.Hashing;
 
 namespace Andy.FlacHash.Win.UI
 {

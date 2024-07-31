@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Andy.FlacHash.Tests</RootNamespace>
+    <RootNamespace>Andy.FlacHash</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

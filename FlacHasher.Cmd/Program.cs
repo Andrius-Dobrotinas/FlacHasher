@@ -1,6 +1,6 @@
 ﻿using Andy.Cmd;
-using Andy.FlacHash.Crypto;
 using Andy.FlacHash.ExternalProcess;
+using Andy.FlacHash.Hashing.Crypto;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
-                var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
+                var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
                 FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
                 Algorithm hashAlgorithm = ExecutionParameterResolver.ResolveHashAlgorithm(settings, parameters);
                 string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);

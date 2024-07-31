@@ -1,7 +1,8 @@
-﻿using Andy.FlacHash.Crypto;
-using Andy.FlacHash.ExternalProcess;
+﻿using Andy.FlacHash.ExternalProcess;
+using Andy.FlacHash.Hashing;
+using Andy.FlacHash.Hashing.Crypto;
+using Andy.FlacHash.Hashing.Verification;
 using Andy.FlacHash.IO;
-using Andy.FlacHash.Verification;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -107,7 +108,7 @@ namespace Andy.FlacHash.Cmd
                 processRunner);
             var reader = new IO.Audio.FileStreamDecoder(steamFactory, decoder);
 
-            var hasher = new FileHasher(reader, new Crypto.HashComputer(hashAlgorithm));
+            var hasher = new FileHasher(reader, new Hashing.Crypto.HashComputer(hashAlgorithm));
             return new MultiFileHasher(hasher, continueOnError);
         }
 
