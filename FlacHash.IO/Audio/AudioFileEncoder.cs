@@ -1,15 +1,14 @@
-﻿using Andy.FlacHash.IO;
-using System;
+﻿using System;
 using System.IO;
 
 namespace Andy.FlacHash.Audio
 {
     public class AudioFileEncoder : IAudioFileEncoder
     {
-        private readonly IFileDecoder fileDecoder;
+        private readonly IAudioFileDecoder fileDecoder;
         private readonly IAudioEncoder encoder;
 
-        public AudioFileEncoder(IFileDecoder fileDecoder, IAudioEncoder encoder)
+        public AudioFileEncoder(IAudioFileDecoder fileDecoder, IAudioEncoder encoder)
         {
             this.fileDecoder = fileDecoder;
             this.encoder = encoder;

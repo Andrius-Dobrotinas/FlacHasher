@@ -2,12 +2,12 @@
 using System.IO;
 using System.Threading;
 
-namespace Andy.FlacHash.IO
+namespace Andy.FlacHash.Audio
 {
-    public interface IFileDecoder
+    public interface IAudioFileDecoder
     {
         /// <summary>
-        /// Returns a specified file as a stream.
+        /// Returns a specified file as a decoded audio byte stream.
         /// </summary>
         Stream Read(FileInfo sourceFile, CancellationToken cancellation = default);
     }

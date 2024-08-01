@@ -6,7 +6,7 @@ using Andy.FlacHash.IO;
 
 namespace Andy.FlacHash.Audio
 {
-    public class FileStreamDecoder : IFileDecoder
+    public class FileStreamDecoder : IAudioFileDecoder
     {
         private readonly IInputStreamFactory inputStreamFactory;
         private readonly IAudioDecoder decoder;

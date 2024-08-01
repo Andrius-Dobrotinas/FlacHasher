@@ -6,7 +6,7 @@ using Andy.FlacHash.IO;
 
 namespace Andy.FlacHash.Audio.Flac.CmdLine
 {
-    public class FileDecoder : IFileDecoder
+    public class FileDecoder : IAudioFileDecoder
     {
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;

@@ -1,4 +1,5 @@
-﻿using Andy.FlacHash.Hashing.Crypto;
+﻿using Andy.FlacHash.Audio;
+using Andy.FlacHash.Hashing.Crypto;
 using System;
 using System.IO;
 using System.Threading;
@@ -12,10 +13,10 @@ namespace Andy.FlacHash.Hashing
 
     public class FileHasher : IFileHasher
     {
-        private readonly IO.IFileDecoder fileDecoder;
+        private readonly IAudioFileDecoder fileDecoder;
         private readonly IHashComputer hashComputer;
 
-        public FileHasher(IO.IFileDecoder decoder, IHashComputer hashComputer)
+        public FileHasher(IAudioFileDecoder decoder, IHashComputer hashComputer)
         {
             fileDecoder = decoder ?? throw new ArgumentNullException(nameof(decoder));
             this.hashComputer = hashComputer ?? throw new ArgumentNullException(nameof(hashComputer));
