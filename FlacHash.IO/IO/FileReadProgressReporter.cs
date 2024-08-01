@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Win
 {
-    public class FileReadProgressReporter : IFileReadEventSource, IProgress<int>
+    public class FileReadProgressReporter : IDataReadEventSource, IProgress<int>
     {
         public event BytesReadHandler BytesRead;
 

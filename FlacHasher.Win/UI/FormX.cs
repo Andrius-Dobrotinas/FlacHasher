@@ -31,7 +31,7 @@ namespace Andy.FlacHash.Win.UI
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
-            IO.IFileReadEventSource fileReadEventSource,
+            IO.IDataReadEventSource fileReadEventSource,
             InteractiveDirectoryGetter dirBrowser,
             InputFileResolver targetFileResolver,
             IHashFormatter hashFormatter,
