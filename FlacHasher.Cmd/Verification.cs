@@ -106,7 +106,7 @@ namespace Andy.FlacHash.Cmd
             var decoder = new Audio.Flac.CmdLine.StreamDecoder(
                 decoderFile,
                 processRunner);
-            var reader = new Audio.FileStreamDecoder(steamFactory, decoder);
+            var reader = new Audio.AudioFileDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Hashing.Crypto.HashComputer(hashAlgorithm));
             return new MultiFileHasher(hasher, continueOnError);
