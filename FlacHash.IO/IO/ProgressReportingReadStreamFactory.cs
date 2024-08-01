@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Andy.FlacHash.IO
 {
-    public class ProgressReportingReadStreamFactory : IInputStreamFactory
+    public class ProgressReportingReadStreamFactory : IReadStreamFactory
     {
         private readonly IProgress<int> progressReporter;
 

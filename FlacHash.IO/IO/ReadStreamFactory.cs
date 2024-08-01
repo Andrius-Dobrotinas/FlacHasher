@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Andy.FlacHash.IO
 {
-    public class ReadStreamFactory : IInputStreamFactory
+    public class ReadStreamFactory : IReadStreamFactory
     {
         public Stream CreateStream(FileInfo sourceFile)
         {
