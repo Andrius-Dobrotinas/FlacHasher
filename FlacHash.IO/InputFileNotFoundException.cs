@@ -4,11 +4,11 @@ using System.Diagnostics;
 
 namespace Andy.FlacHash.IO
 {
-    public class SourceFileNotFoundException : Exception
+    public class InputFileNotFoundException : Exception
     {
         public string Filename { get; }
 
-        public SourceFileNotFoundException(string filename)
+        public InputFileNotFoundException(string filename)
             : base($"File not found: {filename}")
         {
             Filename = filename;

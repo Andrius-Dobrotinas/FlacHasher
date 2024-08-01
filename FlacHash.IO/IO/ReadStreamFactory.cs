@@ -9,7 +9,7 @@ namespace Andy.FlacHash.IO
         public Stream CreateStream(FileInfo sourceFile)
         {
             if (sourceFile.Exists == false)
-                throw new SourceFileNotFoundException(sourceFile.FullName);
+                throw new InputFileNotFoundException(sourceFile.FullName);
             
             var stream = new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read);
 

@@ -70,7 +70,7 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                 {
-                    var result = (calcResult.Exception is SourceFileNotFoundException)
+                    var result = (calcResult.Exception is InputFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
                     results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, result));

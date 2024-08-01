@@ -236,7 +236,7 @@ namespace Andy.FlacHash.Win.UI
                     }
                     else
                     {
-                        var result = (calcResult.Exception is SourceFileNotFoundException)
+                        var result = (calcResult.Exception is InputFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
                         list_verification_results.Add(calcResult.File, result);

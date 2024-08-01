@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Audio.Flac.CmdLine
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
             if (sourceFile.Exists == false)
-                throw new SourceFileNotFoundException(sourceFile.FullName);
+                throw new InputFileNotFoundException(sourceFile.FullName);
 
             var arguments = GetProcessArguments(sourceFile);
 
