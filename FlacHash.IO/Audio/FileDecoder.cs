@@ -1,22 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Andy.FlacHash.Audio.Flac.CmdLine;
 using Andy.FlacHash.IO;
 
-namespace Andy.FlacHash.Audio.Flac.CmdLine
+namespace Andy.FlacHash.Audio
 {
     public class FileDecoder : IAudioFileDecoder
     {
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
+        private readonly ICollection<string> @params;
 
-        public FileDecoder(FileInfo decoderExecutableFile,
-            ExternalProcess.IOutputOnlyProcessRunner processRunner)
+        public FileDecoder(
+            FileInfo decoderExecutableFile,
+            ExternalProcess.IOutputOnlyProcessRunner processRunner,
+            ICollection<string> @params)
         {
             this.decoderExecutableFile = decoderExecutableFile ?? throw new ArgumentNullException(nameof(decoderExecutableFile));
-
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
+            this.@params = @params ?? throw new ArgumentNullException(nameof(@params));
         }
 
         public Stream Read(FileInfo sourceFile, CancellationToken cancellation = default)
@@ -34,11 +39,11 @@ namespace Andy.FlacHash.Audio.Flac.CmdLine
                 cancellation);
         }
 
-        private static string[] GetProcessArguments(FileInfo sourceFile)
+        private string[] GetProcessArguments(FileInfo sourceFile)
         {
-            return Parameters.Decode.File
+            return @params
                 .Select(x =>
-                    x.Equals(Parameters.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase)
+                    x.Equals(Parameter.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase)
                         ? sourceFile.FullName
                         : x)
                 .ToArray();

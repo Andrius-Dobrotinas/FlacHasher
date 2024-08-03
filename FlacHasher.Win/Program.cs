@@ -68,13 +68,14 @@ namespace Andy.FlacHash.Win
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
-            var decoder = new Audio.Flac.CmdLine.StreamDecoder(
+            var decoder = new Audio.StreamDecoder(
                 settings.Decoder,
                 new ExternalProcess.ProcessRunner(
                     settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
                     settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
                     settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
-                    showProcessWindowWithOutput));
+                    showProcessWindowWithOutput),
+                Audio.Flac.CmdLine.Parameters.Decode.Stream);
             var reader = new Audio.AudioFileDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(

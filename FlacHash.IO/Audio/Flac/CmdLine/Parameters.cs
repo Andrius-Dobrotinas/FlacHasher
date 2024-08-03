@@ -8,8 +8,6 @@ namespace Andy.FlacHash.Audio.Flac.CmdLine
 {
     public static class Parameters
     {
-        public const string FilePlaceholder = "{file}";
-
         public static class Decode
         {
             public static ICollection<string> Stream = new string[]
@@ -22,7 +20,7 @@ namespace Andy.FlacHash.Audio.Flac.CmdLine
             {
                 DecoderOptions.Decode,
                 DecoderOptions.WriteToSdtOut,
-                FilePlaceholder
+                Parameter.FilePlaceholder
             };
         }
     }

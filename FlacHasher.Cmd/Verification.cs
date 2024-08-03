@@ -103,9 +103,10 @@ namespace Andy.FlacHash.Cmd
         public static IMultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, Algorithm hashAlgorithm)
         {
             var steamFactory = new IO.ReadStreamFactory();
-            var decoder = new Audio.Flac.CmdLine.StreamDecoder(
+            var decoder = new Audio.StreamDecoder(
                 decoderFile,
-                processRunner);
+                processRunner,
+                Audio.Flac.CmdLine.Parameters.Decode.Stream);
             var reader = new Audio.AudioFileDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(reader, new Hashing.Crypto.HashComputer(hashAlgorithm));

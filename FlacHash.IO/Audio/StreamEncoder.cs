@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Andy.FlacHash.Audio;
 using Andy.FlacHash.Audio.Flac;
+using Andy.FlacHash.Audio.Flac.CmdLine;
 
-namespace Andy.FlacHash.Audio.Flac.CmdLine
+namespace Andy.FlacHash.Audio
 {
     public class StreamEncoder : IAudioEncoder
     {

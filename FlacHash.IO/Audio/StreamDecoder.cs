@@ -2,28 +2,28 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Andy.FlacHash.Audio;
 
-namespace Andy.FlacHash.Audio.Flac.CmdLine
+namespace Andy.FlacHash.Audio
 {
     public class StreamDecoder : IAudioDecoder
     {
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IIOProcessRunner processRunner;
+        private readonly ICollection<string> @params;
 
-        public StreamDecoder(FileInfo decoderExecutableFile,
-            ExternalProcess.IIOProcessRunner processRunner)
+        public StreamDecoder(
+            FileInfo decoderExecutableFile,
+            ExternalProcess.IIOProcessRunner processRunner,
+            ICollection<string> @params)
         {
             this.decoderExecutableFile = decoderExecutableFile ?? throw new ArgumentNullException(nameof(decoderExecutableFile));
-
             this.processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
+            this.@params = @params ?? throw new ArgumentNullException(nameof(@params));
         }
 
         public Stream Read(Stream wavAudio, CancellationToken cancellation = default)
         {
-            var arguments = Parameters.Decode.Stream;
-
-            return processRunner.RunAndReadOutput(decoderExecutableFile, arguments, wavAudio, cancellation);
+            return processRunner.RunAndReadOutput(decoderExecutableFile, @params, wavAudio, cancellation);
         }
     }
 }

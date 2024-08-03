@@ -65,7 +65,7 @@ namespace Andy.FlacHash.Win
             IAudioFileEncoder encoder_MetadataPreserved = new FileRecoder(flacExe, processRunner);
 
             IAudioFileEncoder encoder_MetadataDiscarded = new AudioFileEncoder(
-                new FileDecoder(flacExe, processRunner),
+                new FileDecoder(flacExe, processRunner, Audio.Flac.CmdLine.Parameters.Decode.File),
                 new StreamEncoder(flacExe, processRunner));
 
             IFileInfoSizeGetter fileSize = new FileInfoSizeGetter();
