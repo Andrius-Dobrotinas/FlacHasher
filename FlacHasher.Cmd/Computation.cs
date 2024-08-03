@@ -44,7 +44,7 @@ namespace Andy.FlacHash.Cmd
                     results.Add(result);
                 }
                 else
-                    if (!printProcessProgress) // Decoder's output would indicate an error
+                    if (!(result.Exception is ExecutionException) || printProcessProgress)
                         WriteStdErrLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
             };
 
