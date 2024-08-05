@@ -14,17 +14,17 @@ namespace Andy.FlacHash.Cmd
         {
             return new Parameters
             {
-                Profile = Parameter.TryGetValueAllowingEmpty(arguments, ArgumentNames.Profile, "."),
-                Decoder = Parameter.GetValueOptional(arguments, ArgumentNames.Decoder),
-                InputFiles = Parameter.GetValueOptional<string[]>(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
-                InputDirectory = Parameter.GetValueOptional(arguments, ArgumentNames.InputDirectory),
-                TargetFileExtension = Parameter.GetValueOptional(arguments, ArgumentNames.FileExtension),
-                HashAlgorithm = Parameter.GetValueOptional(arguments, ArgumentNames.HashAlgorithm),
-                HashFile = Parameter.GetValueOptional(arguments, ArgumentNames.HashFile),
-                OutputFormat = Parameter.GetValueOptional(arguments, ArgumentNames.OutputFormat),
-                ProcessExitTimeoutMs = Parameter.GetValueOptional<int?>(arguments, ArgumentNames.ProcessExitTimeoutMs, value => int.Parse(value)),
-                ProcessTimeoutSec = Parameter.GetValueOptional<int?>(arguments, ArgumentNames.ProcessTimeoutSec, value => int.Parse(value)),
-                FailOnError = Parameter.GetBoolValue(arguments, ArgumentNames.FailOnError)
+                Profile = Parameter.TryGetValueAllowingEmpty(arguments, ParameterNames.Profile, "."),
+                Decoder = Parameter.GetValueOptional(arguments, ParameterNames.Decoder),
+                InputFiles = Parameter.GetValueOptional<string[]>(arguments, ParameterNames.InputFiles, paths => paths.Split(';')),
+                InputDirectory = Parameter.GetValueOptional(arguments, ParameterNames.InputDirectory),
+                TargetFileExtension = Parameter.GetValueOptional(arguments, ParameterNames.FileExtension),
+                HashAlgorithm = Parameter.GetValueOptional(arguments, ParameterNames.HashAlgorithm),
+                HashFile = Parameter.GetValueOptional(arguments, ParameterNames.HashFile),
+                OutputFormat = Parameter.GetValueOptional(arguments, ParameterNames.OutputFormat),
+                ProcessExitTimeoutMs = Parameter.GetValueOptional<int?>(arguments, ParameterNames.ProcessExitTimeoutMs, value => int.Parse(value)),
+                ProcessTimeoutSec = Parameter.GetValueOptional<int?>(arguments, ParameterNames.ProcessTimeoutSec, value => int.Parse(value)),
+                FailOnError = Parameter.GetBoolValue(arguments, ParameterNames.FailOnError)
             };
         }
     }

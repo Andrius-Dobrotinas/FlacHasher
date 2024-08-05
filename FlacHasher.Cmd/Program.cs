@@ -25,7 +25,7 @@ namespace Andy.FlacHash.Cmd
             try
             {
                 var argumentDictionary = ArgumentSplitter.GetArguments(args);
-                isVerification = argumentDictionary.ContainsKey(ArgumentNames.ModeVerify);
+                isVerification = argumentDictionary.ContainsKey(ParameterNames.ModeVerify);
                 parameters = ParameterReader.GetParameters(argumentDictionary);
             }
             catch (ParameterMissingException e)

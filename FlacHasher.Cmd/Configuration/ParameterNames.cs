@@ -1,6 +1,6 @@
 ﻿namespace Andy.FlacHash.Cmd
 {
-    public static class ArgumentNames
+    public static class ParameterNames
     {
         public const string Profile = "--profile";
         public const string OutputFormat = "--format";

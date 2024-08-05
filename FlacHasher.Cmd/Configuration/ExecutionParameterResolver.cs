@@ -60,7 +60,7 @@ namespace Andy.FlacHash.Cmd
             if (cmdlineArguments.Decoder != null)
                 return new FileInfo(cmdlineArguments.Decoder);
 
-            return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ArgumentNames.Decoder} to the command");
+            return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ParameterNames.Decoder} to the command");
         }
 
         public static Algorithm ResolveHashAlgorithm(Settings settings, Parameters cmdlineArguments)
