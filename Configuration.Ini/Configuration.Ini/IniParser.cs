@@ -10,7 +10,7 @@ namespace Andy.Configuration.Ini
 
     public class IniParser : IIniParser
     {
-        public static readonly string DefaultSectionName = "";
+        public static readonly string RootSectionName = "";
         
         private readonly IEntryParser entryParser;
 
@@ -53,7 +53,7 @@ namespace Andy.Configuration.Ini
                         if (currentSection == null)
                         {
                             currentSection = new Dictionary<string, string>();
-                            result.Add(DefaultSectionName, currentSection);
+                            result.Add(RootSectionName, currentSection);
                         }
 
                         currentSection.Add(keyValuePair.Value.Key, keyValuePair.Value.Value);

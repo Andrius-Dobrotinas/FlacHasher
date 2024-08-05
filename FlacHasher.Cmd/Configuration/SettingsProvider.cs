@@ -74,7 +74,7 @@ namespace Andy.FlacHash.Cmd
 
             var settingsDictionary = iniReader.Read(settingsFile);
 
-            return GetSettings(settingsDictionary, Configuration.Ini.IniParser.DefaultSectionName);
+            return GetSettings(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
         }
     }
 }
