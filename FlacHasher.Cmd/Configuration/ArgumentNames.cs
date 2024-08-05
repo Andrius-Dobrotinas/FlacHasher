@@ -2,6 +2,7 @@
 {
     public static class ArgumentNames
     {
+        public const string Profile = "--profile";
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
         public const string HashAlgorithm = "--algorithm";

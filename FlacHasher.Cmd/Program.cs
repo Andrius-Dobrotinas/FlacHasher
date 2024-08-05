@@ -20,18 +20,6 @@ namespace Andy.FlacHash.Cmd
 
         static int Main(string[] args)
         {
-            Settings settings;
-            try
-            {
-                var settingsFile = new FileInfo(settingsFileName);
-                settings = SettingsProvider.GetSettings(settingsFile);
-            }
-            catch (Exception e)
-            {
-                WriteUserLine($"Failure reading a settings file. {e.Message}");
-                return (int)ReturnValue.SettingsReadingFailure;
-            }
-
             Parameters parameters;
             bool isVerification;
             try
@@ -49,6 +37,18 @@ namespace Andy.FlacHash.Cmd
             {
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ArgumentError;
+            }
+
+            Settings settings;
+            try
+            {
+                var settingsFile = new FileInfo(settingsFileName);
+                settings = SettingsProvider.GetSettings(settingsFile, parameters.Profile);
+            }
+            catch (Exception e)
+            {
+                WriteUserLine($"Failure reading a settings file. {e.Message}");
+                return (int)ReturnValue.SettingsReadingFailure;
             }
 
             try

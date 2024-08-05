@@ -67,7 +67,7 @@ namespace Andy.FlacHash.Cmd
             return bool.Parse(value);
         }
 
-        public static Settings GetSettings(FileInfo settingsFile)
+        public static Settings GetSettings(FileInfo settingsFile, string profileName = null)
         {
             var iniReader = new Configuration.Ini.IniFileReader(
                 new Configuration.Ini.IO.TextFileReader(),
@@ -77,9 +77,10 @@ namespace Andy.FlacHash.Cmd
             var settingsDictionary = iniReader.Read(settingsFile);
 
             var root = GetSettings(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
-            if (root.Profile != null)
+            var profile = profileName ?? root.Profile;
+            if (profile != null)
             {
-                var @override = GetSettings(settingsDictionary, root.Profile);
+                var @override = GetSettings(settingsDictionary, profile);
                 Merge(root, @override);
             }
 

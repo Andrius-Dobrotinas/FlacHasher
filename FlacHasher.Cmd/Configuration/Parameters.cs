@@ -5,6 +5,7 @@ namespace Andy.FlacHash.Cmd
 {
     public class Parameters
     {
+        public string Profile { get; set; }
         public string Decoder { get; set; }
         public string HashAlgorithm { get; set; }
         public string[] InputFiles { get; set; }
