@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Cmd
         {
             return new Parameters
             {
-                Profile = Parameter.GetValueOptional(arguments, ArgumentNames.Profile),
+                Profile = Parameter.TryGetValueAllowingEmpty(arguments, ArgumentNames.Profile, "."),
                 Decoder = Parameter.GetValueOptional(arguments, ArgumentNames.Decoder),
                 InputFiles = Parameter.GetValueOptional<string[]>(arguments, ArgumentNames.InputFiles, paths => paths.Split(';')),
                 InputDirectory = Parameter.GetValueOptional(arguments, ArgumentNames.InputDirectory),

@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Cmd
 
             var root = GetSettings(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
             var profile = profileName ?? root.Profile;
-            if (profile != null)
+            if (profile != null && profile != ".")
             {
                 var @override = GetSettings(settingsDictionary, profile);
                 Merge(root, @override);

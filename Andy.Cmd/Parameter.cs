@@ -28,15 +28,19 @@ namespace Andy.Cmd
 
         /// <summary>
         /// If the argument is present, returns its value regardless whether it actually has one (eg empty string).
+        /// If it happens not to have a value, returns <paramref name="valueIfEmpty"/> value or an empty string.
         /// If the argument is not present, returns null.
         /// </summary>
-        public static string TryGetValueAllowingEmpty(IDictionary<string, string> arguments, string argName)
+        public static string TryGetValueAllowingEmpty(IDictionary<string, string> arguments, string argName, string valueIfEmpty = null)
         {
             string value;
 
-            return arguments.TryGetValue(argName, out value)
-                ? value ?? ""
-                : null;
+            if (!arguments.TryGetValue(argName, out value))
+                return null;
+
+            return string.IsNullOrEmpty(value)
+                ? valueIfEmpty ?? ""
+                : value;
         }
 
         /// <summary>
