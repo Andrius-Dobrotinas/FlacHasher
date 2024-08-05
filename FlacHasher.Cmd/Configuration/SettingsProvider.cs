@@ -8,25 +8,25 @@ namespace Andy.FlacHash.Cmd
     {
         private static Settings GetSettings(
             IDictionary<string, IDictionary<string, string>> settings,
-            string defaultSectionName)
+            string sectionName)
         {
-            if (settings.ContainsKey(defaultSectionName))
+            if (settings.ContainsKey(sectionName))
             {
-                var defaultSection = settings[defaultSectionName];
+                var section = settings[sectionName];
 
                 return new Settings
                 {
-                    Decoder = GetFile(defaultSection, nameof(Settings.Decoder)),
-                    DecoderParameters = GetValue(defaultSection, nameof(Settings.DecoderParameters)),
-                    OutputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat)),
-                    ProcessExitTimeoutMs = GetValueInt(defaultSection, nameof(Settings.ProcessExitTimeoutMs)),
-                    ProcessTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessTimeoutSec)),
-                    ProcessStartWaitMs = GetValueInt(defaultSection, nameof(Settings.ProcessStartWaitMs)),
-                    FailOnError = GetValueBool(defaultSection, nameof(Settings.FailOnError)),
-                    HashfileExtensions = GetValue(defaultSection, nameof(Settings.HashfileExtensions)),
-                    HashfileEntrySeparator = GetValue(defaultSection, nameof(Settings.HashfileEntrySeparator)),
-                    HashAlgorithm = GetValue(defaultSection, nameof(Settings.HashAlgorithm)),
-                    FileLookupIncludeHidden = GetValueBool(defaultSection, nameof(Settings.FileLookupIncludeHidden)) ?? false
+                    Decoder = GetFile(section, nameof(Settings.Decoder)),
+                    DecoderParameters = GetValue(section, nameof(Settings.DecoderParameters)),
+                    OutputFormat = GetValue(section, nameof(Settings.OutputFormat)),
+                    ProcessExitTimeoutMs = GetValueInt(section, nameof(Settings.ProcessExitTimeoutMs)),
+                    ProcessTimeoutSec = GetValueInt(section, nameof(Settings.ProcessTimeoutSec)),
+                    ProcessStartWaitMs = GetValueInt(section, nameof(Settings.ProcessStartWaitMs)),
+                    FailOnError = GetValueBool(section, nameof(Settings.FailOnError)),
+                    HashfileExtensions = GetValue(section, nameof(Settings.HashfileExtensions)),
+                    HashfileEntrySeparator = GetValue(section, nameof(Settings.HashfileEntrySeparator)),
+                    HashAlgorithm = GetValue(section, nameof(Settings.HashAlgorithm)),
+                    FileLookupIncludeHidden = GetValueBool(section, nameof(Settings.FileLookupIncludeHidden)) ?? false
                 };
             }
 
