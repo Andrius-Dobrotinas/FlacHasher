@@ -1,4 +1,5 @@
 ﻿using Andy.ExternalProcess;
+using Andy.FlacHash.Audio;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Crypto;
 using System;
@@ -12,19 +13,14 @@ namespace Andy.FlacHash.Cmd
     {
         const char newlineChar = '\n';
 
-        public static void ComputeHashes(IList<FileInfo> inputFiles, string outputFomat, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, bool printProcessProgress, Algorithm hashAlgorithm, CancellationToken cancellation)
+        public static void ComputeHashes(IList<FileInfo> inputFiles, string outputFomat, IAudioFileDecoder audioFileDecoder, bool continueOnError, bool printProcessProgress, Algorithm hashAlgorithm, CancellationToken cancellation)
         {
-            var hasher = BuildHasher(decoderFile, processRunner, continueOnError, hashAlgorithm);
+            var hasher = BuildHasher(audioFileDecoder, continueOnError, hashAlgorithm);
             ComputeHashes(hasher, inputFiles, outputFomat, printProcessProgress, cancellation);
         }
 
-        static MultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, Algorithm hashAlgorithm)
+        static MultiFileHasher BuildHasher(IAudioFileDecoder decoder, bool continueOnError, Algorithm hashAlgorithm)
         {
-            var decoder = new Audio.FileDecoder(
-                    decoderFile,
-                    processRunner,
-                    Audio.Flac.CmdLine.Parameters.Decode.File);
-
             var hasher = new FileHasher(decoder, new HashComputer(hashAlgorithm));
             return new MultiFileHasher(hasher, continueOnError);
         }

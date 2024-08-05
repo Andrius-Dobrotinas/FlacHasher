@@ -1,4 +1,5 @@
 ﻿using Andy.ExternalProcess;
+using Andy.FlacHash.Audio;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Crypto;
 using Andy.FlacHash.Hashing.Verification;
@@ -17,7 +18,7 @@ namespace Andy.FlacHash.Cmd
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, string implicitHashfileExtensionsSetting, string hashfileEntrySeparator, Algorithm hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
+        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, IAudioFileDecoder audioFileDecoder, bool continueOnError, string implicitHashfileExtensionsSetting, string hashfileEntrySeparator, Algorithm hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
         {
             var hashfile = GetHashFile(parameters, implicitHashfileExtensionsSetting, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
@@ -27,7 +28,7 @@ namespace Andy.FlacHash.Cmd
             var hashfileReader = BuildHashfileReader(hashfileEntrySeparator);
             var fileHashMap = hashfileReader.Read(hashfile);
 
-            var hasher = BuildHasher(decoderFile, processRunner, continueOnError, hashAlgorithm);
+            var hasher = BuildHasher(audioFileDecoder, continueOnError, hashAlgorithm);
             var verifier = BuildVerifier();
 
             Verify(hasher, verifier, targetFiles, fileHashMap, cancellation);
@@ -100,15 +101,8 @@ namespace Andy.FlacHash.Cmd
             return new HashVerifier(hashFormatter);
         }
 
-        public static IMultiFileHasher BuildHasher(FileInfo decoderFile, ProcessRunner processRunner, bool continueOnError, Algorithm hashAlgorithm)
+        public static IMultiFileHasher BuildHasher(IAudioFileDecoder reader, bool continueOnError, Algorithm hashAlgorithm)
         {
-            var steamFactory = new IO.ReadStreamFactory();
-            var decoder = new Audio.StreamDecoder(
-                decoderFile,
-                processRunner,
-                Audio.Flac.CmdLine.Parameters.Decode.Stream);
-            var reader = new Audio.AudioFileDecoder(steamFactory, decoder);
-
             var hasher = new FileHasher(reader, new Hashing.Crypto.HashComputer(hashAlgorithm));
             return new MultiFileHasher(hasher, continueOnError);
         }

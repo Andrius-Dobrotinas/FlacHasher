@@ -17,6 +17,7 @@ namespace Andy.FlacHash.Cmd
                 return new Settings
                 {
                     Decoder = GetFile(defaultSection, nameof(Settings.Decoder)),
+                    DecoderParameters = GetValue(defaultSection, nameof(Settings.DecoderParameters)),
                     OutputFormat = GetValue(defaultSection, nameof(Settings.OutputFormat)),
                     ProcessExitTimeoutMs = GetValueInt(defaultSection, nameof(Settings.ProcessExitTimeoutMs)),
                     ProcessTimeoutSec = GetValueInt(defaultSection, nameof(Settings.ProcessTimeoutSec)),

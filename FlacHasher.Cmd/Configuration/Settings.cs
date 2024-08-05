@@ -8,6 +8,12 @@ namespace Andy.FlacHash.Cmd
     public class Settings
     {
         public FileInfo Decoder { get; set; }
+        
+        /// <summary>
+        /// A semicolon-separated list of parameters to <see cref="Decoder"/> exactly the way they are supposed to appear
+        /// (with dashes and whatnot)
+        /// </summary>
+        public string DecoderParameters { get; set; }
         public string HashfileExtensions { get; set; }
         public string HashfileEntrySeparator { get; set; }
         public string HashAlgorithm { get; set; }

@@ -81,13 +81,15 @@ namespace Andy.FlacHash.Cmd
                     settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
                     printProcessProgress);
 
+                Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, settings.DecoderParameters?.Split(';'));
+
                 if (isVerification)
                 {
-                    Verification.Verify(inputFiles, parameters, decoderFile, processRunner, continueOnError, settings.HashfileExtensions, settings.HashfileEntrySeparator, hashAlgorithm, fileSearch, cancellation.Token);
+                    Verification.Verify(inputFiles, parameters, decoder, continueOnError, settings.HashfileExtensions, settings.HashfileEntrySeparator, hashAlgorithm, fileSearch, cancellation.Token);
                 }
                 else
                 {
-                    Computation.ComputeHashes(inputFiles, outputFomat, decoderFile, processRunner, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
+                    Computation.ComputeHashes(inputFiles, outputFomat, decoder, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)
