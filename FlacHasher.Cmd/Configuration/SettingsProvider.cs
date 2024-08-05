@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Andy.FlacHash.Cmd
 {
@@ -16,6 +17,7 @@ namespace Andy.FlacHash.Cmd
 
                 return new Settings
                 {
+                    Profile = GetValue(section, nameof(Settings.Profile)),
                     Decoder = GetFile(section, nameof(Settings.Decoder)),
                     DecoderParameters = GetValue(section, nameof(Settings.DecoderParameters)),
                     OutputFormat = GetValue(section, nameof(Settings.OutputFormat)),
@@ -74,7 +76,31 @@ namespace Andy.FlacHash.Cmd
 
             var settingsDictionary = iniReader.Read(settingsFile);
 
-            return GetSettings(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
+            var root = GetSettings(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
+            if (root.Profile != null)
+            {
+                var @override = GetSettings(settingsDictionary, root.Profile);
+                Merge(root, @override);
+            }
+
+            return root;
+        }
+
+        /// <summary>
+        /// Copies non-null values from <paramref name="override"/> onto <paramref name="one"/>
+        /// </summary>
+        public static void Merge(Settings one, Settings @override)
+        {
+            var properties = typeof(Settings)
+                .GetProperties()
+                .Where(x => x.MemberType == System.Reflection.MemberTypes.Property);
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(@override);
+                if (value != null)
+                    property.SetValue(one, value);
+            }
         }
     }
 }

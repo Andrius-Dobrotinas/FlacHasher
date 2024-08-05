@@ -5,10 +5,10 @@ using System.IO;
 
 namespace Andy.FlacHash.Cmd
 {
-    public class Settings
+    public class ConfigurationProfile
     {
         public FileInfo Decoder { get; set; }
-        
+
         /// <summary>
         /// A semicolon-separated list of parameters to <see cref="Decoder"/> exactly the way they are supposed to appear
         /// (with dashes and whatnot)
@@ -28,5 +28,13 @@ namespace Andy.FlacHash.Cmd
         {
             public static Algorithm HashAlgorithm = Algorithm.SHA256;
         }
+    }
+
+    public class Settings : ConfigurationProfile
+    {
+        /// <summary>
+        /// When non-null, specifies override settings profile
+        /// </summary>
+        public string Profile { get; set; }
     }
 }
