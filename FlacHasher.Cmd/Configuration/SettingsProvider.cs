@@ -37,7 +37,7 @@ namespace Andy.FlacHash.Cmd
         {
             var path = GetValue(section, key);
 
-            return string.IsNullOrEmpty(path) ? null : new FileInfo(path);
+            return string.IsNullOrWhiteSpace(path) ? null : new FileInfo(path);
         }
 
         private static string GetValue(IDictionary<string, string> section, string key)
