@@ -11,28 +11,26 @@ namespace Andy.FlacHash.Cmd
             IDictionary<string, IDictionary<string, string>> settings,
             string sectionName)
         {
-            if (settings.ContainsKey(sectionName))
+            if (!settings.ContainsKey(sectionName))
+                return null;
+            
+            var section = settings[sectionName];
+
+            return new Settings
             {
-                var section = settings[sectionName];
-
-                return new Settings
-                {
-                    Profile = GetValue(section, nameof(Settings.Profile)),
-                    Decoder = GetFile(section, nameof(Settings.Decoder)),
-                    DecoderParameters = GetValue(section, nameof(Settings.DecoderParameters)),
-                    OutputFormat = GetValue(section, nameof(Settings.OutputFormat)),
-                    ProcessExitTimeoutMs = GetValueInt(section, nameof(Settings.ProcessExitTimeoutMs)),
-                    ProcessTimeoutSec = GetValueInt(section, nameof(Settings.ProcessTimeoutSec)),
-                    ProcessStartWaitMs = GetValueInt(section, nameof(Settings.ProcessStartWaitMs)),
-                    FailOnError = GetValueBool(section, nameof(Settings.FailOnError)),
-                    HashfileExtensions = GetValue(section, nameof(Settings.HashfileExtensions)),
-                    HashfileEntrySeparator = GetValue(section, nameof(Settings.HashfileEntrySeparator)),
-                    HashAlgorithm = GetValue(section, nameof(Settings.HashAlgorithm)),
-                    FileLookupIncludeHidden = GetValueBool(section, nameof(Settings.FileLookupIncludeHidden)) ?? false
-                };
-            }
-
-            return new Settings();
+                Profile = GetValue(section, nameof(Settings.Profile)),
+                Decoder = GetFile(section, nameof(Settings.Decoder)),
+                DecoderParameters = GetValue(section, nameof(Settings.DecoderParameters)),
+                OutputFormat = GetValue(section, nameof(Settings.OutputFormat)),
+                ProcessExitTimeoutMs = GetValueInt(section, nameof(Settings.ProcessExitTimeoutMs)),
+                ProcessTimeoutSec = GetValueInt(section, nameof(Settings.ProcessTimeoutSec)),
+                ProcessStartWaitMs = GetValueInt(section, nameof(Settings.ProcessStartWaitMs)),
+                FailOnError = GetValueBool(section, nameof(Settings.FailOnError)),
+                HashfileExtensions = GetValue(section, nameof(Settings.HashfileExtensions)),
+                HashfileEntrySeparator = GetValue(section, nameof(Settings.HashfileEntrySeparator)),
+                HashAlgorithm = GetValue(section, nameof(Settings.HashAlgorithm)),
+                FileLookupIncludeHidden = GetValueBool(section, nameof(Settings.FileLookupIncludeHidden)) ?? false
+            };
         }
 
         private static FileInfo GetFile(IDictionary<string, string> section, string key)
@@ -77,9 +75,15 @@ namespace Andy.FlacHash.Cmd
             var settingsDictionary = iniReader.Read(settingsFile);
 
             var root = GetSettings(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
+            if (root == null)
+                return new Settings();
+
             var profile = profileName ?? root.Profile;
             if (profile != null && profile != ".")
             {
+                if (!settingsDictionary.ContainsKey(profile))
+                    throw new ConfigurationException($"Configuration profile \"{profile}\" was not found");
+                
                 var @override = GetSettings(settingsDictionary, profile);
                 Merge(root, @override);
             }
