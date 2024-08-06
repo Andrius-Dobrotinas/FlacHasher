@@ -67,7 +67,7 @@ namespace Andy.Configuration.Ini
         private static bool IsConfigEntry(string line)
         {
             var trimmedLine = line.Trim();
-            return trimmedLine != "" && !trimmedLine.StartsWith(';');
+            return !(trimmedLine == "" || trimmedLine.StartsWith(';'));
         }
     }
 }
