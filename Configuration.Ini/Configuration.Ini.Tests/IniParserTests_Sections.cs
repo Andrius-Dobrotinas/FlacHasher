@@ -130,6 +130,14 @@ namespace Andy.Configuration.Ini
         [TestCase("; key=value")]
         [TestCase(";[Section]")]
         [TestCase("; [Section]")]
+        [TestCase("#")]
+        [TestCase("#asd")]
+        [TestCase("# asd")]
+        [TestCase("#key=value")]
+        [TestCase("# key=value")]
+        [TestCase("#[Section]")]
+        [TestCase("# [Section]")]
+
         public void Should_Not_Treat_EmptyLines_And_Commentaries_AsEntries(string line)
         {
             var lines = new string[]
