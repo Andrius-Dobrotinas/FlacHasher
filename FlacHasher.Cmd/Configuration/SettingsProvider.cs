@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Cmd
 
             var root = ReadSettingsSection(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
             if (root == null)
-                return new Settings();
+                root = new Settings();
 
             var profile = profileName ?? root.Profile;
             if (profile != null && profile != ".")
