@@ -14,55 +14,22 @@ namespace Andy.FlacHash.Cmd
             if (!settings.ContainsKey(sectionName))
                 return null;
             
+            var result = new Settings();
             var section = settings[sectionName];
+            var properties = typeof(Settings).GetProperties();
 
-            return new Settings
+            foreach (var entry in section)
             {
-                Profile = GetValue(section, nameof(Settings.Profile)),
-                Decoder = GetFile(section, nameof(Settings.Decoder)),
-                DecoderParameters = GetValue(section, nameof(Settings.DecoderParameters)),
-                OutputFormat = GetValue(section, nameof(Settings.OutputFormat)),
-                ProcessExitTimeoutMs = GetValueInt(section, nameof(Settings.ProcessExitTimeoutMs)),
-                ProcessTimeoutSec = GetValueInt(section, nameof(Settings.ProcessTimeoutSec)),
-                ProcessStartWaitMs = GetValueInt(section, nameof(Settings.ProcessStartWaitMs)),
-                FailOnError = GetValueBool(section, nameof(Settings.FailOnError)),
-                HashfileExtensions = GetValue(section, nameof(Settings.HashfileExtensions)),
-                HashfileEntrySeparator = GetValue(section, nameof(Settings.HashfileEntrySeparator)),
-                HashAlgorithm = GetValue(section, nameof(Settings.HashAlgorithm)),
-                FileLookupIncludeHidden = GetValueBool(section, nameof(Settings.FileLookupIncludeHidden)) ?? false
-            };
-        }
+                var property = properties.FirstOrDefault(x => x.Name == entry.Key);
+                if (property != null)
+                {
+                    var valueParsed = Parse(entry.Value, property.PropertyType);
+                    if (valueParsed != null)
+                        property.SetValue(result, valueParsed);
+                }
+            }
 
-        private static FileInfo GetFile(IDictionary<string, string> section, string key)
-        {
-            var path = GetValue(section, key);
-
-            return string.IsNullOrWhiteSpace(path) ? null : new FileInfo(path);
-        }
-
-        private static string GetValue(IDictionary<string, string> section, string key)
-        {
-            return section.ContainsKey(key) 
-                ? section[key]
-                : null;
-        }
-
-        private static int? GetValueInt(IDictionary<string, string> section, string key)
-        {
-            var value = GetValue(section, key);
-
-            if (string.IsNullOrWhiteSpace(value)) return null;
-
-            return int.Parse(value);
-        }
-
-        private static bool? GetValueBool(IDictionary<string, string> section, string key)
-        {
-            var value = GetValue(section, key);
-
-            if (string.IsNullOrWhiteSpace(value)) return null;
-
-            return bool.Parse(value);
+            return result;
         }
 
         public static Settings GetSettings(FileInfo settingsFile, string profileName = null)
@@ -106,6 +73,29 @@ namespace Andy.FlacHash.Cmd
                 if (value != null)
                     property.SetValue(one, value);
             }
+        }
+
+        private static object Parse(string value, Type type)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+            else if (type == typeof(string))
+            {
+                return value;
+            }
+            else if (type.IsGenericType && type.IsValueType)
+            {
+                var actualType = type.GenericTypeArguments.SingleOrDefault() ?? throw new NotSupportedException($"Expected a nullable value type to only have one generic type parameter: {type.FullName}");
+                return Convert.ChangeType(value, actualType);
+            }
+            else if (type == typeof(FileInfo))
+            {
+                return new FileInfo(value);
+            }
+
+            throw new NotImplementedException($"Type {type.FullName}");
         }
     }
 }
