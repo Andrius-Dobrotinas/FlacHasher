@@ -46,7 +46,7 @@ namespace Andy.FlacHash.Cmd
                 root = new Settings();
 
             var profile = profileName ?? root.Profile;
-            if (profile != null && profile != ".")
+            if (profile != null && profile != ConfigurationProfile.RootProfileAlias)
             {
                 if (!settingsDictionary.ContainsKey(profile))
                     throw new ConfigurationException($"Configuration profile \"{profile}\" was not found");

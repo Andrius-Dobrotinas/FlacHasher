@@ -24,6 +24,7 @@ namespace Andy.FlacHash.Cmd
         public int? ProcessStartWaitMs { get; set; }
         public bool? FailOnError { get; set; }
 
+        public const string RootProfileAlias = ".";
         public static class Defaults
         {
             public static Algorithm HashAlgorithm = Algorithm.SHA256;
@@ -36,5 +37,6 @@ namespace Andy.FlacHash.Cmd
         /// When non-null, specifies override settings profile
         /// </summary>
         public string Profile { get; set; }
+
     }
 }
