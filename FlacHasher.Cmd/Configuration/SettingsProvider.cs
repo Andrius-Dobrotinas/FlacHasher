@@ -7,7 +7,7 @@ namespace Andy.FlacHash.Cmd
 {
     public static class SettingsProvider
     {
-        private static Settings GetSettings(
+        private static Settings ReadSettingsSection(
             IDictionary<string, IDictionary<string, string>> settings,
             string sectionName)
         {
@@ -41,7 +41,7 @@ namespace Andy.FlacHash.Cmd
 
             var settingsDictionary = iniReader.Read(settingsFile);
 
-            var root = GetSettings(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
+            var root = ReadSettingsSection(settingsDictionary, Configuration.Ini.IniParser.RootSectionName);
             if (root == null)
                 return new Settings();
 
@@ -51,7 +51,7 @@ namespace Andy.FlacHash.Cmd
                 if (!settingsDictionary.ContainsKey(profile))
                     throw new ConfigurationException($"Configuration profile \"{profile}\" was not found");
                 
-                var @override = GetSettings(settingsDictionary, profile);
+                var @override = ReadSettingsSection(settingsDictionary, profile);
                 Merge(root, @override);
             }
 
