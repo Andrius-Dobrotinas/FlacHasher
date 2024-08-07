@@ -10,7 +10,7 @@ namespace Andy.Cmd
             if (!arguments.ContainsKey(argName))
                 return null;
 
-            string value = TryGetValueAllowingEmpty(arguments, argName);
+            string value = GetValueOptionalAllowingEmpty(arguments, argName);
 
             return String.IsNullOrEmpty(value)
                 ? true
@@ -31,7 +31,7 @@ namespace Andy.Cmd
         /// If it happens not to have a value, returns <paramref name="valueIfEmpty"/> value or an empty string.
         /// If the argument is not present, returns null.
         /// </summary>
-        public static string TryGetValueAllowingEmpty(IDictionary<string, string> arguments, string argName, string valueIfEmpty = null)
+        public static string GetValueOptionalAllowingEmpty(IDictionary<string, string> arguments, string argName, string valueIfEmpty = null)
         {
             string value;
 
