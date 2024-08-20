@@ -1,21 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using Andy.Cmd.Parameter;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Andy.FlacHash.Cmd
 {
     public class Parameters
     {
+        [Parameter(ParameterNames.Profile)]
+        [Optional]
         public string Profile { get; set; }
-        public string Decoder { get; set; }
-        public string HashAlgorithm { get; set; }
-        public string[] InputFiles { get; set; }
-        public string InputDirectory { get; set; }
-        public string TargetFileExtension { get; set; }
-        public string OutputFormat { get; set; }
-        public int? ProcessExitTimeoutMs { get; set; }
-        public int? ProcessTimeoutSec { get; set; }
-        public bool? FailOnError { get; set; }
 
+        [Parameter(ParameterNames.Decoder)]
+        [Optional]
+        public string Decoder { get; set; }
+
+        [Parameter(ParameterNames.HashAlgorithm)]
+        [Optional]
+        public string HashAlgorithm { get; set; }
+        
+        [Parameter(ParameterNames.InputFiles)]
+        [Optional]
+        public string[] InputFiles { get; set; }
+        
+        [Parameter(ParameterNames.InputDirectory)]
+        [Optional] 
+        public string InputDirectory { get; set; }
+
+        [Parameter(ParameterNames.FileExtension)]
+        [Optional]
+        public string TargetFileExtension { get; set; }
+
+        [Parameter(ParameterNames.OutputFormat)]
+        [Optional]
+        public string OutputFormat { get; set; }
+
+        [Parameter(ParameterNames.ProcessExitTimeoutMs)]
+        public int? ProcessExitTimeoutMs { get; set; }
+
+        [Parameter(ParameterNames.ProcessTimeoutSec)]
+        public int? ProcessTimeoutSec { get; set; }
+        
+        [Parameter(ParameterNames.FailOnError)]
+        public bool? FailOnError { get; set; }
+        
+        [Parameter(ParameterNames.HashFile)]
+        [Optional]
         public string HashFile { get; set; }
     }
 }

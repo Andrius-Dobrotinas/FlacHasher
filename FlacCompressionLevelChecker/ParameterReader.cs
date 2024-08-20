@@ -16,14 +16,31 @@ namespace Andy.FlacHash.CompressionLevel
                 .FirstOrDefault(x => x.Key.StartsWith(ArgumentNames.Prefix) == false)
                 .Key;
 
-            var compressioNlevel = Parameter.GetValueOptionalAllowingEmpty(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.CompressionLevel}");
+            var compressioNlevel = GetValueOptionalAllowingEmpty(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.CompressionLevel}");
 
             return new Parameters
             {
                 SourceFile = sourceFilePath,
-                FlacExec = Parameter.GetValueOptionalAllowingEmpty(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.FlacExec}"),
+                FlacExec = GetValueOptionalAllowingEmpty(arguments, $"{ArgumentNames.Prefix}{ArgumentNames.FlacExec}"),
                 CompressionLevel = compressioNlevel == null ? (int?)null : int.Parse(compressioNlevel)
             };
-        }        
+        }
+
+        /// <summary>
+        /// If the argument is present, returns its value regardless whether it actually has one (eg empty string).
+        /// If it happens not to have a value, returns <paramref name="valueIfEmpty"/> value or an empty string.
+        /// If the argument is not present, returns null.
+        /// </summary>
+        static string GetValueOptionalAllowingEmpty(IDictionary<string, string> arguments, string argName, string valueIfEmpty = null)
+        {
+            string value;
+
+            if (!arguments.TryGetValue(argName, out value))
+                return null;
+
+            return string.IsNullOrEmpty(value)
+                ? valueIfEmpty ?? ""
+                : value;
+        }
     }
 }

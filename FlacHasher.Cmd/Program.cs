@@ -1,4 +1,5 @@
 ﻿using Andy.Cmd;
+using Andy.Cmd.Parameter;
 using Andy.ExternalProcess;
 using Andy.FlacHash.Hashing.Crypto;
 using System;
@@ -26,7 +27,7 @@ namespace Andy.FlacHash.Cmd
             {
                 var argumentDictionary = ArgumentSplitter.GetArguments(args);
                 isVerification = argumentDictionary.ContainsKey(ParameterNames.ModeVerify);
-                parameters = ParameterReader.GetParameters(argumentDictionary);
+                parameters = ParameterReader.GetParameters<Parameters>(argumentDictionary);
             }
             catch (ParameterMissingException e)
             {

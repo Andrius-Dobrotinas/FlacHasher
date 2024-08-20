@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.Cmd
+namespace Andy.Cmd.Parameter
 {
     public class ParameterException : Exception
     {

@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace Andy.Cmd
+namespace Andy.Cmd.Parameter
 {
     /// <summary>
     /// Indicates that a command line parameter has not been provided by the caller
     /// </summary>
     public class ParameterMissingException : ParameterException
     {
-        public ParameterMissingException(string paramName) : base("Parameter is missing", paramName)
+        public ParameterMissingException(string paramName) : base("A mandatory parameter is not supplied", paramName)
         {
         }
     }

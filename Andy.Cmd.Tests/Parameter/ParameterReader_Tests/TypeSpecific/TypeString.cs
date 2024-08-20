@@ -1,0 +1,179 @@
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Andy.Cmd.Parameter.ParameterReader_Tests
+{
+    public class TypeString
+    {
+        [Test]
+        public void String__Parameter_NotProvided__Must_Reject()
+        {
+            var argvs = new Dictionary<string, string>();
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
+
+            Assert.Throws<ParameterMissingException>(() => ParameterReader.Parse(prop, argvs, result));
+        }
+
+        [TestCase("0")]
+        [TestCase("false")]
+        [TestCase(".")]
+        [TestCase("a value with spaces")]
+        public void String__Value_Provided__Must_UseIt(string value)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
+            ParameterReader.Parse(prop, argvs, result);
+
+            Assert.AreEqual(value, result.Regular);
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        public void String__Value_NotProvided__Must_Reject(string value)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
+
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.Parse(prop, argvs, result));
+        }
+
+        [Test]
+        public void String_Optional__Parameter_NotProvided__Must_Return_Null()
+        {
+            var argvs = new Dictionary<string, string>();
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Optional));
+            ParameterReader.Parse(prop, argvs, result);
+
+            Assert.IsNull(result.Optional);
+        }
+
+        [TestCase("0")]
+        [TestCase("false")]
+        [TestCase(".")]
+        [TestCase("a value with spaces")]
+        public void String_Optional__Value_Provided__Must_UseIt(string value)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Optional));
+            ParameterReader.Parse(prop, argvs, result);
+
+            Assert.AreEqual(value, result.Optional);
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        public void String_Optional__Value_NotProvided__Must_Reject(string value)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Optional));
+
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.Parse(prop, argvs, result));
+        }
+
+        [TestCase("")]
+        public void String_Optional_AllowEmpty__Value_EmptyStringProvided__Must_ReturnEmptyString(string value)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.EmptyAllowed));
+            ParameterReader.Parse(prop, argvs, result);
+
+            Assert.AreEqual("", result.EmptyAllowed);
+        }
+
+        [Test]
+        public void String_Optional_AllowEmpty__Value_NotProvided__Must_Reject()
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", null }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.EmptyAllowed));
+
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.Parse(prop, argvs, result));
+        }
+
+        [TestCase("10")]
+        [TestCase("0")]
+        [TestCase("-1")]
+        public void Optional_WithDefaultValue__Value_Provided__Must_UseIt(string rawValue)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", rawValue }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalDefaultValue));
+            ParameterReader.Parse(prop, argvs, result);
+
+            Assert.AreEqual(rawValue, result.OptionalDefaultValue);
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        public void Optional_WithDefaltValue__Parameter_Provided_NoValue__Must_Reject(string rawValue)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", rawValue }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalDefaultValue));
+
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.Parse(prop, argvs, result));
+        }
+
+        [Test]
+        public void Optional_WithDefaultValue__Parameter_NotProvided__Return_DefaultValue()
+        {
+            var argvs = new Dictionary<string, string>();
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalDefaultValue));
+            ParameterReader.Parse(prop, argvs, result);
+
+            Assert.AreEqual("x", result.OptionalDefaultValue);
+        }
+
+        class TestParams
+        {
+            [Parameter("arg")]
+            public string Regular { get; set; }
+
+            [Parameter("arg")]
+            [Optional]
+            public string Optional { get; set; }
+
+            [Parameter("arg")]
+            [AllowEmpty()]
+            public string EmptyAllowed { get; set; }
+
+            [Parameter("arg")]
+            [Optional(DefaultValue = "x")]
+            public string OptionalDefaultValue { get; set; }
+        }
+    }
+}
