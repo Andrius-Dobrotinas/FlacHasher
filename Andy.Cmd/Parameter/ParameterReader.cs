@@ -188,13 +188,14 @@ namespace Andy.Cmd.Parameter
                     }
                     else
                     {
+                        // The parameter has been specified; it HAS to contain a value, otherwise it's no bueno
                         if (string.IsNullOrWhiteSpace(value))
                             throw new ParameterEmptyException(paramAttr.Name);
 
                         object parsedValue;
                         try
                         {
-                            parsedValue = ParsePrimitive(value, property.PropertyType);
+                            parsedValue = ParseNonNullPrimitive(value, property.PropertyType);
                         }
                         catch (FormatException e)
                         {
@@ -212,7 +213,7 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static object ParsePrimitive(string value, Type type)
+        static object ParseNonNullPrimitive(string value, Type type)
         {
             if (type.IsPrimitive)
             {
@@ -224,9 +225,7 @@ namespace Andy.Cmd.Parameter
                 if (!actualType.IsPrimitive)
                     throw new NotImplementedException("Non-primitive value type");
 
-                return (value == "")
-                    ? Activator.CreateInstance(actualType)
-                    : Convert.ChangeType(value, actualType);
+                return ParseNonNullPrimitive(value, actualType);
             }
 
             throw new NotSupportedException(type.FullName);
