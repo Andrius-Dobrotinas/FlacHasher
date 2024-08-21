@@ -14,6 +14,7 @@ namespace Andy.FlacHash.Cmd
         /// (with dashes and whatnot)
         /// </summary>
         public string DecoderParameters { get; set; }
+        public string TargetFileExtension { get; set; }
         public string HashfileExtensions { get; set; }
         public string HashfileEntrySeparator { get; set; }
         public string HashAlgorithm { get; set; }

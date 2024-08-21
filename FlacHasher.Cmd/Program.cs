@@ -62,7 +62,7 @@ namespace Andy.FlacHash.Cmd
                 int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
                 int processStartWaitMs = settings.ProcessStartWaitMs ?? processStartWaitMsDefault;
                 bool continueOnError = ExecutionParameterResolver.GetContinueOnError(settings, parameters, continueOnErrorDefault);
-                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters, fileSearch);
+                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters, settings, fileSearch);
 
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");

@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Cmd
             return null;
         }
 
-        public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, FileSearch fileSearch)
+        public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, Settings settings, FileSearch fileSearch)
         {
             if (cmdlineArguments.InputFiles != null)
             {
@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Cmd
             }
             if (cmdlineArguments.InputDirectory != null)
             {
-                var fileExtension = cmdlineArguments.TargetFileExtension;
+                var fileExtension = cmdlineArguments.TargetFileExtension ?? settings.TargetFileExtension;
 
                 // TODO: define default extension in code, somewhere with a decoder?..
                 if (String.IsNullOrEmpty(fileExtension))
