@@ -217,6 +217,13 @@ namespace Andy.Cmd.Parameter
         {
             if (type.IsPrimitive)
             {
+                if (type == typeof(bool))
+                {
+                    if (value == "1")
+                        return true;
+                    else if (value == "0")
+                        return false;
+                }
                 return Convert.ChangeType(value, type);
             }
             else if (IsNullablePrimitiveType(type))

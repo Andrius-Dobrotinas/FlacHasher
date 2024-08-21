@@ -75,6 +75,27 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             Assert.AreEqual(expected, result.Regular);
         }
 
+        [TestCase("true", true)]
+        [TestCase("false", false)]
+        [TestCase("True", true)]
+        [TestCase("False", false)]
+        [TestCase("TRUE", true)]
+        [TestCase("FALSE", false)]
+        [TestCase("1", true)]
+        [TestCase("0", false)]
+        public void Must_Support_All_Variations_Of_Boolean_Values(string rawValue, bool expected)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", rawValue }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
+            ParameterReader.Parse(prop, argvs, result);
+
+            Assert.AreEqual(expected, result.Regular);
+        }
+
         [Test]
         public void Regular__ParameterProvided_Value_NotProvided__Treat_As_True()
         {
@@ -199,10 +220,11 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCase("-")]
-        [TestCase("1")]
-        [TestCase("0")]
+        [TestCase("-1")]
+        [TestCase("2")]
+        [TestCase("0.1")]
+        [TestCase("10")]
         [TestCase("12.6")]
-        [TestCase("12")]
         public void Regular__ValueOfWrongType__Must_Reject(string rawValue)
         {
             var argvs = new Dictionary<string, string>()
@@ -216,10 +238,11 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCase("-")]
-        [TestCase("1")]
-        [TestCase("0")]
+        [TestCase("-1")]
+        [TestCase("2")]
+        [TestCase("0.1")]
+        [TestCase("10")]
         [TestCase("12.6")]
-        [TestCase("12")]
         public void Nullable__ValueOfWrongType__Must_Reject(string rawValue)
         {
             var argvs = new Dictionary<string, string>()
@@ -233,10 +256,11 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCase("-")]
-        [TestCase("1")]
-        [TestCase("0")]
+        [TestCase("-1")]
+        [TestCase("2")]
+        [TestCase("0.1")]
+        [TestCase("10")]
         [TestCase("12.6")]
-        [TestCase("12")]
         public void Optional__ValueOfWrongType__Must_Reject(string rawValue)
         {
             var argvs = new Dictionary<string, string>()
@@ -250,10 +274,11 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCase("-")]
-        [TestCase("1")]
-        [TestCase("0")]
+        [TestCase("-1")]
+        [TestCase("2")]
+        [TestCase("0.1")]
+        [TestCase("10")]
         [TestCase("12.6")]
-        [TestCase("12")]
         public void Optional_WithDefaultValue__ValueOfWrongType__Must_Reject(string rawValue)
         {
             var argvs = new Dictionary<string, string>()
