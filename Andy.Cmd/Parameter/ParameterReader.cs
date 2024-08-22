@@ -95,7 +95,7 @@ namespace Andy.Cmd.Parameter
                     {
                         if (propertyType == typeof(string))
                         {
-                            if (value == null || value == "" && !isEmptyAllowed)
+                            if (value == null || (value == "" && !isEmptyAllowed))
                                 throw new ParameterEmptyException(paramAttr.Name);
                             else
                                 property.SetValue(paramsInstances, value);
