@@ -20,11 +20,11 @@ namespace Andy.FlacHash.Cmd
         public string HashAlgorithm { get; set; }
         
         [Parameter(ParameterNames.InputFiles)]
-        [Optional]
+        [EitherOr("input")]
         public string[] InputFiles { get; set; }
         
         [Parameter(ParameterNames.InputDirectory)]
-        [Optional] 
+        [EitherOr("input")]
         public string InputDirectory { get; set; }
 
         [Parameter(ParameterNames.FileExtension)]

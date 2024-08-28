@@ -8,6 +8,7 @@ namespace Andy.Cmd.Parameter
     public class ParameterReader
     {
         public const char ArrayValueSeparator = ';';
+        private static Type[] allowedTypes = new Type[] { typeof(string), typeof(string[]) };
 
         /// <summary>
         /// String parameters have null values only if they're not specified; otherwise, it's at least an empty string (if allowed).
@@ -27,15 +28,49 @@ namespace Andy.Cmd.Parameter
             if (paramNames.Distinct().Count() != paramNames.Count)
                 throw new InvalidOperationException("Some parameter names are repeated");
 
+            // Either-Or attribute
+            var eitherOrProperties = properties.Select(property => new { property, attr = property.GetCustomAttribute<EitherOrAttribute>() })
+                .Where(x => x.attr != null)
+                .ToList();
+            
+            // In theory, other types could be accepted, but I don't need that now
+            if (eitherOrProperties.Any(x => !allowedTypes.Contains(x.property.PropertyType)))
+                throw new InvalidOperationException($"{nameof(EitherOrAttribute)} is only allowed on String and Array-of-String type of properties");
+
+            var eitherOrPropertyGroups = eitherOrProperties
+                .GroupBy(x => x.attr.GroupKey, x => x.property)
+                .ToDictionary(x => x.Key, x => x.ToArray());
+
+            if (eitherOrPropertyGroups.Any(group => group.Value.Length == 1))
+            {
+                var propertyRepresentations = eitherOrPropertyGroups.Where(group => group.Value.Length == 1)
+                    .Select(x => $"{x.Value.First().Name} (key: \"{x.Key}\")");
+                throw new InvalidOperationException($"The following properties don't have any counterparts marked with the same {nameof(EitherOrAttribute)} key: {string.Join(',', propertyRepresentations)}");
+            }
+
             var @params = new TParam();
             foreach (var property in properties)
             {
                 Parse(property, arguments, @params);
             }
 
+            // Either-Or Continued
+            foreach (var parameterGroup in eitherOrPropertyGroups)
+            {
+                var values = parameterGroup.Value.Select(x => x.GetValue(@params));
+                var nullValues = values.Select(x => x == null);
+                if (nullValues.Count(x => x == false) > 1)
+                    throw new ParameterGroupException("Only one parameter is allowed to have a value", GetParameterNames(parameterGroup.Value));
+
+                if (nullValues.All(x => x == true))
+                    throw new ParameterGroupException("One of the following parameter must have a value", GetParameterNames(parameterGroup.Value));
+            }
+
             return @params;
         }
 
+        static string[] GetParameterNames(IEnumerable<PropertyInfo> properties) => properties.Select(x => x.GetCustomAttribute<ParameterAttribute>().Name).ToArray();
+        
         static bool IsNullableValueType(Type type)
         {
             return type.IsValueType && type.IsGenericType && type.GenericTypeArguments.Length == 1;
@@ -71,6 +106,12 @@ namespace Andy.Cmd.Parameter
                 && propertyType.IsArray)
                 throw new NotSupportedException($"Optional Array type parameters can't have default values - there's no good reason for that. Property: {property.Name}");
 
+            var eitherOrAttr = property.GetCustomAttribute<EitherOrAttribute>(false);
+            bool isEitherOr = eitherOrAttr != null;
+
+            if (isOptional && isEitherOr)
+                throw new InvalidOperationException($"{nameof(OptionalAttribute)} and {nameof(EitherOrAttribute)} are incompatible at the moment");
+
             if (propertyType.IsValueType)
             {
                 HandleValueType(arguments, property, paramAttr, optionalAttr, paramsInstances);
@@ -89,13 +130,15 @@ namespace Andy.Cmd.Parameter
                                 property.SetValue(paramsInstances, optionalAttr.DefaultValue);
                             return;
                         }
+                        else if (isEitherOr)
+                            return;
                         else
                             throw new ParameterMissingException(paramAttr.Name);
                     else
                     {
                         if (propertyType == typeof(string))
                         {
-                            if (value == null || (value == "" && !isEmptyAllowed))
+                            if ((value == null && !isEitherOr) || (value == "" && !isEmptyAllowed))
                                 throw new ParameterEmptyException(paramAttr.Name);
                             else
                                 property.SetValue(paramsInstances, value);
@@ -117,18 +160,28 @@ namespace Andy.Cmd.Parameter
                     var argExists = arguments.TryGetValue(paramAttr.Name, out value);
 
                     if (!argExists)
-                        if (isOptional)
+                        if (isOptional || isEitherOr)
                             return;
                         else
                             throw new ParameterMissingException(paramAttr.Name);
                     else
                     {
                         if (value == null)
+                        {
+                            if (isEitherOr)
+                                return;
+                            else
                             throw new ParameterEmptyException(paramAttr.Name);
+                        }
                         else if (string.IsNullOrWhiteSpace(value))
                         {
                             if (!isEmptyAllowed)
+                            {
+                                if (isEitherOr)
+                                    return;
+                                else
                                 throw new ParameterEmptyException(paramAttr.Name);
+                            }
                             else
                             {
                                 property.SetValue(paramsInstances, Array.Empty<string>());
