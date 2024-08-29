@@ -51,7 +51,7 @@ namespace Andy.Cmd.Parameter
             var @params = new TParam();
             foreach (var property in properties)
             {
-                Parse(property, arguments, @params);
+                ReadParameter(property, arguments, @params);
             }
 
             // Either-Or Continued
@@ -81,7 +81,7 @@ namespace Andy.Cmd.Parameter
             return IsNullableValueType(type) && type.GenericTypeArguments.Single().IsPrimitive;
         }
 
-        public static void Parse<T>(PropertyInfo property, IDictionary<string, string> arguments, T paramsInstances)
+        public static void ReadParameter<T>(PropertyInfo property, IDictionary<string, string> arguments, T paramsInstances)
         {
             var paramAttr = property.GetCustomAttributes(typeof(ParameterAttribute), false).SingleOrDefault() as ParameterAttribute;
             if (paramAttr == null)

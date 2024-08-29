@@ -17,7 +17,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.AreEqual(expected, result.Nullable);
         }
@@ -31,7 +31,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.IsTrue(result.Nullable);
         }
@@ -46,7 +46,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
 
-            Assert.Throws<ParameterEmptyException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var argvs = new Dictionary<string, string>();
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.IsNull(result.Nullable);
         }
@@ -70,7 +70,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.AreEqual(expected, result.Regular);
         }
@@ -91,7 +91,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.AreEqual(expected, result.Regular);
         }
@@ -105,7 +105,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.AreEqual(true, result.Regular);
         }
@@ -120,7 +120,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
 
-            Assert.Throws<ParameterEmptyException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
 
-            Assert.Throws<ParameterMissingException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<ParameterMissingException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [TestCase("true", true)]
@@ -143,7 +143,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.AreEqual(expected, result.RegularOptional);
         }
@@ -156,7 +156,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.IsTrue(result.RegularOptional);
         }
@@ -171,7 +171,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
 
-            Assert.Throws<ParameterEmptyException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var argvs = new Dictionary<string, string>();
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
 
             Assert.IsFalse(result.RegularOptional);
         }
@@ -192,12 +192,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptionalWithDefaultValue_True));
-            ParameterReader.Parse(prop, argvs, result);
+            ParameterReader.ReadParameter(prop, argvs, result);
             Assert.IsTrue(result.RegularOptionalWithDefaultValue_True, "Default value is True");
 
             var result2 = new TestParams();
             var prop2 = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptionalWithDefaultValue_False));
-            ParameterReader.Parse(prop2, argvs, result2);
+            ParameterReader.ReadParameter(prop2, argvs, result2);
             Assert.IsFalse(result.RegularOptionalWithDefaultValue_False, "Default value is False");
         }
 
@@ -207,7 +207,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularAllowEmpty));
 
-            Assert.Throws<NotSupportedException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<NotSupportedException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [TestCaseSource(nameof(GetFor_AllowEmptyAttributeNotSupported))]
@@ -216,7 +216,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalAllowEmpty));
 
-            Assert.Throws<NotSupportedException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<NotSupportedException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [TestCase("-")]
@@ -234,7 +234,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
 
-            Assert.Throws<BadParameterValueException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<BadParameterValueException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [TestCase("-")]
@@ -252,7 +252,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
 
-            Assert.Throws<BadParameterValueException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<BadParameterValueException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [TestCase("-")]
@@ -270,7 +270,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
 
-            Assert.Throws<BadParameterValueException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<BadParameterValueException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [TestCase("-")]
@@ -288,7 +288,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptionalWithDefaultValue_True));
 
-            Assert.Throws<BadParameterValueException>(() => ParameterReader.Parse(prop, argvs, result));
+            Assert.Throws<BadParameterValueException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         public static IEnumerable<TestCaseData> GetFor_AllowEmptyAttributeNotSupported()
