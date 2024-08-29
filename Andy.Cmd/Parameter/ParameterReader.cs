@@ -99,7 +99,7 @@ namespace Andy.Cmd.Parameter
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
 
             if (isEmptyAllowed
-                && !(propertyType == typeof(string) || propertyType.IsArray && isOptional))
+                && !(propertyType == typeof(string) || (propertyType.IsArray && isOptional)))
                 throw new NotSupportedException($"{nameof(AllowEmptyAttribute)} is only applicable to String and Optional Array type parameters. Property: {property.Name}");
 
             if (isOptional && optionalAttr.DefaultValue != null
