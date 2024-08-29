@@ -98,10 +98,10 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
                 { "arg", value }
             };
             var result = new TestParams();
-            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.EmptyAllowed));
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalEmptyAllowed));
             ParameterReader.ReadParameter(prop, argvs, result);
 
-            Assert.AreEqual("", result.EmptyAllowed);
+            Assert.AreEqual("", result.OptionalEmptyAllowed);
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
                 { "arg", null }
             };
             var result = new TestParams();
-            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.EmptyAllowed));
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalEmptyAllowed));
 
             Assert.Throws<ParameterEmptyException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
@@ -168,8 +168,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             public string Optional { get; set; }
 
             [Parameter("arg")]
+            [Optional]
             [AllowEmpty()]
-            public string EmptyAllowed { get; set; }
+            public string OptionalEmptyAllowed { get; set; }
 
             [Parameter("arg")]
             [Optional(DefaultValue = "x")]
