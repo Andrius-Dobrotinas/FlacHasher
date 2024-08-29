@@ -48,6 +48,33 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             Assert.Throws<ParameterEmptyException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
+        [TestCase("")]
+        public void String_AllowEmpty__EmptyStringProvided__Must_ReturnEmptyString(string value)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularEmptyAllowed));
+            ParameterReader.ReadParameter(prop, argvs, result);
+
+            Assert.AreEqual("", result.RegularEmptyAllowed);
+        }
+
+        [Test]
+        public void String_AllowEmpty__Value_NotProvided__Must_Reject()
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", null }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularEmptyAllowed));
+
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.ReadParameter(prop, argvs, result));
+        }
+
         [Test]
         public void String_Optional__Parameter_NotProvided__Must_Return_Null()
         {
@@ -162,6 +189,10 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         {
             [Parameter("arg")]
             public string Regular { get; set; }
+
+            [Parameter("arg")]
+            [AllowEmpty()]
+            public string RegularEmptyAllowed { get; set; }
 
             [Parameter("arg")]
             [Optional]
