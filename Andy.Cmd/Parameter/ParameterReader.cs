@@ -194,7 +194,7 @@ namespace Andy.Cmd.Parameter
                             if (split.Any(x => string.IsNullOrWhiteSpace(x)))
                                 throw new BadParameterValueException(paramAttr.Name, "An array is not allowed to contain empty elements");
 
-                            var arr = split.Cast<string>().ToArray();
+                                var arr = split.ToArray();
 
                             property.SetValue(paramsInstances, arr);
                             return;
