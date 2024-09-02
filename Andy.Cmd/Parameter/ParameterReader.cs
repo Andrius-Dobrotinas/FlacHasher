@@ -71,6 +71,8 @@ namespace Andy.Cmd.Parameter
 
         static string[] GetParameterNames(IEnumerable<PropertyInfo> properties) => properties.Select(x => x.GetCustomAttribute<ParameterAttribute>().Name).ToArray();
         
+        static bool IsEmptyOrWhitespace(string value) => value != null && string.IsNullOrWhiteSpace(value);
+
         static bool IsNullableValueType(Type type)
         {
             return type.IsValueType && type.IsGenericType && type.GenericTypeArguments.Length == 1;
@@ -138,7 +140,7 @@ namespace Andy.Cmd.Parameter
                     {
                         if (propertyType == typeof(string))
                         {
-                            if ((value == null && !isEitherOr) || (value == "" && !isEmptyAllowed))
+                            if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
                                 throw new ParameterEmptyException(paramAttr.Name);
                             else
                                 property.SetValue(paramsInstances, value);
