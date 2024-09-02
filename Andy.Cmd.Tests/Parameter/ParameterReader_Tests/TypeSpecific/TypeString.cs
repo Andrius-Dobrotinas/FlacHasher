@@ -34,6 +34,22 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             Assert.AreEqual(value, result.Regular);
         }
 
+        [TestCase(" 0", "0")]
+        [TestCase("false ", "false")]
+        [TestCase(" a value with spaces ", "a value with spaces")]
+        public void Must_Trim_The_Value(string value, string expected)
+        {
+            var argvs = new Dictionary<string, string>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
+            ParameterReader.ReadParameter(prop, argvs, result);
+
+            Assert.AreEqual(expected, result.Regular);
+        }
+
         [TestCase(null)]
         [TestCase("")]
         [TestCase(" ")]
@@ -53,7 +69,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("\t")]
-        public void String_AllowEmpty__EmptyStringOrWhitespaceProvided__Must_ReturnTheString(string value)
+        public void String_AllowEmpty__Value_EmptyStringOrWhitespaceProvided__Must_ReturnEmptyString(string value)
         {
             var argvs = new Dictionary<string, string>
             {
@@ -63,7 +79,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularEmptyAllowed));
             ParameterReader.ReadParameter(prop, argvs, result);
 
-            Assert.AreEqual(value, result.RegularEmptyAllowed);
+            Assert.AreEqual("", result.RegularEmptyAllowed);
         }
 
         [Test]
@@ -126,7 +142,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("\t")]
-        public void String_Optional_AllowEmpty__EmptyStringOrWhitespaceProvided__Must_ReturnTheString(string value)
+        public void String_Optional_AllowEmpty__EmptyStringOrWhitespaceProvided__Must_ReturnEmptyString(string value)
         {
             var argvs = new Dictionary<string, string>
             {
@@ -136,7 +152,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalEmptyAllowed));
             ParameterReader.ReadParameter(prop, argvs, result);
 
-            Assert.AreEqual(value, result.OptionalEmptyAllowed);
+            Assert.AreEqual("", result.OptionalEmptyAllowed);
         }
 
         [Test]

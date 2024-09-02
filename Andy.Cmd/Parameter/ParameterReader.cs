@@ -143,7 +143,7 @@ namespace Andy.Cmd.Parameter
                             if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
                                 throw new ParameterEmptyException(paramAttr.Name);
                             else
-                                property.SetValue(paramsInstances, value);
+                                property.SetValue(paramsInstances, value?.Trim());
                         }
                         else
                             throw new NotImplementedException($"Type: {propertyType.FullName}. Property: {property.Name}");
