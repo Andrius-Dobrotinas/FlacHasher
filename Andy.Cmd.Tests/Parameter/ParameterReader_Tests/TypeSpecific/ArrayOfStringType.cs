@@ -35,6 +35,8 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
         [TestCase(null)]
         [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t")]
         public void Regular__Value_NotProvided__Must_Reject(string value)
         {
             var argvs = new Dictionary<string, string>
@@ -157,6 +159,8 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
         [TestCase(null)]
         [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t")]
         public void Optional__ParameterProvided_Value_NotProvided__Must_Reject(string value)
         {
             var argvs = new Dictionary<string, string>
@@ -170,6 +174,8 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t")]
         public void Regular_AllowEmpty__Value_EmptyStringProvided__NotSupported(string value)
         {
             var argvs = new Dictionary<string, string>
@@ -196,6 +202,8 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t")]
         public void Optional_AllowEmpty__Value_EmptyStringProvided__Must_ReturnEmptyArray(string value)
         {
             var argvs = new Dictionary<string, string>
