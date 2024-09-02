@@ -176,7 +176,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("\t")]
-        public void Regular_AllowEmpty__Value_EmptyStringProvided__NotSupported(string value)
+        public void Regular_AllowEmpty__Value_EmptyStringOrWhitespaceProvided__Must_ReturnEmptyArray(string value)
         {
             var argvs = new Dictionary<string, string>
             {
@@ -184,12 +184,13 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.EmptyAllowed));
+            ParameterReader.ReadParameter(prop, argvs, result);
 
-            Assert.Throws<NotSupportedException>(() => ParameterReader.ReadParameter(prop, argvs, result));
+            Assert.AreEqual(Array.Empty<string>(), result.EmptyAllowed);
         }
 
         [Test]
-        public void Regular_AllowEmpty__Value_NotProvided__NotSupported()
+        public void Regular_AllowEmpty__Value_NotProvided__Must_Reject()
         {
             var argvs = new Dictionary<string, string>
             {
@@ -198,7 +199,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.EmptyAllowed));
 
-            Assert.Throws<NotSupportedException>(() => ParameterReader.ReadParameter(prop, argvs, result));
+            Assert.Throws<ParameterEmptyException>(() => ParameterReader.ReadParameter(prop, argvs, result));
         }
 
         [TestCase("")]
