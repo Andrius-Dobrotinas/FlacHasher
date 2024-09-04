@@ -10,12 +10,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void When_ParamterNameUsedMoreThanOnce__Must_Fail()
         {
-            var argvs = new Dictionary<string, string>()
+            var argvs = new Dictionary<string, string[]>()
             {
-                { "arg1", "arg 1 value" },
-                { "-somethingElse", "other value" },
-                { "caseinsensitive", "case insenstive value" },
-                { "CaseInsensitive", "Case Insenstive Value" },
+                { "arg1", new [] { "arg 1 value" } },
+                { "-somethingElse", new [] {  "other value" } },
+                { "caseinsensitive", new [] { "case insenstive value" } },
+                { "CaseInsensitive", new [] { "Case Insenstive Value" }},
             };
 
             Assert.Throws<InvalidOperationException>(() => ParameterReader.GetParameters<TestParamsNameClash>(argvs));
@@ -24,12 +24,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void PopulateParameters_BasedOn_Name_From_ParameterAttribute()
         {
-            var argvs = new Dictionary<string, string>()
+            var argvs = new Dictionary<string, string[]>()
             {
-                { "--arg1", "arg 1 value" },
-                { "arg1", "Other Value" },
-                { "caseinsensitive", "case insenstive value" },
-                { "CaseInsensitive", "Case Insenstive Value" },
+                { "--arg1", new [] { "arg 1 value" } },
+                { "arg1", new [] { "Other Value" } },
+                { "caseinsensitive", new [] { "case insenstive value" }},
+                { "CaseInsensitive", new [] { "Case Insenstive Value" }},
             };
             var result = ParameterReader.GetParameters<TestParams>(argvs);
 

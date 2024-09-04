@@ -2,11 +2,15 @@
     "profiles": {
         "Hash-SingleFile": {
             "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
+            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --input=ee --format=\"{name} {hash}\""
         },
         "Hash-MultipleFiles": {
             "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\";\"C:\\temp\\03 - Nirvana - Return Of The Rat.flac\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
+            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
+        },
+        "Hash-MultipleFiles2": {
+            "commandName": "Project",
+            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --input=\"c:\\flac\\02 - Pay T;o Play.flac\" --format=\"{name} {hash}\""
         },
         "Hash-Directory": {
             "commandName": "Project",

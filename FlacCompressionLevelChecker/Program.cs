@@ -1,6 +1,7 @@
 ﻿using Andy.Cmd;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Andy.FlacHash.CompressionLevel
 {
@@ -53,7 +54,7 @@ namespace Andy.FlacHash.CompressionLevel
             out int compressionLevel)
         {
             var argumentDictionary = ArgumentSplitter.GetArguments(args);
-            var @params = ParameterReader.GetParameters(argumentDictionary);
+            var @params = ParameterReader.GetParameters(argumentDictionary.ToDictionary(x => x.Key, x => x.Value.First()));
 
             if (string.IsNullOrEmpty(@params.SourceFile))
                 throw new Exception("Source file not provided");

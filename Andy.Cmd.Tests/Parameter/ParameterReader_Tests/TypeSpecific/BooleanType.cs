@@ -11,9 +11,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("false", false)]
         public void Nullable__Value_Provided(string rawValue, bool expected)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
@@ -25,9 +25,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void Nullable__ParameterProvided_Value_NotProvided__Treat_As_True()
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", null }
+                { "arg", new string[] { null } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
@@ -39,9 +39,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("")]
         public void Nullable__Value_IsEmpty__Reject(string rawValue)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
@@ -52,7 +52,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void Nullable__Parameter_NotSpecified__Return_Null()
         {
-            var argvs = new Dictionary<string, string>();
+            var argvs = new Dictionary<string, string[]>();
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
             ParameterReader.ReadParameter(prop, argvs, result);
@@ -64,9 +64,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("false", false)]
         public void Regular__Value_Provided(string rawValue, bool expected)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
@@ -85,9 +85,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("0", false)]
         public void Must_Support_All_Variations_Of_Boolean_Values(string rawValue, bool expected)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
@@ -99,9 +99,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void Regular__ParameterProvided_Value_NotProvided__Treat_As_True()
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", null }
+                { "arg", new string[] { null } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
@@ -113,9 +113,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("")]
         public void Regular__Value_IsEmpty__Reject(string rawValue)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
@@ -126,7 +126,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void Regular__Parameter_NotSpecified__ErrorOut()
         {
-            var argvs = new Dictionary<string, string>();
+            var argvs = new Dictionary<string, string[]>();
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
 
@@ -137,9 +137,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("false", false)]
         public void RegularOptional__Value_Provided(string rawValue, bool expected)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
@@ -150,9 +150,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
         public void RegularOptional__ParameterProvided_Value_NotProvided__Treat_As_True()
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", null }
+                { "arg", new string[] { null } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
@@ -164,9 +164,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("")]
         public void RegularOptional__Value_IsEmpty__Reject(string rawValue)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
@@ -177,7 +177,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void RegularOptional__Parameter_NotSpecified__Return_False()
         {
-            var argvs = new Dictionary<string, string>();
+            var argvs = new Dictionary<string, string[]>();
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
             ParameterReader.ReadParameter(prop, argvs, result);
@@ -188,7 +188,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [Test]
         public void RegularOptional_WithDefaultValue__Parameter_NotSpecified__Return_DefaultValue()
         {
-            var argvs = new Dictionary<string, string>();
+            var argvs = new Dictionary<string, string[]>();
 
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptionalWithDefaultValue_True));
@@ -202,7 +202,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCaseSource(nameof(GetFor_AllowEmptyAttributeNotSupported))]
-        public void AllowEmptyAttribute__NotSupported(Dictionary<string, string> argvs)
+        public void AllowEmptyAttribute__NotSupported(IDictionary<string, string[]> argvs)
         {
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularAllowEmpty));
@@ -211,7 +211,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [TestCaseSource(nameof(GetFor_AllowEmptyAttributeNotSupported))]
-        public void Nullable_AllowEmptyAttribute__NotSupported(Dictionary<string, string> argvs)
+        public void Nullable_AllowEmptyAttribute__NotSupported(IDictionary<string, string[]> argvs)
         {
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.OptionalAllowEmpty));
@@ -227,9 +227,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("12.6")]
         public void Regular__ValueOfWrongType__Must_Reject(string rawValue)
         {
-            var argvs = new Dictionary<string, string>()
+            var argvs = new Dictionary<string, string[]>()
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
@@ -245,9 +245,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("12.6")]
         public void Nullable__ValueOfWrongType__Must_Reject(string rawValue)
         {
-            var argvs = new Dictionary<string, string>()
+            var argvs = new Dictionary<string, string[]>()
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Nullable));
@@ -263,9 +263,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("12.6")]
         public void Optional__ValueOfWrongType__Must_Reject(string rawValue)
         {
-            var argvs = new Dictionary<string, string>()
+            var argvs = new Dictionary<string, string[]>()
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptional));
@@ -281,9 +281,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         [TestCase("12.6")]
         public void Optional_WithDefaultValue__ValueOfWrongType__Must_Reject(string rawValue)
         {
-            var argvs = new Dictionary<string, string>()
+            var argvs = new Dictionary<string, string[]>()
             {
-                { "arg", rawValue }
+                { "arg", new [] { rawValue } }
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.RegularOptionalWithDefaultValue_True));

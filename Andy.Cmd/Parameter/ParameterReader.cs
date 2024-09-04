@@ -15,7 +15,7 @@ namespace Andy.Cmd.Parameter
         /// </summary>
         /// <param name="arguments"></param>
         /// <returns></returns>
-        public static TParam GetParameters<TParam>(IDictionary<string, string> arguments)
+        public static TParam GetParameters<TParam>(IDictionary<string, string[]> arguments)
             where TParam : new()
         {
             var properties = typeof(TParam).GetProperties();
@@ -43,7 +43,8 @@ namespace Andy.Cmd.Parameter
 
             if (eitherOrPropertyGroups.Any(group => group.Value.Length == 1))
             {
-                var propertyRepresentations = eitherOrPropertyGroups.Where(group => group.Value.Length == 1)
+                var propertyRepresentations = eitherOrPropertyGroups
+                    .Where(group => group.Value.Length == 1)
                     .Select(x => $"{x.Value.First().Name} (key: \"{x.Key}\")");
                 throw new InvalidOperationException($"The following properties don't have any counterparts marked with the same {nameof(EitherOrAttribute)} key: {string.Join(',', propertyRepresentations)}");
             }
@@ -83,7 +84,7 @@ namespace Andy.Cmd.Parameter
             return IsNullableValueType(type) && type.GenericTypeArguments.Single().IsPrimitive;
         }
 
-        public static void ReadParameter<T>(PropertyInfo property, IDictionary<string, string> arguments, T paramsInstances)
+        public static void ReadParameter<T>(PropertyInfo property, IDictionary<string, string[]> arguments, T paramsInstances)
         {
             var paramAttr = property.GetCustomAttributes(typeof(ParameterAttribute), false).SingleOrDefault() as ParameterAttribute;
             if (paramAttr == null)
@@ -122,10 +123,11 @@ namespace Andy.Cmd.Parameter
             {
                 if (propertyType == typeof(string))
                 {
-                    string value;
-                    var argExists = arguments.TryGetValue(paramAttr.Name, out value);
+                    string[] values;
+                    var argExists = arguments.TryGetValue(paramAttr.Name, out values);
 
                     if (!argExists)
+                    {
                         if (isOptional)
                         {
                             if (optionalAttr.DefaultValue != null)
@@ -136,8 +138,11 @@ namespace Andy.Cmd.Parameter
                             return;
                         else
                             throw new ParameterMissingException(paramAttr.Name);
+                    }
                     else
                     {
+                        string value = values.Last();
+
                         if (propertyType == typeof(string))
                         {
                             if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
@@ -158,48 +163,65 @@ namespace Andy.Cmd.Parameter
                     if (elementType != typeof(string))
                         throw new NotSupportedException($"Array of other than Strings is not supported: {property.Name}, {propertyType.FullName}");
 
-                    string value;
-                    var argExists = arguments.TryGetValue(paramAttr.Name, out value);
+                    string[] values;
+                    var argExists = arguments.TryGetValue(paramAttr.Name, out values);
 
                     if (!argExists)
+                    {
                         if (isOptional || isEitherOr)
                             return;
                         else
                             throw new ParameterMissingException(paramAttr.Name);
+                    }
                     else
                     {
-                        if (value == null)
+                        if (values.Length == 1)
                         {
-                            if (isEitherOr)
-                                return;
-                            else
-                            throw new ParameterEmptyException(paramAttr.Name);
-                        }
-                        else if (string.IsNullOrWhiteSpace(value))
-                        {
-                            if (!isEmptyAllowed)
+                            string value = values.First();
+                            if (value == null)
                             {
                                 if (isEitherOr)
                                     return;
                                 else
                                 throw new ParameterEmptyException(paramAttr.Name);
                             }
+                            else if (string.IsNullOrWhiteSpace(value))
+                            {
+                                if (!isEmptyAllowed)
+                                {
+                                    if (isEitherOr)
+                                        return;
+                                    else
+                                    throw new ParameterEmptyException(paramAttr.Name);
+                                }
+                                else
+                                {
+                                    property.SetValue(paramsInstances, Array.Empty<string>());
+                                    return;
+                                }
+                            }
                             else
                             {
-                                property.SetValue(paramsInstances, Array.Empty<string>());
+                                var split = value.Split(ArrayValueSeparator);
+                                if (split.Any(string.IsNullOrWhiteSpace))
+                                    throw new BadParameterValueException(paramAttr.Name, "An array is not allowed to contain empty elements");
+
+                                var arrValue = split.ToArray();
+
+                                property.SetValue(paramsInstances, arrValue);
                                 return;
                             }
                         }
+                        // More than one array item - provided as separate args, not separator-separated string
                         else
                         {
-                            var split = value.Split(ArrayValueSeparator).ToArray();
-                            if (split.Any(x => string.IsNullOrWhiteSpace(x)))
+                            if (values.Any(string.IsNullOrWhiteSpace))
                                 throw new BadParameterValueException(paramAttr.Name, "An array is not allowed to contain empty elements");
-
-                                var arr = split.ToArray();
-
-                            property.SetValue(paramsInstances, arr);
-                            return;
+                            else
+                            {
+                                property.SetValue(paramsInstances, values);
+                                return;
+                            }
                         }
                     }
                 }
@@ -208,15 +230,15 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static void HandleValueType<TTarget>(IDictionary<string, string> arguments, PropertyInfo property, ParameterAttribute paramAttr, OptionalAttribute optionalAttr, TTarget paramsInstances)
+        static void HandleValueType<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, ParameterAttribute paramAttr, OptionalAttribute optionalAttr, TTarget paramsInstances)
         {
             var propertyType = property.PropertyType;
             var isOptional = optionalAttr != null;
 
             if (propertyType.IsPrimitive || IsNullablePrimitiveType(propertyType))
             {
-                string value;
-                var argExists = arguments.TryGetValue(paramAttr.Name, out value);
+                string[] values;
+                var argExists = arguments.TryGetValue(paramAttr.Name, out values);
 
                 if (!argExists)
                     if (isOptional)
@@ -234,6 +256,8 @@ namespace Andy.Cmd.Parameter
                         throw new ParameterMissingException(paramAttr.Name);
                 else
                 {
+                    string value = values.Last();
+
                     // If a boolean value is specified as a flag (ie without any value at all), it's True
                     if ((propertyType == typeof(bool) || propertyType == typeof(bool?))
                         && value == null)

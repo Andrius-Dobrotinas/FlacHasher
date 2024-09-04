@@ -11,9 +11,9 @@ namespace Andy.Cmd.Parameter
         [TestCase("a value with spaces")]
         public void One_Parameter_HasValue__Other_DoesNot__Must_SetTheValue(string value)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg1", value }
+                { "arg1", new [] { value } }
             };
             var result = ParameterReader.GetParameters<TestParams>(argvs);
 
@@ -25,9 +25,9 @@ namespace Andy.Cmd.Parameter
         [TestCase("another value")]
         public void One_Paramter_IsEmpty_Other_HasValue__Must_SetTheValue(string value)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg2", value }
+                { "arg2", new [] { value } }
             };
             var result = ParameterReader.GetParameters<TestParams>(argvs);
 
@@ -39,10 +39,10 @@ namespace Andy.Cmd.Parameter
         [TestCase("a", "value, too")]
         public void Both_Paramters_HaveValues__Must_Reject(string firstArgValue, string secondArgValue)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg1", firstArgValue },
-                { "arg2", secondArgValue }
+                { "arg1", new [] { firstArgValue } },
+                { "arg2", new[] { secondArgValue } }
             };
             Assert.Throws<ParameterGroupException>(
                 () => ParameterReader.GetParameters<TestParams>(argvs));
@@ -51,10 +51,10 @@ namespace Andy.Cmd.Parameter
         [Test]
         public void Neither_Parameter_HasValue__Must_Reject()
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg1", null },
-                { "arg2", null }
+                { "arg1", new string[] { null } },
+                { "arg2", new string[] { null } }
             };
             Assert.Throws<ParameterGroupException>(
                 () => ParameterReader.GetParameters<TestParams>(argvs));
@@ -63,9 +63,9 @@ namespace Andy.Cmd.Parameter
         [TestCase("")]
         public void EmptyString_Not_Accepted(string value)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg1", value }
+                { "arg1", new [] { value } }
             };
             Assert.Throws<ParameterEmptyException>(
                 () => ParameterReader.GetParameters<TestParams>(argvs));
@@ -76,9 +76,9 @@ namespace Andy.Cmd.Parameter
         [TestCase("a value with spaces")]
         public void When__NoOtherParamHasTheSameKey__Must_Reject(string value)
         {
-            var argvs = new Dictionary<string, string>
+            var argvs = new Dictionary<string, string[]>
             {
-                { "arg1", value }
+                { "arg1", new [] { value } }
             };
             Assert.Throws<InvalidOperationException>(
                 () => ParameterReader.GetParameters<TestParams2>(argvs));
