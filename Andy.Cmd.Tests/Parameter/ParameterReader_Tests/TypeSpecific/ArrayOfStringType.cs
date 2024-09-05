@@ -33,11 +33,44 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             Assert.AreEqual(expectedValue, result.Regular);
         }
 
+        [TestCase(" 0 ", new[] { "0" })]
+        [TestCase("0;One ; three", new[] { "0", "One", "three" })]
+        [TestCase("First;Se Cond", new[] { "First", "Se Cond" })]
+        public void Regular__Value_Provided__Must_Trim__When_ArrayAsOneArgument(string value, string[] expectedValue)
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg", new [] { value } }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
+            ParameterReader.ReadParameter(prop, argvs, result);
+
+            Assert.AreEqual(expectedValue, result.Regular);
+        }
+
+        [TestCase(new[] { " 0 " }, new[] { "0" })]
+        [TestCase(new[] { "0", "One ", " three" }, new[] { "0", "One", "three" })]
+        [TestCase(new[] { "First ", "Se Cond " }, new[] { "First", "Se Cond" })]
+        [TestCase(new[] { "First;Se Cond" }, new[] { "First", "Se Cond" })]
+        public void Regular__Value_Provided__Must_Trim__When_ArrayAsDiscreteArguments(string[] value, string[] expectedValue)
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg", value }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Regular));
+            ParameterReader.ReadParameter(prop, argvs, result);
+
+            Assert.AreEqual(expectedValue, result.Regular);
+        }
+
         [TestCase(new[] { "0", "One", "three" }, new[] { "0", "One", "three" })]
         [TestCase(new[] { "2" }, new[] { "2" })]
         [TestCase(new[] { "First", "Se Cond" }, new[] { "First", "Se Cond" })]
         [TestCase(new[] { "First;Second", "Se;Cond" }, new[] { "First;Second", "Se;Cond" })]
-        public void Regular__Value_Provided_AsMultipleArguments__Must_TreatThemAsDiscreteArrayItems(string[] values, string[] expectedValue)
+        public void Regular__Value_Provided_AsDiscreteArguments__Must_TreatThemAsDiscreteArrayItems(string[] values, string[] expectedValue)
         {
             var argvs = new Dictionary<string, string[]>
             {
