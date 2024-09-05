@@ -7,15 +7,13 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 {
     public class General
     {
-        [Test]
-        public void When_ParamterNameUsedMoreThanOnce__Must_Fail()
+        [TestCase("--arg1", Description = "Problematic argument is provided")]
+        [TestCase("unrelated", Description = "Problematic argument is not provided")]
+        public void When_ParamterNameIsUsedMoreThanOnce__Must_Fail(string key)
         {
             var argvs = new Dictionary<string, string[]>()
             {
-                { "arg1", new [] { "arg 1 value" } },
-                { "-somethingElse", new [] {  "other value" } },
-                { "caseinsensitive", new [] { "case insenstive value" } },
-                { "CaseInsensitive", new [] { "Case Insenstive Value" }},
+                { key, new [] { "arg 1 value" } },
             };
 
             Assert.Throws<InvalidOperationException>(() => ParameterReader.GetParameters<TestParamsNameClash>(argvs));
@@ -28,8 +26,6 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             {
                 { "--arg1", new [] { "arg 1 value" } },
                 { "arg1", new [] { "Other Value" } },
-                { "caseinsensitive", new [] { "case insenstive value" }},
-                { "CaseInsensitive", new [] { "Case Insenstive Value" }},
             };
             var result = ParameterReader.GetParameters<TestParams>(argvs);
 
@@ -46,12 +42,6 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
             [Parameter("arg1")]
             public string Two { get; set; }
-
-            [Parameter("caseinsensitive")]
-            public string Three { get; set; }
-
-            [Parameter("CaseInsensitive")]
-            public string Four { get; set; }
         }
 
         class TestParamsNameClash
@@ -61,6 +51,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
             [Parameter("--arg1")]
             public string Two { get; set; }
+
+            [Parameter("unrelated")]
+            public string Unrelated { get; set; }
         }
     }
 }
