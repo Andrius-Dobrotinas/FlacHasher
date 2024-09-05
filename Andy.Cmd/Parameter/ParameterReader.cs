@@ -204,22 +204,15 @@ namespace Andy.Cmd.Parameter
                             }
                             else
                             {
-                                var valuesTrimmed = TrimValues(value.Split(ArrayValueSeparator));
-                                if (valuesTrimmed.Any(string.IsNullOrEmpty))
-                                    throw new BadParameterValueException(paramName, "An array is not allowed to contain empty elements");
-
-                                property.SetValue(paramsInstances, valuesTrimmed);
+                                var split = value.Split(ArrayValueSeparator);
+                                SetArrayValueTrimmed(paramsInstances, property, paramName, split);
                                 return;
                             }
                         }
                         // More than one array item - provided as separate args, not separator-separated string
                         else
                         {
-                            var valuesTrimmed = TrimValues(values);
-                            if (valuesTrimmed.Any(string.IsNullOrEmpty))
-                                throw new BadParameterValueException(paramName, "An array is not allowed to contain empty elements");
-                             
-                            property.SetValue(paramsInstances, valuesTrimmed);
+                            SetArrayValueTrimmed(paramsInstances, property, paramName, values);
                                 return;
                             }
                         }
@@ -227,6 +220,15 @@ namespace Andy.Cmd.Parameter
                 else
                     throw new NotSupportedException($"Not supported type: {property.Name} ({propertyType.FullName})");
             }
+        }
+
+        static void SetArrayValueTrimmed<TParams>(TParams paramsInstances, PropertyInfo property, string paramName, string[] values)
+        {
+            var valuesTrimmed = TrimValues(values);
+            if (valuesTrimmed.Any(string.IsNullOrEmpty))
+                throw new BadParameterValueException(paramName, "An array is not allowed to contain empty elements");
+
+            property.SetValue(paramsInstances, valuesTrimmed);
         }
 
         static string[] TrimValues(IEnumerable<string> values) => values.Select(x => x?.Trim()).ToArray();
