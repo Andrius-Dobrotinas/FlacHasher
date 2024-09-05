@@ -25,9 +25,10 @@ namespace Andy.FlacHash.Cmd
             bool isVerification;
             try
             {
-                var argumentDictionary = ArgumentSplitter.GetArguments(args);
+                bool lowercaseParams = true;
+                var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
                 isVerification = argumentDictionary.ContainsKey(ParameterNames.ModeVerify);
-                parameters = ParameterReader.GetParameters<Parameters>(argumentDictionary);
+                parameters = ParameterReader.GetParameters<Parameters>(argumentDictionary, inLowercase: lowercaseParams);
             }
             catch (ParameterMissingException e)
             {

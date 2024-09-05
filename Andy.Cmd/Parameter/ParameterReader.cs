@@ -15,14 +15,14 @@ namespace Andy.Cmd.Parameter
         /// </summary>
         /// <param name="arguments"></param>
         /// <returns></returns>
-        public static TParam GetParameters<TParam>(IDictionary<string, string[]> arguments)
+        public static TParam GetParameters<TParam>(IDictionary<string, string[]> arguments, bool inLowercase = false)
             where TParam : new()
         {
             var properties = typeof(TParam).GetProperties();
 
             var paramNames = properties.Select(p => p.GetCustomAttribute<ParameterAttribute>())
                 .Where(attr => attr != null)
-                .Select(attr => attr.Name)
+                .Select(attr => inLowercase ? attr.Name.ToLowerInvariant() : attr.Name)
                 .ToList();
 
             if (paramNames.Distinct().Count() != paramNames.Count)
@@ -52,7 +52,7 @@ namespace Andy.Cmd.Parameter
             var @params = new TParam();
             foreach (var property in properties)
             {
-                ReadParameter(property, arguments, @params);
+                ReadParameter(property, arguments, @params, inLowercase);
             }
 
             // Either-Or Continued
@@ -84,7 +84,7 @@ namespace Andy.Cmd.Parameter
             return IsNullableValueType(type) && type.GenericTypeArguments.Single().IsPrimitive;
         }
 
-        public static void ReadParameter<T>(PropertyInfo property, IDictionary<string, string[]> arguments, T paramsInstances)
+        public static void ReadParameter<T>(PropertyInfo property, IDictionary<string, string[]> arguments, T paramsInstances, bool inLowercase = false)
         {
             var paramAttr = property.GetCustomAttributes(typeof(ParameterAttribute), false).SingleOrDefault() as ParameterAttribute;
             if (paramAttr == null)
@@ -115,16 +115,18 @@ namespace Andy.Cmd.Parameter
             if (isOptional && isEitherOr)
                 throw new InvalidOperationException($"{nameof(OptionalAttribute)} and {nameof(EitherOrAttribute)} are incompatible at the moment");
 
+            var paramName = inLowercase ? paramAttr.Name.ToLowerInvariant() : paramAttr.Name;
+
             if (propertyType.IsValueType)
             {
-                HandleValueType(arguments, property, paramAttr, optionalAttr, paramsInstances);
+                HandleValueType(arguments, property, paramName, optionalAttr, paramsInstances);
             }
             else
             {
                 if (propertyType == typeof(string))
                 {
                     string[] values;
-                    var argExists = arguments.TryGetValue(paramAttr.Name, out values);
+                    var argExists = arguments.TryGetValue(paramName, out values);
 
                     if (!argExists)
                     {
@@ -137,7 +139,7 @@ namespace Andy.Cmd.Parameter
                         else if (isEitherOr)
                             return;
                         else
-                            throw new ParameterMissingException(paramAttr.Name);
+                            throw new ParameterMissingException(paramName);
                     }
                     else
                     {
@@ -146,7 +148,7 @@ namespace Andy.Cmd.Parameter
                         if (propertyType == typeof(string))
                         {
                             if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
-                                throw new ParameterEmptyException(paramAttr.Name);
+                                throw new ParameterEmptyException(paramName);
                             else
                                 property.SetValue(paramsInstances, value?.Trim());
                         }
@@ -164,14 +166,14 @@ namespace Andy.Cmd.Parameter
                         throw new NotSupportedException($"Array of other than Strings is not supported: {property.Name}, {propertyType.FullName}");
 
                     string[] values;
-                    var argExists = arguments.TryGetValue(paramAttr.Name, out values);
+                    var argExists = arguments.TryGetValue(paramName, out values);
 
                     if (!argExists)
                     {
                         if (isOptional || isEitherOr)
                             return;
                         else
-                            throw new ParameterMissingException(paramAttr.Name);
+                            throw new ParameterMissingException(paramName);
                     }
                     else
                     {
@@ -183,7 +185,7 @@ namespace Andy.Cmd.Parameter
                                 if (isEitherOr)
                                     return;
                                 else
-                                throw new ParameterEmptyException(paramAttr.Name);
+                                    throw new ParameterEmptyException(paramName);
                             }
                             else if (string.IsNullOrWhiteSpace(value))
                             {
@@ -192,7 +194,7 @@ namespace Andy.Cmd.Parameter
                                     if (isEitherOr)
                                         return;
                                     else
-                                    throw new ParameterEmptyException(paramAttr.Name);
+                                        throw new ParameterEmptyException(paramName);
                                 }
                                 else
                                 {
@@ -204,7 +206,7 @@ namespace Andy.Cmd.Parameter
                             {
                                 var split = value.Split(ArrayValueSeparator);
                                 if (split.Any(string.IsNullOrWhiteSpace))
-                                    throw new BadParameterValueException(paramAttr.Name, "An array is not allowed to contain empty elements");
+                                    throw new BadParameterValueException(paramName, "An array is not allowed to contain empty elements");
 
                                 var arrValue = split.ToArray();
 
@@ -216,7 +218,7 @@ namespace Andy.Cmd.Parameter
                         else
                         {
                             if (values.Any(string.IsNullOrWhiteSpace))
-                                throw new BadParameterValueException(paramAttr.Name, "An array is not allowed to contain empty elements");
+                                throw new BadParameterValueException(paramName, "An array is not allowed to contain empty elements");
                             else
                             {
                                 property.SetValue(paramsInstances, values);
@@ -230,7 +232,7 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static void HandleValueType<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, ParameterAttribute paramAttr, OptionalAttribute optionalAttr, TTarget paramsInstances)
+        static void HandleValueType<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, OptionalAttribute optionalAttr, TTarget paramsInstances)
         {
             var propertyType = property.PropertyType;
             var isOptional = optionalAttr != null;
@@ -238,7 +240,7 @@ namespace Andy.Cmd.Parameter
             if (propertyType.IsPrimitive || IsNullablePrimitiveType(propertyType))
             {
                 string[] values;
-                var argExists = arguments.TryGetValue(paramAttr.Name, out values);
+                var argExists = arguments.TryGetValue(paramName, out values);
 
                 if (!argExists)
                     if (isOptional)
@@ -253,7 +255,7 @@ namespace Andy.Cmd.Parameter
                         return;
                     }
                     else
-                        throw new ParameterMissingException(paramAttr.Name);
+                        throw new ParameterMissingException(paramName);
                 else
                 {
                     string value = values.Last();
@@ -269,7 +271,7 @@ namespace Andy.Cmd.Parameter
                     {
                         // The parameter has been specified; it HAS to contain a value, otherwise it's no bueno
                         if (string.IsNullOrWhiteSpace(value))
-                            throw new ParameterEmptyException(paramAttr.Name);
+                            throw new ParameterEmptyException(paramName);
 
                         object parsedValue;
                         try
@@ -278,7 +280,7 @@ namespace Andy.Cmd.Parameter
                         }
                         catch (FormatException e)
                         {
-                            throw new BadParameterValueException(paramAttr.Name, e);
+                            throw new BadParameterValueException(paramName, e);
                         }
 
                         property.SetValue(paramsInstances, parsedValue);

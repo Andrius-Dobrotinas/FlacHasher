@@ -13,7 +13,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         {
             var argvs = new Dictionary<string, string[]>()
             {
-                { key, new [] { "arg 1 value" } },
+                { key, new [] { "arg 1 value" } }
             };
 
             Assert.Throws<InvalidOperationException>(() => ParameterReader.GetParameters<TestParamsNameClash>(argvs));
@@ -31,8 +31,18 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
             Assert.AreEqual("arg 1 value", result.One, nameof(result.One));
             Assert.AreEqual("Other Value", result.Two, nameof(result.Two));
-            Assert.AreEqual("case insenstive value", result.Three, nameof(result.Three));
-            Assert.AreEqual("Case Insenstive Value", result.Four, nameof(result.Four));
+        }
+
+        [Test]
+        public void ParameterLookup_CaseInsensitive()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "arg3", new [] { "arg value" } }
+            };
+            var result = ParameterReader.GetParameters<TestParams2>(argvs, true);
+
+            Assert.AreEqual("arg value", result.Three);
         }
 
         class TestParams
@@ -42,6 +52,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
             [Parameter("arg1")]
             public string Two { get; set; }
+        }
+
+        class TestParams2
+        {
+            [Parameter("ArG3")]
+            public string Three { get; set; }
         }
 
         class TestParamsNameClash

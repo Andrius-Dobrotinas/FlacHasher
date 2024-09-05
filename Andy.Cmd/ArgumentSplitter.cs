@@ -10,9 +10,9 @@ namespace Andy.Cmd
         /// When a parameter is provided without an equals sign, its value is null
         /// When a parameter is provided with an equals sign, its value is an empty string
         /// </summary>
-        public static IDictionary<string, string[]> GetArguments(string[] args)
+        public static IDictionary<string, string[]> GetArguments(string[] args, bool paramNamesToLowercase = false)
         {
-            var argParser = new ArgumentParser('=');
+            var argParser = new ArgumentParser('=', paramNamesToLowercase);
 
             return args.Select(argParser.Parse)
                 .GroupBy(x => x.Key, x=> x.Value)
