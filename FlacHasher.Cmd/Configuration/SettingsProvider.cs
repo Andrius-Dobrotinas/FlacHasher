@@ -11,18 +11,21 @@ namespace Andy.FlacHash.Cmd
             IDictionary<string, IDictionary<string, string>> settings,
             string sectionName)
         {
-            if (!settings.ContainsKey(sectionName))
-                return null;
+            return settings.ContainsKey(sectionName)
+                ? ReadSettings(settings[sectionName])
+                : null;
+        }
             
+        private static Settings ReadSettings(IDictionary<string, string> settings)
+        {
             var result = new Settings();
-            var section = settings[sectionName];
             var properties = typeof(Settings).GetProperties();
 
             foreach (var property in properties)
             {
-                if (section.ContainsKey(property.Name))
+                if (settings.ContainsKey(property.Name))
                 {
-                    var valueParsed = Parse(section[property.Name], property.PropertyType);
+                    var valueParsed = Parse(settings[property.Name], property.PropertyType);
                     if (valueParsed != null)
                         property.SetValue(result, valueParsed);
                 }
