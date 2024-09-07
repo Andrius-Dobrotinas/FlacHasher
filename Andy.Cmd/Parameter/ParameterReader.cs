@@ -145,16 +145,11 @@ namespace Andy.Cmd.Parameter
                     {
                         string value = values.Last();
 
-                        if (propertyType == typeof(string))
-                        {
                             if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
                                 throw new ParameterEmptyException(paramName);
                             else
                                 property.SetValue(paramsInstances, value?.Trim());
                         }
-                        else
-                            throw new NotImplementedException($"Type: {propertyType.FullName}. Property: {property.Name}");
-                    }
                 }
                 else if (propertyType.IsArray)
                 {
