@@ -18,12 +18,11 @@ namespace Andy.FlacHash.Cmd
             var section = settings[sectionName];
             var properties = typeof(Settings).GetProperties();
 
-            foreach (var entry in section)
+            foreach (var property in properties)
             {
-                var property = properties.FirstOrDefault(x => x.Name == entry.Key);
-                if (property != null)
+                if (section.ContainsKey(property.Name))
                 {
-                    var valueParsed = Parse(entry.Value, property.PropertyType);
+                    var valueParsed = Parse(section[property.Name], property.PropertyType);
                     if (valueParsed != null)
                         property.SetValue(result, valueParsed);
                 }
