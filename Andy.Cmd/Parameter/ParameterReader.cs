@@ -194,21 +194,18 @@ namespace Andy.Cmd.Parameter
                                 else
                                 {
                                     property.SetValue(paramsInstances, Array.Empty<string>());
-                                    return;
                                 }
                             }
                             else
                             {
                                 var split = value.Split(ArrayValueSeparator);
                                 SetArrayValueTrimmed(paramsInstances, property, paramName, split);
-                                return;
                             }
                         }
                         // More than one array item - provided as separate args, not separator-separated string
                         else
                         {
                             SetArrayValueTrimmed(paramsInstances, property, paramName, values);
-                                return;
                             }
                         }
                     }
