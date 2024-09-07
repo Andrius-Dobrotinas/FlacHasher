@@ -193,6 +193,7 @@ namespace Andy.Cmd.Parameter
                                 }
                                 else
                                 {
+                                    // Empty string for an array means an empty array
                                     property.SetValue(paramsInstances, Array.Empty<string>());
                                 }
                             }
