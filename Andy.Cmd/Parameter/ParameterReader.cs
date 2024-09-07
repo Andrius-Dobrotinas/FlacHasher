@@ -32,7 +32,7 @@ namespace Andy.Cmd.Parameter
             var eitherOrProperties = properties.Select(property => new { property, attr = property.GetCustomAttribute<EitherOrAttribute>() })
                 .Where(x => x.attr != null)
                 .ToList();
-            
+
             // In theory, other types could be accepted, but I don't need that now
             if (eitherOrProperties.Any(x => !allowedTypes.Contains(x.property.PropertyType)))
                 throw new InvalidOperationException($"{nameof(EitherOrAttribute)} is only allowed on String and Array-of-String type of properties");
@@ -71,7 +71,7 @@ namespace Andy.Cmd.Parameter
         }
 
         static string[] GetParameterNames(IEnumerable<PropertyInfo> properties) => properties.Select(x => x.GetCustomAttribute<ParameterAttribute>().Name).ToArray();
-        
+
         static bool IsEmptyOrWhitespace(string value) => value != null && string.IsNullOrWhiteSpace(value);
 
         static bool IsNullableValueType(Type type)
@@ -92,7 +92,7 @@ namespace Andy.Cmd.Parameter
 
             var propertyType = property.PropertyType;
             if (!(propertyType == typeof(string)
-                || propertyType.IsPrimitive 
+                || propertyType.IsPrimitive
                 || IsNullablePrimitiveType(propertyType)
                 || (propertyType.IsArray && propertyType.HasElementType)))
                 throw new NotSupportedException($"Only primitive value types, strings and arrays strings have been implemented. Property: {property.Name}");
@@ -125,31 +125,7 @@ namespace Andy.Cmd.Parameter
             {
                 if (propertyType == typeof(string))
                 {
-                    string[] values;
-                    var argExists = arguments.TryGetValue(paramName, out values);
-
-                    if (!argExists)
-                    {
-                        if (isOptional)
-                        {
-                            if (optionalAttr.DefaultValue != null)
-                                property.SetValue(paramsInstances, optionalAttr.DefaultValue);
-                            return;
-                        }
-                        else if (isEitherOr)
-                            return;
-                        else
-                            throw new ParameterMissingException(paramName);
-                    }
-                    else
-                    {
-                        string value = values.Last();
-
-                            if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
-                                throw new ParameterEmptyException(paramName);
-                            else
-                                property.SetValue(paramsInstances, value?.Trim());
-                        }
+                    HandleStringParam(arguments, property, paramName, optionalAttr, isEitherOr, isEmptyAllowed, paramsInstances);
                 }
                 else if (propertyType.IsArray)
                 {
@@ -160,56 +136,8 @@ namespace Andy.Cmd.Parameter
                     if (elementType != typeof(string))
                         throw new NotSupportedException($"Array of other than Strings is not supported: {property.Name}, {propertyType.FullName}");
 
-                    string[] values;
-                    var argExists = arguments.TryGetValue(paramName, out values);
-
-                    if (!argExists)
-                    {
-                        if (isOptional || isEitherOr)
-                            return;
-                        else
-                            throw new ParameterMissingException(paramName);
-                    }
-                    else
-                    {
-                        if (values.Length == 1)
-                        {
-                            string value = values.First();
-                            if (value == null)
-                            {
-                                if (isEitherOr)
-                                    return;
-                                else
-                                    throw new ParameterEmptyException(paramName);
-                            }
-                            else if (string.IsNullOrWhiteSpace(value))
-                            {
-                                if (!isEmptyAllowed)
-                                {
-                                    if (isEitherOr)
-                                        return;
-                                    else
-                                        throw new ParameterEmptyException(paramName);
-                                }
-                                else
-                                {
-                                    // Empty string for an array means an empty array
-                                    property.SetValue(paramsInstances, Array.Empty<string>());
-                                }
-                            }
-                            else
-                            {
-                                var split = value.Split(ArrayValueSeparator);
-                                SetArrayValueTrimmed(paramsInstances, property, paramName, split);
-                            }
-                        }
-                        // More than one array item - provided as separate args, not separator-separated string
-                        else
-                        {
-                            SetArrayValueTrimmed(paramsInstances, property, paramName, values);
-                            }
-                        }
-                    }
+                    HandleArrayParam(arguments, property, paramName, isOptional, isEitherOr, isEmptyAllowed, paramsInstances);
+                }
                 else
                     throw new NotSupportedException($"Not supported type: {property.Name} ({propertyType.FullName})");
             }
@@ -225,6 +153,90 @@ namespace Andy.Cmd.Parameter
         }
 
         static string[] TrimValues(IEnumerable<string> values) => values.Select(x => x?.Trim()).ToArray();
+
+        static void HandleStringParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, OptionalAttribute optionalAttr, bool isEitherOr, bool isEmptyAllowed, TTarget paramsInstances)
+        {
+            var isOptional = optionalAttr != null;
+
+            string[] values;
+            var argExists = arguments.TryGetValue(paramName, out values);
+
+            if (!argExists)
+            {
+                if (isOptional)
+                {
+                    if (optionalAttr.DefaultValue != null)
+                        property.SetValue(paramsInstances, optionalAttr.DefaultValue);
+                    return;
+                }
+                else if (isEitherOr)
+                    return;
+                else
+                    throw new ParameterMissingException(paramName);
+            }
+            else
+            {
+                string value = values.Last();
+
+                if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
+                    throw new ParameterEmptyException(paramName);
+                else
+                    property.SetValue(paramsInstances, value?.Trim());
+            }
+        }
+
+        static void HandleArrayParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, bool isOptional, bool isEitherOr, bool isEmptyAllowed, TTarget paramsInstances)
+        {
+            string[] values;
+            var argExists = arguments.TryGetValue(paramName, out values);
+
+            if (!argExists)
+            {
+                if (isOptional || isEitherOr)
+                    return;
+                else
+                    throw new ParameterMissingException(paramName);
+            }
+            else
+            {
+                if (values.Length == 1)
+                {
+                    string value = values.First();
+                    if (value == null)
+                    {
+                        if (isEitherOr)
+                            return;
+                        else
+                            throw new ParameterEmptyException(paramName);
+                    }
+                    else if (string.IsNullOrWhiteSpace(value))
+                    {
+                        if (!isEmptyAllowed)
+                        {
+                            if (isEitherOr)
+                                return;
+                            else
+                                throw new ParameterEmptyException(paramName);
+                        }
+                        else
+                        {
+                            // Empty string for an array means an empty array
+                            property.SetValue(paramsInstances, Array.Empty<string>());
+                        }
+                    }
+                    else
+                    {
+                        var split = value.Split(ArrayValueSeparator);
+                        SetArrayValueTrimmed(paramsInstances, property, paramName, split);
+                    }
+                }
+                // More than one array item - provided as separate args, not separator-separated string
+                else
+                {
+                    SetArrayValueTrimmed(paramsInstances, property, paramName, values);
+                }
+            }
+        }
 
         static void HandleValueType<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, OptionalAttribute optionalAttr, TTarget paramsInstances)
         {
