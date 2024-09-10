@@ -55,6 +55,8 @@ namespace Andy.Cmd.Parameter
                 ReadParameter(property, arguments, @params, inLowercase);
             }
 
+            CheckConditionallyRequiredOnes(@params, properties);
+
             // Either-Or Continued
             foreach (var parameterGroup in eitherOrPropertyGroups)
             {
@@ -68,6 +70,35 @@ namespace Andy.Cmd.Parameter
             }
 
             return @params;
+        }
+
+        static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
+        {
+            var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttribute<RequiredWith>()))
+                .Where(x => x.attr != null)
+                .GroupBy(x => x.attr.OtherPropertyName);
+
+            foreach (var dependencyGroup in propertiesOfInterest)
+            {
+                var targetProperty = allProperties.FirstOrDefault(x => x.Name == dependencyGroup.Key);
+                if (targetProperty == null)
+                    throw new InvalidOperationException($"{nameof(RequiredWith)} master property doesn't exist: {dependencyGroup.Key}");
+
+                var value = targetProperty.GetValue(instance);
+                if (value != null)
+                    foreach (var p in dependencyGroup)
+                    {
+                        var hasValue = p.property.GetValue(instance) != null;
+                        if (!hasValue)
+                        {
+                            var eitherOrAttr = p.property.GetCustomAttribute<EitherOrAttribute>();
+                            if (eitherOrAttr == null)
+                                throw new ParameterMissingException(p.property.GetCustomAttribute<ParameterAttribute>().Name);
+                            
+                            // either-or check will get this
+                        }
+                    }
+            }
         }
 
         static string[] GetParameterNames(IEnumerable<PropertyInfo> properties) => properties.Select(x => x.GetCustomAttribute<ParameterAttribute>().Name).ToArray();
@@ -112,7 +143,7 @@ namespace Andy.Cmd.Parameter
             var eitherOrAttr = property.GetCustomAttribute<EitherOrAttribute>(false);
             bool isEitherOr = eitherOrAttr != null;
 
-            if (isOptional && isEitherOr)
+            if (isOptional && isEitherOr && property.GetCustomAttribute<RequiredWith>() == null)
                 throw new InvalidOperationException($"{nameof(OptionalAttribute)} and {nameof(EitherOrAttribute)} are incompatible at the moment");
 
             var paramName = inLowercase ? paramAttr.Name.ToLowerInvariant() : paramAttr.Name;
