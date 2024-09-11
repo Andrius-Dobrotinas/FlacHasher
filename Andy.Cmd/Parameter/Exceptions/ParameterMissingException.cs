@@ -7,7 +7,7 @@ namespace Andy.Cmd.Parameter
     /// </summary>
     public class ParameterMissingException : ParameterException
     {
-        public ParameterMissingException(string paramName) : base("A mandatory parameter is not supplied", paramName)
+        public ParameterMissingException(string paramName) : base("A mandatory parameter was not supplied", paramName)
         {
         }
     }
