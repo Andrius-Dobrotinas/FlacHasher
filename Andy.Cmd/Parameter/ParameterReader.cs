@@ -74,8 +74,9 @@ namespace Andy.Cmd.Parameter
 
         static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
         {
-            var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttribute<RequiredWith>()))
-                .Where(x => x.attr != null)
+            var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWith>()))
+                .Where(x => x.attr.Any())
+                .SelectMany(x => x.attr.Select(attr => (property: x.property, attr: attr)).ToArray())
                 .GroupBy(x => x.attr.OtherPropertyName);
 
             foreach (var dependencyGroup in propertiesOfInterest)
@@ -128,8 +129,9 @@ namespace Andy.Cmd.Parameter
                 || (propertyType.IsArray && propertyType.HasElementType)))
                 throw new NotSupportedException($"Only primitive value types, strings and arrays strings have been implemented. Property: {property.Name}");
 
-            var optionalAttr = property.GetCustomAttributes(typeof(OptionalAttribute), false).SingleOrDefault() as OptionalAttribute;
+            var optionalAttr = property.GetCustomAttributes<OptionalAttribute>(false).Where(x => !(x is RequiredWith)).SingleOrDefault() ?? property.GetCustomAttributes<RequiredWith>(false).FirstOrDefault();
             var isOptional = optionalAttr != null;
+            var isConditionallyRequiredAttr = property.GetCustomAttributes<RequiredWith>(false).Any();
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
 
             if (isEmptyAllowed
@@ -143,7 +145,7 @@ namespace Andy.Cmd.Parameter
             var eitherOrAttr = property.GetCustomAttribute<EitherOrAttribute>(false);
             bool isEitherOr = eitherOrAttr != null;
 
-            if (isOptional && isEitherOr && property.GetCustomAttribute<RequiredWith>() == null)
+            if (isOptional && isEitherOr && !isConditionallyRequiredAttr)
                 throw new InvalidOperationException($"{nameof(OptionalAttribute)} and {nameof(EitherOrAttribute)} are incompatible at the moment");
 
             var paramName = inLowercase ? paramAttr.Name.ToLowerInvariant() : paramAttr.Name;

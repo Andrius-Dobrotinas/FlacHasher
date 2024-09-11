@@ -134,6 +134,49 @@ namespace Andy.Cmd.Parameter
             Assert.AreEqual("dependency1", exception.ParameterName, "Paramter name");
         }
 
+        [Test]
+        public void When__TwoMasterProperties_OneHasNoValue__And_Target_NoValue__Must_Reject()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "master1", new [] { "good value" } }
+            };
+
+            var exception = Assert.Throws<ParameterMissingException>(() => ParameterReader.GetParameters<TestParamsTwoMaster>(argvs));
+            Assert.AreEqual("dependency", exception.ParameterName, "Paramter name");
+        }
+
+        [Test]
+        public void When__TwoMasterProperties_OneHasNoValue__And_Target_HasValue__Must_Pass()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "master1", new [] { "you cool?" } },
+                { "dependency", new [] { "you're cool" } },
+            };
+
+            var result = ParameterReader.GetParameters<TestParamsTwoMaster>(argvs);
+            Assert.AreEqual("you cool?", result.Master1, "Master 1");
+            Assert.IsNull(result.Master2, "Master 2");
+            Assert.AreEqual("you're cool", result.Dependency, "Dependency");
+        }
+
+        [Test]
+        public void When__TwoMasterProperties__And_Target_IsEitherOrGroup_TheOther_HasValue__Must_Pass()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "master1", new [] { "you cool?" } },
+                { "dependency2", new [] { "you're cool" } },
+            };
+
+            var result = ParameterReader.GetParameters<TestParamsTwoMasterWithEitherOr>(argvs);
+            Assert.AreEqual("you cool?", result.Master1, "Master 1");
+            Assert.IsNull(result.Master2, "Master 2");
+            Assert.AreEqual("you're cool", result.Dependency2, "Dependency 2");
+            Assert.IsNull(result.Dependency1, "Dependency 1");
+        }
+
         class TestParams
         {
             [Parameter("master")]
@@ -185,6 +228,43 @@ namespace Andy.Cmd.Parameter
 
             [Parameter("dependency2")]
             [RequiredWith(nameof(Master))]
+            public string Dependency2 { get; set; }
+        }
+
+        class TestParamsTwoMaster
+        {
+            [Parameter("master1")]
+            [Optional]
+            public string Master1 { get; set; }
+
+            [Parameter("master2")]
+            [Optional]
+            public string Master2 { get; set; }
+
+            [Parameter("dependency")]
+            [RequiredWith(nameof(Master1))]
+            [RequiredWith(nameof(Master2))]
+            public string Dependency { get; set; }
+        }
+
+        class TestParamsTwoMasterWithEitherOr
+        {
+            [Parameter("master1")]
+            [Optional]
+            public string Master1 { get; set; }
+
+            [Parameter("master2")]
+            [Optional]
+            public string Master2 { get; set; }
+
+            [Parameter("dependency1")]
+            [RequiredWith(nameof(Master1))]
+            [RequiredWith(nameof(Master2))]
+            [EitherOr("group1")]
+            public string Dependency1 { get; set; }
+
+            [Parameter("dependency2")]
+            [EitherOr("group1")]
             public string Dependency2 { get; set; }
         }
     }
