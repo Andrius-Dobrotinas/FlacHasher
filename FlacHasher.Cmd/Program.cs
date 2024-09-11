@@ -78,9 +78,9 @@ namespace Andy.FlacHash.Cmd
                 };
 
                 var processRunner = new ExternalProcess.ProcessRunner(
-                    settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
-                    settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
-                    settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
+                    processTimeoutSec,
+                    processExitTimeoutMs,
+                    processStartWaitMs,
                     printProcessProgress);
 
                 Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, settings.DecoderParameters?.Split(';'));
