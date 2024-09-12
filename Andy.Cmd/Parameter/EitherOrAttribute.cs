@@ -13,7 +13,7 @@ namespace Andy.Cmd.Parameter
     /// Paramteres of different allowed types can belong to the same group.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class EitherOrAttribute : Attribute
+    public class EitherOrAttribute : OptionalAttribute
     {
         /// <summary>
         /// Ties parameters to the "either/or" condition.

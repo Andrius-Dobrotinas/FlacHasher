@@ -129,9 +129,13 @@ namespace Andy.Cmd.Parameter
                 || (propertyType.IsArray && propertyType.HasElementType)))
                 throw new NotSupportedException($"Only primitive value types, strings and arrays strings have been implemented. Property: {property.Name}");
 
-            var optionalAttr = property.GetCustomAttributes<OptionalAttribute>(false).Where(x => !(x is RequiredWith)).SingleOrDefault() ?? property.GetCustomAttributes<RequiredWith>(false).FirstOrDefault();
-            var isOptional = optionalAttr != null;
-            var isConditionallyRequiredAttr = property.GetCustomAttributes<RequiredWith>(false).Any();
+            // Actual Optional attr should be prioritized because RequiredWith and EitherOr should don't specify default values; only take them if actual Optional is not there.
+            var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false);
+            var isOptional = optionalAttrs.Any();
+            var optionalExplicitAttr = optionalAttrs.Where(x => !(x is RequiredWith) && !(x is EitherOrAttribute)).SingleOrDefault();
+            var optionalAttr = optionalExplicitAttr ?? optionalAttrs.FirstOrDefault();
+            var isOptionalExplicitAttr = optionalExplicitAttr != null;
+            
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
 
             if (isEmptyAllowed
@@ -142,10 +146,8 @@ namespace Andy.Cmd.Parameter
                 && propertyType.IsArray)
                 throw new NotSupportedException($"Optional Array type parameters can't have default values - there's no good reason for that. Property: {property.Name}");
 
-            var eitherOrAttr = property.GetCustomAttribute<EitherOrAttribute>(false);
-            bool isEitherOr = eitherOrAttr != null;
-
-            if (isOptional && isEitherOr && !isConditionallyRequiredAttr)
+            bool isEitherOr = property.GetCustomAttribute<EitherOrAttribute>(false) != null;
+            if (isOptionalExplicitAttr && isEitherOr)
                 throw new InvalidOperationException($"{nameof(OptionalAttribute)} and {nameof(EitherOrAttribute)} are incompatible at the moment");
 
             var paramName = inLowercase ? paramAttr.Name.ToLowerInvariant() : paramAttr.Name;
@@ -158,7 +160,7 @@ namespace Andy.Cmd.Parameter
             {
                 if (propertyType == typeof(string))
                 {
-                    HandleStringParam(arguments, property, paramName, optionalAttr, isEitherOr, isEmptyAllowed, paramsInstances);
+                    HandleStringParam(arguments, property, paramName, optionalAttr, isEmptyAllowed, paramsInstances);
                 }
                 else if (propertyType.IsArray)
                 {
@@ -169,7 +171,7 @@ namespace Andy.Cmd.Parameter
                     if (elementType != typeof(string))
                         throw new NotSupportedException($"Array of other than Strings is not supported: {property.Name}, {propertyType.FullName}");
 
-                    HandleArrayParam(arguments, property, paramName, isOptional, isEitherOr, isEmptyAllowed, paramsInstances);
+                    HandleArrayParam(arguments, property, paramName, isOptional, isEmptyAllowed, paramsInstances);
                 }
                 else
                     throw new NotSupportedException($"Not supported type: {property.Name} ({propertyType.FullName})");
@@ -187,7 +189,7 @@ namespace Andy.Cmd.Parameter
 
         static string[] TrimValues(IEnumerable<string> values) => values.Select(x => x?.Trim()).ToArray();
 
-        static void HandleStringParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, OptionalAttribute optionalAttr, bool isEitherOr, bool isEmptyAllowed, TTarget paramsInstances)
+        static void HandleStringParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, OptionalAttribute optionalAttr, bool isEmptyAllowed, TTarget paramsInstances)
         {
             var isOptional = optionalAttr != null;
 
@@ -202,8 +204,6 @@ namespace Andy.Cmd.Parameter
                         property.SetValue(paramsInstances, optionalAttr.DefaultValue);
                     return;
                 }
-                else if (isEitherOr)
-                    return;
                 else
                     throw new ParameterMissingException(paramName);
             }
@@ -211,21 +211,21 @@ namespace Andy.Cmd.Parameter
             {
                 string value = values.Last();
 
-                if ((value == null && !isEitherOr) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
+                if ((value == null) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
                     throw new ParameterEmptyException(paramName);
                 else
                     property.SetValue(paramsInstances, value?.Trim());
             }
         }
 
-        static void HandleArrayParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, bool isOptional, bool isEitherOr, bool isEmptyAllowed, TTarget paramsInstances)
+        static void HandleArrayParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, bool isOptional, bool isEmptyAllowed, TTarget paramsInstances)
         {
             string[] values;
             var argExists = arguments.TryGetValue(paramName, out values);
 
             if (!argExists)
             {
-                if (isOptional || isEitherOr)
+                if (isOptional)
                     return;
                 else
                     throw new ParameterMissingException(paramName);
@@ -237,18 +237,12 @@ namespace Andy.Cmd.Parameter
                     string value = values.First();
                     if (value == null)
                     {
-                        if (isEitherOr)
-                            return;
-                        else
                             throw new ParameterEmptyException(paramName);
                     }
                     else if (string.IsNullOrWhiteSpace(value))
                     {
                         if (!isEmptyAllowed)
                         {
-                            if (isEitherOr)
-                                return;
-                            else
                                 throw new ParameterEmptyException(paramName);
                         }
                         else

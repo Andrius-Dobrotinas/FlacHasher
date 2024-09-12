@@ -9,7 +9,7 @@ namespace Andy.Cmd.Parameter
     {
         [TestCase("")]
         [TestCase("non-empty")]
-        public void One_Parameter_HasValue__Other_DoesNot__Must_SetTheValue(string value)
+        public void One_Parameter_HasValue__Other_IsNotPresent__Must_SetTheValue(string value)
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -23,7 +23,7 @@ namespace Andy.Cmd.Parameter
 
         [TestCase("")]
         [TestCase("non-empty")]
-        public void One_Paramter_IsEmpty_Other_HasValue__Must_SetTheValue(string value)
+        public void One_Parameter_HasValue__Other_IsNotPresent__Must_SetTheValue__Case2(string value)
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -33,6 +33,19 @@ namespace Andy.Cmd.Parameter
 
             Assert.AreEqual(value, result.Two);
             Assert.IsNull(result.One);
+        }
+
+        [TestCase(null, "goode")]
+        [TestCase("value good", null)]
+        public void One_Parameter_HasNoValue__Must_Reject(string first, string second)
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg1", new string[] { first } },
+                { "arg2", new string[] { second } }
+            };
+            Assert.Throws<ParameterEmptyException>(
+                () => ParameterReader.GetParameters<TestParamsEmpties>(argvs));
         }
 
         [TestCase("", "")]
@@ -58,7 +71,7 @@ namespace Andy.Cmd.Parameter
                 { "arg1", new string[] { null } },
                 { "arg2", new string[] { null } }
             };
-            Assert.Throws<ParameterGroupException>(
+            Assert.Throws<ParameterEmptyException>(
                 () => ParameterReader.GetParameters<TestParamsEmpties>(argvs));
         }
 

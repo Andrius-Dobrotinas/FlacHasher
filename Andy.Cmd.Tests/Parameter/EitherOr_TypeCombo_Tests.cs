@@ -9,7 +9,7 @@ namespace Andy.Cmd.Parameter
     {
         [TestCase("0")]
         [TestCase("a value with spaces")]
-        public void One_Parameter_HasValue__Other_DoesNot__Must_SetTheValue(string value)
+        public void One_Parameter_HasValue__Other_IsNotPresent__Must_SetTheValue(string value)
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -23,7 +23,7 @@ namespace Andy.Cmd.Parameter
 
         [TestCase("10")]
         [TestCase("another value", "two")]
-        public void One_Paramter_IsEmpty_Other_HasValue__Must_SetTheValue(params string[] value)
+        public void One_Parameter_HasValue__Other_IsNotPresent__Must_SetTheValue__Case2(params string[] value)
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -48,15 +48,31 @@ namespace Andy.Cmd.Parameter
                 () => ParameterReader.GetParameters<TestParams>(argvs));
         }
 
-        [Test]
-        public void Neither_Parameter_HasValue__Must_Reject()
+        [TestCase(null, "goode")]
+        [TestCase("value good", null)]
+        [TestCase("value good", "")]
+        [TestCase("", "alright")]
+        public void One_Parameter_HasNoValue__Must_Reject(string first, string second)
         {
             var argvs = new Dictionary<string, string[]>
             {
-                { "arg1", new string[] { null } },
-                { "arg2", new string[] { null } }
+                { "arg1", new string[] { first } },
+                { "arg2", new string[] { second } }
             };
-            Assert.Throws<ParameterGroupException>(
+            Assert.Throws<ParameterEmptyException>(
+                () => ParameterReader.GetParameters<TestParams>(argvs));
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        public void Neither_Parameter_HasValue__Must_Reject(string value)
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg1", new string[] { value } },
+                { "arg2", new string[] { value } }
+            };
+            Assert.Throws<ParameterEmptyException>(
                 () => ParameterReader.GetParameters<TestParams>(argvs));
         }
         
