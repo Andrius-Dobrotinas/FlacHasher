@@ -129,12 +129,14 @@ namespace Andy.Cmd.Parameter
                 || (propertyType.IsArray && propertyType.HasElementType)))
                 throw new NotSupportedException($"Only primitive value types, strings and arrays strings have been implemented. Property: {property.Name}");
 
-            // Actual Optional attr should be prioritized because RequiredWith and EitherOr should don't specify default values; only take them if actual Optional is not there.
+            // Actual Optional attr should be prioritized because RequiredWith and EitherOr don't specify default values; only take them if actual Optional is not there.
             var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false);
             var isOptional = optionalAttrs.Any();
-            var optionalExplicitAttr = optionalAttrs.Where(x => !(x is RequiredWith) && !(x is EitherOrAttribute)).SingleOrDefault();
-            var optionalAttr = optionalExplicitAttr ?? optionalAttrs.FirstOrDefault();
-            var isOptionalExplicitAttr = optionalExplicitAttr != null;
+            if (isOptional
+                && optionalAttrs.Any(x => (x is RequiredWith) || (x is EitherOrAttribute))
+                && optionalAttrs.Any(x => x.DefaultValue != null))
+                throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWith)} or {nameof(EitherOrAttribute)} is not allowed to have a default value");
+            var optionalAttr = optionalAttrs.FirstOrDefault();
             
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
 
@@ -145,10 +147,6 @@ namespace Andy.Cmd.Parameter
             if (isOptional && optionalAttr.DefaultValue != null
                 && propertyType.IsArray)
                 throw new NotSupportedException($"Optional Array type parameters can't have default values - there's no good reason for that. Property: {property.Name}");
-
-            bool isEitherOr = property.GetCustomAttribute<EitherOrAttribute>(false) != null;
-            if (isOptionalExplicitAttr && isEitherOr)
-                throw new InvalidOperationException($"{nameof(OptionalAttribute)} and {nameof(EitherOrAttribute)} are incompatible at the moment");
 
             var paramName = inLowercase ? paramAttr.Name.ToLowerInvariant() : paramAttr.Name;
 

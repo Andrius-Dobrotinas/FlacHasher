@@ -306,11 +306,11 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             public bool RegularOptional { get; set; }
 
             [Parameter("arg")]
-            [Optional(DefaultValue = true)]
+            [Optional(defaultValue: true)]
             public bool RegularOptionalWithDefaultValue_True { get; set; }
 
             [Parameter("arg")]
-            [Optional(DefaultValue = false)]
+            [Optional(defaultValue: false)]
             public bool RegularOptionalWithDefaultValue_False { get; set; }
 
             [Parameter("arg")]

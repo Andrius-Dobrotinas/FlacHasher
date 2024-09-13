@@ -246,7 +246,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             public string OptionalEmptyAllowed { get; set; }
 
             [Parameter("arg")]
-            [Optional(DefaultValue = "x")]
+            [Optional(defaultValue: "x")]
             public string OptionalDefaultValue { get; set; }
         }
     }

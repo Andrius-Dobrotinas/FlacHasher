@@ -99,20 +99,6 @@ namespace Andy.Cmd.Parameter
                 () => ParameterReader.GetParameters<TestParams2>(argvs));
         }
 
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("a value with spaces")]
-        public void ResolvingParameter__WithOptionalExplicitly__Must_Reject__BecauseEitherOrShouldNotHaveADefaultValue(string value)
-        {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new [] { value } },
-            };
-            var result = new TestParams3();
-            var prop = typeof(TestParams3).GetProperties().First(x => x.Name == nameof(TestParams3.One));
-            Assert.Throws<InvalidOperationException>(() => ParameterReader.ReadParameter(prop, argvs, result));
-        }
-
         class TestParams
         {
             [Parameter("arg1")]
@@ -133,14 +119,6 @@ namespace Andy.Cmd.Parameter
             [Parameter("arg2")]
             [EitherOr("key2")]
             public string[] Two { get; set; }
-        }
-
-        class TestParams3
-        {
-            [Parameter("arg1")]
-            [EitherOr("key1")]
-            [Optional]
-            public string One { get; set; }
         }
     }
 }

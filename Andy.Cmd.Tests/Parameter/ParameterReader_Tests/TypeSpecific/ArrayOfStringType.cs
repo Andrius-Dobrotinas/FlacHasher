@@ -333,7 +333,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             public string[] OptionalEmptyAllowed { get; set; }
 
             [Parameter("arg")]
-            [Optional(DefaultValue = new[] { "one" })]
+            [Optional(defaultValue: new[] { "one" })]
             public string[] OptionalDefaultValue { get; set; }
         }
     }
