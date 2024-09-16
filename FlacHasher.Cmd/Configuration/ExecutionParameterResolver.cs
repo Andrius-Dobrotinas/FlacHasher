@@ -15,22 +15,11 @@ namespace Andy.FlacHash.Cmd
         /// </summary>
         public static string ResolveOutputFormat(Settings settings, Parameters cmdlineArguments)
         {
-            if (cmdlineArguments.OutputFormat != null)
-            {
-                if (cmdlineArguments.OutputFormat == "")
-                    return null;
-                return cmdlineArguments.OutputFormat;
+            return cmdlineArguments.OutputFormat
+                ?? (!string.IsNullOrEmpty(settings.OutputFormat)
+                    ? settings.OutputFormat
+                    : null);
             }
-
-            if (settings.OutputFormat != null)
-            {
-                if (settings.OutputFormat == "")
-                    return null;
-                return settings.OutputFormat;
-            }
-
-            return null;
-        }
 
         public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, Settings settings, FileSearch fileSearch)
         {
