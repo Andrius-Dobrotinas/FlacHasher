@@ -87,7 +87,14 @@ namespace Andy.FlacHash.Cmd
 
                 if (isVerification)
                 {
-                    Verification.Verify(inputFiles, parameters, decoder, continueOnError, settings.HashfileExtensions, settings.HashfileEntrySeparator, hashAlgorithm, fileSearch, cancellation.Token);
+                    var @params = new Verification.HashfileParams
+                    {
+                        HashFile = parameters.HashFile,
+                        InputDirectory = parameters.InputDirectory,
+                        HashfileEntrySeparator = settings.HashfileEntrySeparator,
+                        HashfileExtensions = settings.HashfileExtensions
+                    };
+                    Verification.Verify(inputFiles, @params, decoder, continueOnError, hashAlgorithm, fileSearch, cancellation.Token);
                 }
                 else
                 {

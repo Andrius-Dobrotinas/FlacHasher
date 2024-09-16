@@ -14,18 +14,26 @@ namespace Andy.FlacHash.Cmd
 {
     public static class Verification
     {
+        public class HashfileParams
+        {
+            public string HashFile { get; set; }
+            public string HashfileExtensions { get; set; }
+            public string HashfileEntrySeparator { get; set; }
+            public string InputDirectory { get; set; }
+        }
+
         /// <summary>
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, Parameters parameters, IAudioFileDecoder audioFileDecoder, bool continueOnError, string implicitHashfileExtensionsSetting, string hashfileEntrySeparator, Algorithm hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
+        public static void Verify(IList<FileInfo> targetFiles, HashfileParams parameters, IAudioFileDecoder audioFileDecoder, bool continueOnError, Algorithm hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
         {
-            var hashfile = GetHashFile(parameters, implicitHashfileExtensionsSetting, fileSearch);
+            var hashfile = GetHashFile(parameters, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
             if (hashfile == null || !hashfile.Exists)
                 throw new InputFileMissingException("Hash file not found");
 
-            var hashfileReader = BuildHashfileReader(hashfileEntrySeparator);
+            var hashfileReader = BuildHashfileReader(parameters.HashfileEntrySeparator);
             var fileHashMap = hashfileReader.Read(hashfile);
 
             var hasher = BuildHasher(audioFileDecoder, continueOnError, hashAlgorithm);
@@ -107,7 +115,7 @@ namespace Andy.FlacHash.Cmd
             return new MultiFileHasher(hasher, continueOnError);
         }
 
-        static FileInfo GetHashFile(Parameters parameters, string implicitHashfileExtensionsSetting, FileSearch fileSearch)
+        static FileInfo GetHashFile(HashfileParams parameters, FileSearch fileSearch)
         {
             if (parameters.HashFile != null)
             {
@@ -119,7 +127,7 @@ namespace Andy.FlacHash.Cmd
             }
             else if (parameters.InputDirectory != null)
             {
-                var hashfileExtensions = Settings.GetHashFileExtensions(implicitHashfileExtensionsSetting);
+                var hashfileExtensions = Settings.GetHashFileExtensions(parameters.HashfileExtensions);
                 WriteStdErrLine($"Looking for a hashfile with extension(s): {string.Join(',', hashfileExtensions)}");
 
                 return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "*")
