@@ -212,7 +212,7 @@ namespace Andy.Cmd.Parameter
                 if ((value == null) || (IsEmptyOrWhitespace(value) && !isEmptyAllowed))
                     throw new ParameterEmptyException(paramName);
                 else
-                    property.SetValue(paramsInstances, value?.Trim());
+                    property.SetValue(paramsInstances, value.Trim());
             }
         }
 
