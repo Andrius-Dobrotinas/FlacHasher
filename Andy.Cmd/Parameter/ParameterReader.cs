@@ -74,7 +74,7 @@ namespace Andy.Cmd.Parameter
 
         static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
         {
-            var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWith>()))
+            var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWithAttribute>()))
                 .Where(x => x.attr.Any())
                 .SelectMany(x => x.attr.Select(attr => (property: x.property, attr: attr)).ToArray())
                 .GroupBy(x => x.attr.OtherPropertyName);
@@ -83,7 +83,7 @@ namespace Andy.Cmd.Parameter
             {
                 var targetProperty = allProperties.FirstOrDefault(x => x.Name == dependencyGroup.Key);
                 if (targetProperty == null)
-                    throw new InvalidOperationException($"{nameof(RequiredWith)} master property doesn't exist: {dependencyGroup.Key}");
+                    throw new InvalidOperationException($"{nameof(RequiredWithAttribute)} master property doesn't exist: {dependencyGroup.Key}");
 
                 var value = targetProperty.GetValue(instance);
                 if (value != null)
@@ -133,9 +133,9 @@ namespace Andy.Cmd.Parameter
             var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false);
             var isOptional = optionalAttrs.Any();
             if (isOptional
-                && optionalAttrs.Any(x => (x is RequiredWith) || (x is EitherOrAttribute))
+                && optionalAttrs.Any(x => (x is RequiredWithAttribute) || (x is EitherOrAttribute))
                 && optionalAttrs.Any(x => x.DefaultValue != null))
-                throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWith)} or {nameof(EitherOrAttribute)} is not allowed to have a default value");
+                    throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWithAttribute)} or {nameof(EitherOrAttribute)} is not allowed to have a default value");
             var optionalAttr = optionalAttrs.FirstOrDefault();
             
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;

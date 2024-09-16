@@ -57,7 +57,7 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWith(nameof(Master))]
+            [RequiredWithAttribute(nameof(Master))]
             public string Dependency { get; set; }
         }
 
@@ -68,7 +68,7 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWith(nameof(Master))]
+            [RequiredWithAttribute(nameof(Master))]
             [AllowEmpty]
             public string Dependency { get; set; }
         }

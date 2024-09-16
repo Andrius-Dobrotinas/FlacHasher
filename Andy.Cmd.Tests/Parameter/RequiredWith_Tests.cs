@@ -184,7 +184,7 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWith(nameof(Master))]
+            [RequiredWithAttribute(nameof(Master))]
             public string Dependency { get; set; }
         }
 
@@ -195,7 +195,7 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWith(nameof(Master))]
+            [RequiredWithAttribute(nameof(Master))]
             [AllowEmpty]
             public string Dependency { get; set; }
         }
@@ -207,7 +207,7 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency1")]
-            [RequiredWith(nameof(Master))]
+            [RequiredWithAttribute(nameof(Master))]
             [EitherOr("depenencyGroup1")]
             public string Dependency { get; set; }
 
@@ -223,11 +223,11 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency1")]
-            [RequiredWith(nameof(Master))]
+            [RequiredWithAttribute(nameof(Master))]
             public string Dependency1 { get; set; }
 
             [Parameter("dependency2")]
-            [RequiredWith(nameof(Master))]
+            [RequiredWithAttribute(nameof(Master))]
             public string Dependency2 { get; set; }
         }
 
@@ -242,8 +242,8 @@ namespace Andy.Cmd.Parameter
             public string Master2 { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWith(nameof(Master1))]
-            [RequiredWith(nameof(Master2))]
+            [RequiredWithAttribute(nameof(Master1))]
+            [RequiredWithAttribute(nameof(Master2))]
             public string Dependency { get; set; }
         }
 
@@ -258,8 +258,8 @@ namespace Andy.Cmd.Parameter
             public string Master2 { get; set; }
 
             [Parameter("dependency1")]
-            [RequiredWith(nameof(Master1))]
-            [RequiredWith(nameof(Master2))]
+            [RequiredWithAttribute(nameof(Master1))]
+            [RequiredWithAttribute(nameof(Master2))]
             [EitherOr("group1")]
             public string Dependency1 { get; set; }
 
