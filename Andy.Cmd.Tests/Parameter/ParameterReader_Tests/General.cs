@@ -40,9 +40,20 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             {
                 { "arg3", new [] { "arg value" } }
             };
-            var result = ParameterReader.GetParameters<TestParams2>(argvs, true);
+            var result = ParameterReader.GetParameters<TestParams2>(argvs, inLowercase: true);
 
             Assert.AreEqual("arg value", result.Three);
+        }
+
+        [Test]
+        public void ParameterLookup_CaseSensitive()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "arg3", new [] { "arg value" } }
+            };
+            Assert.Throws<ParameterMissingException>(
+                () => ParameterReader.GetParameters<TestParams2>(argvs, inLowercase: false));
         }
 
         class TestParams
