@@ -15,7 +15,7 @@ namespace Andy.Cmd.Parameter
                 { "master", new [] { "good value" } }
             };
 
-            var exception = Assert.Throws<ParameterMissingException>(() => ParameterReader.GetParameters<TestParams>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParams>(argvs));
             Assert.AreEqual("dependency", exception.ParameterName, "Paramter name");
         }
 
@@ -130,7 +130,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency2", new [] { "keep on rollin'" } }
             };
 
-            var exception = Assert.Throws<ParameterMissingException>(() => ParameterReader.GetParameters<TestParamsTwoDependencies>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParamsTwoDependencies>(argvs));
             Assert.AreEqual("dependency1", exception.ParameterName, "Paramter name");
         }
 
@@ -142,7 +142,7 @@ namespace Andy.Cmd.Parameter
                 { "master1", new [] { "good value" } }
             };
 
-            var exception = Assert.Throws<ParameterMissingException>(() => ParameterReader.GetParameters<TestParamsTwoMaster>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParamsTwoMaster>(argvs));
             Assert.AreEqual("dependency", exception.ParameterName, "Paramter name");
         }
 

@@ -117,8 +117,9 @@ namespace Andy.Cmd.Parameter
                         {
                             var eitherOrAttr = p.property.GetCustomAttribute<EitherOrAttribute>();
                             if (eitherOrAttr == null)
-                                throw new ParameterMissingException(
-                                    p.property.GetCustomAttribute<ParameterAttribute>()?.Name ?? p.property.Name);
+                                throw new ParameterDependencyUnmetException(
+                                    p.property.GetCustomAttribute<ParameterAttribute>()?.Name ?? p.property.Name,
+                                    dependencyGroup.Key);
                             
                             // either-or check will get this
                         }
