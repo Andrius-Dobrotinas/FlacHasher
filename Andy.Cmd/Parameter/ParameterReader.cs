@@ -352,6 +352,9 @@ namespace Andy.Cmd.Parameter
 
         static object ParseNonNullPrimitive(string value, Type type)
         {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
             if (type.IsPrimitive)
             {
                 if (type == typeof(bool))
