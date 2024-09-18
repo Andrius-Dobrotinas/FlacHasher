@@ -20,6 +20,27 @@ namespace Andy.Cmd.Parameter
         {
             var properties = typeof(TParam).GetProperties();
 
+            EnsureParameterNameUniqueness(properties, inLowercase);
+
+            // Validate attribute use before reading the values because this is configured before compile-time
+            var eitherOrPropertyGroups = GetEitherOrPropertyGroups<TParam>();
+
+            var @params = new TParam();
+            foreach (var property in properties)
+            {
+                ReadParameter(property, arguments, @params, inLowercase);
+            }
+
+            CheckConditionallyRequiredOnes(@params, properties);
+
+            // Either-Or Continued
+            CheckEitherOrParameters(@params, eitherOrPropertyGroups);
+
+            return @params;
+        }
+
+        static void EnsureParameterNameUniqueness(IEnumerable<PropertyInfo> properties, bool inLowercase)
+        {
             var paramNames = properties.Select(p => p.GetCustomAttribute<ParameterAttribute>())
                 .Where(attr => attr != null)
                 .Select(attr => inLowercase ? attr.Name.ToLowerInvariant() : attr.Name)
@@ -27,8 +48,16 @@ namespace Andy.Cmd.Parameter
 
             if (paramNames.Distinct().Count() != paramNames.Count)
                 throw new InvalidOperationException("Some parameter names are repeated");
+        }
 
-            // Either-Or attribute
+        /// <summary>
+        /// Gathers <see cref="EitherOrAttribute"/> properties, grouped by their <see cref="EitherOrAttribute.GroupKey"/>.
+        /// Carries out necessary attribute use validations
+        /// </summary>
+        public static Dictionary<string, PropertyInfo[]> GetEitherOrPropertyGroups<TParams>()
+        {
+            var properties = typeof(TParams).GetProperties();
+
             var eitherOrProperties = properties.Select(property => new { property, attr = property.GetCustomAttribute<EitherOrAttribute>() })
                 .Where(x => x.attr != null)
                 .ToList();
@@ -49,18 +78,14 @@ namespace Andy.Cmd.Parameter
                 throw new InvalidOperationException($"The following properties don't have any counterparts marked with the same {nameof(EitherOrAttribute)} key: {string.Join(',', propertyRepresentations)}");
             }
 
-            var @params = new TParam();
-            foreach (var property in properties)
-            {
-                ReadParameter(property, arguments, @params, inLowercase);
+            return eitherOrPropertyGroups;
             }
 
-            CheckConditionallyRequiredOnes(@params, properties);
-
-            // Either-Or Continued
+        public static void CheckEitherOrParameters<TParams>(TParams instance, IDictionary<string, PropertyInfo[]> eitherOrPropertyGroups)
+        {
             foreach (var parameterGroup in eitherOrPropertyGroups)
             {
-                var values = parameterGroup.Value.Select(x => x.GetValue(@params));
+                var values = parameterGroup.Value.Select(x => x.GetValue(instance));
                 var nullValues = values.Select(x => x == null);
                 if (nullValues.Count(x => x == false) > 1)
                     throw new ParameterGroupException("Only one parameter is allowed to have a value", GetParameterNames(parameterGroup.Value));
@@ -68,11 +93,9 @@ namespace Andy.Cmd.Parameter
                 if (nullValues.All(x => x == true))
                     throw new ParameterGroupException("One of the following parameter must have a value", GetParameterNames(parameterGroup.Value));
             }
-
-            return @params;
         }
 
-        static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
+        public static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
         {
             var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWithAttribute>()))
                 .Where(x => x.attr.Any())

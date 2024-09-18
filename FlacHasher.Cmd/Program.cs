@@ -21,13 +21,11 @@ namespace Andy.FlacHash.Cmd
 
         static int Main(string[] args)
         {
+            bool lowercaseParams = true;
+            var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
             Parameters parameters;
-            bool isVerification;
             try
             {
-                bool lowercaseParams = true;
-                var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
-                isVerification = argumentDictionary.ContainsKey(ParameterNames.ModeVerify);
                 parameters = ParameterReader.GetParameters<Parameters>(argumentDictionary, inLowercase: lowercaseParams);
             }
             catch (ParameterMissingException e)
@@ -41,11 +39,16 @@ namespace Andy.FlacHash.Cmd
                 return (int)ReturnValue.ArgumentError;
             }
 
-            Settings settings;
+            bool isVerification = argumentDictionary.ContainsKey(ParameterNames.ModeVerify);
+            ApplicationSettings settings;
             try
             {
                 var settingsFile = new FileInfo(settingsFileName);
-                settings = SettingsProvider.GetSettings(settingsFile, parameters.Profile);
+
+                var settingsFromFileDictionary = SettingsProvider.GetSettingsDictionary(settingsFile, parameters.Profile)
+                    .ToDictionary(x => x.Key, x => new[] { x.Value });
+                Settings settingsFromFile = ParameterReader.GetParameters<Settings>(settingsFromFileDictionary);
+                settings = SettingsProvider.Create(parameters, settingsFromFile);
             }
             catch (Exception e)
             {
@@ -56,14 +59,10 @@ namespace Andy.FlacHash.Cmd
             try
             {
                 var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
-                FileInfo decoderFile = ExecutionParameterResolver.GetDecoder(settings, parameters);
-                Algorithm hashAlgorithm = ExecutionParameterResolver.ResolveHashAlgorithm(settings, parameters);
-                string outputFomat = ExecutionParameterResolver.ResolveOutputFormat(settings, parameters);
-                int processExitTimeoutMs = ExecutionParameterResolver.GetProcessExitTimeoutInMs(settings, parameters, processExitTimeoutMsDefault);
-                int processTimeoutSec = ExecutionParameterResolver.GetProcessTimeoutInSeconds(settings, parameters, processTimeoutSecDefault);
-                int processStartWaitMs = settings.ProcessStartWaitMs ?? processStartWaitMsDefault;
-                bool continueOnError = ExecutionParameterResolver.GetContinueOnError(settings, parameters, continueOnErrorDefault);
-                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(parameters, settings, fileSearch);
+                FileInfo decoderFile = new FileInfo(settings.Decoder);
+                Algorithm hashAlgorithm = ExecutionParameterResolver.ParseHashAlgorithmOrGetDefault(settings.HashAlgorithm);
+                bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;
+                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(settings, fileSearch);
 
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");
@@ -78,19 +77,19 @@ namespace Andy.FlacHash.Cmd
                 };
 
                 var processRunner = new ExternalProcess.ProcessRunner(
-                    processTimeoutSec,
-                    processExitTimeoutMs,
-                    processStartWaitMs,
+                    timeoutSec: settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
+                    exitTimeoutMs: settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
+                    startWaitMs: settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
                     printProcessProgress);
 
-                Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, settings.DecoderParameters?.Split(';'));
+                Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, settings.DecoderParameters);
 
                 if (isVerification)
                 {
                     var @params = new Verification.HashfileParams
                     {
-                        HashFile = parameters.HashFile,
-                        InputDirectory = parameters.InputDirectory,
+                        HashFile = settings.HashFile,
+                        InputDirectory = settings.InputDirectory,
                         HashfileEntrySeparator = settings.HashfileEntrySeparator,
                         HashfileExtensions = settings.HashfileExtensions
                     };
@@ -98,7 +97,7 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                 {
-                    Computation.ComputeHashes(inputFiles, outputFomat, decoder, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
+                    Computation.ComputeHashes(inputFiles, settings.OutputFormat, decoder, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)

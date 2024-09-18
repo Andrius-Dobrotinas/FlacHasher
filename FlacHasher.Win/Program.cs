@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Win
             }
 
             var hashfileExtensions = Cmd.Verification.Settings.GetHashFileExtensions(settings.HashfileExtensions);
-            var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
+            var fileSearch = new FileSearch(settings.FileLookupIncludeHidden ?? false);
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
@@ -69,7 +69,7 @@ namespace Andy.FlacHash.Win
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
             var decoder = new Audio.StreamDecoder(
-                settings.Decoder,
+                new FileInfo(settings.Decoder),
                 new ExternalProcess.ProcessRunner(
                     settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
                     settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
@@ -80,7 +80,7 @@ namespace Andy.FlacHash.Win
 
             var hasher = new FileHasher(
                 reader,
-                new Hashing.Crypto.HashComputer(ExecutionParameterResolver.ResolveHashAlgorithm(settings, null)));
+                new Hashing.Crypto.HashComputer(ExecutionParameterResolver.ParseHashAlgorithmOrGetDefault(settings.HashAlgorithm)));
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(hasher, !settings.FailOnError ?? continueOnErrorDefault));
 

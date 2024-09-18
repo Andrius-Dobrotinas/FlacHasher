@@ -9,52 +9,31 @@ namespace Andy.FlacHash.Cmd
 {
     public static class ExecutionParameterResolver
     {
-        /// <summary>
-        /// Returns user-provider value if one was provided. Otherwise returns one from the settings file.
-        /// Empty strings are treated as valid values that indicate not to use formatting (ie equal Null).
-        /// </summary>
-        public static string ResolveOutputFormat(Settings settings, Parameters cmdlineArguments)
+        public static IList<FileInfo> GetInputFiles(ApplicationSettings settings, FileSearch fileSearch)
         {
-            return cmdlineArguments.OutputFormat
-                ?? (!string.IsNullOrEmpty(settings.OutputFormat)
-                    ? settings.OutputFormat
-                    : null);
-            }
-
-        public static IList<FileInfo> GetInputFiles(Parameters cmdlineArguments, Settings settings, FileSearch fileSearch)
-        {
-            if (cmdlineArguments.InputFiles != null)
+            if (settings.InputFiles != null)
             {
-                return cmdlineArguments.InputFiles
+                return settings.InputFiles
                     .Select(path => new FileInfo(path))
                     .ToArray();
             }
-            if (cmdlineArguments.InputDirectory != null)
+            if (settings.InputDirectory != null)
             {
-                var fileExtension = cmdlineArguments.TargetFileExtension ?? settings.TargetFileExtension;
+                var fileExtension = settings.TargetFileExtension;
 
                 // TODO: define default extension in code, somewhere with a decoder?..
-                if (String.IsNullOrEmpty(fileExtension))
+                if (fileExtension == null)
                     throw new ConfigurationException("Target file extension must be specified when scanning a directory");
 
-                return fileSearch.FindFiles(new DirectoryInfo(cmdlineArguments.InputDirectory), fileExtension)
+                return fileSearch.FindFiles(new DirectoryInfo(settings.InputDirectory), fileExtension)
                     .ToList();
             }
 
             throw new ConfigurationException("No input files or directory has been specified");
         }
 
-        public static FileInfo GetDecoder(Settings settings, Parameters cmdlineArguments)
+        public static Algorithm ParseHashAlgorithmOrGetDefault(string algo)
         {
-            if (cmdlineArguments.Decoder != null)
-                return new FileInfo(cmdlineArguments.Decoder);
-
-            return settings.Decoder ?? throw new ConfigurationException($"A Decoder has not been specified. Either specify it the settings file or provide it as a parameter {ParameterNames.Decoder} to the command");
-        }
-
-        public static Algorithm ResolveHashAlgorithm(Settings settings, Parameters cmdlineArguments)
-        {
-            var algo = cmdlineArguments?.HashAlgorithm ?? settings.HashAlgorithm;
             if (algo == null)
                 return Settings.Defaults.HashAlgorithm;
 
@@ -62,30 +41,6 @@ namespace Andy.FlacHash.Cmd
             if (!Enum.TryParse(algo.ToUpperInvariant(), out value))
                 throw new ConfigurationException($"The specified Hash algorithm is not supported: {algo}");
             return value;
-        }
-
-        public static int GetProcessExitTimeoutInMs(Settings settings, Parameters cmdlineArguments, int defaultValue)
-        {
-            if (cmdlineArguments.ProcessExitTimeoutMs != null)
-                return cmdlineArguments.ProcessExitTimeoutMs.Value;
-
-            return settings.ProcessExitTimeoutMs ?? defaultValue;
-        }
-        
-        public static int GetProcessTimeoutInSeconds(Settings settings, Parameters cmdlineArguments, int defaultValue)
-        {
-            if (cmdlineArguments.ProcessTimeoutSec != null)
-                return cmdlineArguments.ProcessTimeoutSec.Value;
-
-            return settings.ProcessTimeoutSec ?? defaultValue;
-        }
-
-        public static bool GetContinueOnError(Settings settings, Parameters cmdlineArguments, bool defaultValue)
-        {
-            if (cmdlineArguments.FailOnError != null)
-                return !cmdlineArguments.FailOnError.Value;
-
-            return !settings.FailOnError ?? defaultValue;
         }
     }
 }

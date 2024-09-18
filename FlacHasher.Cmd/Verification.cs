@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Cmd
         public class HashfileParams
         {
             public string HashFile { get; set; }
-            public string HashfileExtensions { get; set; }
+            public string[] HashfileExtensions { get; set; }
             public string HashfileEntrySeparator { get; set; }
             public string InputDirectory { get; set; }
         }
@@ -139,14 +139,8 @@ namespace Andy.FlacHash.Cmd
 
         public static class Settings
         {
-            public static string[] GetHashFileExtensions(string hashfileExtensionsString)
+            public static string[] GetHashFileExtensions(string[] hashfileExtensions)
             {
-                var hashfileExtensions = string.IsNullOrWhiteSpace(hashfileExtensionsString)
-                            ? null
-                            : hashfileExtensionsString.Split(',')
-                                .Select(x => $".{x.Trim()}")
-                                .ToArray();
-
                 if (hashfileExtensions == null || !hashfileExtensions.Any())
                     hashfileExtensions = new string[] { $".{FileHashMap.DefaultExtension}" };
 

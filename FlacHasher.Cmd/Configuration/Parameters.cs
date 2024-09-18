@@ -47,5 +47,8 @@ namespace Andy.FlacHash.Cmd
         [Parameter(ParameterNames.HashFile)]
         [Optional]
         public string HashFile { get; set; }
+
+        [Parameter(ParameterNames.ModeVerify)]
+        public bool? IsVerification { get; set; }
     }
 }
