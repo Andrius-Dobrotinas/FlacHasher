@@ -41,7 +41,7 @@ namespace Andy.Cmd.Parameter
 
         static void EnsureParameterNameUniqueness(IEnumerable<PropertyInfo> properties, bool inLowercase)
         {
-            var paramNames = properties.Select(p => p.GetCustomAttribute<ParameterAttribute>())
+            var paramNames = properties.SelectMany(p => p.GetCustomAttributes<ParameterAttribute>())
                 .Where(attr => attr != null)
                 .Select(attr => inLowercase ? attr.Name.ToLowerInvariant() : attr.Name)
                 .ToList();
@@ -118,7 +118,7 @@ namespace Andy.Cmd.Parameter
                             var eitherOrAttr = p.property.GetCustomAttribute<EitherOrAttribute>();
                             if (eitherOrAttr == null)
                                 throw new ParameterDependencyUnmetException(
-                                    p.property.GetCustomAttribute<ParameterAttribute>()?.Name ?? p.property.Name,
+                                    p.property.GetCustomAttributes<ParameterAttribute>().FirstOrDefault()?.Name ?? p.property.Name,
                                     dependencyGroup.Key);
                             
                             // either-or check will get this
@@ -127,7 +127,10 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static string[] GetParameterNames(IEnumerable<PropertyInfo> properties) => properties.Select(x => x.GetCustomAttribute<ParameterAttribute>().Name).ToArray();
+        static string[] GetParameterNames(IEnumerable<PropertyInfo> properties) => properties
+            .SelectMany(
+                x => x.GetCustomAttributes<ParameterAttribute>(false).Select(x => x.Name))
+            .ToArray();
 
         static bool IsEmptyOrWhitespace(string value) => value != null && string.IsNullOrWhiteSpace(value);
 
@@ -143,8 +146,8 @@ namespace Andy.Cmd.Parameter
 
         public static void ReadParameter<T>(PropertyInfo property, IDictionary<string, string[]> arguments, T paramsInstances, bool inLowercase = false)
         {
-            var paramAttr = property.GetCustomAttributes(typeof(ParameterAttribute), false).SingleOrDefault() as ParameterAttribute;
-            if (paramAttr == null)
+            var paramAttrs = property.GetCustomAttributes<ParameterAttribute>(false);
+            if (!paramAttrs.Any())
                 return;
 
             var propertyType = property.PropertyType;
@@ -173,17 +176,19 @@ namespace Andy.Cmd.Parameter
                 && propertyType.IsArray)
                 throw new NotSupportedException($"Optional Array type parameters can't have default values - there's no good reason for that. Property: {property.Name}");
 
-            var paramName = inLowercase ? paramAttr.Name.ToLowerInvariant() : paramAttr.Name;
+            var paramNamesPrioritized = paramAttrs.OrderBy(x => x.Order).Select(x => x.Name);
+            if (inLowercase)
+                paramNamesPrioritized = paramNamesPrioritized.Select(x => x.ToLowerInvariant());
 
             if (propertyType.IsValueType)
             {
-                HandleValueType(arguments, property, paramName, optionalAttr, paramsInstances);
+                HandleValueType(arguments, property, paramNamesPrioritized, optionalAttr, paramsInstances);
             }
             else
             {
                 if (propertyType == typeof(string))
                 {
-                    HandleStringParam(arguments, property, paramName, optionalAttr, isEmptyAllowed, paramsInstances);
+                    HandleStringParam(arguments, property, paramNamesPrioritized, optionalAttr, isEmptyAllowed, paramsInstances);
                 }
                 else if (propertyType.IsArray)
                 {
@@ -194,7 +199,7 @@ namespace Andy.Cmd.Parameter
                     if (elementType != typeof(string))
                         throw new NotSupportedException($"Array of other than Strings is not supported: {property.Name}, {propertyType.FullName}");
 
-                    HandleArrayParam(arguments, property, paramName, isOptional, isEmptyAllowed, paramsInstances);
+                    HandleArrayParam(arguments, property, paramNamesPrioritized, isOptional, isEmptyAllowed, paramsInstances);
                 }
                 else
                     throw new NotSupportedException($"Not supported type: {property.Name} ({propertyType.FullName})");
@@ -212,12 +217,33 @@ namespace Andy.Cmd.Parameter
 
         static string[] TrimValues(IEnumerable<string> values) => values.Select(x => x?.Trim()).ToArray();
 
-        static void HandleStringParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, OptionalAttribute optionalAttr, bool isEmptyAllowed, TTarget paramsInstances)
+        static bool TryGetFirstPresentValue(IDictionary<string, string[]> arguments, IEnumerable<string> paramNames, out string foundParamName, out string[] values)
         {
+            foreach (var param in paramNames)
+            {
+                var argExists = arguments.TryGetValue(param, out values);
+                if (argExists)
+                {
+                    foundParamName = param;
+                    return true;
+                }
+            }
+
+            foundParamName = null;
+            values = null;
+            return false;
+        }
+
+        static void HandleStringParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, IEnumerable<string> paramNamesPrioritized, OptionalAttribute optionalAttr, bool isEmptyAllowed, TTarget paramsInstances)
+        {
+            if (!paramNamesPrioritized.Any())
+                throw new ArgumentOutOfRangeException(nameof(paramNamesPrioritized), "At least one parameter name must be provided");
+
             var isOptional = optionalAttr != null;
 
+            string paramName;
             string[] values;
-            var argExists = arguments.TryGetValue(paramName, out values);
+            bool argExists = TryGetFirstPresentValue(arguments, paramNamesPrioritized, out paramName, out values);
 
             if (!argExists)
             {
@@ -228,7 +254,7 @@ namespace Andy.Cmd.Parameter
                     return;
                 }
                 else
-                    throw new ParameterMissingException(paramName);
+                    throw new ParameterMissingException(paramNamesPrioritized.First());
             }
             else
             {
@@ -241,17 +267,21 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static void HandleArrayParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, bool isOptional, bool isEmptyAllowed, TTarget paramsInstances)
+        static void HandleArrayParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, IEnumerable<string> paramNamesPrioritized, bool isOptional, bool isEmptyAllowed, TTarget paramsInstances)
         {
+            if (!paramNamesPrioritized.Any())
+                throw new ArgumentOutOfRangeException(nameof(paramNamesPrioritized), "At least one parameter name must be provided");
+
+            string paramName;
             string[] values;
-            var argExists = arguments.TryGetValue(paramName, out values);
+            bool argExists = TryGetFirstPresentValue(arguments, paramNamesPrioritized, out paramName, out values);
 
             if (!argExists)
             {
                 if (isOptional)
                     return;
                 else
-                    throw new ParameterMissingException(paramName);
+                    throw new ParameterMissingException(paramNamesPrioritized.First());
             }
             else
             {
@@ -260,13 +290,13 @@ namespace Andy.Cmd.Parameter
                     string value = values.First();
                     if (value == null)
                     {
-                            throw new ParameterEmptyException(paramName);
+                        throw new ParameterEmptyException(paramName);
                     }
                     else if (string.IsNullOrWhiteSpace(value))
                     {
                         if (!isEmptyAllowed)
                         {
-                                throw new ParameterEmptyException(paramName);
+                            throw new ParameterEmptyException(paramName);
                         }
                         else
                         {
@@ -288,15 +318,19 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static void HandleValueType<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, string paramName, OptionalAttribute optionalAttr, TTarget paramsInstances)
+        static void HandleValueType<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, IEnumerable<string> paramNamesPrioritized, OptionalAttribute optionalAttr, TTarget paramsInstances)
         {
+            if (!paramNamesPrioritized.Any())
+                throw new ArgumentOutOfRangeException(nameof(paramNamesPrioritized), "At least one parameter name must be provided");
+
             var propertyType = property.PropertyType;
             var isOptional = optionalAttr != null;
 
             if (propertyType.IsPrimitive || IsNullablePrimitiveType(propertyType))
             {
+                string paramName;
                 string[] values;
-                var argExists = arguments.TryGetValue(paramName, out values);
+                bool argExists = TryGetFirstPresentValue(arguments, paramNamesPrioritized, out paramName, out values);
 
                 if (!argExists)
                     if (isOptional)
@@ -311,7 +345,7 @@ namespace Andy.Cmd.Parameter
                         return;
                     }
                     else
-                        throw new ParameterMissingException(paramName);
+                        throw new ParameterMissingException(paramNamesPrioritized.First());
                 else
                 {
                     string value = values.Last();
