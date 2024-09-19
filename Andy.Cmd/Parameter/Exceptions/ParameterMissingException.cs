@@ -7,11 +7,11 @@ namespace Andy.Cmd.Parameter
     /// </summary>
     public class ParameterMissingException : ParameterException
     {
-        public ParameterMissingException(string paramName) : base("A mandatory parameter was not supplied", paramName)
+        public ParameterMissingException(string paramName) : this($"A mandatory parameter was not supplied", paramName)
         {
         }
 
-        protected ParameterMissingException(string message, string paramName) : base(message, paramName)
+        public ParameterMissingException(string message, string paramName) : base(message, paramName)
         {
         }
     }
