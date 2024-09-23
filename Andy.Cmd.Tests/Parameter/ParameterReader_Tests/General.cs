@@ -34,6 +34,31 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
         }
 
         [Test]
+        public void NotUse_Inherited_ParameterConfiguration__When_OverrideHasNoParamAttr()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "--arg1-base", new [] { "arg 1 value" } },
+            };
+            var result = ParameterReader.GetParameters<TestParamsInheritance1>(argvs);
+
+            Assert.IsNull(result.One);
+        }
+
+        [Test]
+        public void NotUse_Inherited_ParameterConfiguration__When_OverrideHasParamAttr()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "--arg1-base", new [] { "arg 1 base" } },
+                { "--arg1-new", new [] { "arg 1 new" } },
+            };
+            var result = ParameterReader.GetParameters<TestParamsInheritance2>(argvs);
+
+            Assert.AreEqual("arg 1 new", result.One, nameof(result.One));
+        }
+
+        [Test]
         public void ParameterLookup_CaseInsensitive()
         {
             var argvs = new Dictionary<string, string[]>()
@@ -175,6 +200,23 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
             [Parameter("ArgToo")]
             [Optional]
             public string Two { get; set; }
+        }
+
+        class TestParamsBase
+        {
+            [Parameter("--arg1-base")]
+            public virtual string One { get; set; }
+        }
+
+        class TestParamsInheritance1 : TestParamsBase
+        {
+            public override string One { get; set; }
+        }
+
+        class TestParamsInheritance2 : TestParamsBase
+        {
+            [Parameter("--arg1-new")]
+            public override string One { get; set; }
         }
     }
 }

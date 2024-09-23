@@ -41,7 +41,7 @@ namespace Andy.Cmd.Parameter
 
         static void EnsureParameterNameUniqueness(IEnumerable<PropertyInfo> properties, bool inLowercase)
         {
-            var paramNames = properties.SelectMany(p => p.GetCustomAttributes<ParameterAttribute>())
+            var paramNames = properties.SelectMany(p => p.GetCustomAttributes<ParameterAttribute>(false))
                 .Where(attr => attr != null)
                 .Select(attr => inLowercase ? attr.Name.ToLowerInvariant() : attr.Name)
                 .ToList();
@@ -58,7 +58,7 @@ namespace Andy.Cmd.Parameter
         {
             var properties = typeof(TParams).GetProperties();
 
-            var eitherOrProperties = properties.Select(property => new { property, attr = property.GetCustomAttribute<EitherOrAttribute>() })
+            var eitherOrProperties = properties.Select(property => new { property, attr = property.GetCustomAttribute<EitherOrAttribute>(false) })
                 .Where(x => x.attr != null)
                 .ToList();
 
@@ -97,7 +97,7 @@ namespace Andy.Cmd.Parameter
 
         public static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
         {
-            var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWithAttribute>()))
+            var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWithAttribute>(false)))
                 .Where(x => x.attr.Any())
                 .SelectMany(x => x.attr.Select(attr => (property: x.property, attr: attr)).ToArray())
                 .GroupBy(x => x.attr.OtherPropertyName);
@@ -115,7 +115,7 @@ namespace Andy.Cmd.Parameter
                         var hasValue = p.property.GetValue(instance) != null;
                         if (!hasValue)
                         {
-                            var eitherOrAttr = p.property.GetCustomAttribute<EitherOrAttribute>();
+                            var eitherOrAttr = p.property.GetCustomAttribute<EitherOrAttribute>(false);
                             if (eitherOrAttr == null)
                                 throw new ParameterDependencyUnmetException(
                                     p.property.GetCustomAttributes<ParameterAttribute>().FirstOrDefault()?.Name ?? p.property.Name,
