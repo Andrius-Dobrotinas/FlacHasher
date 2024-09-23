@@ -16,7 +16,7 @@ namespace Andy.Cmd.Parameter
             };
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParams>(argvs));
-            Assert.AreEqual("dependency", exception.ParameterName, "Paramter name");
+            Assert.AreEqual(nameof(TestParams.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
         [TestCase("goo")]
@@ -131,7 +131,7 @@ namespace Andy.Cmd.Parameter
             };
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParamsTwoDependencies>(argvs));
-            Assert.AreEqual("dependency1", exception.ParameterName, "Paramter name");
+            Assert.AreEqual(nameof(TestParamsTwoDependencies.Dependency1), exception.ParameterProperty?.Name, "Paramter name");
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace Andy.Cmd.Parameter
             };
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParamsTwoMaster>(argvs));
-            Assert.AreEqual("dependency", exception.ParameterName, "Paramter name");
+            Assert.AreEqual(nameof(TestParamsTwoMaster.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
         [Test]

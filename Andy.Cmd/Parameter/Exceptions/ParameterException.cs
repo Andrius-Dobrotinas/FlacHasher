@@ -2,13 +2,10 @@
 
 namespace Andy.Cmd.Parameter
 {
-    public class ParameterException : Exception
+    public abstract class ParameterException : Exception
     {
-        public string ParameterName { get; set; }
-
-        public ParameterException(string message, string paramName) : base($"{message}: {paramName}")
+        public ParameterException(string message) : base(message)
         {
-            ParameterName = paramName;
         }
     }
 }

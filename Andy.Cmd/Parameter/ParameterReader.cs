@@ -67,8 +67,8 @@ namespace Andy.Cmd.Parameter
                 throw new InvalidOperationException($"{nameof(EitherOrAttribute)} is only allowed on String and Array-of-String type of properties");
 
             var eitherOrPropertyGroups = eitherOrProperties
-                .GroupBy(x => x.attr.GroupKey, x => x.property)
-                .ToDictionary(x => x.Key, x => x.ToArray());
+               .GroupBy(x => x.attr.GroupKey, x => x.property)
+               .ToDictionary(x => x.Key, x => x.ToArray());
 
             if (eitherOrPropertyGroups.Any(group => group.Value.Length == 1))
             {
@@ -79,7 +79,7 @@ namespace Andy.Cmd.Parameter
             }
 
             return eitherOrPropertyGroups;
-            }
+        }
 
         public static void CheckEitherOrParameters<TParams>(TParams instance, IDictionary<string, PropertyInfo[]> eitherOrPropertyGroups)
         {
@@ -117,10 +117,8 @@ namespace Andy.Cmd.Parameter
                         {
                             var eitherOrAttr = p.property.GetCustomAttribute<EitherOrAttribute>(false);
                             if (eitherOrAttr == null)
-                                throw new ParameterDependencyUnmetException(
-                                    p.property.GetCustomAttributes<ParameterAttribute>().FirstOrDefault()?.Name ?? p.property.Name,
-                                    dependencyGroup.Key);
-                            
+                                throw new ParameterDependencyUnmetException(p.property, dependencyGroup.Key);
+
                             // either-or check will get this
                         }
                     }
@@ -163,9 +161,9 @@ namespace Andy.Cmd.Parameter
             if (isOptional
                 && optionalAttrs.Any(x => (x is RequiredWithAttribute) || (x is EitherOrAttribute))
                 && optionalAttrs.Any(x => x.DefaultValue != null))
-                    throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWithAttribute)} or {nameof(EitherOrAttribute)} is not allowed to have a default value");
+                throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWithAttribute)} or {nameof(EitherOrAttribute)} is not allowed to have a default value");
             var optionalAttr = optionalAttrs.FirstOrDefault();
-            
+
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
 
             if (isEmptyAllowed
@@ -254,7 +252,7 @@ namespace Andy.Cmd.Parameter
                     return;
                 }
                 else
-                    throw new ParameterMissingException(paramNamesPrioritized.First());
+                    throw new ParameterMissingException(property);
             }
             else
             {
@@ -281,7 +279,7 @@ namespace Andy.Cmd.Parameter
                 if (isOptional)
                     return;
                 else
-                    throw new ParameterMissingException(paramNamesPrioritized.First());
+                    throw new ParameterMissingException(property);
             }
             else
             {
@@ -345,7 +343,7 @@ namespace Andy.Cmd.Parameter
                         return;
                     }
                     else
-                        throw new ParameterMissingException(paramNamesPrioritized.First());
+                        throw new ParameterMissingException(property);
                 else
                 {
                     string value = values.Last();

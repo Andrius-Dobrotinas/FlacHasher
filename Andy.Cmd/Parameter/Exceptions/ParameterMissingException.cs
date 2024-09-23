@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Andy.Cmd.Parameter
 {
     /// <summary>
-    /// Indicates that a command line parameter has not been provided by the caller
+    /// Indicates that parameter has not been provided by the caller
     /// </summary>
     public class ParameterMissingException : ParameterException
     {
-        public ParameterMissingException(string paramName) : this($"A mandatory parameter was not supplied", paramName)
+        public PropertyInfo ParameterProperty { get; private set; }
+
+        public ParameterMissingException(PropertyInfo param) : this($"A mandatory parameter was not supplied", param)
         {
         }
 
-        public ParameterMissingException(string message, string paramName) : base(message, paramName)
+        public ParameterMissingException(string message, PropertyInfo param) : base($"{message}. Configuration Key: {param.Name}")
         {
+            ParameterProperty = param;
         }
     }
 }

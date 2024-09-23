@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Andy.Cmd.Parameter
 {
-    public class BadParameterValueException : ParameterException
+    public class BadParameterValueException : ParameterValueException
     {
         public Exception OriginalException { get; set; }
 
