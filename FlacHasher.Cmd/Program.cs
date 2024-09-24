@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace Andy.FlacHash.Cmd
@@ -22,14 +23,45 @@ namespace Andy.FlacHash.Cmd
         static int Main(string[] args)
         {
             bool lowercaseParams = true;
-            var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
-            Parameters parameters;
+            CmdApplicationParameters settings;
+
             try
             {
-                parameters = ParameterReader.GetParameters<Parameters>(argumentDictionary, inLowercase: lowercaseParams);
+            var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
+                var cmdlineParams = ParameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
+
+                IDictionary<string, string[]> settingsFileParams;
+            try
+            {
+                    var settingsFile = new FileInfo(settingsFileName);
+                    settingsFileParams = SettingsProvider.GetSettingsDictionary(settingsFile, cmdlineParams.Profile)
+                        .ToDictionary(x => lowercaseParams ? x.Key.ToLowerInvariant() : x.Key, x => new[] { x.Value });
+                }
+                catch (Exception e)
+                {
+                    WriteUserLine($"Failure reading a settings file. {e.Message}");
+                    return (int)ReturnValue.SettingsReadingFailure;
+                }
+
+                var allParams = argumentDictionary.Concat(settingsFileParams)
+                    .ToDictionary(x => x.Key, x => x.Value);
+
+                settings = ParameterReader.GetParameters<CmdApplicationParameters>(allParams, inLowercase: lowercaseParams);
             }
             catch (ParameterMissingException e)
             {
+                var attrs = e.ParameterProperty.GetCustomAttributes<ParameterAttribute>(false).Cast<ParameterAttribute>().ToList();
+                var cmdlineAttr = attrs.FirstOrDefault(x => x is CmdLineParameterAttribute);
+                if (cmdlineAttr != null)
+                {
+                    WriteUserLine($"{e.Message}. Specify the following parameter: {cmdlineAttr.Name}");
+                }
+                else if (attrs.FirstOrDefault(x => x is IniEntryAttribute) != null)
+                {
+                    var iniAttr = attrs.FirstOrDefault(x => x is IniEntryAttribute);
+                    WriteUserLine($"{e.Message}. Specify the following item the settings file: {iniAttr}");
+                }
+                else
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ArgumentNotProvided;
             }
@@ -37,23 +69,6 @@ namespace Andy.FlacHash.Cmd
             {
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ArgumentError;
-            }
-
-            bool isVerification = argumentDictionary.ContainsKey(ParameterNames.ModeVerify);
-            ApplicationSettings settings;
-            try
-            {
-                var settingsFile = new FileInfo(settingsFileName);
-
-                var settingsFromFileDictionary = SettingsProvider.GetSettingsDictionary(settingsFile, parameters.Profile)
-                    .ToDictionary(x => x.Key, x => new[] { x.Value });
-                Settings settingsFromFile = ParameterReader.GetParameters<Settings>(settingsFromFileDictionary);
-                settings = SettingsProvider.Create(parameters, settingsFromFile);
-            }
-            catch (Exception e)
-            {
-                WriteUserLine($"Failure reading a settings file. {e.Message}");
-                return (int)ReturnValue.SettingsReadingFailure;
             }
 
             try
@@ -84,7 +99,7 @@ namespace Andy.FlacHash.Cmd
 
                 Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, settings.DecoderParameters);
 
-                if (isVerification)
+                if (settings.IsVerification)
                 {
                     var @params = new Verification.HashfileParams
                     {
@@ -145,6 +160,13 @@ namespace Andy.FlacHash.Cmd
                 Console.Error.WriteLine("");
             }
             Console.Error.WriteLine(text);
+        }
+
+        public class InitialParams
+        {
+            [Parameter(ParameterNames.Profile)]
+            [Optional]
+            public string Profile { get; set; }
         }
     }
 }

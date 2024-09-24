@@ -9,7 +9,7 @@ namespace Andy.FlacHash.Cmd
 {
     public static class ExecutionParameterResolver
     {
-        public static IList<FileInfo> GetInputFiles(ApplicationSettings settings, FileSearch fileSearch)
+        public static IList<FileInfo> GetInputFiles(CmdApplicationParameters settings, FileSearch fileSearch)
         {
             if (settings.InputFiles != null)
             {
@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Cmd
         public static Algorithm ParseHashAlgorithmOrGetDefault(string algo)
         {
             if (algo == null)
-                return Settings.Defaults.HashAlgorithm;
+                return ApplicationSettings.Defaults.HashAlgorithm;
 
             Algorithm value;
             if (!Enum.TryParse(algo.ToUpperInvariant(), out value))

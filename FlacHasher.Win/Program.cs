@@ -1,3 +1,4 @@
+using Andy.Cmd.Parameter;
 using Andy.FlacHash.Cmd;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
@@ -22,11 +23,14 @@ namespace Andy.FlacHash.Win
         [STAThread]
         static void Main()
         {
-            Settings settings;
+            ApplicationSettings settings;
             try
             {
                 var settingsFile = new FileInfo(settingsFileName);
-                settings = SettingsProvider.GetSettings(settingsFile);
+                var settingsFileParams = SettingsProvider.GetSettingsDictionary(settingsFile)
+                    .ToDictionary(x => x.Key, x => new[] { x.Value });
+
+                settings = ParameterReader.GetParameters<ApplicationSettings>(settingsFileParams);
             }
             catch (Exception e)
             {
@@ -35,7 +39,7 @@ namespace Andy.FlacHash.Win
             }
 
             var hashfileExtensions = Cmd.Verification.Settings.GetHashFileExtensions(settings.HashfileExtensions);
-            var fileSearch = new FileSearch(settings.FileLookupIncludeHidden ?? false);
+            var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
@@ -64,7 +68,7 @@ namespace Andy.FlacHash.Win
             }
         }
 
-        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(Settings settings)
+        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(ApplicationSettings settings)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
