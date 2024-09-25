@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Cmd
 {
     public static class Verification
     {
-        public class HashfileParams
+        public interface IHashfileParams
         {
             public string HashFile { get; set; }
             public string[] HashfileExtensions { get; set; }
@@ -26,7 +26,7 @@ namespace Andy.FlacHash.Cmd
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, HashfileParams parameters, IAudioFileDecoder audioFileDecoder, bool continueOnError, Algorithm hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
+        public static void Verify(IList<FileInfo> targetFiles, IHashfileParams parameters, IAudioFileDecoder audioFileDecoder, bool continueOnError, Algorithm hashAlgorithm, FileSearch fileSearch, CancellationToken cancellation)
         {
             var hashfile = GetHashFile(parameters, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
@@ -115,7 +115,7 @@ namespace Andy.FlacHash.Cmd
             return new MultiFileHasher(hasher, continueOnError);
         }
 
-        static FileInfo GetHashFile(HashfileParams parameters, FileSearch fileSearch)
+        static FileInfo GetHashFile(IHashfileParams parameters, FileSearch fileSearch)
         {
             if (parameters.HashFile != null)
             {

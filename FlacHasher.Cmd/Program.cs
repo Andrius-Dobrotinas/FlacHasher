@@ -23,18 +23,19 @@ namespace Andy.FlacHash.Cmd
         static int Main(string[] args)
         {
             bool lowercaseParams = true;
+            InitialParams initialCmdlineParams;
             CmdApplicationParameters settings;
-
+            VerificationSettings verificationSettings;
             try
             {
             var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
-                var cmdlineParams = ParameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
+                initialCmdlineParams = ParameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
 
                 IDictionary<string, string[]> settingsFileParams;
             try
             {
                     var settingsFile = new FileInfo(settingsFileName);
-                    settingsFileParams = SettingsProvider.GetSettingsDictionary(settingsFile, cmdlineParams.Profile)
+                    settingsFileParams = SettingsProvider.GetSettingsDictionary(settingsFile, initialCmdlineParams.Profile)
                         .ToDictionary(x => lowercaseParams ? x.Key.ToLowerInvariant() : x.Key, x => new[] { x.Value });
                 }
                 catch (Exception e)
@@ -47,6 +48,10 @@ namespace Andy.FlacHash.Cmd
                     .ToDictionary(x => x.Key, x => x.Value);
 
                 settings = ParameterReader.GetParameters<CmdApplicationParameters>(allParams, inLowercase: lowercaseParams);
+                verificationSettings = initialCmdlineParams.IsVerification
+                    ? ParameterReader.GetParameters<VerificationSettings>(allParams, inLowercase: lowercaseParams)
+                    : null;
+
             }
             catch (ParameterMissingException e)
             {
@@ -99,16 +104,9 @@ namespace Andy.FlacHash.Cmd
 
                 Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, settings.DecoderParameters);
 
-                if (settings.IsVerification)
+                if (initialCmdlineParams.IsVerification)
                 {
-                    var @params = new Verification.HashfileParams
-                    {
-                        HashFile = settings.HashFile,
-                        InputDirectory = settings.InputDirectory,
-                        HashfileEntrySeparator = settings.HashfileEntrySeparator,
-                        HashfileExtensions = settings.HashfileExtensions
-                    };
-                    Verification.Verify(inputFiles, @params, decoder, continueOnError, hashAlgorithm, fileSearch, cancellation.Token);
+                    Verification.Verify(inputFiles, verificationSettings, decoder, continueOnError, hashAlgorithm, fileSearch, cancellation.Token);
                 }
                 else
                 {
@@ -167,6 +165,10 @@ namespace Andy.FlacHash.Cmd
             [Parameter(ParameterNames.Profile)]
             [Optional]
             public string Profile { get; set; }
+
+            [CmdLineParameter(ParameterNames.ModeVerify)]
+            [Optional]
+            public bool IsVerification { get; set; }
         }
     }
 }

@@ -23,14 +23,14 @@ namespace Andy.FlacHash.Win
         [STAThread]
         static void Main()
         {
-            ApplicationSettings settings;
+            Settings settings;
             try
             {
                 var settingsFile = new FileInfo(settingsFileName);
                 var settingsFileParams = SettingsProvider.GetSettingsDictionary(settingsFile)
                     .ToDictionary(x => x.Key, x => new[] { x.Value });
 
-                settings = ParameterReader.GetParameters<ApplicationSettings>(settingsFileParams);
+                settings = ParameterReader.GetParameters<Settings>(settingsFileParams);
             }
             catch (Exception e)
             {

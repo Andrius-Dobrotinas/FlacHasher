@@ -45,22 +45,6 @@ namespace Andy.FlacHash.Cmd
         [Optional(defaultValue: false)]
         public bool FileLookupIncludeHidden { get; set; }
 
-        [CmdLineParameter(ParameterNames.ModeVerify)]
-        [Optional]
-        public bool IsVerification { get; set; }
-
-        [CmdLineParameter(ParameterNames.HashFile)]
-        [Optional]
-        public string HashFile { get; set; }
-
-        [IniEntry(nameof(HashfileExtensions))]
-        [Optional]
-        public string[] HashfileExtensions { get; set; }
-
-        [IniEntry(nameof(HashfileEntrySeparator))]
-        [Optional]
-        public string HashfileEntrySeparator { get; set; }
-
         public const string RootProfileAlias = ".";
         public const string ProfileKey = "Profile";
 
