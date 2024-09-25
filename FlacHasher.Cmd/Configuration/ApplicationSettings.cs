@@ -61,15 +61,9 @@ namespace Andy.FlacHash.Cmd
         [Optional]
         public string HashfileEntrySeparator { get; set; }
 
-        /// <summary>
-        /// When non-null, specifies override settings profile
-        /// </summary>
-        [CmdLineParameter(ParameterNames.Profile, Order = 0)]
-        [IniEntry(nameof(Profile), Order = 1)]
-        [Optional]
-        public string Profile { get; set; }
-
         public const string RootProfileAlias = ".";
+        public const string ProfileKey = "Profile";
+
         public static class Defaults
         {
             public static Algorithm HashAlgorithm = Algorithm.SHA256;

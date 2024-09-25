@@ -23,8 +23,8 @@ namespace Andy.FlacHash.Cmd
             var root = settingsDictionary.First().Value;
 
             profileName = (profileName
-                    ?? (root.ContainsKey(nameof(ApplicationSettings.Profile))
-                        ? root[nameof(ApplicationSettings.Profile)]
+                    ?? (root.ContainsKey(ApplicationSettings.ProfileKey)
+                        ? root[ApplicationSettings.ProfileKey]
                         : null))
                 ?.Trim();
             if (string.IsNullOrEmpty(profileName) || profileName == ApplicationSettings.RootProfileAlias)
