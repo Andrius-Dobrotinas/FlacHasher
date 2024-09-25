@@ -109,7 +109,8 @@ namespace Andy.Cmd.Parameter
                     throw new InvalidOperationException($"{nameof(RequiredWithAttribute)} master property doesn't exist: {dependencyGroup.Key}");
 
                 var value = targetProperty.GetValue(instance);
-                if (value != null)
+                var isBool = targetProperty.PropertyType == typeof(bool) || targetProperty.PropertyType == typeof(bool?);
+                if ((value != null && !isBool) || (isBool && (value != null && (bool)value == true)))
                     foreach (var p in dependencyGroup)
                     {
                         var hasValue = p.property.GetValue(instance) != null;
