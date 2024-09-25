@@ -7,6 +7,7 @@ namespace Andy.FlacHash.Cmd
 {
     public static class SettingsProvider
     {
+        /// <param name="profileName">If not specified, uses the profile specified in the settings file</param>
         public static IDictionary<string, string> GetSettingsDictionary(FileInfo settingsFile, string profileName = null)
         {
             var iniReader = new Andy.Configuration.Ini.IniFileReader(

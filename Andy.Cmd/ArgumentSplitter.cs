@@ -7,8 +7,9 @@ namespace Andy.Cmd
     public static class ArgumentSplitter
     {
         /// <summary>
-        /// When a parameter is provided without an equals sign, its value is null
-        /// When a parameter is provided with an equals sign, its value is an empty string
+        /// Groups parameters by name so arrays can be supplied as discrete elements
+        /// When a parameter is provided without an equals sign, its value is null.
+        /// When a parameter is provided with an equals sign but no value, its value is an empty string.
         /// </summary>
         public static IDictionary<string, string[]> GetArguments(string[] args, bool paramNamesToLowercase = false)
         {
