@@ -45,7 +45,6 @@ namespace Andy.FlacHash.Cmd
         [Optional(defaultValue: false)]
         public bool FileLookupIncludeHidden { get; set; }
 
-        public const string RootProfileAlias = ".";
         public const string ProfileKey = "Profile";
 
         public static class Defaults

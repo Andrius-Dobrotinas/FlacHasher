@@ -162,8 +162,14 @@ namespace Andy.FlacHash.Cmd
 
         public class InitialParams
         {
+            /// <summary>
+            /// When non-null, specifies a settings profile to use.
+            /// Overrides one configured in the settings file.
+            /// Empty value results in overriding a pre-configured Profile value to use the default one.
+            /// </summary>
             [Parameter(ParameterNames.Profile)]
             [Optional]
+            [AllowEmpty]
             public string Profile { get; set; }
 
             [CmdLineParameter(ParameterNames.ModeVerify)]

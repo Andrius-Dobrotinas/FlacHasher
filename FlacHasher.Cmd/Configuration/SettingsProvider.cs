@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Cmd
                             ? root[ApplicationSettings.ProfileKey]
                             : null))
                     ?.Trim();
-                if (string.IsNullOrEmpty(profileName) || profileName == ApplicationSettings.RootProfileAlias)
+                if (string.IsNullOrEmpty(profileName))
                     return root;
 
                 if (!settingsDictionary.ContainsKey(profileName))
@@ -54,8 +54,7 @@ namespace Andy.FlacHash.Cmd
             }
             else
             {
-                if ((string.IsNullOrEmpty(profileName) || profileName == ApplicationSettings.RootProfileAlias)
-                    || !settingsDictionary.ContainsKey(profileName))
+                if (string.IsNullOrEmpty(profileName) || !settingsDictionary.ContainsKey(profileName))
                     throw new ConfigurationException($"Configuration profile \"{profileName}\" was not found");
 
                 return settingsDictionary[profileName];
