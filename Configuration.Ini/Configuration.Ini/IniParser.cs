@@ -5,6 +5,9 @@ namespace Andy.Configuration.Ini
 {
     public interface IIniParser
     {
+        /// <summary>
+        /// Root section key is Empty String
+        /// </summary>
         IDictionary<string, IDictionary<string, string>> Parse(IEnumerable<string> lines);
     }
 
