@@ -2,7 +2,7 @@
 
 namespace Andy.Cmd.Parameter
 {
-    public abstract class ParameterException : Exception
+    public class ParameterException : Exception
     {
         public ParameterException(string message) : base(message)
         {

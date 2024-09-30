@@ -44,6 +44,11 @@ namespace Andy.FlacHash.Cmd
                     return (int)ReturnValue.SettingsReadingFailure;
                 }
 
+                var paramTypes = initialCmdlineParams.IsVerification
+                    ? new[] { typeof(CmdApplicationParameters), typeof(VerificationSettings), typeof(InitialParams) }
+                    : new[] { typeof(CmdApplicationParameters), typeof(InitialParams) };
+                CheckUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, paramNamesToLowercase: lowercaseParams);
+
                 var allParams = argumentDictionary.Concat(settingsFileParams)
                     .ToDictionary(x => x.Key, x => x.Value);
 
@@ -158,6 +163,24 @@ namespace Andy.FlacHash.Cmd
                 Console.Error.WriteLine("");
             }
             Console.Error.WriteLine(text);
+        }
+
+        public static void CheckUnexpectedArguments<TParamAttr>(IEnumerable<string> @paramsNames, Type[] paramClasses, bool paramNamesToLowercase = false)
+            where TParamAttr : ParameterAttribute
+        {
+            var acceptedParamNames = paramClasses.SelectMany(x => x.GetProperties())
+                .SelectMany(x => x.GetCustomAttributes<TParamAttr>())
+                .Select(x => x.Name);
+
+            if (paramNamesToLowercase)
+                acceptedParamNames = acceptedParamNames.Select(x => x.ToLowerInvariant());
+
+            if (paramNamesToLowercase)
+                @paramsNames = @paramsNames.Select(x => x.ToLowerInvariant());
+            
+            var unexpectedParams = @paramsNames.Except(acceptedParamNames).ToList();
+            if (unexpectedParams.Any())
+                throw new ParameterException($"The following params are not accepted: {string.Join(',', unexpectedParams)}");
         }
     }
 }
