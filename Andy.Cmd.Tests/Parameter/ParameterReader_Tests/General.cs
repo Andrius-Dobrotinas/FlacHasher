@@ -101,7 +101,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests
 
         [TestCase("first value")]
         [TestCase("second value")]
-        public void When_MultipleParametersSpecified_OnlyOneIsNotPresent__Must_TakeTheAvailableValue(string firstValue)
+        public void When_MultipleParametersSpecified_SomeAreNotPresent__Must_TakeTheAvailableValue(string firstValue)
         {
             var argvs = new Dictionary<string, string[]>()
             {
