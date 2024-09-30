@@ -3,13 +3,14 @@
 namespace Andy.Cmd.Parameter
 {
     // TODO: multiple could be allowed, but that would require more development and I don't need that now
+
     /// <summary>
-    /// Provides a way to specify a group of parameters out of which only one paramater has to have a value.
-    /// Only one of the parameters marked with the same <see cref="EitherOrAttribute.GroupKey"/> can have a value and
-    /// One of the parameters marked with the same <see cref="EitherOrAttribute.GroupKey"/> MUST have a value.
-    /// A <see cref="ParameterGroupException"/> gets thrown if more than one parameter has value.
+    /// Specifies a group of parameters (identified by <see cref="EitherOrAttribute.GroupKey"/>)
+    /// out of which Exactly One parameter is required to have a value.
+    /// This means that the group is Required to have a value, and it can only come from one paramater.
+    /// A <see cref="ParameterGroupException"/> gets thrown if more than one parameter has a value or if none do.
     /// 
-    /// Is only applicable to <see cref="string"/> and <see cref="string[]"/> properties.
+    /// Only applicable to <see cref="string"/> and <see cref="string[]"/> properties.
     /// Paramteres of different allowed types can belong to the same group.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
@@ -21,11 +22,11 @@ namespace Andy.Cmd.Parameter
         /// </summary>
         public string GroupKey { get; set; }
 
-        public EitherOrAttribute(string key)
+        public EitherOrAttribute(string groupKey)
         {
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException("A non-empty value is required", nameof(key));
-            GroupKey = key;
+            if (string.IsNullOrWhiteSpace(groupKey))
+                throw new ArgumentException("A non-empty value is required", nameof(groupKey));
+            GroupKey = groupKey;
         }
     }
 }
