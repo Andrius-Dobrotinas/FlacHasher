@@ -64,6 +64,17 @@ namespace Andy.Cmd.Parameter
         }
 
         [Test]
+        public void Neither_Parameter_IsPresent__Must_Reject()
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg0", new string[] { "value" } }
+            };
+            Assert.Throws<ParameterGroupException>(
+                () => ParameterReader.GetParameters<TestParamsEmpties>(argvs));
+        }
+
+        [Test]
         public void Neither_Parameter_HasValue__Must_Reject()
         {
             var argvs = new Dictionary<string, string[]>

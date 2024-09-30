@@ -75,6 +75,17 @@ namespace Andy.Cmd.Parameter
                 () => ParameterReader.GetParameters<TestParams>(argvs));
         }
 
+        [Test]
+        public void Neither_Parameter_IsPresent__Must_Reject()
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg0", new string[] { "value" } }
+            };
+            Assert.Throws<ParameterGroupException>(
+                () => ParameterReader.GetParameters<TestParams>(argvs));
+        }
+
         [TestCase("")]
         public void EmptyString_Not_Accepted(string value)
         {
