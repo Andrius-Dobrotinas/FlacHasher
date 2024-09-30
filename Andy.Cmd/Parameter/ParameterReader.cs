@@ -62,10 +62,6 @@ namespace Andy.Cmd.Parameter
                 .Where(x => x.attr != null)
                 .ToList();
 
-            // In theory, other types could be accepted, but I don't need that now
-            if (eitherOrProperties.Any(x => !allowedTypes.Contains(x.property.PropertyType)))
-                throw new InvalidOperationException($"{nameof(EitherOrAttribute)} is only allowed on String and Array-of-String type of properties");
-
             var eitherOrPropertyGroups = eitherOrProperties
                .GroupBy(x => x.attr.GroupKey, x => x.property)
                .ToDictionary(x => x.Key, x => x.ToArray());

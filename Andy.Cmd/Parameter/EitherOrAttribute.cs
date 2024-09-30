@@ -10,8 +10,7 @@ namespace Andy.Cmd.Parameter
     /// This means that the group is Required to have a value, and it can only come from one paramater.
     /// A <see cref="ParameterGroupException"/> gets thrown if more than one parameter has a value or if none do.
     /// 
-    /// Only applicable to <see cref="string"/> and <see cref="string[]"/> properties.
-    /// Paramteres of different allowed types can belong to the same group.
+    /// Paramteres of different types can belong to the same group.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class EitherOrAttribute : OptionalAttribute
