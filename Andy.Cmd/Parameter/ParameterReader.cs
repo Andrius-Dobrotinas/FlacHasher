@@ -36,6 +36,8 @@ namespace Andy.Cmd.Parameter
             // Either-Or Continued
             CheckEitherOrParameters(@params, eitherOrPropertyGroups);
 
+            Check_AtLeastOneOf_Params(@params);
+
             return @params;
         }
 
@@ -88,6 +90,34 @@ namespace Andy.Cmd.Parameter
 
                 if (nullValues.All(x => x == true))
                     throw new ParameterGroupException("One of the following parameter must have a value", GetParameterNames(parameterGroup.Value));
+            }
+        }
+
+        static Dictionary<string, PropertyInfo[]> Get_AtLeastOneOf_Properties<TParams>()
+        {
+            var properties = typeof(TParams).GetProperties();
+
+            var propertiesOfInterest = properties.Select(property => new { property, attr = property.GetCustomAttribute<AtLeastOneOfAttribute>(false) })
+                .Where(x => x.attr != null)
+                .ToList();
+
+            var propertyOfInterestGroups = propertiesOfInterest
+               .GroupBy(x => x.attr.GroupKey, x => x.property)
+               .ToDictionary(x => x.Key, x => x.ToArray());
+
+            return propertyOfInterestGroups;
+        }
+
+        static void Check_AtLeastOneOf_Params<TParams>(TParams instance)
+        {
+            var propertyOfInterestGroups = Get_AtLeastOneOf_Properties<TParams>();
+            foreach (var parameterGroup in propertyOfInterestGroups)
+            {
+                var values = parameterGroup.Value.Select(x => x.GetValue(instance));
+                var nullValues = values.Select(x => x == null);
+
+                if (nullValues.All(x => x == true))
+                    throw new ParameterGroupException("At least one of the following parameter must have a value", GetParameterNames(parameterGroup.Value));
             }
         }
 
@@ -156,9 +186,9 @@ namespace Andy.Cmd.Parameter
             var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false);
             var isOptional = optionalAttrs.Any();
             if (isOptional
-                && optionalAttrs.Any(x => (x is RequiredWithAttribute) || (x is EitherOrAttribute))
+                && optionalAttrs.Any(x => (x is RequiredWithAttribute) || (x is EitherOrAttribute) || (x is AtLeastOneOfAttribute))
                 && optionalAttrs.Any(x => x.DefaultValue != null))
-                throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWithAttribute)} or {nameof(EitherOrAttribute)} is not allowed to have a default value");
+                throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWithAttribute)}, {nameof(EitherOrAttribute)} or {nameof(AtLeastOneOfAttribute)} is not allowed to have a default value");
             var optionalAttr = optionalAttrs.FirstOrDefault();
 
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
