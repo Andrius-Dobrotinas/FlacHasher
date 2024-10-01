@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Cmd
     public class VerificationSettings : IHashfileParams
     {
         [CmdLineParameter(ParameterNames.HashFile)]
-        [Optional]
+        [AtLeastOneOf("hashfile")]
         public string HashFile { get; set; }
 
         [IniEntry(nameof(HashfileExtensions))]
@@ -20,6 +20,7 @@ namespace Andy.FlacHash.Cmd
         public string HashfileEntrySeparator { get; set; }
 
         [CmdLineParameter(ParameterNames.InputDirectory)]
+        [AtLeastOneOf("hashfile")]
         public string InputDirectory { get; set; }
     }
 }
