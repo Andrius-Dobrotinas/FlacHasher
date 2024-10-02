@@ -9,8 +9,10 @@ namespace Andy.Cmd.Parameter
     /// A <see cref="ParameterGroupException"/> gets thrown no parameter has a value.
     /// 
     /// Paramteres of different types can belong to the same group.
+    /// 
+    /// One parameter can belong to multiple groups.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class AtLeastOneOfAttribute : OptionalAttribute
     {
         /// <summary>

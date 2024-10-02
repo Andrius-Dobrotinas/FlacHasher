@@ -97,8 +97,17 @@ namespace Andy.Cmd.Parameter
         {
             var properties = typeof(TParams).GetProperties();
 
-            var propertiesOfInterest = properties.Select(property => new { property, attr = property.GetCustomAttribute<AtLeastOneOfAttribute>(false) })
-                .Where(x => x.attr != null)
+            var propertiesOfInterest = properties.Select(
+                property => new 
+                    { 
+                        property, 
+                        attr = property.GetCustomAttributes<AtLeastOneOfAttribute>(false).ToArray()
+                    })
+                .Where(x => x.attr.Any())
+                .SelectMany(
+                    x => x.attr.Select(
+                        attr => (property: x.property, attr: attr))
+                    .ToArray())
                 .ToList();
 
             var propertyOfInterestGroups = propertiesOfInterest
