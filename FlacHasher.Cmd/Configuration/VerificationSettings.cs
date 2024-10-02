@@ -9,10 +9,11 @@ namespace Andy.FlacHash.Cmd
     {
         [CmdLineParameter(ParameterNames.HashFile)]
         [AtLeastOneOf("hashfile")]
+        [AtLeastOneOf("hashfileExtensions")]
         public string HashFile { get; set; }
 
         [IniEntry(nameof(HashfileExtensions))]
-        [Optional]
+        [AtLeastOneOf("hashfileExtensions")]
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]
