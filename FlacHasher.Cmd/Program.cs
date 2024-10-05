@@ -26,10 +26,12 @@ namespace Andy.FlacHash.Cmd
             InitialParams initialCmdlineParams;
             CmdApplicationParameters settings;
             VerificationSettings verificationSettings;
+
+            var parameterReader = ParameterReader.Build();
             try
             {
             var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
-                initialCmdlineParams = ParameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
+                initialCmdlineParams = parameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
 
                 IDictionary<string, string[]> settingsFileParams;
             try
@@ -52,9 +54,9 @@ namespace Andy.FlacHash.Cmd
                 var allParams = argumentDictionary.Concat(settingsFileParams)
                     .ToDictionary(x => x.Key, x => x.Value);
 
-                settings = ParameterReader.GetParameters<CmdApplicationParameters>(allParams, inLowercase: lowercaseParams);
+                settings = parameterReader.GetParameters<CmdApplicationParameters>(allParams, inLowercase: lowercaseParams);
                 verificationSettings = initialCmdlineParams.IsVerification
-                    ? ParameterReader.GetParameters<VerificationSettings>(allParams, inLowercase: lowercaseParams)
+                    ? parameterReader.GetParameters<VerificationSettings>(allParams, inLowercase: lowercaseParams)
                     : null;
 
             }

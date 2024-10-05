@@ -7,10 +7,12 @@ namespace Andy.Cmd.Parameter
 {
     public class AtLeastOneOf_ParameterResolution_Tests
     {
+        ParameterValueResolver target = new ParameterValueResolver();
+
         [TestCase(null)]
         [TestCase("")]
         [TestCase("a value with spaces")]
-        public void WithOptional_HavingDefaultValue__Must_Reject(string value)
+        public void UsedWith_Optional_HavingDefaultValue__Must_Reject(string value)
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -18,7 +20,7 @@ namespace Andy.Cmd.Parameter
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.One));
-            Assert.Throws<InvalidOperationException>(() => ParameterReader.ReadParameter(prop, argvs, result));
+            Assert.Throws<InvalidOperationException>(() => target.ReadParameter(prop, argvs, result));
         }
         
         class TestParams

@@ -1,3 +1,4 @@
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,8 +8,10 @@ namespace Andy.Cmd.Parameter
 {
     public class RequiredWith_ParameterResolution_Tests
     {
+        ParameterValueResolver target = new ParameterValueResolver();
+
         [Test]
-        public void When_Param_NotProvided__Treat_AsOptional()
+        public void TreatAs_Optional__When_Param_NotProvided()
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -16,13 +19,13 @@ namespace Andy.Cmd.Parameter
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Dependency));
-            ParameterReader.ReadParameter<TestParams>(prop, argvs, result);
+            target.ReadParameter<TestParams>(prop, argvs, result);
 
             Assert.IsNull(result.Dependency);
         }
 
         [Test]
-        public void When_Empty__With_AllowEmptyAttribute__Treat_AsOptional()
+        public void TreatAs_Optional__When_Empty_With_AllowEmptyAttribute()
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -31,7 +34,7 @@ namespace Andy.Cmd.Parameter
             };
             var result = new TestParamsAllowEmpty();
             var prop = typeof(TestParamsAllowEmpty).GetProperties().First(x => x.Name == nameof(TestParamsAllowEmpty.Dependency));
-            ParameterReader.ReadParameter<TestParamsAllowEmpty>(prop, argvs, result);
+            target.ReadParameter<TestParamsAllowEmpty>(prop, argvs, result);
 
             Assert.AreEqual("", result.Dependency);
         }
@@ -39,7 +42,7 @@ namespace Andy.Cmd.Parameter
         [TestCase(null)]
         [TestCase("")]
         [TestCase("a value with spaces")]
-        public void WithOptional_HavingDefaultValue__Must_Reject(string value)
+        public void UsedWith_Optional_HavingDefaultValue__Must_Reject(string value)
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -47,7 +50,7 @@ namespace Andy.Cmd.Parameter
             };
             var result = new TestParams2();
             var prop = typeof(TestParams2).GetProperties().First(x => x.Name == nameof(TestParams2.One));
-            Assert.Throws<InvalidOperationException>(() => ParameterReader.ReadParameter(prop, argvs, result));
+            Assert.Throws<InvalidOperationException>(() => target.ReadParameter(prop, argvs, result));
         }
 
         class TestParams

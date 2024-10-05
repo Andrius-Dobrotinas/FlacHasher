@@ -1,3 +1,4 @@
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,15 @@ namespace Andy.Cmd.Parameter
 {
     public class AtLeastOneOf_AllowEmpty_Tests
     {
+        ParameterReader target;
+        Mock<ParameterValueResolver> resolver;
+
+        public AtLeastOneOf_AllowEmpty_Tests()
+        {
+            resolver = new Mock<ParameterValueResolver>();
+            target = new ParameterReader(resolver.Object);
+        }
+
         [TestCase("")]
         [TestCase("non-empty")]
         public void One_Parameter_HasValue__Other_IsNotPresent__Must_SetTheValue(string value)
@@ -15,7 +25,7 @@ namespace Andy.Cmd.Parameter
             {
                 { "arg1", new [] { value } }
             };
-            var result = ParameterReader.GetParameters<TestParamsEmpties>(argvs);
+            var result = target.GetParameters<TestParamsEmpties>(argvs);
 
             Assert.AreEqual(value, result.One);
             Assert.IsNull(result.Two);
@@ -29,7 +39,7 @@ namespace Andy.Cmd.Parameter
             {
                 { "arg2", new [] { value } }
             };
-            var result = ParameterReader.GetParameters<TestParamsEmpties>(argvs);
+            var result = target.GetParameters<TestParamsEmpties>(argvs);
 
             Assert.AreEqual(value, result.Two);
             Assert.IsNull(result.One);
@@ -45,7 +55,7 @@ namespace Andy.Cmd.Parameter
                 { "arg2", new string[] { second } }
             };
             Assert.Throws<ParameterEmptyException>(
-                () => ParameterReader.GetParameters<TestParamsEmpties>(argvs));
+                () => target.GetParameters<TestParamsEmpties>(argvs));
         }
 
         [TestCase("", "")]
@@ -59,7 +69,7 @@ namespace Andy.Cmd.Parameter
                 { "arg1", new [] { firstArgValue } },
                 { "arg2", new [] { secondArgValue } }
             };
-            var result = ParameterReader.GetParameters<TestParamsEmpties>(argvs);
+            var result = target.GetParameters<TestParamsEmpties>(argvs);
 
             Assert.AreEqual(firstArgValue, result.One);
             Assert.AreEqual(secondArgValue, result.Two);
@@ -73,7 +83,7 @@ namespace Andy.Cmd.Parameter
                 { "arg0", new string[] { "value" } }
             };
             Assert.Throws<ParameterGroupException>(
-                () => ParameterReader.GetParameters<TestParamsEmpties>(argvs));
+                () => target.GetParameters<TestParamsEmpties>(argvs));
         }
 
         [Test]
@@ -85,7 +95,7 @@ namespace Andy.Cmd.Parameter
                 { "arg2", new string[] { null } }
             };
             Assert.Throws<ParameterEmptyException>(
-                () => ParameterReader.GetParameters<TestParamsEmpties>(argvs));
+                () => target.GetParameters<TestParamsEmpties>(argvs));
         }
 
         class TestParamsEmpties

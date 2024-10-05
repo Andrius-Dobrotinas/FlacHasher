@@ -1,3 +1,4 @@
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,15 @@ namespace Andy.Cmd.Parameter
 {
     public class RequiredWith_Tests
     {
+        ParameterReader target;
+        Mock<ParameterValueResolver> resolver;
+
+        public RequiredWith_Tests()
+        {
+            resolver = new Mock<ParameterValueResolver>();
+            target = new ParameterReader(resolver.Object);
+        }
+
         [Test]
         public void When__MasterProperty_HasValue__And_Target_NoValue__Must_Reject()
         {
@@ -15,7 +25,7 @@ namespace Andy.Cmd.Parameter
                 { "master", new [] { "good value" } }
             };
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParams>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParams>(argvs));
             Assert.AreEqual(nameof(TestParams.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
@@ -29,7 +39,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency", new [] { value } }
             };
 
-            var result = ParameterReader.GetParameters<TestParamsAllowEmpty>(argvs);
+            var result = target.GetParameters<TestParamsAllowEmpty>(argvs);
 
             Assert.AreEqual(value, result.Dependency, "Target");
             Assert.AreEqual("good value", result.Master, "Master");
@@ -40,7 +50,7 @@ namespace Andy.Cmd.Parameter
         {
             var argvs = new Dictionary<string, string[]>();
 
-            var result = ParameterReader.GetParameters<TestParamsAllowEmpty>(argvs);
+            var result = target.GetParameters<TestParamsAllowEmpty>(argvs);
 
             Assert.IsNull(result.Dependency, "Target");
             Assert.IsNull(result.Master, "Master");
@@ -54,7 +64,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency", new [] { "wazzaa!" } }
             };
 
-            var result = ParameterReader.GetParameters<TestParamsAllowEmpty>(argvs);
+            var result = target.GetParameters<TestParamsAllowEmpty>(argvs);
 
             Assert.AreEqual("wazzaa!", result.Dependency, "Target");
             Assert.IsNull(result.Master, "Master");
@@ -69,7 +79,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency2", new [] { "wazzaa!" } }
             };
 
-            var result = ParameterReader.GetParameters<TestParamsWithEitherOr>(argvs);
+            var result = target.GetParameters<TestParamsWithEitherOr>(argvs);
 
             Assert.AreEqual("good value", result.Master, "Master");
             Assert.AreEqual("wazzaa!", result.DependencySubstitute, "Target Substitute");
@@ -85,13 +95,12 @@ namespace Andy.Cmd.Parameter
                 { "dependency1", new [] { "wazzaa!" } }
             };
 
-            var result = ParameterReader.GetParameters<TestParamsWithEitherOr>(argvs);
+            var result = target.GetParameters<TestParamsWithEitherOr>(argvs);
 
             Assert.AreEqual("good value", result.Master, "Master");
             Assert.IsNull(result.DependencySubstitute, "Target Substitute");
             Assert.AreEqual("wazzaa!", result.Dependency, "Target");
         }
-
 
         [Test]
         public void When__MasterProperty_HasValue__And_Target_NoValue_And_OtherGroupMember_NoValue__Must_Reject()
@@ -101,7 +110,7 @@ namespace Andy.Cmd.Parameter
                 { "master", new [] { "good value" } }
             };
 
-            Assert.Throws<ParameterGroupException>(() => ParameterReader.GetParameters<TestParamsWithEitherOr>(argvs));
+            Assert.Throws<ParameterGroupException>(() => target.GetParameters<TestParamsWithEitherOr>(argvs));
         }
 
         [Test]
@@ -114,7 +123,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency2", new [] { "keep on rollin'" } }
             };
 
-            var result = ParameterReader.GetParameters<TestParamsTwoDependencies>(argvs);
+            var result = target.GetParameters<TestParamsTwoDependencies>(argvs);
 
             Assert.AreEqual("alright, partner", result.Master, "Master");
             Assert.AreEqual("you know what time it is", result.Dependency1, "Dependency 1");
@@ -130,7 +139,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency2", new [] { "keep on rollin'" } }
             };
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParamsTwoDependencies>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParamsTwoDependencies>(argvs));
             Assert.AreEqual(nameof(TestParamsTwoDependencies.Dependency1), exception.ParameterProperty?.Name, "Paramter name");
         }
 
@@ -142,7 +151,7 @@ namespace Andy.Cmd.Parameter
                 { "master1", new [] { "good value" } }
             };
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParamsTwoMaster>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParamsTwoMaster>(argvs));
             Assert.AreEqual(nameof(TestParamsTwoMaster.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
@@ -155,7 +164,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency", new [] { "you're cool" } },
             };
 
-            var result = ParameterReader.GetParameters<TestParamsTwoMaster>(argvs);
+            var result = target.GetParameters<TestParamsTwoMaster>(argvs);
             Assert.AreEqual("you cool?", result.Master1, "Master 1");
             Assert.IsNull(result.Master2, "Master 2");
             Assert.AreEqual("you're cool", result.Dependency, "Dependency");
@@ -170,7 +179,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency2", new [] { "you're cool" } },
             };
 
-            var result = ParameterReader.GetParameters<TestParamsTwoMasterWithEitherOr>(argvs);
+            var result = target.GetParameters<TestParamsTwoMasterWithEitherOr>(argvs);
             Assert.AreEqual("you cool?", result.Master1, "Master 1");
             Assert.IsNull(result.Master2, "Master 2");
             Assert.AreEqual("you're cool", result.Dependency2, "Dependency 2");

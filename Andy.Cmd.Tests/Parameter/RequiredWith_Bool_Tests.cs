@@ -1,3 +1,4 @@
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,15 @@ namespace Andy.Cmd.Parameter
 {
     public class RequiredWith_Bool_Tests
     {
+        ParameterReader target;
+        Mock<ParameterValueResolver> resolver;
+
+        public RequiredWith_Bool_Tests()
+        {
+            resolver = new Mock<ParameterValueResolver>();
+            target = new ParameterReader(resolver.Object);
+        }
+
         [Test]
         public void When__MasterProperty_IsTrue__And_Target_NoValue__Must_Reject()
         {
@@ -15,7 +25,7 @@ namespace Andy.Cmd.Parameter
                 { "master", new [] { "true" } }
             };
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParams>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParams>(argvs));
             Assert.AreEqual(nameof(TestParams.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
@@ -27,7 +37,7 @@ namespace Andy.Cmd.Parameter
                 { "master", new [] { "true" } }
             };
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => ParameterReader.GetParameters<TestParamsNullable>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParamsNullable>(argvs));
             Assert.AreEqual(nameof(TestParamsNullable.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
@@ -41,7 +51,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency", new [] { value } }
             };
 
-            var result = ParameterReader.GetParameters<TestParams>(argvs);
+            var result = target.GetParameters<TestParams>(argvs);
 
             Assert.AreEqual(value, result.Dependency, "Target");
             Assert.AreEqual(masterValue, result.Master, "Master");
@@ -55,7 +65,7 @@ namespace Andy.Cmd.Parameter
                 { "master", new [] { "false" } }
             };
 
-            var result = ParameterReader.GetParameters<TestParamsNullable>(argvs);
+            var result = target.GetParameters<TestParamsNullable>(argvs);
 
             Assert.IsNull(result.Dependency, "Target");
             Assert.IsFalse(result.Master, "Master");
@@ -66,7 +76,7 @@ namespace Andy.Cmd.Parameter
         {
             var argvs = new Dictionary<string, string[]>();
 
-            var result = ParameterReader.GetParameters<TestParamsNullable>(argvs);
+            var result = target.GetParameters<TestParamsNullable>(argvs);
 
             Assert.IsNull(result.Dependency, "Target");
             Assert.IsNull(result.Master, "Master");
@@ -80,7 +90,7 @@ namespace Andy.Cmd.Parameter
                 { "dependency", new [] { "wazzaa!" } }
             };
 
-            var result = ParameterReader.GetParameters<TestParamsNullable>(argvs);
+            var result = target.GetParameters<TestParamsNullable>(argvs);
 
             Assert.AreEqual("wazzaa!", result.Dependency, "Target");
             Assert.IsNull(result.Master, "Master");

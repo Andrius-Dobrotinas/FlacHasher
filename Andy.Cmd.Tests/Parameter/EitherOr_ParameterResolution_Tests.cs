@@ -7,6 +7,8 @@ namespace Andy.Cmd.Parameter
 {
     public class EitherOr_ParameterResolution_Tests
     {
+        ParameterValueResolver target = new ParameterValueResolver();
+
         [TestCase(null)]
         [TestCase("")]
         [TestCase("a value with spaces")]
@@ -18,7 +20,8 @@ namespace Andy.Cmd.Parameter
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.One));
-            Assert.Throws<InvalidOperationException>(() => ParameterReader.ReadParameter(prop, argvs, result));
+
+            Assert.Throws<InvalidOperationException>(() => target.ReadParameter(prop, argvs, result));
         }
         
         class TestParams

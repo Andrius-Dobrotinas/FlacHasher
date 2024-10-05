@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Win
                 var settingsFileParams = SettingsProvider.GetSettingsDictionary(settingsFile)
                     .ToDictionary(x => x.Key, x => new[] { x.Value });
 
-                settings = ParameterReader.GetParameters<Settings>(settingsFileParams);
+                settings = ParameterReader.Build().GetParameters<Settings>(settingsFileParams);
             }
             catch (Exception e)
             {

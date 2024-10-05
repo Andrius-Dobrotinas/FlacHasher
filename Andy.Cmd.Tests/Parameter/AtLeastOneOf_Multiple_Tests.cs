@@ -1,3 +1,4 @@
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,15 @@ namespace Andy.Cmd.Parameter
 {
     public class AtLeastOneOf_Multiple_Tests
     {
+        ParameterReader target;
+        Mock<ParameterValueResolver> resolver;
+
+        public AtLeastOneOf_Multiple_Tests()
+        {
+            resolver = new Mock<ParameterValueResolver>();
+            target = new ParameterReader(resolver.Object);
+        }
+
         [TestCase("0", "1")]
         [TestCase("a value with spaces", "another one")]
         public void One_Parameter_FromEachGroup_HasValue__Other_IsNotPresent__Must_SetTheValue(string value, string value3)
@@ -16,7 +26,7 @@ namespace Andy.Cmd.Parameter
                 { "arg1", new [] { value } },
                 { "arg3", new [] { value3 } }
             };
-            var result = ParameterReader.GetParameters<TestParams>(argvs);
+            var result = target.GetParameters<TestParams>(argvs);
 
             Assert.AreEqual(value, result.One);
             Assert.IsNull(result.Two);
@@ -33,7 +43,7 @@ namespace Andy.Cmd.Parameter
                 { "arg2", new[] { secondArgValue } },
                 { "arg3", new[] { thirdArgValue } }
             };
-            var result = ParameterReader.GetParameters<TestParams>(argvs);
+            var result = target.GetParameters<TestParams>(argvs);
 
             Assert.AreEqual(firstArgValue, result.One);
             Assert.AreEqual(secondArgValue, result.Two);
@@ -48,7 +58,7 @@ namespace Andy.Cmd.Parameter
                 { "arg0", new string[] { "value" } }
             };
             Assert.Throws<ParameterGroupException>(
-                () => ParameterReader.GetParameters<TestParams>(argvs));
+                () => target.GetParameters<TestParams>(argvs));
         }
 
         class TestParams
