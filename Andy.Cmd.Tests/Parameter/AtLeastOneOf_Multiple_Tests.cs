@@ -9,56 +9,63 @@ namespace Andy.Cmd.Parameter
     public class AtLeastOneOf_Multiple_Tests
     {
         ParameterReader target;
-        Mock<ParameterValueResolver> resolver;
+        Mock<IParameterValueResolver> resolver;
+        Mock<IDictionary<string, string[]>> fakeArgs;
 
-        public AtLeastOneOf_Multiple_Tests()
+        [SetUp]
+        public void SetUp()
         {
-            resolver = new Mock<ParameterValueResolver>();
+            resolver = new Mock<IParameterValueResolver>();
             target = new ParameterReader(resolver.Object);
+
+            fakeArgs = new Mock<IDictionary<string, string[]>>();
         }
 
-        [TestCase("0", "1")]
-        [TestCase("a value with spaces", "another one")]
-        public void One_Parameter_FromEachGroup_HasValue__Other_IsNotPresent__Must_SetTheValue(string value, string value3)
+        [TestCase("a value with spaces", "another one", "s'more")]
+        [TestCase(null, "another one", "s'more")]
+        [TestCase("a value with spaces", null, "s'more")]
+        [TestCase("a value with spaces", "another one", null)]
+        public void One_Parameter_FromEachGroup_HasValue__Other_DoesNot__Must_BeHappy(string shared, string value1, string value2)
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new [] { value } },
-                { "arg3", new [] { value3 } }
-            };
-            var result = target.GetParameters<TestParams>(argvs);
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Shared));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.One));
+            var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, shared);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value1);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, value2);
 
-            Assert.AreEqual(value, result.One);
-            Assert.IsNull(result.Two);
-            Assert.AreEqual(value3, result.Three);
+            Assert.DoesNotThrow(() =>
+                target.GetParameters<TestParams>(fakeArgs.Object));
         }
         
         [TestCase("one value", "another value", "third one")]
         [TestCase("a", "value, too", "xyz")]
-        public void All_Paramters_HaveValues__Must_SetTheValues(string firstArgValue, string secondArgValue, string thirdArgValue)
+        [TestCase("", "", "")]
+        public void All_Paramters_HaveValues__Must_BeOverTheMoon(string shared, string value1, string value2)
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new [] { firstArgValue } },
-                { "arg2", new[] { secondArgValue } },
-                { "arg3", new[] { thirdArgValue } }
-            };
-            var result = target.GetParameters<TestParams>(argvs);
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Shared));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.One));
+            var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, shared);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value1);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, value2);
 
-            Assert.AreEqual(firstArgValue, result.One);
-            Assert.AreEqual(secondArgValue, result.Two);
-            Assert.AreEqual(thirdArgValue, result.Three);
+            Assert.DoesNotThrow(() =>
+                target.GetParameters<TestParams>(fakeArgs.Object));
         }
 
         [Test]
-        public void Neither_Parameter_IsPresent__Must_Reject()
+        public void Neither_Parameter_HasValue__Must_Reject()
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg0", new string[] { "value" } }
-            };
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Shared));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.One));
+            var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, null);
+
             Assert.Throws<ParameterGroupException>(
-                () => target.GetParameters<TestParams>(argvs));
+                () => target.GetParameters<TestParams>(fakeArgs.Object));
         }
 
         class TestParams
@@ -66,15 +73,15 @@ namespace Andy.Cmd.Parameter
             [Parameter("arg1")]
             [AtLeastOneOf("key1")]
             [AtLeastOneOf("key2")]
-            public string One { get; set; }
+            public string Shared { get; set; }
 
             [Parameter("arg2")]
             [AtLeastOneOf("key1")]
-            public string Two { get; set; }
+            public string One { get; set; }
 
             [Parameter("arg3")]
             [AtLeastOneOf("key2")]
-            public string Three { get; set; }
+            public string Two { get; set; }
         }
     }
 }

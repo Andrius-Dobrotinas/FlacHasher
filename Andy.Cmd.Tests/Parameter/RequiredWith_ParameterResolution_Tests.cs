@@ -1,4 +1,3 @@
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -13,75 +12,57 @@ namespace Andy.Cmd.Parameter
         [Test]
         public void TreatAs_Optional__When_Param_NotProvided()
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "master", new [] { "good value" } }
-            };
+            var argvs = new Dictionary<string, string[]>();
             var result = new TestParams();
-            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Dependency));
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Target));
             target.ReadParameter<TestParams>(prop, argvs, result);
 
-            Assert.IsNull(result.Dependency);
+            Assert.IsNull(result.Target);
         }
 
         [Test]
-        public void TreatAs_Optional__When_Empty_With_AllowEmptyAttribute()
+        public void AllowEmpty_When_Decorated_With_AllowEmptyAttribute()
         {
             var argvs = new Dictionary<string, string[]>
             {
-                { "dependency", new [] { "" } },
-                { "master", new [] { "good value" } }
+                { "param", new [] { "" } }
             };
-            var result = new TestParamsAllowEmpty();
-            var prop = typeof(TestParamsAllowEmpty).GetProperties().First(x => x.Name == nameof(TestParamsAllowEmpty.Dependency));
-            target.ReadParameter<TestParamsAllowEmpty>(prop, argvs, result);
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.AllowEmpty));
+            target.ReadParameter<TestParams>(prop, argvs, result);
 
-            Assert.AreEqual("", result.Dependency);
+            Assert.AreEqual("", result.AllowEmpty);
         }
 
         [TestCase(null)]
         [TestCase("")]
         [TestCase("a value with spaces")]
-        public void UsedWith_Optional_HavingDefaultValue__Must_Reject(string value)
+        public void Used_With_OptionalAttr_WithDefaultValue__Must_Reject(string value)
         {
             var argvs = new Dictionary<string, string[]>
             {
                 { "arg1", new [] { value } }
             };
-            var result = new TestParams2();
-            var prop = typeof(TestParams2).GetProperties().First(x => x.Name == nameof(TestParams2.One));
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Optional_DefaultValue));
             Assert.Throws<InvalidOperationException>(() => target.ReadParameter(prop, argvs, result));
         }
 
         class TestParams
         {
-            [Parameter("master")]
-            [Optional]
-            public string Master { get; set; }
+            [Parameter("param")]
+            [RequiredWith("master")]
+            public string Target { get; set; }
 
-            [Parameter("dependency")]
-            [RequiredWithAttribute(nameof(Master))]
-            public string Dependency { get; set; }
-        }
-
-        class TestParamsAllowEmpty
-        {
-            [Parameter("master")]
-            [Optional]
-            public string Master { get; set; }
-
-            [Parameter("dependency")]
-            [RequiredWithAttribute(nameof(Master))]
+            [Parameter("param")]
+            [RequiredWith("master")]
             [AllowEmpty]
-            public string Dependency { get; set; }
-        }
+            public string AllowEmpty { get; set; }
 
-        class TestParams2
-        {
-            [Parameter("arg1")]
-            [EitherOr("key1")]
+            [Parameter("param")]
+            [RequiredWith("master")]
             [Optional(defaultValue: "something")]
-            public string One { get; set; }
+            public string Optional_DefaultValue { get; set; }
         }
     }
 }

@@ -9,182 +9,137 @@ namespace Andy.Cmd.Parameter
     public class RequiredWith_Tests
     {
         ParameterReader target;
-        Mock<ParameterValueResolver> resolver;
+        Mock<IParameterValueResolver> resolver;
+        Mock<IDictionary<string, string[]>> fakeArgs;
 
-        public RequiredWith_Tests()
+        [SetUp]
+        public void SetUp()
         {
-            resolver = new Mock<ParameterValueResolver>();
+            resolver = new Mock<IParameterValueResolver>();
             target = new ParameterReader(resolver.Object);
+
+            fakeArgs = new Mock<IDictionary<string, string[]>>();
         }
 
-        [Test]
-        public void When__MasterProperty_HasValue__And_Target_NoValue__Must_Reject()
+        [TestCase("good value")]
+        [TestCase("")]
+        public void MasterProperty_HasValue__And_Target_NoValue__Must_Reject(string value)
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "good value" } }
-            };
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, value);
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParams>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(
+                () => target.GetParameters<TestParams>(fakeArgs.Object));
             Assert.AreEqual(nameof(TestParams.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
-        [TestCase("goo")]
+        [TestCase("goo", "d value")]
+        [TestCase("", "")]
+        [TestCase("alright", "")]
+        [TestCase("", "empty")]
+        public void MasterProperty_HasValue__And_Target_HasValue__Must_Pass(string masterValue, string dependencyValue)
+        {
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, masterValue);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, dependencyValue);
+
+            Assert.DoesNotThrow(() =>
+                target.GetParameters<TestParams>(fakeArgs.Object));
+        }
+
+        [Test]
+        public void MasterProperty_Has_NoValue__And_Target_Has_NoValue__Must_BeCool()
+        {
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
+
+            Assert.DoesNotThrow(() =>
+                target.GetParameters<TestParams>(fakeArgs.Object));
+        }
+
+        [TestCase("ladies and gentlemen!")]
+        [TestCase("introducing, Limp Bizkit")]
         [TestCase("")]
-        public void When__MasterProperty_HasValue__And_Target_HasValue__Must_Pass(string value)
+        public void MasterProperty_Has_NoValue__And_Target_HasValue__Must_BeCool(string value)
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "good value" } },
-                { "dependency", new [] { value } }
-            };
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value);
 
-            var result = target.GetParameters<TestParamsAllowEmpty>(argvs);
-
-            Assert.AreEqual(value, result.Dependency, "Target");
-            Assert.AreEqual("good value", result.Master, "Master");
+            Assert.DoesNotThrow(() =>
+                target.GetParameters<TestParams>(fakeArgs.Object));
         }
 
-        [Test]
-        public void When__MasterProperty_HasNoValue__And_Target_NoValue__Must_BeCool()
+        [TestCase("obey", "your", "master")]
+        [TestCase("obey", "your", "")]
+        [TestCase("obey", "", "master")]
+        [TestCase("", "your", "master")]
+        [TestCase("", "", "")]
+        [TestCase(null, "your", "master")]
+        public void Master_Has_Two_Dependencies__And_Both_Dependencies_HaveValues__Must_BeCool(string master, string dependency1, string dependency2)
         {
-            var argvs = new Dictionary<string, string[]>();
+            var masterProperty = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Master));
+            var property1 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency1));
+            var property2 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency2));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, masterProperty, master);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property1, dependency1);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property2, dependency2);
 
-            var result = target.GetParameters<TestParamsAllowEmpty>(argvs);
-
-            Assert.IsNull(result.Dependency, "Target");
-            Assert.IsNull(result.Master, "Master");
+            Assert.DoesNotThrow(() =>
+                target.GetParameters<TestParamsTwoDependencies>(fakeArgs.Object));
         }
 
-        [Test]
-        public void When__MasterProperty_HasNoValue__And_Target_HasValue__Must_BeCool()
+        [TestCase("obey", null, "master")]
+        [TestCase("obey", "your", null)]
+        public void Master_Has_Two_Dependencies__And_One_Dependency_Has_NoValue__Must_Reject(string master, string dependency1, string dependency2)
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "dependency", new [] { "wazzaa!" } }
-            };
+            var masterProperty = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Master));
+            var property1 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency1));
+            var property2 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency2));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, masterProperty, master);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property1, dependency1);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property2, dependency2);
 
-            var result = target.GetParameters<TestParamsAllowEmpty>(argvs);
-
-            Assert.AreEqual("wazzaa!", result.Dependency, "Target");
-            Assert.IsNull(result.Master, "Master");
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(
+                () => target.GetParameters<TestParamsTwoDependencies>(fakeArgs.Object));
         }
 
-        [Test]
-        public void When__MasterProperty_HasValue__And_Target_NoValue_And_OtherGroupMember_HasValue__Must_Pass()
+        [TestCase("If I say", null)]
+        [TestCase("", null)]
+        [TestCase(null, "that's 46")]
+        [TestCase(null, "")]
+        public void PropertyHas__Two_MasterProperties__And_OneMaster_Has_NoValue__And_Target_Has_NoValue__Must_Reject(string master1, string master2)
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "good value" } },
-                { "dependency2", new [] { "wazzaa!" } }
-            };
+            var masterProperty1 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master1));
+            var masterProperty2 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master2));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty1, master1);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty2, master2);
 
-            var result = target.GetParameters<TestParamsWithEitherOr>(argvs);
-
-            Assert.AreEqual("good value", result.Master, "Master");
-            Assert.AreEqual("wazzaa!", result.DependencySubstitute, "Target Substitute");
-            Assert.IsNull(result.Dependency, "Target");
-        }
-
-        [Test]
-        public void When__MasterProperty_HasValue__And_Target_HasValue_And_OtherGroupMember_HasNoValue__Must_Pass()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "good value" } },
-                { "dependency1", new [] { "wazzaa!" } }
-            };
-
-            var result = target.GetParameters<TestParamsWithEitherOr>(argvs);
-
-            Assert.AreEqual("good value", result.Master, "Master");
-            Assert.IsNull(result.DependencySubstitute, "Target Substitute");
-            Assert.AreEqual("wazzaa!", result.Dependency, "Target");
-        }
-
-        [Test]
-        public void When__MasterProperty_HasValue__And_Target_NoValue_And_OtherGroupMember_NoValue__Must_Reject()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "good value" } }
-            };
-
-            Assert.Throws<ParameterGroupException>(() => target.GetParameters<TestParamsWithEitherOr>(argvs));
-        }
-
-        [Test]
-        public void When__Master_Has_Two_Dependencies__And_Both_HaveValues__Must_BeCool()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "alright, partner" } },
-                { "dependency1", new [] { "you know what time it is" } },
-                { "dependency2", new [] { "keep on rollin'" } }
-            };
-
-            var result = target.GetParameters<TestParamsTwoDependencies>(argvs);
-
-            Assert.AreEqual("alright, partner", result.Master, "Master");
-            Assert.AreEqual("you know what time it is", result.Dependency1, "Dependency 1");
-            Assert.AreEqual("keep on rollin'", result.Dependency2, "Dependency 2");
-        }
-
-        [Test]
-        public void When__Master_Has_Two_Dependencies__And_One_HasNoValue__Must_Reject()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "alright, partner" } },
-                { "dependency2", new [] { "keep on rollin'" } }
-            };
-
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParamsTwoDependencies>(argvs));
-            Assert.AreEqual(nameof(TestParamsTwoDependencies.Dependency1), exception.ParameterProperty?.Name, "Paramter name");
-        }
-
-        [Test]
-        public void When__TwoMasterProperties_OneHasNoValue__And_Target_NoValue__Must_Reject()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master1", new [] { "good value" } }
-            };
-
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParamsTwoMaster>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(
+                () => target.GetParameters<TestParamsTwoMaster>(fakeArgs.Object));
             Assert.AreEqual(nameof(TestParamsTwoMaster.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
-        [Test]
-        public void When__TwoMasterProperties_OneHasNoValue__And_Target_HasValue__Must_Pass()
+        [TestCase("If I say", null, "two more times, that's 46")]
+        [TestCase(null, "in this", "messed up rhyme")]
+        [TestCase("If I say", null, "")]
+        [TestCase(null, "in this", "")]
+        public void PropertyHas__Two_MasterProperties__And_One_Master_Has_NoValue__And_Target_HasValue__Must_Pass(string master1, string master2, string dependency)
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master1", new [] { "you cool?" } },
-                { "dependency", new [] { "you're cool" } },
-            };
+            var masterProperty1 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master1));
+            var masterProperty2 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master2));
+            var property3 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Dependency));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty1, master1);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty2, master2);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, property3, dependency);
 
-            var result = target.GetParameters<TestParamsTwoMaster>(argvs);
-            Assert.AreEqual("you cool?", result.Master1, "Master 1");
-            Assert.IsNull(result.Master2, "Master 2");
-            Assert.AreEqual("you're cool", result.Dependency, "Dependency");
+            Assert.DoesNotThrow(() => target.GetParameters<TestParamsTwoMaster>(fakeArgs.Object));
         }
 
-        [Test]
-        public void When__TwoMasterProperties__And_Target_IsEitherOrGroup_TheOther_HasValue__Must_Pass()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master1", new [] { "you cool?" } },
-                { "dependency2", new [] { "you're cool" } },
-            };
-
-            var result = target.GetParameters<TestParamsTwoMasterWithEitherOr>(argvs);
-            Assert.AreEqual("you cool?", result.Master1, "Master 1");
-            Assert.IsNull(result.Master2, "Master 2");
-            Assert.AreEqual("you're cool", result.Dependency2, "Dependency 2");
-            Assert.IsNull(result.Dependency1, "Dependency 1");
-        }
 
         class TestParams
         {
@@ -193,36 +148,8 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWithAttribute(nameof(Master))]
+            [RequiredWith(nameof(Master))]
             public string Dependency { get; set; }
-        }
-
-        class TestParamsAllowEmpty
-        {
-            [Parameter("master")]
-            [Optional]
-            public string Master { get; set; }
-
-            [Parameter("dependency")]
-            [RequiredWithAttribute(nameof(Master))]
-            [AllowEmpty]
-            public string Dependency { get; set; }
-        }
-
-        class TestParamsWithEitherOr
-        {
-            [Parameter("master")]
-            [Optional]
-            public string Master { get; set; }
-
-            [Parameter("dependency1")]
-            [RequiredWithAttribute(nameof(Master))]
-            [EitherOr("depenencyGroup1")]
-            public string Dependency { get; set; }
-
-            [Parameter("dependency2")]
-            [EitherOr("depenencyGroup1")]
-            public string DependencySubstitute { get; set; }
         }
 
         class TestParamsTwoDependencies
@@ -232,11 +159,11 @@ namespace Andy.Cmd.Parameter
             public string Master { get; set; }
 
             [Parameter("dependency1")]
-            [RequiredWithAttribute(nameof(Master))]
+            [RequiredWith(nameof(Master))]
             public string Dependency1 { get; set; }
 
             [Parameter("dependency2")]
-            [RequiredWithAttribute(nameof(Master))]
+            [RequiredWith(nameof(Master))]
             public string Dependency2 { get; set; }
         }
 
@@ -251,30 +178,9 @@ namespace Andy.Cmd.Parameter
             public string Master2 { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWithAttribute(nameof(Master1))]
-            [RequiredWithAttribute(nameof(Master2))]
+            [RequiredWith(nameof(Master1))]
+            [RequiredWith(nameof(Master2))]
             public string Dependency { get; set; }
-        }
-
-        class TestParamsTwoMasterWithEitherOr
-        {
-            [Parameter("master1")]
-            [Optional]
-            public string Master1 { get; set; }
-
-            [Parameter("master2")]
-            [Optional]
-            public string Master2 { get; set; }
-
-            [Parameter("dependency1")]
-            [RequiredWithAttribute(nameof(Master1))]
-            [RequiredWithAttribute(nameof(Master2))]
-            [EitherOr("group1")]
-            public string Dependency1 { get; set; }
-
-            [Parameter("dependency2")]
-            [EitherOr("group1")]
-            public string Dependency2 { get; set; }
         }
     }
 }

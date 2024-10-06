@@ -3,122 +3,105 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Andy.Cmd.Parameter
 {
     public class EitherOr_Tests
     {
         ParameterReader target;
-        Mock<ParameterValueResolver> resolver;
+        Mock<IParameterValueResolver> resolver;
+        Mock<IDictionary<string, string[]>> fakeArgs;
 
-        public EitherOr_Tests()
+        [SetUp]
+        public void SetUp()
         {
-            resolver = new Mock<ParameterValueResolver>();
+            resolver = new Mock<IParameterValueResolver>();
             target = new ParameterReader(resolver.Object);
+
+            fakeArgs = new Mock<IDictionary<string, string[]>>();
         }
 
-        [TestCase("0")]
-        [TestCase("a value with spaces")]
-        public void One_Parameter_HasValue__Other_IsNotPresent__Must_SetTheValue(string value)
+        [TestCase(nameof(TestParams.One), "Wassup?")]
+        [TestCase(nameof(TestParams.One), "a value with spaces")]
+        [TestCase(nameof(TestParams.One), "")]
+        [TestCase(nameof(TestParams.Two), 1)]
+        [TestCase(nameof(TestParams.Two), -1)]
+        [TestCase(nameof(TestParams.Two), 0)]
+        [TestCase(nameof(TestParams.Three), new[] { "one" })]
+        [TestCase(nameof(TestParams.Three), new[] { "" })]
+        [TestCase(nameof(TestParams.Three), new string[0])]
+        public void One_Parameter_HasValue__Other_Not__Must_Pass(string propertyName, object value)
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new [] { value } }
-            };
-            var result = target.GetParameters<TestParams>(argvs);
+            var property = typeof(TestParams).GetProperty(propertyName);
+            Set_ParameterValueResolver_Up<TestParams>(property, value);
 
-            Assert.AreEqual(value, result.One);
-            Assert.IsNull(result.Two);
+            Assert.DoesNotThrow(() => target.GetParameters<TestParams>(fakeArgs.Object));
         }
 
-        [TestCase("10")]
-        [TestCase("another value")]
-        public void One_Parameter_HasValue__Other_IsNotPresent__Must_SetTheValue__Case2(string value)
+        
+        [TestCase("ichi", 1, new[] { "a"})]
+        [TestCase("ni", null, new[] { "b"})]
+        [TestCase("san", 3, null)]
+        [TestCase(null, 667, new[] { "c"})]
+        public void More_Than_One_Paramter_HasValues__Must_Reject(string firstArgValue, int? secondArgValue, string[] thirdArgValue)
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg2", new [] { value } }
-            };
-            var result = target.GetParameters<TestParams>(argvs);
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.One));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
+            var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Three));
+            Set_ParameterValueResolver_Up<TestParams>(property1, firstArgValue);
+            Set_ParameterValueResolver_Up<TestParams>(property2, secondArgValue);
+            Set_ParameterValueResolver_Up<TestParams>(property3, thirdArgValue);
 
-            Assert.AreEqual(value, result.Two);
-            Assert.IsNull(result.One);
-        }
-
-        [TestCase("one value", "another value")]
-        [TestCase("a", "value, too")]
-        public void Both_Paramters_HaveValues__Must_Reject(string firstArgValue, string secondArgValue)
-        {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new [] { firstArgValue } },
-                { "arg2", new[] { secondArgValue } }
-            };
             Assert.Throws<ParameterGroupException>(
-                () => target.GetParameters<TestParams>(argvs));
-        }
-
-        [TestCase(null, "goode")]
-        [TestCase("value good", null)]
-        [TestCase("value good", "")]
-        public void One_Parameter_HasNoValue__Must_Reject(string first, string second)
-        {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new string[] { first } },
-                { "arg2", new string[] { second } }
-            };
-            Assert.Throws<ParameterEmptyException>(
-                () => target.GetParameters<TestParams>(argvs));
-        }
-
-        [TestCase(null)]
-        [TestCase("")]
-        public void Neither_Parameter_HasValue__Must_Reject(string value)
-        {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new string[] { value } },
-                { "arg2", new string[] { value } }
-            };
-            Assert.Throws<ParameterEmptyException>(
-                () => target.GetParameters<TestParams>(argvs));
+                () => target.GetParameters<TestParams>(fakeArgs.Object));
         }
 
         [Test]
-        public void Neither_Parameter_IsPresent__Must_Reject()
+        public void Neither_Parameter_HasValue__Must_Reject()
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg0", new string[] { "value" } }
-            };
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.One));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
+            var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Three));
+            Set_ParameterValueResolver_Up<TestParams>(property1, null);
+            Set_ParameterValueResolver_Up<TestParams>(property2, null);
+            Set_ParameterValueResolver_Up<TestParams>(property3, null);
+
             Assert.Throws<ParameterGroupException>(
-                () => target.GetParameters<TestParams>(argvs));
+                () => target.GetParameters<TestParams>(fakeArgs.Object));
         }
 
-        [TestCase("")]
-        public void EmptyString_Not_Accepted(string value)
+        [TestCase("something", "nothing")]
+        [TestCase("", "")]
+        public void When__NoOtherParam_Has_TheSameKey__Must_Reject(string value1, string value2)
         {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new [] { value } }
-            };
-            Assert.Throws<ParameterEmptyException>(
-                () => target.GetParameters<TestParams>(argvs));
-        }
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParamsDifferentKeys.One));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParamsDifferentKeys.Two));
+            Set_ParameterValueResolver_Up<TestParams>(property1, value1);
+            Set_ParameterValueResolver_Up<TestParams>(property2, value2);
 
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("a value with spaces")]
-        public void When__NoOtherParamHasTheSameKey__Must_Reject(string value)
-        {
-            var argvs = new Dictionary<string, string[]>
-            {
-                { "arg1", new [] { value } }
-            };
             Assert.Throws<InvalidOperationException>(
-                () => target.GetParameters<TestParams2>(argvs));
+                () => target.GetParameters<TestParamsDifferentKeys>(fakeArgs.Object));
         }
+
+        void Set_ParameterValueResolver_Up<TParams>(PropertyInfo property, object value)
+        {
+            Set_ParameterValueResolver_Up<TParams>(resolver, property, value);
+        }
+
+        public static void Set_ParameterValueResolver_Up<TParams>(Mock<IParameterValueResolver> resolver, PropertyInfo property, object value)
+        {
+            resolver.Setup(
+                x => x.ReadParameter<TParams>(
+                    It.Is<PropertyInfo>(
+                        arg => arg == property),
+                    It.IsAny<IDictionary<string, string[]>>(),
+                    It.IsAny<TParams>(),
+                    It.IsAny<bool>()))
+                .Callback<PropertyInfo, IDictionary<string, string[]>, TParams, bool>(
+                    (property, b, instance, d) => property.SetValue(instance, value));
+        }
+
 
         class TestParams
         {
@@ -128,10 +111,14 @@ namespace Andy.Cmd.Parameter
 
             [Parameter("arg2")]
             [EitherOr("key1")]
-            public string Two { get; set; }
+            public int? Two { get; set; }
+
+            [Parameter("arg3")]
+            [EitherOr("key1")]
+            public string[] Three { get; set; }
         }
 
-        class TestParams2
+        class TestParamsDifferentKeys
         {
             [Parameter("arg1")]
             [EitherOr("key1")]

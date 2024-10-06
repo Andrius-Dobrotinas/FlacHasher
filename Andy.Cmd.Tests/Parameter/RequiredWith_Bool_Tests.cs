@@ -9,91 +9,75 @@ namespace Andy.Cmd.Parameter
     public class RequiredWith_Bool_Tests
     {
         ParameterReader target;
-        Mock<ParameterValueResolver> resolver;
+        Mock<IParameterValueResolver> resolver;
+        Mock<IDictionary<string, string[]>> fakeArgs;
 
-        public RequiredWith_Bool_Tests()
+        [SetUp]
+        public void SetUp()
         {
-            resolver = new Mock<ParameterValueResolver>();
+            resolver = new Mock<IParameterValueResolver>();
             target = new ParameterReader(resolver.Object);
+
+            fakeArgs = new Mock<IDictionary<string, string[]>>();
         }
 
         [Test]
         public void When__MasterProperty_IsTrue__And_Target_NoValue__Must_Reject()
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "true" } }
-            };
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, true);
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParams>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(
+                () => target.GetParameters<TestParams>(fakeArgs.Object));
             Assert.AreEqual(nameof(TestParams.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
         [Test]
         public void When__Nullable_MasterProperty_IsTrue__And_Target_NoValue__Must_Reject()
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "true" } }
-            };
+            var property1 = typeof(TestParamsNullable).GetProperty(nameof(TestParamsNullable.Master));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsNullable>(resolver, property1, true);
 
-            var exception = Assert.Throws<ParameterDependencyUnmetException>(() => target.GetParameters<TestParamsNullable>(argvs));
+            var exception = Assert.Throws<ParameterDependencyUnmetException>(
+                () => target.GetParameters<TestParamsNullable>(fakeArgs.Object));
             Assert.AreEqual(nameof(TestParamsNullable.Dependency), exception.ParameterProperty?.Name, "Paramter name");
         }
 
         [TestCase(true, "goo")]
-        [TestCase(false, "goo")]
-        public void When__MasterProperty_HasValue__And_Target_HasValue__Must_Pass(bool masterValue, string value)
+        [TestCase(false, "Title tk")]
+        public void When__MasterProperty_Has_AnyValue__And_Target_HasValue__Must_Pass(bool masterValue, string value)
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { masterValue.ToString() } },
-                { "dependency", new [] { value } }
-            };
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
+            var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, masterValue);
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value);
 
-            var result = target.GetParameters<TestParams>(argvs);
-
-            Assert.AreEqual(value, result.Dependency, "Target");
-            Assert.AreEqual(masterValue, result.Master, "Master");
+            Assert.DoesNotThrow(() => target.GetParameters<TestParams>(fakeArgs.Object));
         }
 
         [Test]
         public void When__MasterProperty_IsFalse__And_Target_NoValue__Must_BeCool()
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "master", new [] { "false" } }
-            };
+            var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, false);
 
-            var result = target.GetParameters<TestParamsNullable>(argvs);
-
-            Assert.IsNull(result.Dependency, "Target");
-            Assert.IsFalse(result.Master, "Master");
+            Assert.DoesNotThrow(() => target.GetParameters<TestParamsNullable>(fakeArgs.Object));
         }
 
         [Test]
-        public void When__Nullable_MasterProperty_HasNoValue__And_Target_NoValue__Must_BeCool()
+        public void When__Nullable_MasterProperty_Has_NoValue__And_Target_NoValue__Must_BeCool()
         {
-            var argvs = new Dictionary<string, string[]>();
-
-            var result = target.GetParameters<TestParamsNullable>(argvs);
-
-            Assert.IsNull(result.Dependency, "Target");
-            Assert.IsNull(result.Master, "Master");
+            Assert.DoesNotThrow(() => target.GetParameters<TestParamsNullable>(fakeArgs.Object));
         }
 
-        [Test]
-        public void When__Nullable_MasterProperty_HasNoValue__And_Target_HasValue__Must_BeCool()
+        [TestCase("Anything")]
+        [TestCase("You want")]
+        public void When__Nullable_MasterProperty_Has_NoValue__And_Target_HasValue__Must_BeCool(string value)
         {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "dependency", new [] { "wazzaa!" } }
-            };
+            var property1 = typeof(TestParamsNullable).GetProperty(nameof(TestParamsNullable.Dependency));
+            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsNullable>(resolver, property1, value);
 
-            var result = target.GetParameters<TestParamsNullable>(argvs);
-
-            Assert.AreEqual("wazzaa!", result.Dependency, "Target");
-            Assert.IsNull(result.Master, "Master");
+            Assert.DoesNotThrow(() => target.GetParameters<TestParamsNullable>(fakeArgs.Object));
         }
 
         class TestParams
@@ -103,7 +87,7 @@ namespace Andy.Cmd.Parameter
             public bool Master { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWithAttribute(nameof(Master))]
+            [RequiredWith(nameof(Master))]
             public string Dependency { get; set; }
         }
 
@@ -113,7 +97,7 @@ namespace Andy.Cmd.Parameter
             public bool? Master { get; set; }
 
             [Parameter("dependency")]
-            [RequiredWithAttribute(nameof(Master))]
+            [RequiredWith(nameof(Master))]
             public string Dependency { get; set; }
         }
     }
