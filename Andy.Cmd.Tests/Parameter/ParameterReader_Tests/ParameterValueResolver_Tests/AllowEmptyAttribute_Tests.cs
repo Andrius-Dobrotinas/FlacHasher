@@ -99,7 +99,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams2.Primitive_Bool))]
         [TestCase(nameof(TestParams2.Primitive_Bool_Optional))]
         [TestCase(nameof(TestParams2.Nullable_Primitive_Bool))]
-        public void NotSupported__On_Primitive_And_NullablePrimitive_And_Array_Types__EvenWhenParamIsNotPresent(string propertyName)
+        public void NotSupported__On_Primitive_And_NullablePrimitive_Types__Even_When_Param_IsNotPresent(string propertyName)
         {
             var argvs = new Dictionary<string, string[]>
             {

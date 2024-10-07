@@ -388,7 +388,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive), 555)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_False), false)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), true)]
-        public void Optional_With_DefaultValue__Specified__Parameter_NotProvided__Must__Return_Configured_DefaultValue(string propertyName, object expectedValue)
+        public void Optional__With_DefaultValue_Specified__Parameter_NotProvided__Must__Return_Configured_DefaultValue(string propertyName, object expectedValue)
         {
             var argvs = new Dictionary<string, string[]>();
             var result = new TestParams_OptionalWithDefaultValue();
@@ -412,7 +412,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_False), "\t")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), "")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), "\t")]
-        public void Optional_With_DefaultValue__Specified__Parameter_ValueIs_EmptyString_OrWhitespace__Must_Reject(string propertyName, string value)
+        public void Optional__With_DefaultValue_Specified__Parameter_ValueIs_EmptyString_OrWhitespace__Must_Reject(string propertyName, string value)
         {
             var argvs = new Dictionary<string, string[]>()
             {
@@ -427,7 +427,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.String))]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive))]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive))]
-        public void Optional_With_DefaultValue__Specified__NonBoolean_Parameter_NoValue__Must_Reject(string propertyName)
+        public void Optional__With_DefaultValue_Specified__NonBoolean_Parameter_NoValue__Must_Reject(string propertyName)
         {
             var argvs = new Dictionary<string, string[]>()
             {
@@ -438,7 +438,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
             Assert.Throws<ParameterEmptyException>(() => target.ReadParameter(prop, argvs, result));
         }
-
+            
         class TestParams
         {
             [Parameter("--arg1")]
