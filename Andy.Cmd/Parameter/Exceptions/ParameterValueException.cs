@@ -6,7 +6,7 @@ namespace Andy.Cmd.Parameter
     {
         public string ParameterName { get; set; }
 
-        public ParameterValueException(string message, string paramName) : base($"{message}: {paramName}")
+        public ParameterValueException(string message, string paramName) : base($"{message} (param: {paramName})")
         {
             ParameterName = paramName;
         }
