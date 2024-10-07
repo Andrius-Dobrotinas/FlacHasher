@@ -1,15 +1,15 @@
 ﻿using Andy.Cmd.Parameter;
 using Andy.FlacHash.Cmd;
+using Andy.FlacHash.Hashing.Verification;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Andy.FlacHash.Win
 {
     public class Settings : ApplicationSettings
     {
         [IniEntry(nameof(HashfileExtensions))]
-        [Optional]
+        [Optional(defaultValue: FileHashMap.DefaultExtension)]
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]
