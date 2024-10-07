@@ -11,7 +11,7 @@ namespace Andy.Cmd.Parameter
         {
         }
 
-        public BadParameterValueException(string paramName, Exception e) : this(e.Message, paramName)
+        public BadParameterValueException(string paramName, Exception e) : this(paramName, e.Message)
         {
         }
     }
