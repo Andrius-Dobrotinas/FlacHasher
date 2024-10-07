@@ -146,8 +146,6 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests.
         [TestCase(nameof(TestParams.Regular), "great", " ")]
         [TestCase(nameof(TestParams.Regular), "\t", "not bad")]
         [TestCase(nameof(TestParams.Regular), "not bad", "\t")]
-        [TestCase(nameof(TestParams.Regular), "a'ight?", null)]
-        [TestCase(nameof(TestParams.Regular), null, "a'ight")]
         [TestCase(nameof(TestParams.Optional), "", "good")]
         [TestCase(nameof(TestParams.Optional), "good", "\t")]
         [TestCase(nameof(TestParams.EmptyAllowed), "", "good")]

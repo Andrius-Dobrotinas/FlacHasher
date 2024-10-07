@@ -17,7 +17,13 @@ namespace Andy.Cmd
 
             return args.Select(argParser.Parse)
                 .GroupBy(x => x.Key, x=> x.Value)
-                .ToDictionary(x => x.Key, x => x.ToArray());
+                .ToDictionary(
+                    x => x.Key,
+                    x =>
+                    {
+                        var values = x.Where(x => x != null).ToArray();
+                        return values.Any() ? values : new string[] { null };
+                    });
         }
     }
 }
