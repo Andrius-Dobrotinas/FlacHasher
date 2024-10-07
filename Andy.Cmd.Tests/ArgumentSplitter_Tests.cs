@@ -81,17 +81,13 @@ namespace Andy.Cmd
             Assert.AreEqual(2, result.First().Value.Length);
         }
 
-        [TestCase(new[] { "arg1=Valu1", "arg1=Val Kilmer", "arg1" }, new[] { "Valu1", "Val Kilmer" })]
-        [TestCase(new[] { "arg1", "arg1", "arg1" }, new string[] { null })]
-        [TestCase(new[] { "arg1=Valu1", "arg1", "arg1=" }, new[] { "Valu1", "" })]
-        public void RepeatedArgument__Must_Discard_Repeated_Args_Without_Values(string[] input, string[] expectedValue)
+        [TestCase(new[] { "arg1=Valu1", "arg1=Val Kilmer", "arg1" }, "arg1")]
+        [TestCase(new[] { "arg1", "arg1", "arg1" }, "arg1")]
+        [TestCase(new[] { "arg1=Valu1", "arg1", "arg1=" }, "arg1")]
+        public void RepeatedArgument__When_There_Are_Repeated_Args_Without_Values__Must_Reject_InColdBlood(string[] input, string paramName)
         {
-            var result = ArgumentSplitter.GetArguments(input);
-
-            Assert.AreEqual(1, result.Count);
-            var values = result.Values.First();
-            AssertThat.CollectionsMatchExactly(values, expectedValue);
-            Assert.AreEqual(expectedValue, values);
+            var exception = Assert.Throws<ArgumentException>(() => ArgumentSplitter.GetArguments(input));
+            Assert.AreEqual(paramName, exception.ParamName);
         }
     }
 }

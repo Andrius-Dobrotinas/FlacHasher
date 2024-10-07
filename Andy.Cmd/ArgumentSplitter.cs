@@ -21,8 +21,14 @@ namespace Andy.Cmd
                     x => x.Key,
                     x =>
                     {
-                        var values = x.Where(x => x != null).ToArray();
-                        return values.Any() ? values : new string[] { null };
+                        var values = x.ToArray();
+                        var flagCount = values.Count(x => x == null);
+                        var nonFlagCount = values.Count(x => x != null);
+                        if (nonFlagCount > 0 && flagCount > 0)
+                            throw new ArgumentException($"A parameter can't be supplied as a mix of key=value pairs and flags", x.Key);
+                        else if (flagCount > 1)
+                            throw new ArgumentException($"A flag parameter can't be supplied more than once", x.Key);
+                        return values;
                     });
         }
     }
