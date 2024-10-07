@@ -54,7 +54,7 @@ namespace Andy.Cmd.Parameter
             }
             else if (IsNullablePrimitiveType(type))
             {
-                var actualType = type.GenericTypeArguments.SingleOrDefault() ?? throw new NotSupportedException($"Expected a nullable value type to only have one generic type parameter: {type.FullName}");
+                var actualType = type.GenericTypeArguments.SingleOrDefault() ?? throw new InvalidOperationException($"Expected a nullable value type to have exactly one generic type parameter: {type.FullName}");
                 if (!actualType.IsPrimitive)
                     throw new NotImplementedException("Non-primitive value type");
 
