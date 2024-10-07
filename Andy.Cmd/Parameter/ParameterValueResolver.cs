@@ -42,10 +42,6 @@ namespace Andy.Cmd.Parameter
                 && !(propertyType == typeof(string) || propertyType.IsArray))
                 throw new NotSupportedException($"{nameof(AllowEmptyAttribute)} is only applicable to String and Optional Array type parameters. Property: {property.Name}");
 
-            if (isOptional && optionalAttr.DefaultValue != null
-                && propertyType.IsArray)
-                throw new NotSupportedException($"Optional Array type parameters can't have default values - there's no good reason for that. Property: {property.Name}");
-
             var paramNamesPrioritized = paramAttrs.OrderBy(x => x.Order).Select(x => x.Name);
             if (inLowercase)
                 paramNamesPrioritized = paramNamesPrioritized.Select(x => x.ToLowerInvariant());
@@ -69,7 +65,7 @@ namespace Andy.Cmd.Parameter
                     if (elementType != typeof(string))
                         throw new NotSupportedException($"Array of other than Strings is not supported: {property.Name}, {propertyType.FullName}");
 
-                    HandleArrayParam(arguments, property, paramNamesPrioritized, isOptional, isEmptyAllowed, paramsInstances);
+                    HandleArrayParam(arguments, property, paramNamesPrioritized, optionalAttr, isEmptyAllowed, paramsInstances);
                 }
                 else
                     throw new NotSupportedException($"Not supported type: {property.Name} ({propertyType.FullName})");
@@ -109,7 +105,7 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static void HandleArrayParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, IEnumerable<string> paramNamesPrioritized, bool isOptional, bool isEmptyAllowed, TTarget paramsInstances)
+        static void HandleArrayParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, IEnumerable<string> paramNamesPrioritized, OptionalAttribute optionalAttr, bool isEmptyAllowed, TTarget paramsInstances)
         {
             if (!paramNamesPrioritized.Any())
                 throw new ArgumentOutOfRangeException(nameof(paramNamesPrioritized), "At least one parameter name must be provided");
@@ -120,8 +116,18 @@ namespace Andy.Cmd.Parameter
 
             if (!argExists)
             {
+                var isOptional = optionalAttr != null;
                 if (isOptional)
+                {
+                    if (optionalAttr.DefaultValue != null)
+                    {
+                        var split = optionalAttr.DefaultValue is string[]
+                            ? (string[])optionalAttr.DefaultValue
+                            : ((string)optionalAttr.DefaultValue).Split(ArrayValueSeparator);
+                        ParameterValueResolverFunctions.SetArrayValueTrimmed(paramsInstances, property, paramName, split);
+                    }
                     return;
+                }
                 else
                     throw new ParameterMissingException(property);
             }

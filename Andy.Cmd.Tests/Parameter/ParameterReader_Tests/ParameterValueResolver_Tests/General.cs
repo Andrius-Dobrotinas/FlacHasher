@@ -153,6 +153,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams.StringArray_Optional), "")]
         [TestCase(nameof(TestParams.StringArray_Optional), " ")]
         [TestCase(nameof(TestParams.StringArray_Optional), "\t")]
+        [TestCase(nameof(TestParams.StringArray_Optional_DefaultValue), "")]
+        [TestCase(nameof(TestParams.StringArray_Optional_DefaultValue), " ")]
+        [TestCase(nameof(TestParams.StringArray_Optional_DefaultValue), "\t")]
         public void EmptyString_OrWhitespace_Value__Must_Reject(string propertyName, string value)
         {
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == propertyName);
@@ -303,6 +306,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             Assert.AreEqual(expectedValue, prop.GetValue(result));
         }
 
+        // TODO: I'm pretty sure Optional+DefaultValue won't pass this -- it will use the default value for the mising param and call it a day
         [TestCase(nameof(TestParamsMultiple.String), "value 1", "value 1")]
         [TestCase(nameof(TestParamsMultiple.String), "value too", "value too")]
         [TestCase(nameof(TestParamsMultiple.Primitive), "10", 10)]
@@ -388,6 +392,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive), 555)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_False), false)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), true)]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), new string[] { "wazaa!!" } )]
         public void Optional__With_DefaultValue_Specified__Parameter_NotProvided__Must__Return_Configured_DefaultValue(string propertyName, object expectedValue)
         {
             var argvs = new Dictionary<string, string[]>();
@@ -412,6 +417,8 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_False), "\t")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), "")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), "\t")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), "")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), "\t")]
         public void Optional__With_DefaultValue_Specified__Parameter_ValueIs_EmptyString_OrWhitespace__Must_Reject(string propertyName, string value)
         {
             var argvs = new Dictionary<string, string[]>()
@@ -427,6 +434,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.String))]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive))]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive))]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array))]
         public void Optional__With_DefaultValue_Specified__NonBoolean_Parameter_NoValue__Must_Reject(string propertyName)
         {
             var argvs = new Dictionary<string, string[]>()
@@ -504,6 +512,10 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             public string[] StringArray_Optional { get; set; }
 
             [Parameter("arg")]
+            [Optional(defaultValue: new string[] { "one" })]
+            public string[] StringArray_Optional_DefaultValue { get; set; }
+
+            [Parameter("arg")]
             [AllowEmpty]
             public string[] StringArray_AllowEmpty { get; set; }
         }
@@ -573,6 +585,10 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             [Parameter("arg")]
             [Optional(defaultValue: true)]
             public bool? Nullable_Primitive_Bool_True { get; set; }
+
+            [Parameter("arg")]
+            [Optional(defaultValue: new string[] { "wazaa!!" })]
+            public string[] Array { get; set; }
         }
 
         class TestParamsMultiple
