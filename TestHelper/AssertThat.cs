@@ -39,6 +39,13 @@ namespace Andy
         /// </summary>
         public static void CollectionsMatchExactly<T>(IEnumerable<T> target, IEnumerable<T> expected, Func<T, string> toString, string testName = null)
         {
+            if (target == null)
+                throw new ArgumentNullException(nameof(target));
+            if (expected == null)
+                throw new ArgumentNullException(nameof(target));
+            if (toString == null)
+                throw new ArgumentNullException(nameof(toString));
+
             var targetEnumerated = target.ToList();
             var expectedEnumerated = expected.ToList();
 
