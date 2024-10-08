@@ -11,6 +11,27 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
     {
         ParameterValueResolver target = new ParameterValueResolver();
 
+        [TestCase(nameof(TestParams_DiffererentParamNames.One), "arg 1 value", "arg 1 value")]
+        [TestCase(nameof(TestParams_DiffererentParamNames.Two), "Other Value", "Other Value")]
+        [TestCase(nameof(TestParams_DiffererentParamNames.Three), "arg 1 Another value", "arg 1 Another value")]
+        public void PropertyValue_BasedOn_ParameterName_From_ParameterAttribute(string propertyName, string value, object expectedValue)
+        {
+            var prop = typeof(TestParams_DiffererentParamNames).GetProperties().First(x => x.Name == propertyName);
+            var attr = prop.GetCustomAttribute<ParameterAttribute>();
+
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "--arg0", new [] { "wrong arg value" } },
+                { attr.Name, new [] { value } },
+                { "arg0", new [] { "wrong arg alue, again!" } }
+            };
+
+            var result = new TestParams_DiffererentParamNames();
+            target.ReadParameter(prop, argvs, result);
+
+            Assert.AreEqual(expectedValue, prop.GetValue(result));
+        }
+
         [TestCase(nameof(TestParams.String), "arg 1 value", "arg 1 value")]
         [TestCase(nameof(TestParams.StringAnother), "Other Value", "Other Value")]
         [TestCase(nameof(TestParams.String_Optional), "arg 1 Optional value", "arg 1 Optional value")]
@@ -35,7 +56,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams.Nullable_Primitive_Bool_Optional_DefaultValue_True), "false", false)]
         [TestCase(nameof(TestParams.StringArray), "false", new[] { "false" })]
         [TestCase(nameof(TestParams.StringArray_Optional), "false", new[] { "false" })]
-        public void PopulateParameters_BasedOn_Name_From_ParameterAttribute__Parsing_Value_AsTargetType(string propertyName, string value, object expectedValue)
+        public void Parse_ParameterValue__As_Its_Property_Type(string propertyName, string value, object expectedValue)
         {
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == propertyName);
             var attr = prop.GetCustomAttribute<ParameterAttribute>();
@@ -446,7 +467,19 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
             Assert.Throws<ParameterEmptyException>(() => target.ReadParameter(prop, argvs, result));
         }
-            
+
+        class TestParams_DiffererentParamNames
+        {
+            [Parameter("--arg1")]
+            public string One { get; set; }
+
+            [Parameter("arg1")]
+            public string Two { get; set; }
+
+            [Parameter("Third")]
+            public string Three { get; set; }
+        }
+
         class TestParams
         {
             [Parameter("--arg1")]
