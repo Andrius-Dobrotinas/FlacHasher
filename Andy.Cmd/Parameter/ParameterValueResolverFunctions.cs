@@ -7,10 +7,13 @@ namespace Andy.Cmd.Parameter
 {
     internal class ParameterValueResolverFunctions
     {
-        internal static bool IsNullablePrimitiveType(Type type)
+        internal static bool IsNullablePrimitiveOrEnumType(Type type)
         {
-            return IsNullableValueType(type) && type.GenericTypeArguments.Single().IsPrimitive;
+            return IsNullableValueType(type) && IsPrimitiveOrEnum(type.GenericTypeArguments.Single());
         }
+
+        static bool IsPrimitiveOrEnum(Type type)
+            => type.IsPrimitive || type.IsEnum;
 
         /// <summary>
         /// Tells whether a non-null string is empty or whitespace.
@@ -52,10 +55,19 @@ namespace Andy.Cmd.Parameter
                 }
                 return Convert.ChangeType(value, type);
             }
-            else if (IsNullablePrimitiveType(type))
+            else if (type.IsEnum)
+            {
+                object result;
+                if (Enum.TryParse(type, value, ignoreCase: true, out result)
+                    && EnumContainsValue(type, result)) // to take care of integers that are out of range (Enum parses them alright)
+                    return result;
+                else
+                    throw new FormatException("Value out of range");
+            }
+            else if (IsNullablePrimitiveOrEnumType(type))
             {
                 var actualType = type.GenericTypeArguments.SingleOrDefault() ?? throw new InvalidOperationException($"Expected a nullable value type to have exactly one generic type parameter: {type.FullName}");
-                if (!actualType.IsPrimitive)
+                if (!(actualType.IsPrimitive || actualType.IsEnum))
                     throw new NotImplementedException("Non-primitive value type");
 
                 return ParseNonNullPrimitive(value, actualType);
@@ -78,6 +90,15 @@ namespace Andy.Cmd.Parameter
 
             foundParamName = null;
             values = null;
+            return false;
+        }
+
+        static bool EnumContainsValue(Type type, object targetValue)
+        {
+            foreach (var acceptedValue in Enum.GetValues(type))
+            {
+                if (acceptedValue.Equals(targetValue)) return true;
+            }
             return false;
         }
     }

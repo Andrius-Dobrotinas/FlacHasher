@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using static Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests.General;
 
 namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 {
@@ -81,6 +82,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams2.Primitive_Bool_Optional), null)]
         [TestCase(nameof(TestParams2.Nullable_Primitive_Bool), "")]
         [TestCase(nameof(TestParams2.Nullable_Primitive_Bool), null)]
+        [TestCase(nameof(TestParams2.Enum), null)]
+        [TestCase(nameof(TestParams2.Enum), "")]
+        [TestCase(nameof(TestParams2.Enum_Optional), null)]
+        [TestCase(nameof(TestParams2.Enum_Optional), "")]
+        [TestCase(nameof(TestParams2.Nullable_Enum), null)]
+        [TestCase(nameof(TestParams2.Nullable_Enum), "")]
         public void NotSupported__On_Primitive_And_NullablePrimitive_And_Array_Types(string propertyName, string value)
         {
             var argvs = new Dictionary<string, string[]>
@@ -178,6 +185,19 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             [Optional]
             [AllowEmpty]
             public bool Primitive_Bool_Optional { get; set; }
+
+            [Parameter("arg")]
+            [AllowEmpty]
+            public TestEnum Enum { get; set; }
+
+            [Parameter("arg")]
+            [AllowEmpty]
+            public TestEnum? Nullable_Enum { get; set; }
+
+            [Parameter("arg")]
+            [Optional]
+            [AllowEmpty]
+            public TestEnum Enum_Optional { get; set; }
         }
     }
 }

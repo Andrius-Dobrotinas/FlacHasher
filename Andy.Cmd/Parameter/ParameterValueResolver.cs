@@ -23,7 +23,8 @@ namespace Andy.Cmd.Parameter
             var propertyType = property.PropertyType;
             if (!(propertyType == typeof(string)
                 || propertyType.IsPrimitive
-                || ParameterValueResolverFunctions.IsNullablePrimitiveType(propertyType)
+                || propertyType.IsEnum
+                || ParameterValueResolverFunctions.IsNullablePrimitiveOrEnumType(propertyType)
                 || (propertyType.IsArray && propertyType.HasElementType)))
                 throw new NotSupportedException($"Only primitive value types, strings and arrays strings have been implemented. Property: {property.Name}");
 
@@ -174,7 +175,7 @@ namespace Andy.Cmd.Parameter
             var propertyType = property.PropertyType;
             var isOptional = optionalAttr != null;
 
-            if (propertyType.IsPrimitive || ParameterValueResolverFunctions.IsNullablePrimitiveType(propertyType))
+            if (propertyType.IsPrimitive || propertyType.IsEnum || ParameterValueResolverFunctions.IsNullablePrimitiveOrEnumType(propertyType))
             {
                 string paramName;
                 string[] values;
@@ -187,7 +188,7 @@ namespace Andy.Cmd.Parameter
                             property.SetValue(paramsInstances, optionalAttr.DefaultValue);
                         return;
                     }
-                    else if (ParameterValueResolverFunctions.IsNullablePrimitiveType(propertyType))
+                    else if (ParameterValueResolverFunctions.IsNullablePrimitiveOrEnumType(propertyType))
                     {
                         // keep the value null
                         return;
