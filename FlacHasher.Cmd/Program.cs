@@ -87,7 +87,7 @@ namespace Andy.FlacHash.Cmd
             {
                 var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
                 FileInfo decoderFile = new FileInfo(settings.Decoder);
-                Algorithm hashAlgorithm = ExecutionParameterResolver.ParseHashAlgorithmOrGetDefault(settings.HashAlgorithm);
+                Algorithm hashAlgorithm = settings.HashAlgorithm;
                 bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(settings, fileSearch);
 

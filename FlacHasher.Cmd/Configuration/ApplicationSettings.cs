@@ -31,11 +31,10 @@ namespace Andy.FlacHash.Cmd
         [IniEntry(nameof(ProcessStartWaitMs))]
         public int? ProcessStartWaitMs { get; set; }
 
-        // TODO: a default value is used when this is empty. Should I change this to Enum type?
         [CmdLineParameter(ParameterNames.HashAlgorithm, Order = 0)]
         [IniEntry(nameof(HashAlgorithm), Order = 1)]
-        [Optional]
-        public string HashAlgorithm { get; set; }
+        [Optional(defaultValue: Defaults.HashAlgorithm)]
+        public Algorithm HashAlgorithm { get; set; }
 
         [CmdLineParameter(ParameterNames.FailOnError, Order = 0)]
         [IniEntry(nameof(FailOnError), Order = 1)]
@@ -49,7 +48,7 @@ namespace Andy.FlacHash.Cmd
 
         public static class Defaults
         {
-            public static Algorithm HashAlgorithm = Algorithm.SHA256;
+            public const Algorithm HashAlgorithm = Algorithm.SHA256;
         }
     }
 }

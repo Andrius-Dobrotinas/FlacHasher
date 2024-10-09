@@ -31,16 +31,5 @@ namespace Andy.FlacHash.Cmd
 
             throw new ConfigurationException("No input files or directory has been specified");
         }
-
-        public static Algorithm ParseHashAlgorithmOrGetDefault(string algo)
-        {
-            if (algo == null)
-                return ApplicationSettings.Defaults.HashAlgorithm;
-
-            Algorithm value;
-            if (!Enum.TryParse(algo.ToUpperInvariant(), out value))
-                throw new ConfigurationException($"The specified Hash algorithm is not supported: {algo}");
-            return value;
-        }
     }
 }
