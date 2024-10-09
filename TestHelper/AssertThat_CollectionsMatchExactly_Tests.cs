@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Andy
 {
-    public class AssertThat_Tests
+    public class AssertThat_CollectionsMatchExactly_Tests
     {
         [Test]
         public void When_Both_Collections_HaveTheSameElementsInTheSameOrder__Must_Pass()
