@@ -5,7 +5,12 @@ using System.Linq;
 
 namespace Andy.FlacHash.Hashing
 {
-    public class FileSearch
+    public interface IFileSearch
+    {
+        IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, string fileExtension);
+    }
+
+    public class FileSearch : IFileSearch
     {
         private bool includeHidden;
 
