@@ -10,6 +10,29 @@ namespace Andy
         private static string DefaultToString<T>(T @object) => @object?.ToString() ?? "<null>";
 
         /// <summary>
+        /// Checks whether a given <paramref name="value"/> is one of the <paramref name="acceptedValues"/>
+        /// </summary>
+        /// <exception cref="AssertionException"></exception>
+        public static void IsIn<T>(T value, IEnumerable<T> acceptedValues, string reason = null)
+        {
+            IsIn(value, acceptedValues, DefaultToString, reason);
+        }
+
+
+
+        public static void IsIn<T>(T value, IEnumerable<T> acceptedValues, Func<T, string> toString, string reason = null)
+        {
+            var contains = acceptedValues.Intersect(new[] { value });
+            if (!contains.Any())
+            {
+                var reasonStr = reason != null
+                    ? $"because {reason}"
+                    : "";
+                throw new AssertionException($"The value has to be one in a given range of values{reasonStr}. Expected one of\n{FormatAsJsArray(acceptedValues, toString)}\nGot: {toString(value)}");
+            }
+        }
+
+        /// <summary>
         /// Verifies that the <paramref name="target"/> collection doesn't contain any elements from <paramref name="unexpected"/>.
         /// </summary>
         public static void DoesNotContainAny(IEnumerable<string> target, IEnumerable<string> unexpected, string reason = null)
