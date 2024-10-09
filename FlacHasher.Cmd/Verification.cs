@@ -16,10 +16,10 @@ namespace Andy.FlacHash.Cmd
     {
         public interface IHashfileParams
         {
-            public string HashFile { get; set; }
-            public string[] HashfileExtensions { get; set; }
-            public string HashfileEntrySeparator { get; set; }
-            public string InputDirectory { get; set; }
+            string HashFile { get; set; }
+            string[] HashfileExtensions { get; set; }
+            string HashfileEntrySeparator { get; set; }
+            string InputDirectory { get; set; }
         }
 
         /// <summary>
