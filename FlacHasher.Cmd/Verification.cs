@@ -144,7 +144,7 @@ namespace Andy.FlacHash.Cmd
                 if (hashfileExtensions == null || !hashfileExtensions.Any())
                     hashfileExtensions = new string[] { $".{FileHashMap.DefaultExtension}" };
 
-                return hashfileExtensions;
+                return hashfileExtensions.Select(ext => $".{ext}").ToArray();
             }
         }
 
