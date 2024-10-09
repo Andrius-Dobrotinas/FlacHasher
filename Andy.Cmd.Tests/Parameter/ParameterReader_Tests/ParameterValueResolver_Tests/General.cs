@@ -33,29 +33,28 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         }
 
         [TestCase(nameof(TestParams.String), "arg 1 value", "arg 1 value")]
-        [TestCase(nameof(TestParams.StringAnother), "Other Value", "Other Value")]
         [TestCase(nameof(TestParams.String_Optional), "arg 1 Optional value", "arg 1 Optional value")]
+        [TestCase(nameof(TestParams.String_Optional_DefaultValue), "GT86", "GT86")]
         [TestCase(nameof(TestParams.Primitive), "0", 0)]
         [TestCase(nameof(TestParams.Primitive), "10", 10)]
         [TestCase(nameof(TestParams.Primitive), "-5", -5)]
         [TestCase(nameof(TestParams.Primitive_Optional), "-1", -1)]
         [TestCase(nameof(TestParams.Primitive_Optional), "0", 0)]
-        [TestCase(nameof(TestParams.Primitive_Bool), "true", true)]
-        [TestCase(nameof(TestParams.Primitive_Bool), "false", false)]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "true", true)]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "false", false)]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "2", 2)]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "0", 0)]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "-1", -1)]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "true", true)]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "false", false)]
-        [TestCase(nameof(TestParams.String_Optional_DefaultValue), "GT86", "GT86")]
         [TestCase(nameof(TestParams.Primitive_Optional_DefaultValue), "86", 86)]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional_DefaultValue_True), "false", false)]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Optional_DefaultValue), "86", 86)]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool_Optional_DefaultValue_True), "false", false)]
-        [TestCase(nameof(TestParams.StringArray), "false", new[] { "false" })]
-        [TestCase(nameof(TestParams.StringArray_Optional), "false", new[] { "false" })]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "2", 2)]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "0", 0)]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "-1", -1)]
+        [TestCase(nameof(TestParams.Primitive_Nullable_DefaultValue), "86", 86)]
+        [TestCase(nameof(TestParams.Bool), "true", true)]
+        [TestCase(nameof(TestParams.Bool), "false", false)]
+        [TestCase(nameof(TestParams.Bool_Optional), "true", true)]
+        [TestCase(nameof(TestParams.Bool_Optional), "false", false)]
+        [TestCase(nameof(TestParams.Bool_Optional_DefaultValue_True), "false", false)]
+        [TestCase(nameof(TestParams.Bool_Nullable), "true", true)]
+        [TestCase(nameof(TestParams.Bool_Nullable), "false", false)]
+        [TestCase(nameof(TestParams.Bool_Nullable_DefaultValue_True), "false", false)]
+        [TestCase(nameof(TestParams.Array), "false", new[] { "false" })]
+        [TestCase(nameof(TestParams.Array_Optional), "false", new[] { "false" })]
         [TestCase(nameof(TestParams.Enum), "Two", TestEnum.Two, Description = "There are more tests for this a tests file dedicated to Enum type")]
         public void Parse_ParameterValue__As_Its_Property_Type(string propertyName, string value, object expectedValue)
         {
@@ -81,13 +80,13 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams2.Primitive), new[] { "1", "10" }, 10)]
         [TestCase(nameof(TestParams2.Primitive), new[] { "2", "1", "0" }, 0)]
         [TestCase(nameof(TestParams2.Primitive_Optional), new[] { "1", "7", "4" }, 4)]
-        [TestCase(nameof(TestParams2.Nullable_Primitive), new[] { "12", "11" }, 11)]
-        [TestCase(nameof(TestParams2.Nullable_Primitive), new[] { "2", "1", "0" }, 0)]
-        [TestCase(nameof(TestParams2.Primitive_Bool), new[] { "false", "true" }, true)]
-        [TestCase(nameof(TestParams2.Primitive_Bool), new[] { "true", "true", "false" }, false)]
-        [TestCase(nameof(TestParams2.Primitive_Bool_Optional), new[] { "true", "true", "false" }, false)]
-        [TestCase(nameof(TestParams2.Nullable_Primitive_Bool), new[] { "false", "true" }, true)]
-        [TestCase(nameof(TestParams2.Nullable_Primitive_Bool), new[] { "true", "true", "false" }, false)]
+        [TestCase(nameof(TestParams2.Primitive_Nullable), new[] { "12", "11" }, 11)]
+        [TestCase(nameof(TestParams2.Primitive_Nullable), new[] { "2", "1", "0" }, 0)]
+        [TestCase(nameof(TestParams2.Bool), new[] { "false", "true" }, true)]
+        [TestCase(nameof(TestParams2.Bool), new[] { "true", "true", "false" }, false)]
+        [TestCase(nameof(TestParams2.Bool_Optional), new[] { "true", "true", "false" }, false)]
+        [TestCase(nameof(TestParams2.Bool_Nullable), new[] { "false", "true" }, true)]
+        [TestCase(nameof(TestParams2.Bool_Nullable), new[] { "true", "true", "false" }, false)]
         [TestCase(nameof(TestParams2.Enum), new[] { "Two", "One", "Three" }, TestEnum.Three)]
         [TestCase(nameof(TestParams2.Enum_Optional), new[] { "Three", "One", "Two" }, TestEnum.Two )]
         [TestCase(nameof(TestParams2.Enum_Nullable), new[] { "Two", "Two", "One" }, TestEnum.One)]
@@ -105,13 +104,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         }
 
         [TestCase(nameof(TestParams.String))]
-        [TestCase(nameof(TestParams.StringAnother))]
-        [TestCase(nameof(TestParams.Primitive))]
-        [TestCase(nameof(TestParams.Primitive_Bool))]
-        [TestCase(nameof(TestParams.Enum))]
-        [TestCase(nameof(TestParams.StringArray))]
         [TestCase(nameof(TestParams.String_AllowEmpty))]
-        [TestCase(nameof(TestParams.StringArray_AllowEmpty))]
+        [TestCase(nameof(TestParams.Primitive))]
+        [TestCase(nameof(TestParams.Bool))]
+        [TestCase(nameof(TestParams.Enum))]
+        [TestCase(nameof(TestParams.Array))]
+        [TestCase(nameof(TestParams.Array_AllowEmpty))]
         public void Mandatory_Parameter_NotProvided__Must_Reject__RegardlessOf_AllowEmpty_Attribute(string propertyName)
         {
             var argvs = new Dictionary<string, string[]>
@@ -132,8 +130,8 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams.Primitive_Optional))]
         [TestCase(nameof(TestParams.Enum))]
         [TestCase(nameof(TestParams.Enum_Optional))]
-        [TestCase(nameof(TestParams.StringArray))]
-        [TestCase(nameof(TestParams.StringArray_Optional))]
+        [TestCase(nameof(TestParams.Array))]
+        [TestCase(nameof(TestParams.Array_Optional))]
         public void NonBoolean_Parameter_HasNoValue__Must_Reject__Regardless_Of_Optionality(string propertyName)
         {
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == propertyName);
@@ -160,39 +158,39 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams.Primitive), "")]
         [TestCase(nameof(TestParams.Primitive), " ")]
         [TestCase(nameof(TestParams.Primitive), "\t")]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "")]
+        [TestCase(nameof(TestParams.Primitive_Nullable), " ")]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "\t")]
         [TestCase(nameof(TestParams.Primitive_Optional), "")]
         [TestCase(nameof(TestParams.Primitive_Optional), " ")]
         [TestCase(nameof(TestParams.Primitive_Optional), "\t")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "")]
-        [TestCase(nameof(TestParams.Primitive_Bool), " ")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "\t")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), " ")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "\t")]
+        [TestCase(nameof(TestParams.Bool), "")]
+        [TestCase(nameof(TestParams.Bool), " ")]
+        [TestCase(nameof(TestParams.Bool), "\t")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "")]
+        [TestCase(nameof(TestParams.Bool_Nullable), " ")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "\t")]
+        [TestCase(nameof(TestParams.Bool_Optional), "")]
+        [TestCase(nameof(TestParams.Bool_Optional), " ")]
+        [TestCase(nameof(TestParams.Bool_Optional), "\t")]
         [TestCase(nameof(TestParams.Enum), "")]
         [TestCase(nameof(TestParams.Enum), " ")]
         [TestCase(nameof(TestParams.Enum), "\t")]
         [TestCase(nameof(TestParams.Enum_Optional), "")]
         [TestCase(nameof(TestParams.Enum_Optional), " ")]
         [TestCase(nameof(TestParams.Enum_Optional), "\t")]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "")]
-        [TestCase(nameof(TestParams.Nullable_Primitive), " ")]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "\t")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), " ")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "\t")]
         [TestCase(nameof(TestParams.Enum_Nullable), "")]
         [TestCase(nameof(TestParams.Enum_Nullable), " ")]
         [TestCase(nameof(TestParams.Enum_Nullable), "\t")]
-        [TestCase(nameof(TestParams.StringArray), "")]
-        [TestCase(nameof(TestParams.StringArray), " ")]
-        [TestCase(nameof(TestParams.StringArray), "\t")]
-        [TestCase(nameof(TestParams.StringArray_Optional), "")]
-        [TestCase(nameof(TestParams.StringArray_Optional), " ")]
-        [TestCase(nameof(TestParams.StringArray_Optional), "\t")]
-        [TestCase(nameof(TestParams.StringArray_Optional_DefaultValue), "")]
-        [TestCase(nameof(TestParams.StringArray_Optional_DefaultValue), " ")]
-        [TestCase(nameof(TestParams.StringArray_Optional_DefaultValue), "\t")]
+        [TestCase(nameof(TestParams.Array), "")]
+        [TestCase(nameof(TestParams.Array), " ")]
+        [TestCase(nameof(TestParams.Array), "\t")]
+        [TestCase(nameof(TestParams.Array_Optional), "")]
+        [TestCase(nameof(TestParams.Array_Optional), " ")]
+        [TestCase(nameof(TestParams.Array_Optional), "\t")]
+        [TestCase(nameof(TestParams.Array_Optional_DefaultValue), "")]
+        [TestCase(nameof(TestParams.Array_Optional_DefaultValue), " ")]
+        [TestCase(nameof(TestParams.Array_Optional_DefaultValue), "\t")]
         public void EmptyString_OrWhitespace_Value__Must_Reject(string propertyName, string value)
         {
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == propertyName);
@@ -213,40 +211,40 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams.Primitive), "-")]
         [TestCase(nameof(TestParams.Primitive), "asd")]
         [TestCase(nameof(TestParams.Primitive), "10.6")]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "-")]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "asd")]
-        [TestCase(nameof(TestParams.Nullable_Primitive), "10.6")]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "-")]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "asd")]
+        [TestCase(nameof(TestParams.Primitive_Nullable), "10.6")]
         [TestCase(nameof(TestParams.Primitive_Optional), "-")]
         [TestCase(nameof(TestParams.Primitive_Optional), "asd")]
         [TestCase(nameof(TestParams.Primitive_Optional), "10.6")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "-")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "asd")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "-1")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "2")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "0.1")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "10")]
-        [TestCase(nameof(TestParams.Primitive_Bool), "12.6")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "-")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "asd")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "-1")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "2")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "0.1")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "10")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), "12.6")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "-")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "asd")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "-1")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "2")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "0.1")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "10")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), "12.6")]
+        [TestCase(nameof(TestParams.Primitive_Optional_DefaultValue), "GT86")]
+        [TestCase(nameof(TestParams.Primitive_Nullable_DefaultValue), "GR86")]
+        [TestCase(nameof(TestParams.Bool), "-")]
+        [TestCase(nameof(TestParams.Bool), "asd")]
+        [TestCase(nameof(TestParams.Bool), "-1")]
+        [TestCase(nameof(TestParams.Bool), "2")]
+        [TestCase(nameof(TestParams.Bool), "0.1")]
+        [TestCase(nameof(TestParams.Bool), "10")]
+        [TestCase(nameof(TestParams.Bool), "12.6")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "-")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "asd")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "-1")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "2")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "0.1")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "10")]
+        [TestCase(nameof(TestParams.Bool_Nullable), "12.6")]
+        [TestCase(nameof(TestParams.Bool_Optional), "-")]
+        [TestCase(nameof(TestParams.Bool_Optional), "asd")]
+        [TestCase(nameof(TestParams.Bool_Optional), "-1")]
+        [TestCase(nameof(TestParams.Bool_Optional), "2")]
+        [TestCase(nameof(TestParams.Bool_Optional), "0.1")]
+        [TestCase(nameof(TestParams.Bool_Optional), "10")]
+        [TestCase(nameof(TestParams.Bool_Optional), "12.6")]
+        [TestCase(nameof(TestParams.Bool_Optional_DefaultValue_True), "86")]
+        [TestCase(nameof(TestParams.Bool_Nullable_DefaultValue_True), "86")]
         [TestCase(nameof(TestParams.Enum), "Whatevz", Description = "There are more tests for this a tests file dedicated to Enum type")]
         [TestCase(nameof(TestParams.Enum_Optional), "Whatevz")]
         [TestCase(nameof(TestParams.Enum_Optional_DefaultValue), "Whatevz")]
-        [TestCase(nameof(TestParams.Primitive_Optional_DefaultValue), "GT86")]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional_DefaultValue_True), "86")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Optional_DefaultValue), "GR86")]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool_Optional_DefaultValue_True), "86")]
         public void When__ParameterValue_Is_OfWrongType__Must_Reject(string propertyName, string rawValue)
         {
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == propertyName);
@@ -320,19 +318,19 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
         [TestCase(nameof(TestParamsMultiple.String), "value 1", "value 2", "value 3", "value 1")]
         [TestCase(nameof(TestParamsMultiple.String), "x", "value too", "another", "x")]
-        [TestCase(nameof(TestParamsMultiple.Primitive), "10", "8", "11", 10)]
-        [TestCase(nameof(TestParamsMultiple.Primitive_Bool), "true", "true", "false", true)]
-        [TestCase(nameof(TestParamsMultiple.Primitive_Bool), "false", "true", "true", false)]
         [TestCase(nameof(TestParamsMultiple.String_Optional), "value optional", "opt", "z", "value optional")]
+        [TestCase(nameof(TestParamsMultiple.Primitive), "10", "8", "11", 10)]
+        [TestCase(nameof(TestParamsMultiple.Primitive_Nullable), "66", "77", "1", 66)]
         [TestCase(nameof(TestParamsMultiple.Primitive_Optional), "23", "66", "87", 23)]
-        [TestCase(nameof(TestParamsMultiple.Primitive_Bool_Optional), "true", "false", "false", true)]
+        [TestCase(nameof(TestParamsMultiple.Bool), "true", "true", "false", true)]
+        [TestCase(nameof(TestParamsMultiple.Bool), "false", "true", "true", false)]
+        [TestCase(nameof(TestParamsMultiple.Bool_Nullable), "false", "true", "true", false)]
+        [TestCase(nameof(TestParamsMultiple.Bool_Optional), "true", "false", "false", true)]
         [TestCase(nameof(TestParamsMultiple.Enum), "Two", "One", "Three", TestEnum.Two)]
         [TestCase(nameof(TestParamsMultiple.Enum_Optional), "Two", "One", "Three", TestEnum.Two)]
         [TestCase(nameof(TestParamsMultiple.Enum_Nullable), "Two", "One", "Three", TestEnum.Two)]
-        [TestCase(nameof(TestParamsMultiple.Nullable_Primitive), "66", "77", "1", 66)]
-        [TestCase(nameof(TestParamsMultiple.Nullable_Primitive_Bool), "false", "true", "true", false)]
-        [TestCase(nameof(TestParamsMultiple.StringArray), "word", "x", "nothing", new[] { "word" })]
-        [TestCase(nameof(TestParamsMultiple.StringArray_Optional), "word", "x", "nothing", new[] { "word" })]
+        [TestCase(nameof(TestParamsMultiple.Array), "word", "x", "nothing", new[] { "word" })]
+        [TestCase(nameof(TestParamsMultiple.Array_Optional), "word", "x", "nothing", new[] { "word" })]
         public void Multiple_ParamterSources_Specified_And_AllArePresent__Must_TakeOne_WithLowestOrder(string propertyName, string firstValue, string secondValue, string thirdValue, object expectedValue)
         {
             var argvs = new Dictionary<string, string[]>()
@@ -352,18 +350,18 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         // TODO: I'm pretty sure Optional+DefaultValue won't pass this -- it will use the default value for the mising param and call it a day
         [TestCase(nameof(TestParamsMultiple.String), "value 1", "value 1")]
         [TestCase(nameof(TestParamsMultiple.String), "value too", "value too")]
-        [TestCase(nameof(TestParamsMultiple.Primitive), "10", 10)]
-        [TestCase(nameof(TestParamsMultiple.Primitive_Bool), "true", true)]
         [TestCase(nameof(TestParamsMultiple.String_Optional), "value optional", "value optional")]
+        [TestCase(nameof(TestParamsMultiple.Primitive), "10", 10)]
         [TestCase(nameof(TestParamsMultiple.Primitive_Optional), "23", 23)]
-        [TestCase(nameof(TestParamsMultiple.Primitive_Bool_Optional), "true", true)]
-        [TestCase(nameof(TestParamsMultiple.Nullable_Primitive), "76", 76)]
-        [TestCase(nameof(TestParamsMultiple.Nullable_Primitive_Bool), "true", true)]
-        [TestCase(nameof(TestParamsMultiple.StringArray), "nothing", new[] { "nothing" })]
-        [TestCase(nameof(TestParamsMultiple.StringArray_Optional), "anything", new[] { "anything" })]
+        [TestCase(nameof(TestParamsMultiple.Primitive_Nullable), "76", 76)]
+        [TestCase(nameof(TestParamsMultiple.Bool), "true", true)]
+        [TestCase(nameof(TestParamsMultiple.Bool_Optional), "true", true)]
+        [TestCase(nameof(TestParamsMultiple.Bool_Nullable), "true", true)]
         [TestCase(nameof(TestParamsMultiple.Enum), "Three", TestEnum.Three)]
         [TestCase(nameof(TestParamsMultiple.Enum_Nullable), "Two", TestEnum.Two)]
         [TestCase(nameof(TestParamsMultiple.Enum_Optional), "Three", TestEnum.Three)]
+        [TestCase(nameof(TestParamsMultiple.Array), "nothing", new[] { "nothing" })]
+        [TestCase(nameof(TestParamsMultiple.Array_Optional), "anything", new[] { "anything" })]
         public void Multiple_ParamterSources_Specified_And_SomeAreNotPresent__Must_TakeOne_WithLowestOrder(string propertyName, string value, object expectedValue)
         {
             var argvs = new Dictionary<string, string[]>()
@@ -381,9 +379,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
         [TestCase(nameof(TestParamsMultiple.String))]
         [TestCase(nameof(TestParamsMultiple.Primitive))]
-        [TestCase(nameof(TestParamsMultiple.Primitive_Bool))]
-        [TestCase(nameof(TestParamsMultiple.StringArray))]
+        [TestCase(nameof(TestParamsMultiple.Bool))]
         [TestCase(nameof(TestParamsMultiple.Enum))]
+        [TestCase(nameof(TestParamsMultiple.Array))]
         public void Multiple_ParameterSources_Specified_And_NoneArePresent__IsMandatory__Must_Reject(string propertyName)
         {
             var argvs = new Dictionary<string, string[]>()
@@ -399,12 +397,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
         [TestCase(nameof(TestParamsMultiple.String_Optional), null)]
         [TestCase(nameof(TestParamsMultiple.Primitive_Optional), 0)]
-        [TestCase(nameof(TestParamsMultiple.Primitive_Bool_Optional), false)]
+        [TestCase(nameof(TestParamsMultiple.Primitive_Nullable), null)]
+        [TestCase(nameof(TestParamsMultiple.Bool_Optional), false)]
+        [TestCase(nameof(TestParamsMultiple.Bool_Nullable), null)]
         [TestCase(nameof(TestParamsMultiple.Enum_Optional), default(TestEnum))]
-        [TestCase(nameof(TestParamsMultiple.Nullable_Primitive), null)]
-        [TestCase(nameof(TestParamsMultiple.Nullable_Primitive_Bool), null)]
         [TestCase(nameof(TestParamsMultiple.Enum_Nullable), null)]
-        [TestCase(nameof(TestParamsMultiple.StringArray_Optional), null)]
+        [TestCase(nameof(TestParamsMultiple.Array_Optional), null)]
         public void Multiple_ParameterSouces_Specified_And_NoneArePresent__IsOptional__Must_BeCool(string propertyName, object expectedValue)
         {
             var argvs = new Dictionary<string, string[]>()
@@ -420,12 +418,12 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
         [TestCase(nameof(TestParams.String_Optional), null)]
         [TestCase(nameof(TestParams.Primitive_Optional), 0)]
-        [TestCase(nameof(TestParams.Primitive_Bool_Optional), false)]
+        [TestCase(nameof(TestParams.Primitive_Nullable), null)]
+        [TestCase(nameof(TestParams.Bool_Optional), false)]
+        [TestCase(nameof(TestParams.Bool_Nullable), null)]
         [TestCase(nameof(TestParams.Enum_Optional), default(TestEnum))]
-        [TestCase(nameof(TestParams.Nullable_Primitive), null)]
-        [TestCase(nameof(TestParams.Nullable_Primitive_Bool), null)]
         [TestCase(nameof(TestParams.Enum_Nullable), null)]
-        [TestCase(nameof(TestParams.StringArray_Optional), null)]
+        [TestCase(nameof(TestParams.Array_Optional), null)]
         public void Optional__Parameter_NotProvided__Must__Return_DefaultValue_ForTheType(string propertyName, object expectedValue)
         {
             var argvs = new Dictionary<string, string[]>();
@@ -438,13 +436,13 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.String), "wazaa!!")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive), 667)]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Bool_False), false)]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Bool_True), true)]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Nullable), 555)]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_False), false)]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_True), true)]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_Nullable_False), false)]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_Nullable_True), true)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum), TestEnum.Two)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum_Nullable), TestEnum.Three)]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive), 555)]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_False), false)]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), true)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), new string[] { "wazaa!!" } )]
         public void Optional__With_DefaultValue_Specified__Parameter_NotProvided__Must__Return_Configured_DefaultValue(string propertyName, object expectedValue)
         {
@@ -460,22 +458,20 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.String), "\t")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive), "")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive), "\t")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Bool_False), "")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Bool_False), "\t")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Bool_True), "")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Bool_True), "\t")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Nullable), "")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Nullable), "\t")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_False), "")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_False), "\t")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_True), "")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_True), "\t")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_Nullable_False), "")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_Nullable_False), "\t")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_Nullable_True), "")]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_Nullable_True), "\t")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum), "")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum), " ")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum), "\t")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum_Nullable), "")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum_Nullable), " ")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum_Nullable), "\t")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive), "")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive), "\t")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_False), "")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_False), "\t")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), "")]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive_Bool_True), "\t")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), "")]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), "\t")]
         public void Optional__With_DefaultValue_Specified__Parameter_ValueIs_EmptyString_OrWhitespace__Must_Reject(string propertyName, string value)
@@ -492,9 +488,9 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.String))]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive))]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Nullable_Primitive))]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array))]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Primitive_Nullable))]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum))]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array))]
         public void Optional__With_DefaultValue_Specified__NonBoolean_Parameter_NoValue__Must_Reject(string propertyName)
         {
             var argvs = new Dictionary<string, string[]>()
@@ -531,13 +527,13 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             public int Primitive { get; set; }
 
             [Parameter("--arg-bool")]
-            public bool Primitive_Bool { get; set; }
+            public bool Bool { get; set; }
 
             [Parameter("--arg-null-primitive")]
-            public int? Nullable_Primitive { get; set; }
+            public int? Primitive_Nullable { get; set; }
 
             [Parameter("--arg-null-bool")]
-            public bool? Nullable_Primitive_Bool { get; set; }
+            public bool? Bool_Nullable { get; set; }
 
             [Parameter("--arg1-optional")]
             [Optional]
@@ -549,7 +545,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
             [Parameter("--arg-bool-optional")]
             [Optional]
-            public bool Primitive_Bool_Optional { get; set; }
+            public bool Bool_Optional { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: "wazaa!!")]
@@ -561,18 +557,18 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
             [Parameter("arg")]
             [Optional(defaultValue: true)]
-            public bool Primitive_Bool_Optional_DefaultValue_True { get; set; }
+            public bool Bool_Optional_DefaultValue_True { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: 555)]
-            public int? Nullable_Primitive_Optional_DefaultValue { get; set; }
+            public int? Primitive_Nullable_DefaultValue { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: true)]
-            public bool? Nullable_Primitive_Bool_Optional_DefaultValue_True { get; set; }
+            public bool? Bool_Nullable_DefaultValue_True { get; set; }
 
             [Parameter("arg")]
-            public string[] StringArray { get; set; }
+            public string[] Array { get; set; }
 
 
             [Parameter("--arg1")]
@@ -581,15 +577,15 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
             [Parameter("arg")]
             [Optional]
-            public string[] StringArray_Optional { get; set; }
+            public string[] Array_Optional { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: new string[] { "one" })]
-            public string[] StringArray_Optional_DefaultValue { get; set; }
+            public string[] Array_Optional_DefaultValue { get; set; }
 
             [Parameter("arg")]
             [AllowEmpty]
-            public string[] StringArray_AllowEmpty { get; set; }
+            public string[] Array_AllowEmpty { get; set; }
 
             [Parameter("arg")]
             public TestEnum Enum { get; set; }
@@ -615,13 +611,13 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             public int Primitive { get; set; }
 
             [Parameter("arg")]
-            public bool Primitive_Bool { get; set; }
+            public bool Bool { get; set; }
 
             [Parameter("arg")]
-            public int? Nullable_Primitive { get; set; }
+            public int? Primitive_Nullable { get; set; }
 
             [Parameter("arg")]
-            public bool? Nullable_Primitive_Bool { get; set; }
+            public bool? Bool_Nullable { get; set; }
 
             [Parameter("arg")]
             [Optional]
@@ -633,7 +629,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
             [Parameter("arg")]
             [Optional]
-            public bool Primitive_Bool_Optional { get; set; }
+            public bool Bool_Optional { get; set; }
 
             [Parameter("arg")]
             public TestEnum Enum { get; set; }
@@ -664,23 +660,23 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
 
             [Parameter("arg")]
             [Optional(defaultValue: false)]
-            public bool Primitive_Bool_False { get; set; }
+            public bool Bool_False { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: true)]
-            public bool Primitive_Bool_True { get; set; }
+            public bool Bool_True { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: 555)]
-            public int? Nullable_Primitive { get; set; }
+            public int? Primitive_Nullable { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: false)]
-            public bool? Nullable_Primitive_Bool_False { get; set; }
+            public bool? Bool_Nullable_False { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: true)]
-            public bool? Nullable_Primitive_Bool_True { get; set; }
+            public bool? Bool_Nullable_True { get; set; }
 
             [Parameter("arg")]
             [Optional(defaultValue: TestEnum.Two)]
@@ -710,17 +706,17 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             [Parameter("--arg1", Order = 0)]
             [Parameter("Arg1", Order = 1)]
             [Parameter("Three", Order = 3)]
-            public bool Primitive_Bool { get; set; }
+            public bool Bool { get; set; }
 
             [Parameter("--arg1", Order = 0)]
             [Parameter("Arg1", Order = 1)]
             [Parameter("Three", Order = 3)]
-            public int? Nullable_Primitive { get; set; }
+            public int? Primitive_Nullable { get; set; }
 
             [Parameter("--arg1", Order = 0)]
             [Parameter("Arg1", Order = 1)]
             [Parameter("Three", Order = 3)]
-            public bool? Nullable_Primitive_Bool { get; set; }
+            public bool? Bool_Nullable { get; set; }
 
             [Parameter("--arg1", Order = 0)]
             [Parameter("Arg1", Order = 1)]
@@ -738,18 +734,18 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             [Parameter("Arg1", Order = 1)]
             [Parameter("Three", Order = 3)]
             [Optional]
-            public bool Primitive_Bool_Optional { get; set; }
+            public bool Bool_Optional { get; set; }
 
             [Parameter("--arg1", Order = 0)]
             [Parameter("Arg1", Order = 1)]
             [Parameter("Three", Order = 3)]
-            public string[] StringArray { get; set; }
+            public string[] Array { get; set; }
 
             [Parameter("--arg1", Order = 0)]
             [Parameter("Arg1", Order = 1)]
             [Parameter("Three", Order = 3)]
             [Optional]
-            public string[] StringArray_Optional { get; set; }
+            public string[] Array_Optional { get; set; }
 
             [Parameter("--arg1", Order = 0)]
             [Parameter("Arg1", Order = 1)]
