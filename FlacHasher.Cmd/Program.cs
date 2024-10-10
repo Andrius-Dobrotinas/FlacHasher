@@ -87,6 +87,9 @@ namespace Andy.FlacHash.Cmd
             {
                 var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
                 FileInfo decoderFile = new FileInfo(settings.Decoder);
+                if (!decoderFile.Exists)
+                    throw new ConfigurationException($"Specified decoder exe file does not exist: {decoderFile.FullName}");
+
                 Algorithm hashAlgorithm = settings.HashAlgorithm;
                 bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(settings, fileSearch);

@@ -72,8 +72,12 @@ namespace Andy.FlacHash.Win
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
+            var decoderExe = new FileInfo(settings.Decoder);
+            if (!decoderExe.Exists)
+                throw new ConfigurationException($"Specified decoder exe file does not exist: {decoderExe.FullName}");
+
             var decoder = new Audio.StreamDecoder(
-                new FileInfo(settings.Decoder),
+                decoderExe,
                 new ExternalProcess.ProcessRunner(
                     settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
                     settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
