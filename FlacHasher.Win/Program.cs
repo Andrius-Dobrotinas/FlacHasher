@@ -55,6 +55,11 @@ namespace Andy.FlacHash.Win
                 var (hasher, progressReporter) = BuildHasher(decoderExe, settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();
 
+                var fileExtension = settings.TargetFileExtension
+                    ?? (AudioDecoderFactory.IsFlac(decoderExe)
+                        ? defaultFlacFileExtension
+                        : throw new ConfigurationException("Configure file extension for the specified decoder"));
+
                 Application.Run(
                     new UI.FormX(
                         new UI.HashCalculationServiceFactory(
@@ -63,13 +68,12 @@ namespace Andy.FlacHash.Win
                         progressReporter,
                         directoryResolver,
                         new InputFileResolver(
-                            settings.TargetFileExtension
-                                ?? (AudioDecoderFactory.IsFlac(decoderExe) ? defaultFlacFileExtension : throw new ConfigurationException("Configure file extension for the specified decoder")),
                             hashfileExtensions,
                             fileSearch),
                         hashFormatter,
                         Cmd.Verification.BuildHashfileReader(settings.HashfileEntrySeparator),
-                        new HashVerifier(hashFormatter)));
+                        new HashVerifier(hashFormatter),
+                        fileExtension));
             }
         }
 

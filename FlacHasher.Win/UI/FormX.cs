@@ -25,6 +25,7 @@ namespace Andy.FlacHash.Win.UI
         private readonly IHashFormatter hashFormatter;
         private readonly HashFileReader hashFileParser;
         private readonly HashVerifier hashVerifier;
+        private readonly string fileExtension;
 
         private bool finishedWithErrors;
 
@@ -36,7 +37,8 @@ namespace Andy.FlacHash.Win.UI
             InputFileResolver targetFileResolver,
             IHashFormatter hashFormatter,
             HashFileReader hashFileParser,
-            HashVerifier hashVerifier)
+            HashVerifier hashVerifier,
+            string fileExtension)
         {
             InitializeComponent();
 
@@ -46,6 +48,7 @@ namespace Andy.FlacHash.Win.UI
             this.hashFormatter = hashFormatter;
             this.hashFileParser = hashFileParser;
             this.hashVerifier = hashVerifier;
+            this.fileExtension = fileExtension;
 
             this.hasherService = hashCalculationServiceFactory.Build(
                 this,
@@ -120,7 +123,7 @@ namespace Andy.FlacHash.Win.UI
             var directory = dirBrowser.GetDirectory();
             if (directory == null) return;
 
-            var (files, hashFiles) = targetFileResolver.FindFiles(directory);
+            var (files, hashFiles) = targetFileResolver.FindFiles(directory, fileExtension);
 
             if (files.Any() == false)
                 label_Status.Text = "The selected directory doesn't contain suitable files";
