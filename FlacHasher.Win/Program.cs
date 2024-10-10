@@ -83,7 +83,7 @@ namespace Andy.FlacHash.Win
                     settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
                     settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
                     showProcessWindowWithOutput),
-                Audio.Flac.CmdLine.Parameters.Decode.Stream);
+                settings.DecoderParameters ?? Audio.Flac.CmdLine.Parameters.Decode.Stream);
             var reader = new Audio.AudioFileDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(
