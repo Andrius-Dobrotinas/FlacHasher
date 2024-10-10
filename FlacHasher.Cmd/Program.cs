@@ -112,7 +112,8 @@ namespace Andy.FlacHash.Cmd
                     startWaitMs: settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
                     printProcessProgress);
 
-                Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, settings.DecoderParameters);
+                var decoderParams = AudioDecoderFactory.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderFile);
+                Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, decoderParams);
 
                 if (initialCmdlineParams.IsVerification)
                 {
