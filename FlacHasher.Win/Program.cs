@@ -13,7 +13,7 @@ namespace Andy.FlacHash.Win
     static class Program
     {
         const string settingsFileName = "settings.cfg";
-        const string supportedFileExtension = "flac";
+        const string defaultFlacFileExtension = "flac";
         const int processExitTimeoutMsDefault = 1000;
         const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = 180;
@@ -48,7 +48,11 @@ namespace Andy.FlacHash.Win
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
-                var (hasher, progressReporter) = BuildHasher(settings);
+                var decoderExe = new FileInfo(settings.Decoder);
+                if (!decoderExe.Exists)
+                    throw new ConfigurationException($"Specified decoder exe file does not exist: {decoderExe.FullName}");
+
+                var (hasher, progressReporter) = BuildHasher(decoderExe, settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();
 
                 Application.Run(
@@ -59,7 +63,8 @@ namespace Andy.FlacHash.Win
                         progressReporter,
                         directoryResolver,
                         new InputFileResolver(
-                            supportedFileExtension,
+                            settings.TargetFileExtension
+                                ?? (AudioDecoderFactory.IsFlac(decoderExe) ? defaultFlacFileExtension : throw new ConfigurationException("Configure file extension for the specified decoder")),
                             hashfileExtensions,
                             fileSearch),
                         hashFormatter,
@@ -68,13 +73,10 @@ namespace Andy.FlacHash.Win
             }
         }
 
-        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(ApplicationSettings settings)
+        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderExe, ApplicationSettings settings)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
-            var decoderExe = new FileInfo(settings.Decoder);
-            if (!decoderExe.Exists)
-                throw new ConfigurationException($"Specified decoder exe file does not exist: {decoderExe.FullName}");
 
             var decoder = new Audio.StreamDecoder(
                 decoderExe,

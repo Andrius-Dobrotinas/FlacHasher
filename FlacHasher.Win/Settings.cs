@@ -15,5 +15,9 @@ namespace Andy.FlacHash.Win
         [IniEntry(nameof(HashfileEntrySeparator))]
         [Optional(defaultValue: VerificationSettings.Defaults.HashfileEntrySeparator)]
         public string HashfileEntrySeparator { get; set; }
+
+        [IniEntry(nameof(TargetFileExtension))]
+        [Optional]
+        public string TargetFileExtension { get; set; }
     }
 }

@@ -36,9 +36,14 @@ namespace Andy.FlacHash.Cmd
         public static ICollection<string> GetDecoderParametersOrDefault(ICollection<string> @params, FileInfo decoderFile)
         {
             return @params ??
-                    (decoderFile.Name.Contains("flac", StringComparison.InvariantCultureIgnoreCase)
+                    (IsFlac(decoderFile)
                         ? Audio.Flac.CmdLine.Parameters.Decode.Stream
                         : throw new ConfigurationException("Decoder Parameters must be provided for a decoder other than FLAC"));
+        }
+
+        public static bool IsFlac(FileInfo decoderExe)
+        {
+            return decoderExe.Name.Contains("flac", StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
