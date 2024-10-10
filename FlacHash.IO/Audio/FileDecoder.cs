@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Andy.FlacHash.Audio.Flac.CmdLine;
 using Andy.FlacHash.IO;
 
 namespace Andy.FlacHash.Audio
