@@ -32,6 +32,34 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             Assert.AreEqual(expectedValue, prop.GetValue(result));
         }
 
+        [Test]
+        public void ParameterLookup_ConvertNameToLowercase()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "arg3", new [] { "arg value" } }
+            };
+            var result = new TestParams_CaseSensitivity();
+            var prop = typeof(TestParams_CaseSensitivity).GetProperties().First(x => x.Name == nameof(TestParams_CaseSensitivity.Three));
+            target.ReadParameter(prop, argvs, result, inLowercase: true);
+
+            Assert.AreEqual("arg value", result.Three);
+        }
+
+        [Test]
+        public void ParameterLookup_PreserveNameLettercasing()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "arg3", new [] { "arg value" } }
+            };
+            var result = new TestParams_CaseSensitivity();
+            var prop = typeof(TestParams_CaseSensitivity).GetProperties().First(x => x.Name == nameof(TestParams_CaseSensitivity.Three));
+
+            Assert.Throws<ParameterMissingException>(
+                () => target.ReadParameter(prop, argvs, result, inLowercase: false));
+        }
+
         [TestCase(nameof(TestParams.String), "arg 1 value", "arg 1 value")]
         [TestCase(nameof(TestParams.String_Optional), "arg 1 Optional value", "arg 1 Optional value")]
         [TestCase(nameof(TestParams.String_Optional_DefaultValue), "GT86", "GT86")]
@@ -248,63 +276,6 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             Assert.Throws<BadParameterValueException>(() => target.ReadParameter(prop, argvs, result));
         }
 
-        [Test]
-        public void Inheritance__Must_Ignore_BaseProperty_ParameterConfiguration__When_OverridingProperty_HasNoParamAttr()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "--arg1-base", new [] { "arg 1 value" } },
-            };
-            var result = new TestParamsInheritance1();
-            var prop = typeof(TestParamsInheritance1).GetProperties().First(x => x.Name == nameof(TestParamsInheritance1.One));
-            target.ReadParameter(prop, argvs, result);
-
-            Assert.IsNull(result.One);
-        }
-
-        [Test]
-        public void Inheritance__Must_Ignore_BaseProperty_ParameterConfiguration__When_OverridingProperty_HasParamAttr()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "--arg1-base", new [] { "arg 1 base" } },
-                { "--arg1-new", new [] { "arg 1 new" } },
-            };
-            var result = new TestParamsInheritance2();
-            var prop = typeof(TestParamsInheritance2).GetProperties().First(x => x.Name == nameof(TestParamsInheritance2.One));
-            target.ReadParameter(prop, argvs, result);
-
-            Assert.AreEqual("arg 1 new", result.One);
-        }
-
-        [Test]
-        public void ParameterLookup_ConvertNameToLowercase()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "arg3", new [] { "arg value" } }
-            };
-            var result = new TestParams_CaseSensitivity();
-            var prop = typeof(TestParams_CaseSensitivity).GetProperties().First(x => x.Name == nameof(TestParams_CaseSensitivity.Three));
-            target.ReadParameter(prop, argvs, result, inLowercase: true);
-
-            Assert.AreEqual("arg value", result.Three);
-        }
-
-        [Test]
-        public void ParameterLookup_PreserveNameLettercasing()
-        {
-            var argvs = new Dictionary<string, string[]>()
-            {
-                { "arg3", new [] { "arg value" } }
-            };
-            var result = new TestParams_CaseSensitivity();
-            var prop = typeof(TestParams_CaseSensitivity).GetProperties().First(x => x.Name == nameof(TestParams_CaseSensitivity.Three));
-
-            Assert.Throws<ParameterMissingException>(
-                () => target.ReadParameter(prop, argvs, result, inLowercase: false));
-        }
-
         [TestCase(nameof(TestParamsMultiple.String), "value 1", "value 2", "value 3", "value 1")]
         [TestCase(nameof(TestParamsMultiple.String), "x", "value too", "another", "x")]
         [TestCase(nameof(TestParamsMultiple.String_Optional), "value optional", "opt", "z", "value optional")]
@@ -490,6 +461,35 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
             var prop = typeof(TestParams_OptionalWithDefaultValue).GetProperties().First(x => x.Name == propertyName);
 
             Assert.Throws<ParameterEmptyException>(() => target.ReadParameter(prop, argvs, result));
+        }
+
+        [Test]
+        public void Inheritance__Must_Ignore_BaseProperty_ParameterConfiguration__When_OverridingProperty_HasNoParamAttr()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "--arg1-base", new [] { "arg 1 value" } },
+            };
+            var result = new TestParamsInheritance1();
+            var prop = typeof(TestParamsInheritance1).GetProperties().First(x => x.Name == nameof(TestParamsInheritance1.One));
+            target.ReadParameter(prop, argvs, result);
+
+            Assert.IsNull(result.One);
+        }
+
+        [Test]
+        public void Inheritance__Must_Ignore_BaseProperty_ParameterConfiguration__When_OverridingProperty_HasParamAttr()
+        {
+            var argvs = new Dictionary<string, string[]>()
+            {
+                { "--arg1-base", new [] { "arg 1 base" } },
+                { "--arg1-new", new [] { "arg 1 new" } },
+            };
+            var result = new TestParamsInheritance2();
+            var prop = typeof(TestParamsInheritance2).GetProperties().First(x => x.Name == nameof(TestParamsInheritance2.One));
+            target.ReadParameter(prop, argvs, result);
+
+            Assert.AreEqual("arg 1 new", result.One);
         }
 
         class TestParams_DiffererentParamNames
