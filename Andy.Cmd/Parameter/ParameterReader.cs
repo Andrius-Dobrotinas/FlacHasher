@@ -45,7 +45,7 @@ namespace Andy.Cmd.Parameter
             CheckConditionallyRequiredOnes(@params, properties);
 
             // Either-Or Continued
-            CheckEitherOrParameters(@params, eitherOrPropertyGroups);
+            Check_EitherOr_Parameters(@params, eitherOrPropertyGroups);
 
             Check_AtLeastOneOf_Params(@params);
 
@@ -90,7 +90,7 @@ namespace Andy.Cmd.Parameter
             return eitherOrPropertyGroups;
         }
 
-        static void CheckEitherOrParameters<TParams>(TParams instance, IDictionary<string, PropertyInfo[]> eitherOrPropertyGroups)
+        static void Check_EitherOr_Parameters<TParams>(TParams instance, IDictionary<string, PropertyInfo[]> eitherOrPropertyGroups)
         {
             foreach (var parameterGroup in eitherOrPropertyGroups)
             {
