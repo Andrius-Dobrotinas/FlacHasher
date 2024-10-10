@@ -20,8 +20,6 @@ namespace Andy.FlacHash.Cmd
             if (settings.InputDirectory != null)
             {
                 var fileExtension = settings.TargetFileExtension;
-
-                // TODO: define default extension in code, somewhere with a decoder?..
                 if (fileExtension == null)
                     throw new ConfigurationException("Target file extension must be specified when scanning a directory");
 
