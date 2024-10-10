@@ -98,8 +98,7 @@ namespace Andy.FlacHash.Cmd
             return new HashFileReader(
                         new HashMapParser(
                             new HashEntryCollectionParser(
-                                new HashEntryParser(
-                                    string.IsNullOrEmpty(hashfileEntrySeparator) ? ":" : hashfileEntrySeparator)),
+                                new HashEntryParser(hashfileEntrySeparator)),
                             new CaseInsensitiveOrdinalStringComparer()));
         }
 

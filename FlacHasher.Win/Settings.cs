@@ -13,7 +13,7 @@ namespace Andy.FlacHash.Win
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]
-        [Optional]
+        [Optional(defaultValue: VerificationSettings.Defaults.HashfileEntrySeparator)]
         public string HashfileEntrySeparator { get; set; }
     }
 }
