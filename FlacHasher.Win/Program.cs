@@ -13,7 +13,6 @@ namespace Andy.FlacHash.Win
     static class Program
     {
         const string settingsFileName = "settings.cfg";
-        const string defaultFlacFileExtension = "flac";
 
         [STAThread]
         static void Main()
@@ -50,7 +49,7 @@ namespace Andy.FlacHash.Win
 
                 var fileExtension = settings.TargetFileExtension
                     ?? (AudioDecoderFactory.IsFlac(decoderExe)
-                        ? defaultFlacFileExtension
+                        ? Audio.Flac.Metadata.FileExtension
                         : throw new ConfigurationException("Configure file extension for the specified decoder"));
 
                 Application.Run(
