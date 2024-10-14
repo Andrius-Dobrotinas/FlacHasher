@@ -24,5 +24,10 @@ namespace Andy.FlacHash.Cmd
         [IniEntry(nameof(TargetFileExtension), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
         public string TargetFileExtension { get; set; }
+
+        [CmdLineParameter(ParameterNames.DecoderPrintProgress, Order = 0)]
+        [IniEntry(nameof(PrintDecoderProgress), Order = 1)]
+        [Optional(defaultValue: true)]
+        public bool PrintDecoderProgress { get; set; }
     }
 }

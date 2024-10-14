@@ -5,6 +5,7 @@
         public const string Profile = "--profile";
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
+        public const string DecoderPrintProgress = "--decoder-verbose";
         public const string HashAlgorithm = "--algorithm";
 
         /// <summary>

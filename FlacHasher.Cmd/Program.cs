@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Cmd
     public class Program
     {
         const string settingsFileName = "settings.cfg";
-        const bool printProcessProgress = true;
+        static bool printProcessProgress = false;
 
         static int Main(string[] args)
         {
@@ -81,6 +81,9 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
+                // For console output, this is only relevant when the process is actually running
+                printProcessProgress = settings.PrintDecoderProgress;
+
                 var cancellation = new CancellationTokenSource();
                 Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
                 {
