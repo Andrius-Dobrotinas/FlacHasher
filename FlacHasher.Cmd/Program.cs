@@ -18,7 +18,6 @@ namespace Andy.FlacHash.Cmd
         const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = ProcessRunner.NoTimeoutValue;
         const bool printProcessProgress = true;
-        const bool continueOnErrorDefault = true;
 
         static int Main(string[] args)
         {
@@ -99,7 +98,7 @@ namespace Andy.FlacHash.Cmd
                     throw new InputFileMissingException("No files provided/found");
 
                 Algorithm hashAlgorithm = settings.HashAlgorithm;
-                bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;
+                bool continueOnError = !settings.FailOnError;
                 WriteUserLine($"Hash algorithm: {hashAlgorithm}");
 
                 var processRunner = new ExternalProcess.ProcessRunner(

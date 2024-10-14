@@ -18,7 +18,6 @@ namespace Andy.FlacHash.Win
         const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = 180;
         const bool showProcessWindowWithOutput = false; // todo: read this from the settings file
-        const bool continueOnErrorDefault = true;
 
         [STAThread]
         static void Main()
@@ -95,7 +94,7 @@ namespace Andy.FlacHash.Win
                 reader,
                 new Hashing.Crypto.HashComputer(settings.HashAlgorithm));
             var cancellableHasher = new ReportingMultiFileHasher(
-                new MultiFileHasher(hasher, !settings.FailOnError ?? continueOnErrorDefault));
+                new MultiFileHasher(hasher, !settings.FailOnError));
 
             return (cancellableHasher, fileReadProgressReporter);
         }

@@ -38,7 +38,8 @@ namespace Andy.FlacHash.Cmd
 
         [CmdLineParameter(ParameterNames.FailOnError, Order = 0)]
         [IniEntry(nameof(FailOnError), Order = 1)]
-        public bool? FailOnError { get; set; }
+        [Optional]
+        public bool FailOnError { get; set; }
 
         [IniEntry(nameof(FileLookupIncludeHidden))]
         [Optional(defaultValue: false)]
