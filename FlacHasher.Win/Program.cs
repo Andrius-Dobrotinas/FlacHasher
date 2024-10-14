@@ -14,7 +14,6 @@ namespace Andy.FlacHash.Win
     {
         const string settingsFileName = "settings.cfg";
         const string defaultFlacFileExtension = "flac";
-        const bool showProcessWindowWithOutput = false; // todo: read this from the settings file
 
         [STAThread]
         static void Main()
@@ -71,7 +70,7 @@ namespace Andy.FlacHash.Win
             }
         }
 
-        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderExe, ApplicationSettings settings)
+        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderExe, Settings settings)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
             var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
@@ -82,7 +81,7 @@ namespace Andy.FlacHash.Win
                     settings.ProcessTimeoutSec,
                     settings.ProcessExitTimeoutMs,
                     settings.ProcessStartWaitMs,
-                    showProcessWindowWithOutput),
+                    showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput),
                 AudioDecoderFactory.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderExe));
             
             var reader = new Audio.AudioFileDecoder(steamFactory, decoder);

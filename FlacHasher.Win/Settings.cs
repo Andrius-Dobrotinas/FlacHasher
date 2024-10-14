@@ -19,5 +19,9 @@ namespace Andy.FlacHash.Win
         [IniEntry(nameof(TargetFileExtension))]
         [Optional]
         public string TargetFileExtension { get; set; }
+
+        [IniEntry(nameof(ShowProcessWindowWithOutput))]
+        [Optional]
+        public bool ShowProcessWindowWithOutput { get; set; }
     }
 }
