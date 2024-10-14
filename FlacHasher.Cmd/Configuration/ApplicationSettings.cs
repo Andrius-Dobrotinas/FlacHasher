@@ -22,7 +22,8 @@ namespace Andy.FlacHash.Cmd
 
         [CmdLineParameter(ParameterNames.ProcessExitTimeoutMs, Order = 0)]
         [IniEntry(nameof(ProcessExitTimeoutMs), Order = 1)]
-        public int? ProcessExitTimeoutMs { get; set; }
+        [Optional(defaultValue: 1000)]
+        public int ProcessExitTimeoutMs { get; set; }
 
         [CmdLineParameter(ParameterNames.ProcessTimeoutSec, Order = 0)]
         [IniEntry(nameof(ProcessTimeoutSec), Order = 1)]
