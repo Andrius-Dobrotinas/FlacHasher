@@ -26,7 +26,7 @@ namespace Andy.FlacHash.Cmd
             InitialParams initialCmdlineParams;
             CmdApplicationParameters settings;
             VerificationSettings verificationSettings;
-
+            
             var parameterReader = ParameterReader.Build();
             try
             {
@@ -85,25 +85,22 @@ namespace Andy.FlacHash.Cmd
 
             try
             {
-                var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
-                
-                FileInfo decoderFile = ResolveDecoderOrThrow(settings);
-
-                Algorithm hashAlgorithm = settings.HashAlgorithm;
-                bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;
-                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(settings, fileSearch);
-
-                if (!inputFiles.Any())
-                    throw new InputFileMissingException("No files provided/found");
-
-                WriteUserLine($"Hash algorithm: {hashAlgorithm}");
-
                 var cancellation = new CancellationTokenSource();
                 Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
                 {
                     e.Cancel = true;
                     cancellation.Cancel();
                 };
+
+                FileInfo decoderFile = ResolveDecoderOrThrow(settings);
+                var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
+                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(settings, fileSearch);
+                if (!inputFiles.Any())
+                    throw new InputFileMissingException("No files provided/found");
+
+                Algorithm hashAlgorithm = settings.HashAlgorithm;
+                bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;
+                WriteUserLine($"Hash algorithm: {hashAlgorithm}");
 
                 var processRunner = new ExternalProcess.ProcessRunner(
                     timeoutSec: settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
