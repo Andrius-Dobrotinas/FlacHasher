@@ -16,6 +16,13 @@
             "commandName": "Project",
             "commandLineArgs": "--inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
         },
+    "Hash-Directory-DecoderInPath": {
+      "commandName": "Project",
+      "commandLineArgs": "--inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"flac.exe\" --format=\"{name} {hash}\"",
+      "environmentVariables": {
+        "PATH": "c:\\;C:\\Program Files (x86)\\FLAC Frontend\\tools"
+      }
+    },
         "Hash-FileAndDirectory": {
             "commandName": "Project",
             "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\" --inputDir=\"C:\\temp\\dinorj\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""

@@ -86,9 +86,10 @@ namespace Andy.FlacHash.Cmd
             try
             {
                 var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
-                FileInfo decoderFile = new FileInfo(settings.Decoder);
-                if (!decoderFile.Exists)
-                    throw new ConfigurationException($"Specified decoder exe file does not exist: {decoderFile.FullName}");
+                
+                FileInfo decoderFile = AudioDecoderFactory.ResolveDecoder(settings.Decoder);
+                if (decoderFile == null)
+                    throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
 
                 Algorithm hashAlgorithm = settings.HashAlgorithm;
                 bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;

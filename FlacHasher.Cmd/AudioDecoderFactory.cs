@@ -45,5 +45,30 @@ namespace Andy.FlacHash.Cmd
         {
             return decoderExe.Name.Contains("flac", StringComparison.InvariantCultureIgnoreCase);
         }
+
+        static FileInfo FindDecoderInPaths(string decoderPath, IEnumerable<string> paths)
+        {
+            foreach (var path in paths)
+            {
+                var fullPath = Path.Combine(path, decoderPath);
+                if (File.Exists(fullPath))
+                    return new FileInfo(fullPath);
+            }
+
+            return null;
+        }
+
+        public static FileInfo ResolveDecoder(string decoderPath)
+        {
+            // If it's a relative path but the decoder is in the same directory as this program, then the decoder will be found
+            if (File.Exists(decoderPath))
+                return new FileInfo(decoderPath);
+
+            if (Path.IsPathRooted(decoderPath))
+                return null;
+
+            var paths = Environment.GetEnvironmentVariable("PATH").Split(';');
+            return FindDecoderInPaths(decoderPath, paths);
+        }
     }
 }
