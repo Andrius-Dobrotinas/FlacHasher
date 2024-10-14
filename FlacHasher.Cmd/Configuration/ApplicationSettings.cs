@@ -29,7 +29,8 @@ namespace Andy.FlacHash.Cmd
         public int? ProcessTimeoutSec { get; set; }
 
         [IniEntry(nameof(ProcessStartWaitMs))]
-        public int? ProcessStartWaitMs { get; set; }
+        [Optional(defaultValue: 100)]
+        public int ProcessStartWaitMs { get; set; }
 
         [CmdLineParameter(ParameterNames.HashAlgorithm, Order = 0)]
         [IniEntry(nameof(HashAlgorithm), Order = 1)]

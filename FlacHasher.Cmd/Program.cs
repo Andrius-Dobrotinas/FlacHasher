@@ -15,7 +15,6 @@ namespace Andy.FlacHash.Cmd
     {
         const string settingsFileName = "settings.cfg";
         const int processExitTimeoutMsDefault = 2000;
-        const int processStartWaitMsDefault = 100;
         const int processTimeoutSecDefault = ProcessRunner.NoTimeoutValue;
         const bool printProcessProgress = true;
 
@@ -104,7 +103,7 @@ namespace Andy.FlacHash.Cmd
                 var processRunner = new ExternalProcess.ProcessRunner(
                     timeoutSec: settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
                     exitTimeoutMs: settings.ProcessExitTimeoutMs ?? processExitTimeoutMsDefault,
-                    startWaitMs: settings.ProcessStartWaitMs ?? processStartWaitMsDefault,
+                    startWaitMs: settings.ProcessStartWaitMs,
                     printProcessProgress);
 
                 var decoderParams = AudioDecoderFactory.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderFile);
