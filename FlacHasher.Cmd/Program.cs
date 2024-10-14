@@ -14,7 +14,6 @@ namespace Andy.FlacHash.Cmd
     public class Program
     {
         const string settingsFileName = "settings.cfg";
-        const int processTimeoutSecDefault = ProcessRunner.NoTimeoutValue;
         const bool printProcessProgress = true;
 
         static int Main(string[] args)
@@ -100,7 +99,7 @@ namespace Andy.FlacHash.Cmd
                 WriteUserLine($"Hash algorithm: {hashAlgorithm}");
 
                 var processRunner = new ExternalProcess.ProcessRunner(
-                    timeoutSec: settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
+                    timeoutSec: settings.ProcessTimeoutSec,
                     exitTimeoutMs: settings.ProcessExitTimeoutMs,
                     startWaitMs: settings.ProcessStartWaitMs,
                     printProcessProgress);

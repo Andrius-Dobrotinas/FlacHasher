@@ -14,7 +14,6 @@ namespace Andy.FlacHash.Win
     {
         const string settingsFileName = "settings.cfg";
         const string defaultFlacFileExtension = "flac";
-        const int processTimeoutSecDefault = 180;
         const bool showProcessWindowWithOutput = false; // todo: read this from the settings file
 
         [STAThread]
@@ -80,7 +79,7 @@ namespace Andy.FlacHash.Win
             var decoder = new Audio.StreamDecoder(
                 decoderExe,
                 new ExternalProcess.ProcessRunner(
-                    settings.ProcessTimeoutSec ?? processTimeoutSecDefault,
+                    settings.ProcessTimeoutSec,
                     settings.ProcessExitTimeoutMs,
                     settings.ProcessStartWaitMs,
                     showProcessWindowWithOutput),
