@@ -48,9 +48,7 @@ namespace Andy.FlacHash.Win
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
-                var decoderExe = new FileInfo(settings.Decoder);
-                if (!decoderExe.Exists)
-                    throw new ConfigurationException($"Specified decoder exe file does not exist: {decoderExe.FullName}");
+                FileInfo decoderExe = Andy.FlacHash.Cmd.Program.ResolveDecoderOrThrow(settings);
 
                 var (hasher, progressReporter) = BuildHasher(decoderExe, settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();

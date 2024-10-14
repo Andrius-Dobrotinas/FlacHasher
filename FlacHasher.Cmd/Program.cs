@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Andy.FlacHash.Cmd
 {
-    class Program
+    public class Program
     {
         const string settingsFileName = "settings.cfg";
         const int processExitTimeoutMsDefault = 2000;
@@ -87,9 +87,7 @@ namespace Andy.FlacHash.Cmd
             {
                 var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
                 
-                FileInfo decoderFile = AudioDecoderFactory.ResolveDecoder(settings.Decoder);
-                if (decoderFile == null)
-                    throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
+                FileInfo decoderFile = ResolveDecoderOrThrow(settings);
 
                 Algorithm hashAlgorithm = settings.HashAlgorithm;
                 bool continueOnError = settings.FailOnError.HasValue ? !settings.FailOnError.Value : continueOnErrorDefault;
@@ -188,6 +186,12 @@ namespace Andy.FlacHash.Cmd
             var unexpectedParams = @paramsNames.Except(acceptedParamNames).ToList();
             if (unexpectedParams.Any())
                 throw new ParameterException($"The following params are not accepted: {string.Join(',', unexpectedParams)}");
+        }
+
+        public static FileInfo ResolveDecoderOrThrow(ApplicationSettings settings)
+        {
+            return AudioDecoderFactory.ResolveDecoder(settings.Decoder)
+                ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
         }
     }
 }
