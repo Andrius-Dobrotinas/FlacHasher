@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Andy.FlacHash.Audio;
+using Andy.FlacHash.Audio.Flac;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Andy.FlacHash.Audio;
 
-namespace Andy.FlacHash.Audio.Flac.CmdLine
+namespace Andy.FlacHash.CompressionLevel.Audio
 {
     public class FileRecoder : IAudioFileEncoder
     {
@@ -38,7 +39,7 @@ namespace Andy.FlacHash.Audio.Flac.CmdLine
             return new string[]
             {
                 $"-{compressionLevel}",
-                Parameters.Options.Encoder.Stdout,
+                FlacHash.Audio.Flac.Parameters.Options.Encoder.Stdout,
                 sourceFile.FullName
             };
         }
