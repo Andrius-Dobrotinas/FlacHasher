@@ -37,7 +37,7 @@ namespace Andy.FlacHash.Cmd
         {
             return @params ??
                     (IsFlac(decoderFile)
-                        ? Audio.Flac.CmdLine.Parameters.Decode.Stream
+                        ? Audio.Flac.Parameters.Decode.Stream
                         : throw new ConfigurationException("Decoder Parameters must be provided for a decoder other than FLAC"));
         }
 

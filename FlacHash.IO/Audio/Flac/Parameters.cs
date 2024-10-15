@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Andy.FlacHash.Audio.Flac.CmdLine
+namespace Andy.FlacHash.Audio.Flac
 {
     public static class Parameters
     {
