@@ -1,6 +1,4 @@
-﻿using Andy.FlacHash.Audio;
-using Andy.FlacHash.Audio.Flac;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -23,7 +21,7 @@ namespace Andy.FlacHash.CompressionLevel.Audio
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
-            CompressionLevelValidation.ValidateCompressionLevel(compressionLevel);
+            FlacHash.Audio.Flac.CompressionLevelValidation.ValidateCompressionLevel(compressionLevel);
 
             var arguments = GetProcessArguments(compressionLevel, sourceFile);
 

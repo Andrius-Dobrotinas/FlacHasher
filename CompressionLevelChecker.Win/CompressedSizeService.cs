@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Andy.FlacHash.Audio;
+using Andy.FlacHash.CompressionLevel.Audio;
 
 namespace Andy.FlacHash.Win
 {

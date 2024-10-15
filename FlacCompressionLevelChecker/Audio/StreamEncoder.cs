@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Andy.FlacHash.Audio.Flac;
 
-namespace Andy.FlacHash.Audio
+namespace Andy.FlacHash.CompressionLevel.Audio
 {
     public class StreamEncoder : IAudioEncoder
     {
@@ -21,7 +20,7 @@ namespace Andy.FlacHash.Audio
         public Stream Encode(Stream wavAudio, int compressionLevel)
         {
             if (wavAudio == null) throw new ArgumentNullException(nameof(wavAudio));
-            CompressionLevelValidation.ValidateCompressionLevel(compressionLevel);
+            Andy.FlacHash.Audio.Flac.CompressionLevelValidation.ValidateCompressionLevel(compressionLevel);
 
             var arguments = GetProcessArguments(compressionLevel);
 
@@ -36,7 +35,7 @@ namespace Andy.FlacHash.Audio
             return new string[]
             {
                 $"-{compressionLevel}",
-                Parameters.Options.Encoder.Stdout //if that doesn't work, "-" could
+                FlacHash.Audio.Flac.Parameters.Options.Encoder.Stdout //if that doesn't work, "-" could
             };
         }
     }

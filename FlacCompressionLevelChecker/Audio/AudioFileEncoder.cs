@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Andy.FlacHash.Audio;
+using System;
 using System.IO;
 
-namespace Andy.FlacHash.Audio
+namespace Andy.FlacHash.CompressionLevel.Audio
 {
     public class AudioFileEncoder : IAudioFileEncoder
     {
