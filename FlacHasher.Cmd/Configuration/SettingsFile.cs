@@ -7,6 +7,10 @@ namespace Andy.FlacHash.Cmd
 {
     public static class SettingsFile
     {
+        /// <summary>
+        /// Reads a given INI <paramref name="settingsFile"/> and returns a profile specified by <paramref name="profileName"/>
+        /// or, if empty, configured in the file.
+        /// </summary>
         /// <param name="profileName">If not specified, uses the profile specified in the settings file</param>
         public static IDictionary<string, string> ReadIniFile(FileInfo settingsFile, string profileName = null)
         {
