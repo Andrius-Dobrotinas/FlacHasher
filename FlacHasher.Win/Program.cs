@@ -2,6 +2,7 @@ using Andy.Cmd.Parameter;
 using Andy.FlacHash.Cmd;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
+using Andy.FlacHash.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;

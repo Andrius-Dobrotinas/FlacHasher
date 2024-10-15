@@ -1,8 +1,7 @@
-﻿using Andy.FlacHash.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.IO
 {
     public class FileReadProgressReporter : IDataReadEventSource, IProgress<int>
     {
