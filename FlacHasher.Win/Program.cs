@@ -2,7 +2,7 @@ using Andy.Cmd.Parameter;
 using Andy.FlacHash.Cmd;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
-using Andy.FlacHash.IO;
+using Andy.FlacHash.IO.Progress;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -73,7 +73,7 @@ namespace Andy.FlacHash.Win
         private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderExe, Settings settings)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
-            var steamFactory = new IO.ProgressReportingReadStreamFactory(fileReadProgressReporter);
+            var steamFactory = new ProgressReportingReadStreamFactory(fileReadProgressReporter);
 
             var decoder = new Audio.StreamDecoder(
                 decoderExe,

@@ -1,6 +1,7 @@
 ﻿using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
 using Andy.FlacHash.IO;
+using Andy.FlacHash.IO.Progress;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,7 +33,7 @@ namespace Andy.FlacHash.Win.UI
         public FormX(
             HashCalculationServiceFactory hashCalculationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
-            IO.IDataReadEventSource fileReadEventSource,
+            IDataReadEventSource fileReadEventSource,
             InteractiveDirectoryGetter dirBrowser,
             InputFileResolver targetFileResolver,
             IHashFormatter hashFormatter,

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Andy.FlacHash.IO
+namespace Andy.FlacHash.IO.Progress
 {
     public delegate void BytesReadHandler(int byteCount);
 
