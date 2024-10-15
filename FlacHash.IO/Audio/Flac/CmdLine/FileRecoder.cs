@@ -39,7 +39,7 @@ namespace Andy.FlacHash.Audio.Flac.CmdLine
             return new string[]
             {
                 $"-{compressionLevel}",
-                EncoderOptions.Stdout,
+                Parameters.Options.Encoder.Stdout,
                 sourceFile.FullName
             };
         }

@@ -8,18 +8,33 @@ namespace Andy.FlacHash.Audio.Flac.CmdLine
 {
     public static class Parameters
     {
+        public static class Options
+        {
+            public static class Decoder
+            {
+                public const string Decode = "--decode";
+                public const string WriteToSdtOut = "--stdout";
+                public const string ReadFromStdIn = "-"; //hardly a documentated feature, discoverd it by semi-accident
+            }
+
+            public static class Encoder
+            {
+                public const string Stdout = "--stdout";
+            }
+        }
+
         public static class Decode
         {
             public static ICollection<string> Stream = new string[]
             {
-                DecoderOptions.Decode,
-                DecoderOptions.ReadFromStdIn
+                Options.Decoder.Decode,
+                Options.Decoder.ReadFromStdIn
             };
 
             public static ICollection<string> File = new string[]
             {
-                DecoderOptions.Decode,
-                DecoderOptions.WriteToSdtOut,
+                Options.Decoder.Decode,
+                Options.Decoder.WriteToSdtOut,
                 Parameter.FilePlaceholder
             };
         }

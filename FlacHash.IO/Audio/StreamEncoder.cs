@@ -37,7 +37,7 @@ namespace Andy.FlacHash.Audio
             return new string[]
             {
                 $"-{compressionLevel}",
-                EncoderOptions.Stdout //if that doesn't work, "-" could
+                Parameters.Options.Encoder.Stdout //if that doesn't work, "-" could
             };
         }
     }
