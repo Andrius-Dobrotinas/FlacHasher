@@ -107,8 +107,8 @@ namespace Andy.FlacHash.Cmd
                     startWaitMs: settings.ProcessStartWaitMs,
                     printProcessProgress);
 
-                var decoderParams = AudioDecoderFactory.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderFile);
-                Audio.IAudioFileDecoder decoder = AudioDecoderFactory.Build(decoderFile, processRunner, decoderParams);
+                var decoderParams = AudioDecoder.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderFile);
+                Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
 
                 if (initialCmdlineParams.IsVerification)
                 {
@@ -186,7 +186,7 @@ namespace Andy.FlacHash.Cmd
 
         public static FileInfo ResolveDecoderOrThrow(ApplicationSettings settings)
         {
-            return AudioDecoderFactory.ResolveDecoder(settings.Decoder)
+            return AudioDecoder.ResolveDecoder(settings.Decoder)
                 ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
         }
     }

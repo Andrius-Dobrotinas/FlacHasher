@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Andy.FlacHash.Cmd
 {
-    public static class AudioDecoderFactory
+    public static class AudioDecoder
     {
         public static Audio.IAudioFileDecoder Build(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
         {

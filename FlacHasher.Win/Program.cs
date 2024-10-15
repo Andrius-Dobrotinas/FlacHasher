@@ -48,7 +48,7 @@ namespace Andy.FlacHash.Win
                 var hashFormatter = new PlainLowercaseHashFormatter();
 
                 var fileExtension = settings.TargetFileExtension
-                    ?? (AudioDecoderFactory.IsFlac(decoderExe)
+                    ?? (AudioDecoder.IsFlac(decoderExe)
                         ? Audio.Flac.Metadata.FileExtension
                         : throw new ConfigurationException("Configure file extension for the specified decoder"));
 
@@ -81,7 +81,7 @@ namespace Andy.FlacHash.Win
                     settings.ProcessExitTimeoutMs,
                     settings.ProcessStartWaitMs,
                     showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput),
-                AudioDecoderFactory.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderExe));
+                AudioDecoder.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderExe));
             
             var reader = new Audio.AudioFileDecoder(steamFactory, decoder);
 
