@@ -7,11 +7,11 @@ namespace Andy.FlacHash.Audio
 {
     public class AudioFileDecoder : IAudioFileDecoder
     {
-        private readonly IReadStreamFactory inputStreamFactory;
+        private readonly IFileReadStreamFactory inputStreamFactory;
         private readonly IAudioDecoder decoder;
 
         public AudioFileDecoder(
-            IReadStreamFactory streamFactory,
+            IFileReadStreamFactory streamFactory,
             IAudioDecoder decoder)
         {
             this.decoder = decoder;

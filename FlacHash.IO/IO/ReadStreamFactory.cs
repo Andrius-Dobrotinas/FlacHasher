@@ -5,7 +5,7 @@ using Andy.FlacHash.Audio;
 
 namespace Andy.FlacHash.IO
 {
-    public class ReadStreamFactory : IReadStreamFactory
+    public class ReadStreamFactory : IFileReadStreamFactory
     {
         public Stream CreateStream(FileInfo sourceFile)
         {

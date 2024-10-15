@@ -5,7 +5,7 @@ using Andy.FlacHash.Audio;
 
 namespace Andy.FlacHash.IO.Progress
 {
-    public class ProgressReportingReadStreamFactory : IReadStreamFactory
+    public class ProgressReportingReadStreamFactory : IFileReadStreamFactory
     {
         private readonly IProgress<int> progressReporter;
 
