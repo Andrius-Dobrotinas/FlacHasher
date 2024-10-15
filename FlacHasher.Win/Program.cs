@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Win
             try
             {
                 var settingsFile = new FileInfo(settingsFileName);
-                var settingsFileParams = SettingsProvider.ReadSettingsFile(settingsFile)
+                var settingsFileParams = SettingsFile.ReadIniFile(settingsFile)
                     .ToDictionary(x => x.Key, x => new[] { x.Value });
 
                 settings = ParameterReader.Build().GetParameters<Settings>(settingsFileParams);

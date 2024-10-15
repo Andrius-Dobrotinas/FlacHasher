@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace Andy.FlacHash.Cmd
 {
-    public static class SettingsProvider
+    public static class SettingsFile
     {
         /// <param name="profileName">If not specified, uses the profile specified in the settings file</param>
-        public static IDictionary<string, string> ReadSettingsFile(FileInfo settingsFile, string profileName = null)
+        public static IDictionary<string, string> ReadIniFile(FileInfo settingsFile, string profileName = null)
         {
             var iniReader = new Andy.Configuration.Ini.IniFileReader(
                 new Andy.Configuration.Ini.IO.TextFileReader(),
