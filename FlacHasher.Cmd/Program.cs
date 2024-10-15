@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Cmd
             try
             {
                     var settingsFile = new FileInfo(settingsFileName);
-                    settingsFileParams = SettingsProvider.GetSettingsDictionary(settingsFile, initialCmdlineParams.Profile)
+                    settingsFileParams = SettingsProvider.ReadSettingsFile(settingsFile, initialCmdlineParams.Profile)
                         .ToDictionary(x => lowercaseParams ? x.Key.ToLowerInvariant() : x.Key, x => new[] { x.Value });
                 }
                 catch (Exception e)
