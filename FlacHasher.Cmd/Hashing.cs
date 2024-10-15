@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Cmd
 
         static MultiFileHasher BuildHasher(IAudioFileDecoder decoder, bool continueOnError, Algorithm hashAlgorithm)
         {
-            var hasher = new FileHasher(decoder, new HashComputer(hashAlgorithm));
+            var hasher = new FileHasher(decoder, new Hasher(hashAlgorithm));
             return new MultiFileHasher(hasher, continueOnError);
         }
 

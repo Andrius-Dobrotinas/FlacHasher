@@ -14,19 +14,19 @@ namespace Andy.FlacHash.Hashing
     public class FileHasher : IFileHasher
     {
         private readonly IAudioFileDecoder fileDecoder;
-        private readonly IHashComputer hashComputer;
+        private readonly IHasher hasher;
 
-        public FileHasher(IAudioFileDecoder decoder, IHashComputer hashComputer)
+        public FileHasher(IAudioFileDecoder decoder, IHasher hasher)
         {
             fileDecoder = decoder ?? throw new ArgumentNullException(nameof(decoder));
-            this.hashComputer = hashComputer ?? throw new ArgumentNullException(nameof(hashComputer));
+            this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
         }
 
         public byte[] ComputeHash(FileInfo sourceFile, CancellationToken cancellation = default)
         {
             using (Stream contents = fileDecoder.Read(sourceFile, cancellation))
             {
-                return hashComputer.ComputeHash(contents);
+                return hasher.ComputeHash(contents);
             }
         }
     }

@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 
 namespace Andy.FlacHash.Hashing.Crypto
 {
-    public class HashComputer : IHashComputer
+    public class Hasher : IHasher
     {
         private readonly string algo;
 
-        public HashComputer(Algorithm algorithm)
+        public Hasher(Algorithm algorithm)
         {
             algo = algorithm.ToString();
         }
