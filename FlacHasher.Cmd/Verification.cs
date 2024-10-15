@@ -110,7 +110,7 @@ namespace Andy.FlacHash.Cmd
 
         public static IMultiFileHasher BuildHasher(IAudioFileDecoder reader, bool continueOnError, Algorithm hashAlgorithm)
         {
-            var hasher = new FileHasher(reader, new Hashing.Crypto.HashComputer(hashAlgorithm));
+            var hasher = new FileHasher(reader, new FlacHash.Hashing.Crypto.HashComputer(hashAlgorithm));
             return new MultiFileHasher(hasher, continueOnError);
         }
 

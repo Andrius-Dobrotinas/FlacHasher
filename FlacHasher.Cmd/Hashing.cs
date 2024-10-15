@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Andy.FlacHash.Cmd
 {
-    static class Computation
+    static class Hashing
     {
         const char newlineChar = '\n';
 

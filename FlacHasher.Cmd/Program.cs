@@ -92,7 +92,7 @@ namespace Andy.FlacHash.Cmd
                 };
 
                 FileInfo decoderFile = ResolveDecoderOrThrow(settings);
-                var fileSearch = new Hashing.FileSearch(settings.FileLookupIncludeHidden);
+                var fileSearch = new FlacHash.Hashing.FileSearch(settings.FileLookupIncludeHidden);
                 IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");
@@ -116,7 +116,7 @@ namespace Andy.FlacHash.Cmd
                 }
                 else
                 {
-                    Computation.ComputeHashes(inputFiles, settings.OutputFormat, decoder, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
+                    Hashing.ComputeHashes(inputFiles, settings.OutputFormat, decoder, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)
