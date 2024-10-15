@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Andy.Cmd.Parameter;
+using System;
 
-namespace Andy.Cmd.Parameter
+namespace Andy.FlacHash.Cmd
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class IniEntryAttribute : ParameterAttribute
