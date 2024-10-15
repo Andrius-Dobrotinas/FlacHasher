@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Andy.FlacHash.Audio;
 
 namespace Andy.FlacHash.IO
 {
