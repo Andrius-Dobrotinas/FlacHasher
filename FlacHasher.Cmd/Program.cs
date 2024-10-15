@@ -124,12 +124,12 @@ namespace Andy.FlacHash.Cmd
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ConfigurationError;
             }
-            catch (IO.IOException e)
+            catch (IOException e)
             {
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.InputReadingFailure;
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException)
             {
                 WriteUserLine("The operation was cancelled");
                 return (int)ReturnValue.Cancellation;

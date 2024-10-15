@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.IO
 {
-    public class InputFileNotFoundException : Exception
+    public class InputFileNotFoundException : IOException
     {
         public string Filename { get; }
 
