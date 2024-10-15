@@ -23,7 +23,7 @@ namespace Andy.FlacHash.Cmd
         {
             var ini = new Dictionary<string, IDictionary<string, string>>();
 
-            var result = SettingsProvider.GetSettingsDictionary(ini, profileName);
+            var result = SettingsProvider.GetSettingsProfile(ini, profileName);
 
             Assert.IsEmpty(result);
         }
@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Cmd
         [TestCaseSource(nameof(GetCases_ReturnRootSection))]
         public void When_ContainsRootSection_RepresentedByEmptyStringKey_And_TargetProfile_NotSpecified__Must__Return_RootSection(IDictionary<string, IDictionary<string, string>> ini, IDictionary<string, string> expectedSection)
         {
-            var result = SettingsProvider.GetSettingsDictionary(ini, null);
+            var result = SettingsProvider.GetSettingsProfile(ini, null);
 
             AssertThat.CollectionsMatchExactly(result.OrderBy(x => x.Key), expectedSection.OrderBy(x => x.Key));
         }
@@ -40,7 +40,7 @@ namespace Andy.FlacHash.Cmd
         [TestCaseSource(nameof(GetCases_ReturnRootSection))]
         public void When_ContainsRootSection_RepresentedByEmptyStringKey_And_TargetProfile_IsEmptyString__Must__Return_RootSection(IDictionary<string, IDictionary<string, string>> ini, IDictionary<string, string> expectedSection)
         {
-            var result = SettingsProvider.GetSettingsDictionary(ini, "");
+            var result = SettingsProvider.GetSettingsProfile(ini, "");
 
             AssertThat.CollectionsMatchExactly(result.OrderBy(x => x.Key), expectedSection.OrderBy(x => x.Key));
         }
@@ -59,13 +59,13 @@ namespace Andy.FlacHash.Cmd
                 { "", section }
             };
 
-            Assert.Throws<ConfigurationException>(() => SettingsProvider.GetSettingsDictionary(ini, "whatevs"));
+            Assert.Throws<ConfigurationException>(() => SettingsProvider.GetSettingsProfile(ini, "whatevs"));
         }
 
         [TestCaseSource(nameof(GetCases_Override))]
         public void When_ContainsRootSection_And_TargetProfile_IsSpecified__Must__Return_RootSection_With_ValuesOverriddenByTargetProfile(IDictionary<string, IDictionary<string, string>> ini, string targetProfile, IDictionary<string, string> expectedSection)
         {
-            var result = SettingsProvider.GetSettingsDictionary(ini, targetProfile);
+            var result = SettingsProvider.GetSettingsProfile(ini, targetProfile);
 
             AssertThat.CollectionsMatchExactly(result.OrderBy(x => x.Key), expectedSection.OrderBy(x => x.Key));
         }
@@ -73,7 +73,7 @@ namespace Andy.FlacHash.Cmd
         [TestCaseSource(nameof(GetCases_Override_ProfileSpecifiedInConfig))]
         public void When_ContainsRootSection_And_TargetProfile_NotSpecified_And_SectionSpecifiesProfile__Must__Return_RootSection_With_ValuesOverriddenByTargetProfile(IDictionary<string, IDictionary<string, string>> ini, IDictionary<string, string> expectedSection)
         {
-            var result = SettingsProvider.GetSettingsDictionary(ini, null);
+            var result = SettingsProvider.GetSettingsProfile(ini, null);
 
             AssertThat.CollectionsMatchExactly(result.OrderBy(x => x.Key), expectedSection.OrderBy(x => x.Key));
         }
@@ -81,7 +81,7 @@ namespace Andy.FlacHash.Cmd
         [TestCaseSource(nameof(GetCases_Override_ProfileSpecifiedInConfigAndFunctionParam))]
         public void When_ContainsRootSection_And_TargetProfile_IsSpecified_And_SectionSpecifiesProfile__Must__UseFunctionParameterProfile(IDictionary<string, IDictionary<string, string>> ini, string profile, IDictionary<string, string> expectedSection)
         {
-            var result = SettingsProvider.GetSettingsDictionary(ini, profile);
+            var result = SettingsProvider.GetSettingsProfile(ini, profile);
 
             AssertThat.CollectionsMatchExactly(result.OrderBy(x => x.Key), expectedSection.OrderBy(x => x.Key));
         }
@@ -118,7 +118,7 @@ namespace Andy.FlacHash.Cmd
                     { "key0", "initial D" },
                     { "key3", "value 3" },
                 };
-            var result = SettingsProvider.GetSettingsDictionary(ini, "");
+            var result = SettingsProvider.GetSettingsProfile(ini, "");
 
             AssertThat.CollectionsMatchExactly(result.OrderBy(x => x.Key), expected.OrderBy(x => x.Key));
         }
@@ -138,7 +138,7 @@ namespace Andy.FlacHash.Cmd
                 { "first", section }
             };
 
-            Assert.Throws<ConfigurationException>(() => SettingsProvider.GetSettingsDictionary(ini, profileName));
+            Assert.Throws<ConfigurationException>(() => SettingsProvider.GetSettingsProfile(ini, profileName));
         }
 
         [TestCase("profile1")]
@@ -156,7 +156,7 @@ namespace Andy.FlacHash.Cmd
                 { "first", section }
             };
 
-            Assert.Throws<ConfigurationException>(() => SettingsProvider.GetSettingsDictionary(ini, profileName));
+            Assert.Throws<ConfigurationException>(() => SettingsProvider.GetSettingsProfile(ini, profileName));
         }
 
         [TestCase("first")]
@@ -182,7 +182,7 @@ namespace Andy.FlacHash.Cmd
             };
 
             var expected = ini[profileName];
-            var result = SettingsProvider.GetSettingsDictionary(ini, profileName);
+            var result = SettingsProvider.GetSettingsProfile(ini, profileName);
             AssertThat.CollectionsMatchExactly(result.OrderBy(x => x.Key), expected.OrderBy(x => x.Key));
         }
 

@@ -17,11 +17,14 @@ namespace Andy.FlacHash.Cmd
 
             var settingsDictionary = iniReader.Read(settingsFile);
 
-            return GetSettingsDictionary(settingsDictionary, profileName);
+            return GetSettingsProfile(settingsDictionary, profileName);
         }
-
-        /// <param name="profileName">If not specified, uses the profile specified in the settings file</param>
-        public static IDictionary<string, string> GetSettingsDictionary(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null)
+        /// <summary>
+        /// Reads a specified settings profile from <paramref name="settingsDictionary"/> merging it with the root settings node.
+        /// If no <paramref name="profileName"/> is specified, uses a profile configured in the root entry of <paramref name="settingsDictionary"/>.
+        /// If none is configured there, then simply returns the root settings node.
+        /// </summary>
+        public static IDictionary<string, string> GetSettingsProfile(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null)
         {
             if (!settingsDictionary.Any())
                 return new Dictionary<string, string>();
