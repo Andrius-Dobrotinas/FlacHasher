@@ -50,7 +50,7 @@ namespace Andy.FlacHash.Win
 
                 var fileExtension = settings.TargetFileExtension
                     ?? (AudioDecoder.IsFlac(decoderExe)
-                        ? Audio.Flac.Metadata.FileExtension
+                        ? Audio.Flac.FormatMetadata.FileExtension
                         : throw new ConfigurationException("Configure file extension for the specified decoder"));
 
                 Application.Run(

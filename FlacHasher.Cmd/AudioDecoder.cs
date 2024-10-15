@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Cmd
 
         public static bool IsFlac(FileInfo decoderExe)
         {
-            return decoderExe.Name.Contains(Audio.Flac.Metadata.DecoderExeName, StringComparison.InvariantCultureIgnoreCase);
+            return decoderExe.Name.Contains(Audio.Flac.FormatMetadata.DecoderExeName, StringComparison.InvariantCultureIgnoreCase);
         }
 
         static FileInfo FindDecoderInPaths(string decoderPath, IEnumerable<string> paths)

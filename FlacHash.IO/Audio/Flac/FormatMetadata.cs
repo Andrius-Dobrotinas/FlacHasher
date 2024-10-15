@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Audio.Flac
 {
-    public static class Metadata
+    public static class FormatMetadata
     {
         public const string DecoderExeName = "flac";
         public const string FileExtension = "flac";
