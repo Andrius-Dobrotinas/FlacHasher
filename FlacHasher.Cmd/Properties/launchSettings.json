@@ -2,7 +2,7 @@
     "profiles": {
         "Hash-SingleFile": {
             "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --input=ee --format=\"{name} {hash}\""
+            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --format=\"{name} {hash}\""
         },
         "Hash-MultipleFiles": {
             "commandName": "Project",
