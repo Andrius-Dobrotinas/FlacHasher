@@ -9,13 +9,13 @@ namespace Andy.FlacHash.Audio
     /// <summary>
     /// Sends file name to the decoder via parameters
     /// </summary>
-    public class FileDecoder : IAudioFileDecoder
+    public class AudioFileDecoder : IAudioFileDecoder
     {
         private readonly FileInfo decoderExecutableFile;
         private readonly ExternalProcess.IOutputOnlyProcessRunner processRunner;
         private readonly ICollection<string> @params;
 
-        public FileDecoder(
+        public AudioFileDecoder(
             FileInfo decoderExecutableFile,
             ExternalProcess.IOutputOnlyProcessRunner processRunner,
             ICollection<string> @params)

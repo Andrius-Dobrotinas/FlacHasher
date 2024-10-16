@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Cmd
         
         private static Audio.IAudioFileDecoder BuildRegular(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
         {
-            return new Audio.FileDecoder(
+            return new Audio.AudioFileDecoder(
                     decoderFile,
                     processRunner,
                     args);
