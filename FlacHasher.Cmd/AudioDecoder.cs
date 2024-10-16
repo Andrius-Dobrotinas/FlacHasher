@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Cmd
                 decoderFile,
                 processRunner,
                 args);
-            return new Audio.AudioFileDecoder(steamFactory, decoder);
+            return new Audio.StdInputStreamAudioFileDecoder(steamFactory, decoder);
         }
 
         public static ICollection<string> GetDecoderParametersOrDefault(ICollection<string> @params, FileInfo decoderFile)

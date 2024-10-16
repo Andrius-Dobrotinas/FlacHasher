@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace Andy.FlacHash.Audio
 {
+    /// <summary>
+    /// Sends file name to the decoder via parameters
+    /// </summary>
     public class FileDecoder : IAudioFileDecoder
     {
         private readonly FileInfo decoderExecutableFile;

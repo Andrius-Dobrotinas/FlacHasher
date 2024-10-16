@@ -84,7 +84,7 @@ namespace Andy.FlacHash.Win
                     showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput),
                 AudioDecoder.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderExe));
             
-            var reader = new Audio.AudioFileDecoder(steamFactory, decoder);
+            var reader = new Audio.StdInputStreamAudioFileDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(
                 reader,

@@ -5,12 +5,15 @@ using System.Threading;
 
 namespace Andy.FlacHash.Audio
 {
-    public class AudioFileDecoder : IAudioFileDecoder
+    /// <summary>
+    /// Feeds file data stream to the decoder via std-in
+    /// </summary>
+    public class StdInputStreamAudioFileDecoder : IAudioFileDecoder
     {
         private readonly IFileReadStreamFactory inputStreamFactory;
         private readonly IAudioDecoder decoder;
 
-        public AudioFileDecoder(
+        public StdInputStreamAudioFileDecoder(
             IFileReadStreamFactory streamFactory,
             IAudioDecoder decoder)
         {
