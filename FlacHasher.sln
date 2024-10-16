@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompressionLevelChecker.Win
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher.Win", "FlacHasher.Win\FlacHasher.Win.csproj", "{98C23219-1364-4BC1-A906-1F609DAA8736}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHash.IO", "FlacHash.IO\FlacHash.IO.csproj", "{2A68B888-C4F5-4B4C-9CE9-AE73CB6F884B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHash.Audio", "FlacHash.IO\FlacHash.Audio.csproj", "{2A68B888-C4F5-4B4C-9CE9-AE73CB6F884B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher.Win.Tests", "FlacHasher.Win.Tests\FlacHasher.Win.Tests.csproj", "{73574F89-BE50-4B75-806E-E8EF4D106A55}"
 EndProject

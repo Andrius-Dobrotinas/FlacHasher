@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlacCompressionLevelChecker\FlacCompressionLevelChecker.csproj" />
+    <ProjectReference Include="..\FlacHash.IO\FlacHash.Audio.csproj" />
   </ItemGroup>
 
 </Project>

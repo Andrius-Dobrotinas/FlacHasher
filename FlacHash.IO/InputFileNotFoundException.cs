@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.Audio
 {
     public class InputFileNotFoundException : IOException
     {

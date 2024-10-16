@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Andy.FlacHash</RootNamespace>
-    <AssemblyName>FlacHash.IO</AssemblyName>
+    <RootNamespace>Andy.FlacHash.Audio</RootNamespace>
+    <AssemblyName>FlacHash.Audio</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

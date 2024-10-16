@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FlacHash.IO\FlacHash.Audio.csproj" />
     <ProjectReference Include="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" />
     <ProjectReference Include="..\FlacHash\FlacHash.csproj" />
   </ItemGroup>
