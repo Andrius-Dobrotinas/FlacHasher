@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Andy.FlacHash.Cmd
 {
-    public static class ExecutionParameterResolver
+    public static class Functions
     {
         public static IList<FileInfo> GetInputFiles(CmdApplicationParameters settings, FileSearch fileSearch)
         {

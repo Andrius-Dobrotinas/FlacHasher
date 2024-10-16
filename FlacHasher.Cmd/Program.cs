@@ -93,7 +93,7 @@ namespace Andy.FlacHash.Cmd
 
                 FileInfo decoderFile = ResolveDecoderOrThrow(settings);
                 var fileSearch = new FlacHash.Hashing.FileSearch(settings.FileLookupIncludeHidden);
-                IList<FileInfo> inputFiles = ExecutionParameterResolver.GetInputFiles(settings, fileSearch);
+                IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");
 
