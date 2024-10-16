@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Cmd
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, IHashfileParams parameters, IAudioFileDecoder audioFileDecoder, bool continueOnError, Algorithm hashAlgorithm, IFileSearch fileSearch, CancellationToken cancellation)
+        public static void Verify(IList<FileInfo> targetFiles, IHashfileParams parameters, IAudioFileDecoder audioFileDecoder, Algorithm hashAlgorithm, IFileSearch fileSearch, CancellationToken cancellation)
         {
             var hashfile = GetHashFile(parameters, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
@@ -34,7 +34,7 @@ namespace Andy.FlacHash.Cmd
             var hashfileReader = BuildHashfileReader(parameters.HashfileEntrySeparator);
             var fileHashMap = hashfileReader.Read(hashfile);
 
-            var hasher = BuildHasher(audioFileDecoder, continueOnError, hashAlgorithm);
+            var hasher = BuildHasher(audioFileDecoder, hashAlgorithm);
             var verifier = BuildVerifier();
 
             Verify(hasher, verifier, targetFiles, fileHashMap, cancellation);
@@ -106,10 +106,10 @@ namespace Andy.FlacHash.Cmd
             return new HashVerifier(hashFormatter);
         }
 
-        public static IMultiFileHasher BuildHasher(IAudioFileDecoder reader, bool continueOnError, Algorithm hashAlgorithm)
+        public static IMultiFileHasher BuildHasher(IAudioFileDecoder reader, Algorithm hashAlgorithm)
         {
-            var hasher = new FileHasher(reader, new FlacHash.Hashing.Crypto.Hasher(hashAlgorithm));
-            return new MultiFileHasher(hasher, continueOnError);
+            var hasher = new FileHasher(reader, new Hasher(hashAlgorithm));
+            return new MultiFileHasher(hasher, continueOnError: true);
         }
 
         public static FileInfo GetHashFile(IHashfileParams parameters, IFileSearch fileSearch)

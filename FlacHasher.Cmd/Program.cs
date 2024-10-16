@@ -112,7 +112,7 @@ namespace Andy.FlacHash.Cmd
 
                 if (initialCmdlineParams.IsVerification)
                 {
-                    Verification.Verify(inputFiles, verificationSettings, decoder, continueOnError, hashAlgorithm, fileSearch, cancellation.Token);
+                    Verification.Verify(inputFiles, verificationSettings, decoder, hashAlgorithm, fileSearch, cancellation.Token);
                 }
                 else
                 {

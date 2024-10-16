@@ -90,7 +90,7 @@ namespace Andy.FlacHash.Win
                 reader,
                 new Hashing.Crypto.Hasher(settings.HashAlgorithm));
             var cancellableHasher = new ReportingMultiFileHasher(
-                new MultiFileHasher(hasher, !settings.FailOnError));
+                new MultiFileHasher(hasher, continueOnError: true));
 
             return (cancellableHasher, fileReadProgressReporter);
         }

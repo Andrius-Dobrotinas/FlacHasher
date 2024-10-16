@@ -40,11 +40,6 @@ namespace Andy.FlacHash.Cmd
         [Optional(defaultValue: Defaults.HashAlgorithm)]
         public Algorithm HashAlgorithm { get; set; }
 
-        [CmdLineParameter(ParameterNames.FailOnError, Order = 0)]
-        [IniEntry(nameof(FailOnError), Order = 1)]
-        [Optional]
-        public bool FailOnError { get; set; }
-
         [IniEntry(nameof(FileLookupIncludeHidden))]
         [Optional(defaultValue: false)]
         public bool FileLookupIncludeHidden { get; set; }
