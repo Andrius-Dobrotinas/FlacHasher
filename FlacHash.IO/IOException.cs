@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Audio
 {
-    public abstract class IOException : Exception
+    public abstract class IOException : System.IO.IOException
     {
         public IOException(string message)
             : base(message)
