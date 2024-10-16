@@ -9,6 +9,6 @@ namespace Andy.FlacHash.Audio
         /// <summary>
         /// Returns a specified file as a decoded audio byte stream.
         /// </summary>
-        Stream Read(FileInfo sourceFile, CancellationToken cancellation = default);
+        DecoderStream Read(FileInfo sourceFile, CancellationToken cancellation = default);
     }
 }

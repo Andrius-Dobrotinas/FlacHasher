@@ -21,9 +21,9 @@ namespace Andy.FlacHash.Audio
             this.@params = @params ?? throw new ArgumentNullException(nameof(@params));
         }
 
-        public Stream Read(Stream wavAudio, CancellationToken cancellation = default)
+        public DecoderStream Read(Stream wavAudio, CancellationToken cancellation = default)
         {
-            return processRunner.RunAndReadOutput(decoderExecutableFile, @params, wavAudio, cancellation);
+            return new DecoderStream(processRunner.RunAndReadOutput(decoderExecutableFile, @params, wavAudio, cancellation));
         }
     }
 }

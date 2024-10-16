@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Audio
             this.@params = @params ?? throw new ArgumentNullException(nameof(@params));
         }
 
-        public Stream Read(FileInfo sourceFile, CancellationToken cancellation = default)
+        public DecoderStream Read(FileInfo sourceFile, CancellationToken cancellation = default)
         {
             if (sourceFile == null) throw new ArgumentNullException(nameof(sourceFile));
 
@@ -31,10 +31,10 @@ namespace Andy.FlacHash.Audio
 
             var arguments = GetProcessArguments(sourceFile);
 
-            return processRunner.RunAndReadOutput(
+            return new DecoderStream(processRunner.RunAndReadOutput(
                 decoderExecutableFile,
                 arguments,
-                cancellation);
+                cancellation));
         }
 
         private string[] GetProcessArguments(FileInfo sourceFile)

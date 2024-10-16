@@ -7,6 +7,6 @@ namespace Andy.FlacHash.Audio
 {
     public interface IAudioDecoder
     {
-        Stream Read(Stream wavAudio, CancellationToken cancellation = default);
+        DecoderStream Read(Stream wavAudio, CancellationToken cancellation = default);
     }
 }

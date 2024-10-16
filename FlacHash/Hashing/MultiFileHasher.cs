@@ -45,7 +45,8 @@ namespace Andy.FlacHash.Hashing
                     {
                         throw;
                     }
-                    catch (Exception e)
+                    // If it's purely a problem decoding the file, then it can move on to the next one (if configured); otherwise, something bigger is up
+                    catch (Audio.IOException e)
                     {
                         if (!continueOnError)
                             throw;

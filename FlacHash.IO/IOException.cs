@@ -8,7 +8,11 @@ namespace Andy.FlacHash.Audio
         public IOException(string message)
             : base(message)
         {
+        }
 
+        public IOException(string message, Exception exception)
+            : base(message, exception)
+        {
         }
     }
 }
