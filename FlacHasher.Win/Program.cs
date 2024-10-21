@@ -73,21 +73,21 @@ namespace Andy.FlacHash.Win
         private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderExe, Settings settings)
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
-            var steamFactory = new ProgressReportingReadStreamFactory(fileReadProgressReporter);
 
-            var decoder = new Audio.StreamDecoder(
+            var decoderParams = AudioDecoder.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderExe);
+            var decoder = AudioDecoder.Build(
                 decoderExe,
                 new ExternalProcess.ProcessRunner(
                     settings.ProcessTimeoutSec,
                     settings.ProcessExitTimeoutMs,
                     settings.ProcessStartWaitMs,
                     showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput),
-                AudioDecoder.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderExe));
+                decoderParams,
+                fileReadProgressReporter);
             
-            var reader = new Audio.StdInputStreamAudioFileDecoder(steamFactory, decoder);
 
             var hasher = new FileHasher(
-                reader,
+                decoder,
                 new Hashing.Crypto.Hasher(settings.HashAlgorithm));
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(hasher, continueOnError: true));

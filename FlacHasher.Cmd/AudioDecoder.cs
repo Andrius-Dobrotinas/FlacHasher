@@ -1,4 +1,5 @@
 ﻿using Andy.ExternalProcess;
+using Andy.FlacHash.Audio;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,29 +9,37 @@ namespace Andy.FlacHash.Cmd
 {
     public static class AudioDecoder
     {
-        public static Audio.IAudioFileDecoder Build(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
+
+        /// <summary>
+        /// Builds and Audio decoder based on whether input file is referenced by the parameters; otherwise, it's assumed the data will be fed to the decoder via stdin.
+        /// </summary>
+        /// <param name="inputStreamReadProgressReporter">Optional and only applicable when data is to be fed via stdin</param>
+        /// <returns></returns>
+        public static IAudioFileDecoder Build(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args, IProgress<int> inputStreamReadProgressReporter = null)
         {
-            return Audio.AudioFileDecoder.ContainsFilePlaceholder(args)
+            return AudioFileDecoder.ContainsFilePlaceholder(args)
                     ? BuildRegular(decoderFile, processRunner, args)
-                    : BuildForStdin(decoderFile, processRunner, args);
+                    : BuildForStdin(decoderFile, processRunner, args, inputStreamReadProgressReporter);
         }
         
-        private static Audio.IAudioFileDecoder BuildRegular(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
+        private static IAudioFileDecoder BuildRegular(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
         {
-            return new Audio.AudioFileDecoder(
+            return new AudioFileDecoder(
                     decoderFile,
                     processRunner,
                     args);
         }
 
-        private static Audio.IAudioFileDecoder BuildForStdin(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
+        private static IAudioFileDecoder BuildForStdin(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args, IProgress<int> inputStreamReadProgressReporter = null)
         {
-            var steamFactory = new IO.ReadStreamFactory();
-            var decoder = new Audio.StreamDecoder(
+            var streamFactory = inputStreamReadProgressReporter == null
+                ? (IFileReadStreamFactory)new IO.ReadStreamFactory()
+                : new IO.Progress.ProgressReportingReadStreamFactory(inputStreamReadProgressReporter);
+            var decoder = new StreamDecoder(
                 decoderFile,
                 processRunner,
                 args);
-            return new Audio.StdInputStreamAudioFileDecoder(steamFactory, decoder);
+            return new StdInputStreamAudioFileDecoder(streamFactory, decoder);
         }
 
         public static ICollection<string> GetDecoderParametersOrDefault(ICollection<string> @params, FileInfo decoderFile)
