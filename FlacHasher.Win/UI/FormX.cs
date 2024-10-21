@@ -244,7 +244,7 @@ namespace Andy.FlacHash.Win.UI
                             ? HashMatch.NotFound
                             : HashMatch.Error;
                         list_verification_results.Add(calcResult.File, result);
-                        ReportExecutionError(calcResult.Exception, calcResult.File);
+                        ReportExecutionErrorAndProgress(calcResult.Exception, calcResult.File);
                     }
                 });
         }
@@ -284,8 +284,7 @@ namespace Andy.FlacHash.Win.UI
             }
             else
             {
-                if (finishedWithErrors)
-                    progressReporter.SetToMax();
+                progressReporter.SetToMax();
 
                 label_Status.Text = "Finished";
             }
@@ -311,7 +310,7 @@ namespace Andy.FlacHash.Win.UI
         {
             if (result.Exception != null)
             {
-                ReportExecutionError(result.Exception, result.File);
+                ReportExecutionErrorAndProgress(result.Exception, result.File);
                 return;
             }
 
@@ -325,8 +324,11 @@ namespace Andy.FlacHash.Win.UI
             this.Text = result.File.Name;
         }
 
-        private void ReportExecutionError(Exception exception, FileInfo file)
+        private void ReportExecutionErrorAndProgress(Exception exception, FileInfo file)
         {
+            if (file.Exists)
+                progressReporter.Increment(file.Length);
+
             finishedWithErrors = true;
             Task.Run(() => MessageBox.Show($"Error processing file {file.Name}: {exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error));
         }
