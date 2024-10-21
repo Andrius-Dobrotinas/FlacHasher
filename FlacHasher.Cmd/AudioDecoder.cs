@@ -10,7 +10,7 @@ namespace Andy.FlacHash.Cmd
     {
         public static Audio.IAudioFileDecoder Build(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
         {
-            return args.Any(arg => arg.Equals(Audio.Parameter.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase))
+            return Audio.AudioFileDecoder.ContainsFilePlaceholder(args)
                     ? BuildRegular(decoderFile, processRunner, args)
                     : BuildForStdin(decoderFile, processRunner, args);
         }
