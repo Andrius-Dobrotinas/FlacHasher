@@ -42,13 +42,13 @@ namespace Andy.FlacHash.Cmd
             return new StdInputStreamAudioFileDecoder(streamFactory, decoder);
         }
 
-        public static ICollection<string> GetDecoderParametersOrDefault(ICollection<string> @params, FileInfo decoderFile)
+        public static ICollection<string> GetDefaultDecoderParametersIfEmpty(ICollection<string> @params, FileInfo decoderFile)
         {
             return (@params != null && @params.Any()) 
                 ? @params
                 : (IsFlac(decoderFile)
-                        ? Audio.Flac.Parameters.Decode.Stream
-                        : throw new ConfigurationException("Decoder Parameters must be provided for a decoder other than FLAC"));
+                    ? Audio.Flac.Parameters.Decode.Stream
+                    : throw new ConfigurationException("Decoder Parameters must be provided for a decoder other than FLAC"));
         }
 
         public static bool IsFlac(FileInfo decoderExe)

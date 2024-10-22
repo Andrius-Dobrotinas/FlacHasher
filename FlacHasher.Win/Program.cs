@@ -74,7 +74,7 @@ namespace Andy.FlacHash.Win
         {
             var fileReadProgressReporter = new FileReadProgressReporter();
 
-            var decoderParams = AudioDecoder.GetDecoderParametersOrDefault(settings.DecoderParameters, decoderExe);
+            var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderExe);
             var decoder = AudioDecoder.Build(
                 decoderExe,
                 new ExternalProcess.ProcessRunner(
