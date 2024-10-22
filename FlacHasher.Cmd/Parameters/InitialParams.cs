@@ -11,12 +11,12 @@ namespace Andy.FlacHash.Cmd
         /// Overrides one configured in the settings file.
         /// Empty value results in overriding a pre-configured Profile value to use the default one.
         /// </summary>
-        [Parameter(ParameterNames.Profile)]
+        [Parameter(CmdlineParameterNames.Profile)]
         [Optional]
         [AllowEmpty]
         public string Profile { get; set; }
 
-        [CmdLineParameter(ParameterNames.ModeVerify)]
+        [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
         [Optional]
         public bool IsVerification { get; set; }
     }

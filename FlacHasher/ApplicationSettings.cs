@@ -7,7 +7,7 @@ namespace Andy.FlacHash
 {
     public class ApplicationSettings
     {
-        [CmdLineParameter(ParameterNames.Decoder, Order = 0)]
+        [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
         [IniEntry(nameof(Decoder), Order = 1)]
         public string Decoder { get; set; }
 
@@ -20,13 +20,13 @@ namespace Andy.FlacHash
         [Optional]
         public string[] DecoderParameters { get; set; }
 
-        [CmdLineParameter(ParameterNames.ProcessExitTimeoutMs, Order = 0)]
+        [CmdLineParameter(CmdlineParameterNames.ProcessExitTimeoutMs, Order = 0)]
         [IniEntry(nameof(ProcessExitTimeoutMs), Order = 1)]
         [Optional(defaultValue: 1000)]
         public int ProcessExitTimeoutMs { get; set; }
 
         // TODO: document: -1 for no timeout
-        [CmdLineParameter(ParameterNames.ProcessTimeoutSec, Order = 0)]
+        [CmdLineParameter(CmdlineParameterNames.ProcessTimeoutSec, Order = 0)]
         [IniEntry(nameof(ProcessTimeoutSec), Order = 1)]
         [Optional(defaultValue: 180)]
         public int ProcessTimeoutSec { get; set; }
@@ -35,7 +35,7 @@ namespace Andy.FlacHash
         [Optional(defaultValue: 100)]
         public int ProcessStartWaitMs { get; set; }
 
-        [CmdLineParameter(ParameterNames.HashAlgorithm, Order = 0)]
+        [CmdLineParameter(CmdlineParameterNames.HashAlgorithm, Order = 0)]
         [IniEntry(nameof(HashAlgorithm), Order = 1)]
         [Optional(defaultValue: Defaults.HashAlgorithm)]
         public Algorithm HashAlgorithm { get; set; }
