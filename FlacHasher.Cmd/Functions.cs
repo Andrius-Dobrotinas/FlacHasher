@@ -9,7 +9,7 @@ namespace Andy.FlacHash.Cmd
 {
     public static class Functions
     {
-        public static IList<FileInfo> GetInputFiles(CmdApplicationParameters settings, FileSearch fileSearch)
+        public static IList<FileInfo> GetInputFiles(MainParameters settings, FileSearch fileSearch)
         {
             if (settings.InputFiles != null)
             {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Cmd
 {
-    public class CmdApplicationParameters : ApplicationSettings
+    public class MainParameters : ApplicationSettings
     {
         [CmdLineParameter(CmdlineParameterNames.OutputFormat, Order = 0)]
         [IniEntry(nameof(OutputFormat), Order = 1)]
