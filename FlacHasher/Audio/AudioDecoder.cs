@@ -1,11 +1,10 @@
 ﻿using Andy.ExternalProcess;
-using Andy.FlacHash.Audio;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.Audio
 {
     public static class AudioDecoder
     {
@@ -21,7 +20,7 @@ namespace Andy.FlacHash
                     ? BuildRegular(decoderFile, processRunner, args)
                     : BuildForStdin(decoderFile, processRunner, args, inputStreamReadProgressReporter);
         }
-        
+
         public static IAudioFileDecoder BuildRegular(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
         {
             return new AudioFileDecoder(
@@ -44,16 +43,16 @@ namespace Andy.FlacHash
 
         public static ICollection<string> GetDefaultDecoderParametersIfEmpty(ICollection<string> @params, FileInfo decoderFile)
         {
-            return (@params != null && @params.Any()) 
+            return @params != null && @params.Any()
                 ? @params
-                : (IsFlac(decoderFile)
-                    ? Audio.Flac.Parameters.Decode.Stream
-                    : throw new ConfigurationException("Decoder Parameters must be provided for a decoder other than FLAC"));
+                : IsFlac(decoderFile)
+                    ? Flac.Parameters.Decode.Stream
+                    : throw new ConfigurationException("Decoder Parameters must be provided for a decoder other than FLAC");
         }
 
         public static bool IsFlac(FileInfo decoderExe)
         {
-            return decoderExe.Name.Contains(Audio.Flac.FormatMetadata.DecoderExeName, StringComparison.InvariantCultureIgnoreCase);
+            return decoderExe.Name.Contains(Flac.FormatMetadata.DecoderExeName, StringComparison.InvariantCultureIgnoreCase);
         }
 
         static FileInfo FindDecoderInPaths(string decoderFilename, IEnumerable<string> paths)
@@ -83,7 +82,7 @@ namespace Andy.FlacHash
 
         public static FileInfo ResolveDecoderOrThrow(ApplicationSettings settings)
         {
-            return AudioDecoder.ResolveDecoder(settings.Decoder)
+            return ResolveDecoder(settings.Decoder)
                 ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
         }
     }

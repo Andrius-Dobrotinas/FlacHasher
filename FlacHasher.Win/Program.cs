@@ -1,4 +1,5 @@
 using Andy.Cmd.Parameter;
+using Andy.FlacHash.Audio;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
 using Andy.FlacHash.IO.Progress;
