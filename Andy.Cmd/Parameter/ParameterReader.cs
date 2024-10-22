@@ -176,5 +176,23 @@ namespace Andy.Cmd.Parameter
             .SelectMany(
                 x => x.GetCustomAttributes<ParameterAttribute>(false).Select(x => x.Name))
             .ToArray();
+
+        public static void ThrowOnUnexpectedArguments<TParamAttr>(IEnumerable<string> suppliedParameterNames, Type[] acceptedParamsClasses, bool caseInsensitive = false)
+            where TParamAttr : ParameterAttribute
+        {
+            var acceptedParamNames = acceptedParamsClasses.SelectMany(x => x.GetProperties())
+                .SelectMany(x => x.GetCustomAttributes<TParamAttr>())
+                .Select(x => x.Name);
+
+            if (caseInsensitive)
+                acceptedParamNames = acceptedParamNames.Select(x => x.ToLowerInvariant());
+
+            if (caseInsensitive)
+                suppliedParameterNames = suppliedParameterNames.Select(x => x.ToLowerInvariant());
+
+            var unexpectedParams = suppliedParameterNames.Except(acceptedParamNames).ToList();
+            if (unexpectedParams.Any())
+                throw new ParameterException($"The following params are not accepted: {string.Join(',', unexpectedParams)}");
+        }
     }
 }

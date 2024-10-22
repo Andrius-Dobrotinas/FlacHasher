@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Cmd
                 var paramTypes = initialCmdlineParams.IsVerification
                     ? new[] { typeof(CmdApplicationParameters), typeof(VerificationSettings), typeof(InitialParams) }
                     : new[] { typeof(CmdApplicationParameters), typeof(InitialParams) };
-                ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, caseInsensitive: lowercaseParams);
+                ParameterReader.ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, caseInsensitive: lowercaseParams);
 
                 var allParams = argumentDictionary.Concat(settingsFileParams)
                     .ToDictionary(x => x.Key, x => x.Value);
@@ -164,24 +164,6 @@ namespace Andy.FlacHash.Cmd
                 Console.Error.WriteLine("");
             }
             Console.Error.WriteLine(text);
-        }
-
-        public static void ThrowOnUnexpectedArguments<TParamAttr>(IEnumerable<string> suppliedParameterNames, Type[] acceptedParamsClasses, bool caseInsensitive = false)
-            where TParamAttr : ParameterAttribute
-        {
-            var acceptedParamNames = acceptedParamsClasses.SelectMany(x => x.GetProperties())
-                .SelectMany(x => x.GetCustomAttributes<TParamAttr>())
-                .Select(x => x.Name);
-
-            if (caseInsensitive)
-                acceptedParamNames = acceptedParamNames.Select(x => x.ToLowerInvariant());
-
-            if (caseInsensitive)
-                suppliedParameterNames = suppliedParameterNames.Select(x => x.ToLowerInvariant());
-            
-            var unexpectedParams = suppliedParameterNames.Except(acceptedParamNames).ToList();
-            if (unexpectedParams.Any())
-                throw new ParameterException($"The following params are not accepted: {string.Join(',', unexpectedParams)}");
         }
 
         public static FileInfo ResolveDecoderOrThrow(ApplicationSettings settings)
