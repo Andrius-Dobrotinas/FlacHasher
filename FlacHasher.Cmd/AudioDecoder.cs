@@ -55,11 +55,11 @@ namespace Andy.FlacHash.Cmd
             return decoderExe.Name.Contains(Audio.Flac.FormatMetadata.DecoderExeName, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        static FileInfo FindDecoderInPaths(string decoderPath, IEnumerable<string> paths)
+        static FileInfo FindDecoderInPaths(string decoderFilename, IEnumerable<string> paths)
         {
             foreach (var path in paths)
             {
-                var fullPath = Path.Combine(path, decoderPath);
+                var fullPath = Path.Combine(path, decoderFilename);
                 if (File.Exists(fullPath))
                     return new FileInfo(fullPath);
             }
