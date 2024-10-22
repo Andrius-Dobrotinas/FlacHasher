@@ -166,10 +166,10 @@ namespace Andy.FlacHash.Cmd
             Console.Error.WriteLine(text);
         }
 
-        public static void ThrowOnUnexpectedArguments<TParamAttr>(IEnumerable<string> @paramsNames, Type[] paramClasses, bool caseInsensitive = false)
+        public static void ThrowOnUnexpectedArguments<TParamAttr>(IEnumerable<string> suppliedParameterNames, Type[] acceptedParamsClasses, bool caseInsensitive = false)
             where TParamAttr : ParameterAttribute
         {
-            var acceptedParamNames = paramClasses.SelectMany(x => x.GetProperties())
+            var acceptedParamNames = acceptedParamsClasses.SelectMany(x => x.GetProperties())
                 .SelectMany(x => x.GetCustomAttributes<TParamAttr>())
                 .Select(x => x.Name);
 
@@ -177,9 +177,9 @@ namespace Andy.FlacHash.Cmd
                 acceptedParamNames = acceptedParamNames.Select(x => x.ToLowerInvariant());
 
             if (caseInsensitive)
-                @paramsNames = @paramsNames.Select(x => x.ToLowerInvariant());
+                suppliedParameterNames = suppliedParameterNames.Select(x => x.ToLowerInvariant());
             
-            var unexpectedParams = @paramsNames.Except(acceptedParamNames).ToList();
+            var unexpectedParams = suppliedParameterNames.Except(acceptedParamNames).ToList();
             if (unexpectedParams.Any())
                 throw new ParameterException($"The following params are not accepted: {string.Join(',', unexpectedParams)}");
         }
