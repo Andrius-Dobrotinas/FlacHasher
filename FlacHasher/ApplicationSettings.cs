@@ -3,7 +3,7 @@ using Andy.FlacHash.Hashing.Crypto;
 using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash
 {
     public class ApplicationSettings
     {

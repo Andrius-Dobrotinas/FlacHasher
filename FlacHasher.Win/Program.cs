@@ -1,5 +1,4 @@
 using Andy.Cmd.Parameter;
-using Andy.FlacHash.Cmd;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
 using Andy.FlacHash.IO.Progress;
@@ -33,7 +32,7 @@ namespace Andy.FlacHash.Win
                 return;
             }
 
-            var hashfileExtensions = Cmd.Verification.Settings.GetHashFileExtensions(settings.HashfileExtensions);
+            var hashfileExtensions = Param.GetHashFileExtensions(settings.HashfileExtensions);
             var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
@@ -64,7 +63,7 @@ namespace Andy.FlacHash.Win
                             hashfileExtensions,
                             fileSearch),
                         hashFormatter,
-                        Cmd.Verification.BuildHashfileReader(settings.HashfileEntrySeparator),
+                        HashFileReader.Default.BuildHashfileReader(settings.HashfileEntrySeparator),
                         new HashVerifier(hashFormatter),
                         fileExtension));
             }

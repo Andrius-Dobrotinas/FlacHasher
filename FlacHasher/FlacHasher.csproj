@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Andy.FlacHash</RootNamespace>
+    <AssemblyName>FlacHasher</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Andy.Cmd\Cmd.csproj" />
+    <ProjectReference Include="..\Configuration.Ini\Configuration.Ini\Configuration.Ini.csproj" />
+    <ProjectReference Include="..\FlacHash.Audio\FlacHash.Audio.csproj" />
+    <ProjectReference Include="..\FlacHash\FlacHash.csproj" />
+  </ItemGroup>
+
+</Project>

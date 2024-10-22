@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash.Cmd
+﻿namespace Andy.FlacHash
 {
     public static class ParameterNames
     {

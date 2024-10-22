@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash
 {
     public static class SettingsFile
     {

@@ -1,7 +1,6 @@
 ﻿using Andy.Cmd.Parameter;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Andy.FlacHash.Cmd
 {

@@ -1,5 +1,4 @@
 ﻿using Andy.Cmd.Parameter;
-using Andy.FlacHash.Cmd;
 using Andy.FlacHash.Hashing.Verification;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ namespace Andy.FlacHash.Win
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]
-        [Optional(defaultValue: VerificationParameters.Defaults.HashfileEntrySeparator)]
+        [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
         public string HashfileEntrySeparator { get; set; }
 
         [IniEntry(nameof(TargetFileExtension))]

@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash
 {
     public static class AudioDecoder
     {
 
         /// <summary>
-        /// Builds and Audio decoder based on whether input file is referenced by the parameters; otherwise, it's assumed the data will be fed to the decoder via stdin.
+        /// Builds an Audio decoder based on whether input file is referenced by the parameters; otherwise, it's assumed the data will be fed to the decoder via stdin.
         /// </summary>
         /// <param name="inputStreamReadProgressReporter">Optional and only applicable when data is to be fed via stdin</param>
         /// <returns></returns>

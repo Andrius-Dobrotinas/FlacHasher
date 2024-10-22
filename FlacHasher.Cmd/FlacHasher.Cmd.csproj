@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Andy.Cmd\Cmd.csproj" />
-    <ProjectReference Include="..\Configuration.Ini\Configuration.Ini\Configuration.Ini.csproj" />
     <ProjectReference Include="..\FlacHash.Audio\FlacHash.Audio.csproj" />
+    <ProjectReference Include="..\FlacHasher\FlacHasher.csproj" />
     <ProjectReference Include="..\FlacHash\FlacHash.csproj" />
   </ItemGroup>
 

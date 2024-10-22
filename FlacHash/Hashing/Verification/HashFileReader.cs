@@ -24,5 +24,19 @@ namespace Andy.FlacHash.Hashing.Verification
 
             return expectedHashes;
         }
+
+        public static class Default
+        {
+            public const string HashfileEntrySeparator = ":";
+
+            public static HashFileReader BuildHashfileReader(string hashfileEntrySeparator)
+            {
+                return new HashFileReader(
+                            new HashMapParser(
+                                new HashEntryCollectionParser(
+                                    new HashEntryParser(hashfileEntrySeparator)),
+                                new CaseInsensitiveOrdinalStringComparer()));
+            }
+        }
     }
 }

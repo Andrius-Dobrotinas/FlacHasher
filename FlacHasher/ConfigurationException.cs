@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash
 {
     public class ConfigurationException : Exception
     {

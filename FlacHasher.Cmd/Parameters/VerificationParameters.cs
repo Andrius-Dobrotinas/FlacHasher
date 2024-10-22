@@ -17,16 +17,11 @@ namespace Andy.FlacHash.Cmd
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]
-        [Optional(defaultValue: Defaults.HashfileEntrySeparator)]
+        [Optional(defaultValue: FlacHash.Hashing.Verification.HashFileReader.Default.HashfileEntrySeparator)]
         public string HashfileEntrySeparator { get; set; }
 
         [CmdLineParameter(ParameterNames.InputDirectory)]
         [AtLeastOneOf("hashfile")]
         public string InputDirectory { get; set; }
-
-        public static class Defaults
-        {
-            public const string HashfileEntrySeparator = ":";
-        }
     }
 }

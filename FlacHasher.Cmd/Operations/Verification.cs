@@ -31,7 +31,7 @@ namespace Andy.FlacHash.Cmd
             if (hashfile == null || !hashfile.Exists)
                 throw new InputFileMissingException("Hash file not found");
 
-            var hashfileReader = BuildHashfileReader(parameters.HashfileEntrySeparator);
+            var hashfileReader = HashFileReader.Default.BuildHashfileReader(parameters.HashfileEntrySeparator);
             var fileHashMap = hashfileReader.Read(hashfile);
 
             var hasher = BuildHasher(audioFileDecoder, hashAlgorithm);
@@ -91,15 +91,6 @@ namespace Andy.FlacHash.Cmd
             return results;
         }
 
-        public static HashFileReader BuildHashfileReader(string hashfileEntrySeparator)
-        {
-            return new HashFileReader(
-                        new HashMapParser(
-                            new HashEntryCollectionParser(
-                                new HashEntryParser(hashfileEntrySeparator)),
-                            new CaseInsensitiveOrdinalStringComparer()));
-        }
-
         public static HashVerifier BuildVerifier()
         {
             var hashFormatter = new PlainLowercaseHashFormatter();
@@ -124,7 +115,7 @@ namespace Andy.FlacHash.Cmd
             }
             else if (parameters.InputDirectory != null)
             {
-                var hashfileExtensions = Settings.GetHashFileExtensions(parameters.HashfileExtensions);
+                var hashfileExtensions = Param.GetHashFileExtensions(parameters.HashfileExtensions);
                 WriteStdErrLine($"Looking for a hashfile with extension(s): {string.Join(',', hashfileExtensions)}");
 
                 return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "*")
@@ -132,17 +123,6 @@ namespace Andy.FlacHash.Cmd
             }
             else
                 return null;
-        }
-
-        public static class Settings
-        {
-            public static string[] GetHashFileExtensions(string[] hashfileExtensions)
-            {
-                if (hashfileExtensions == null || !hashfileExtensions.Any())
-                    hashfileExtensions = new string[] { $".{FileHashMap.DefaultExtension}" };
-
-                return hashfileExtensions.Select(ext => $".{ext}").ToArray();
-            }
         }
 
         static void WriteStdErrLine(string text)

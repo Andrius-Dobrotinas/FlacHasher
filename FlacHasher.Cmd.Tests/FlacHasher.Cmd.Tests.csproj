@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" />
+    <ProjectReference Include="..\FlacHasher\FlacHasher.csproj" />
     <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
   </ItemGroup>
 
