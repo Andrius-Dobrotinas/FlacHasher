@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Cmd
                 var paramTypes = initialCmdlineParams.IsVerification
                     ? new[] { typeof(CmdApplicationParameters), typeof(VerificationSettings), typeof(InitialParams) }
                     : new[] { typeof(CmdApplicationParameters), typeof(InitialParams) };
-                ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, paramNamesToLowercase: lowercaseParams);
+                ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, caseInsensitive: lowercaseParams);
 
                 var allParams = argumentDictionary.Concat(settingsFileParams)
                     .ToDictionary(x => x.Key, x => x.Value);
@@ -166,17 +166,17 @@ namespace Andy.FlacHash.Cmd
             Console.Error.WriteLine(text);
         }
 
-        public static void ThrowOnUnexpectedArguments<TParamAttr>(IEnumerable<string> @paramsNames, Type[] paramClasses, bool paramNamesToLowercase = false)
+        public static void ThrowOnUnexpectedArguments<TParamAttr>(IEnumerable<string> @paramsNames, Type[] paramClasses, bool caseInsensitive = false)
             where TParamAttr : ParameterAttribute
         {
             var acceptedParamNames = paramClasses.SelectMany(x => x.GetProperties())
                 .SelectMany(x => x.GetCustomAttributes<TParamAttr>())
                 .Select(x => x.Name);
 
-            if (paramNamesToLowercase)
+            if (caseInsensitive)
                 acceptedParamNames = acceptedParamNames.Select(x => x.ToLowerInvariant());
 
-            if (paramNamesToLowercase)
+            if (caseInsensitive)
                 @paramsNames = @paramsNames.Select(x => x.ToLowerInvariant());
             
             var unexpectedParams = @paramsNames.Except(acceptedParamNames).ToList();
