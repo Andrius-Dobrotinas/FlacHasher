@@ -27,7 +27,7 @@ namespace Andy.FlacHash.Cmd
                     .ToList();
             }
 
-            throw new ConfigurationException("No input files or directory has been specified");
+            throw new InputFileMissingException("No input files or directory has been specified");
         }
     }
 }
