@@ -8,7 +8,8 @@ namespace Andy.Configuration.Ini
     public interface IIniFileReader
     {
         /// <summary>
-        /// Root section key is Empty String
+        /// The result is a dictionary of sections; each section is a dictionary.
+        /// Root section key is Empty String.
         /// </summary>
         IDictionary<string, IDictionary<string, string>> Read(FileInfo iniFile);
     }
