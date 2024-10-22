@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Cmd
             bool lowercaseParams = true;
             InitialParams initialCmdlineParams;
             CmdApplicationParameters settings;
-            VerificationSettings verificationSettings;
+            VerificationParameters verificationSettings;
             
             var parameterReader = ParameterReader.Build();
             try
@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Cmd
                 }
 
                 var paramTypes = initialCmdlineParams.IsVerification
-                    ? new[] { typeof(CmdApplicationParameters), typeof(VerificationSettings), typeof(InitialParams) }
+                    ? new[] { typeof(CmdApplicationParameters), typeof(VerificationParameters), typeof(InitialParams) }
                     : new[] { typeof(CmdApplicationParameters), typeof(InitialParams) };
                 ParameterReader.ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, caseInsensitive: lowercaseParams);
 
@@ -52,7 +52,7 @@ namespace Andy.FlacHash.Cmd
 
                 settings = parameterReader.GetParameters<CmdApplicationParameters>(allParams, inLowercase: lowercaseParams);
                 verificationSettings = initialCmdlineParams.IsVerification
-                    ? parameterReader.GetParameters<VerificationSettings>(allParams, inLowercase: lowercaseParams)
+                    ? parameterReader.GetParameters<VerificationParameters>(allParams, inLowercase: lowercaseParams)
                     : null;
 
             }

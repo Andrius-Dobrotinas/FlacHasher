@@ -5,7 +5,7 @@ using static Andy.FlacHash.Cmd.Verification;
 
 namespace Andy.FlacHash.Cmd
 {
-    public class VerificationSettings : IHashfileParams
+    public class VerificationParameters : IHashfileParams
     {
         [CmdLineParameter(ParameterNames.HashFile)]
         [AtLeastOneOf("hashfile")]
