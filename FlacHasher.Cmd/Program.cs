@@ -124,7 +124,7 @@ namespace Andy.FlacHash.Cmd
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ConfigurationError;
             }
-            catch (IOException e)
+            catch (Audio.IOException e)
             {
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.InputReadingFailure;
