@@ -32,5 +32,21 @@ namespace Andy.Configuration.Ini
 
             return parser.Parse(lines);
         }
+
+        public static class Default
+        {
+            /// <summary>
+            /// Reads a given INI <paramref name="settingsFile"/> using the default implementation.
+            /// </summary>
+            public static IDictionary<string, IDictionary<string, string>> ReadIniFile(FileInfo settingsFile)
+            {
+                var iniReader = new IniFileReader(
+                    new TextFileReader(),
+                    new IniParser(
+                        new EntryParser()));
+
+                return iniReader.Read(settingsFile);
+            }
+        }
     }
 }

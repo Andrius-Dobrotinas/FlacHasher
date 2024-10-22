@@ -14,15 +14,11 @@ namespace Andy.FlacHash.Cmd
         /// <param name="profileName">If not specified, uses the profile specified in the settings file</param>
         public static IDictionary<string, string> ReadIniFile(FileInfo settingsFile, string profileName = null)
         {
-            var iniReader = new Andy.Configuration.Ini.IniFileReader(
-                new Andy.Configuration.Ini.IO.TextFileReader(),
-                new Andy.Configuration.Ini.IniParser(
-                    new Andy.Configuration.Ini.EntryParser()));
-
-            var settingsDictionary = iniReader.Read(settingsFile);
+            var settingsDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
 
             return GetSettingsProfile(settingsDictionary, profileName);
         }
+
         /// <summary>
         /// Reads a specified settings profile from <paramref name="settingsDictionary"/> merging it with the root settings node.
         /// If no <paramref name="profileName"/> is specified, uses a profile configured in the root entry of <paramref name="settingsDictionary"/>.
