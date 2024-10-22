@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Andy.Cmd\Cmd.csproj" />
     <ProjectReference Include="..\FlacHash.Audio\FlacHash.Audio.csproj" />
+    <ProjectReference Include="..\FlacHasher\FlacHasher.csproj" />
     <ProjectReference Include="..\FlacHash\FlacHash.csproj" />
   </ItemGroup>
 
