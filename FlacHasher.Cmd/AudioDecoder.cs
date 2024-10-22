@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Cmd
                     : BuildForStdin(decoderFile, processRunner, args, inputStreamReadProgressReporter);
         }
         
-        private static IAudioFileDecoder BuildRegular(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
+        public static IAudioFileDecoder BuildRegular(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args)
         {
             return new AudioFileDecoder(
                     decoderFile,
@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Cmd
                     args);
         }
 
-        private static IAudioFileDecoder BuildForStdin(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args, IProgress<int> inputStreamReadProgressReporter = null)
+        public static IAudioFileDecoder BuildForStdin(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args, IProgress<int> inputStreamReadProgressReporter = null)
         {
             var streamFactory = inputStreamReadProgressReporter == null
                 ? (IFileReadStreamFactory)new IO.ReadStreamFactory()
