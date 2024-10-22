@@ -84,13 +84,15 @@ namespace Andy.FlacHash.Win
                     showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput),
                 decoderParams,
                 fileReadProgressReporter);
-            
 
             var hasher = new FileHasher(
                 decoder,
                 new Hashing.Crypto.Hasher(settings.HashAlgorithm));
             var cancellableHasher = new ReportingMultiFileHasher(
-                new MultiFileHasher(hasher, continueOnError: true));
+                new MultiFileHasher(
+                    hasher, 
+                    continueOnError: true,
+                    decoder is Audio.StdInputStreamAudioFileDecoder ? null : fileReadProgressReporter));
 
             return (cancellableHasher, fileReadProgressReporter);
         }

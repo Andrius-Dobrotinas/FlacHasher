@@ -19,11 +19,21 @@ namespace Andy.FlacHash.Hashing
     {
         private readonly IFileHasher hasher;
         private readonly bool continueOnError;
+        private readonly IProgress<int> inputStreamReadProgressReporter;
 
-        public MultiFileHasher(IFileHasher hasher, bool continueOnError)
+        public MultiFileHasher(IFileHasher hasher, bool continueOnError) : this(hasher, continueOnError, null)
         {
-            this.hasher = hasher;
+        }
+
+        /// <summary>
+        /// Wires it up to report bytes processed after each file via <paramref name="inputStreamReadProgressReporter"/>
+        /// </summary>
+        /// <param name="inputStreamReadProgressReporter"></param>
+        public MultiFileHasher(IFileHasher hasher, bool continueOnError, IProgress<int> inputStreamReadProgressReporter)
+        {
+            this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
             this.continueOnError = continueOnError;
+            this.inputStreamReadProgressReporter = inputStreamReadProgressReporter;
         }
 
         public IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files, CancellationToken cancellation = default)
@@ -56,6 +66,14 @@ namespace Andy.FlacHash.Hashing
                             File = file,
                             Exception = e
                         };
+                    }
+                    finally
+                    {
+                        if (inputStreamReadProgressReporter != null)
+                            inputStreamReadProgressReporter.Report(
+                                file.Exists 
+                                ? (int)file.Length // int.Max is big enough for normal audio files
+                                : 0);
                     }
                 });
         }
