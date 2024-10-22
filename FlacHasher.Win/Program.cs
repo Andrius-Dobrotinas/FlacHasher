@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Win
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
-                FileInfo decoderExe = Andy.FlacHash.Cmd.Program.ResolveDecoderOrThrow(settings);
+                FileInfo decoderExe = AudioDecoder.ResolveDecoderOrThrow(settings);
 
                 var (hasher, progressReporter) = BuildHasher(decoderExe, settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();

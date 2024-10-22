@@ -91,7 +91,7 @@ namespace Andy.FlacHash.Cmd
                     cancellation.Cancel();
                 };
 
-                FileInfo decoderFile = ResolveDecoderOrThrow(settings);
+                FileInfo decoderFile = AudioDecoder.ResolveDecoderOrThrow(settings);
                 var fileSearch = new FlacHash.Hashing.FileSearch(settings.FileLookupIncludeHidden);
                 IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())
@@ -164,12 +164,6 @@ namespace Andy.FlacHash.Cmd
                 Console.Error.WriteLine("");
             }
             Console.Error.WriteLine(text);
-        }
-
-        public static FileInfo ResolveDecoderOrThrow(ApplicationSettings settings)
-        {
-            return AudioDecoder.ResolveDecoder(settings.Decoder)
-                ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
         }
     }
 }

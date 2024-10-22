@@ -80,5 +80,11 @@ namespace Andy.FlacHash.Cmd
             var paths = Environment.GetEnvironmentVariable("PATH").Split(';');
             return FindDecoderInPaths(decoderPath, paths);
         }
+
+        public static FileInfo ResolveDecoderOrThrow(ApplicationSettings settings)
+        {
+            return AudioDecoder.ResolveDecoder(settings.Decoder)
+                ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
+        }
     }
 }
