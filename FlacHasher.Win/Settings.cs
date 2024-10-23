@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Application.Win
     public class Settings : ApplicationSettings
     {
         [IniEntry(nameof(HashfileExtensions))]
-        [Optional(defaultValue: Param.DefaultHashfileExtension)]
+        [Optional(defaultValue: ApplicationSettings.Defaults.HashfileExtension)]
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]

@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         [IniEntry(nameof(HashfileExtensions))]
         [AtLeastOneOf("hashfileExtensions")]
-        [Optional(defaultValue: Param.DefaultHashfileExtension)]
+        [Optional(defaultValue: ApplicationSettings.Defaults.HashfileExtension)]
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]

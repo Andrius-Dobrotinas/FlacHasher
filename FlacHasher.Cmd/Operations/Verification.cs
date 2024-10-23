@@ -115,7 +115,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             else if (parameters.InputDirectory != null)
             {
-                var hashfileExtensions = Param.GetHashFileExtensions(parameters.HashfileExtensions);
+                var hashfileExtensions = FileExtension.PrefixWithDot(parameters.HashfileExtensions);
                 WriteStdErrLine($"Looking for a hashfile with extension(s): {string.Join(',', hashfileExtensions)}");
 
                 return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), "*")

@@ -34,7 +34,7 @@ namespace Andy.FlacHash.Application.Win
                 return;
             }
 
-            var hashfileExtensions = Param.GetHashFileExtensions(settings.HashfileExtensions);
+            var hashfileExtensions = FileExtension.PrefixWithDot(settings.HashfileExtensions);
             var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
             System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
