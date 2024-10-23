@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Andy.Cmd.Parameter
 {
-    public class RequiredWith_Bool_Tests
+    public class RequiredWith_ParameterReader_Bool_Tests
     {
         ParameterReader target;
         Mock<IParameterValueResolver> resolver;
@@ -25,7 +25,7 @@ namespace Andy.Cmd.Parameter
         public void When__MasterProperty_IsTrue__And_Target_NoValue__Must_Reject()
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, true);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, true);
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(
                 () => target.GetParameters<TestParams>(fakeArgs.Object));
@@ -36,7 +36,7 @@ namespace Andy.Cmd.Parameter
         public void When__Nullable_MasterProperty_IsTrue__And_Target_NoValue__Must_Reject()
         {
             var property1 = typeof(TestParamsNullable).GetProperty(nameof(TestParamsNullable.Master));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsNullable>(resolver, property1, true);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsNullable>(resolver, property1, true);
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(
                 () => target.GetParameters<TestParamsNullable>(fakeArgs.Object));
@@ -49,8 +49,8 @@ namespace Andy.Cmd.Parameter
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, masterValue);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, masterValue);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value);
 
             Assert.DoesNotThrow(() => target.GetParameters<TestParams>(fakeArgs.Object));
         }
@@ -59,7 +59,7 @@ namespace Andy.Cmd.Parameter
         public void When__MasterProperty_IsFalse__And_Target_NoValue__Must_BeCool()
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, false);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, false);
 
             Assert.DoesNotThrow(() => target.GetParameters<TestParamsNullable>(fakeArgs.Object));
         }
@@ -75,7 +75,7 @@ namespace Andy.Cmd.Parameter
         public void When__Nullable_MasterProperty_Has_NoValue__And_Target_HasValue__Must_BeCool(string value)
         {
             var property1 = typeof(TestParamsNullable).GetProperty(nameof(TestParamsNullable.Dependency));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsNullable>(resolver, property1, value);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsNullable>(resolver, property1, value);
 
             Assert.DoesNotThrow(() => target.GetParameters<TestParamsNullable>(fakeArgs.Object));
         }

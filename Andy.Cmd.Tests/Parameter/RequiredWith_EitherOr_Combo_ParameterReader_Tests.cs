@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Andy.Cmd.Parameter
 {
-    public class RequiredWith_EitherOr_Combo_Tests
+    public class RequiredWith_EitherOr_Combo_ParameterReader_Tests
     {
         ParameterReader target;
         Mock<IParameterValueResolver> resolver;
@@ -30,9 +30,9 @@ namespace Andy.Cmd.Parameter
             var masterProperty = typeof(TestParamsWithEitherOr).GetProperty(nameof(TestParamsWithEitherOr.Master));
             var property1 = typeof(TestParamsWithEitherOr).GetProperty(nameof(TestParamsWithEitherOr.Dependency));
             var property2 = typeof(TestParamsWithEitherOr).GetProperty(nameof(TestParamsWithEitherOr.DependencySubstitute));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, masterProperty, "Master! Master!");
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, property1, targetPropertyValue);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, property2, otherEitherOrGroupMember_Value);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, masterProperty, "Master! Master!");
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, property1, targetPropertyValue);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, property2, otherEitherOrGroupMember_Value);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParamsWithEitherOr>(fakeArgs.Object));
@@ -43,7 +43,7 @@ namespace Andy.Cmd.Parameter
         public void MasterProperty_HasValue__And_Neither_Of_Dependencies_HasValue__Must_Reject(string masterValue)
         {
             var masterProperty = typeof(TestParamsWithEitherOr).GetProperty(nameof(TestParamsWithEitherOr.Master));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, masterProperty, masterValue);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsWithEitherOr>(resolver, masterProperty, masterValue);
 
             Assert.Throws<ParameterGroupException>(() =>
                 target.GetParameters<TestParamsWithEitherOr>(fakeArgs.Object));
@@ -58,9 +58,9 @@ namespace Andy.Cmd.Parameter
             var masterProperty1 = typeof(TestParamsTwoMasterWithEitherOr).GetProperty(nameof(TestParamsTwoMasterWithEitherOr.Master1));
             var masterProperty2 = typeof(TestParamsTwoMasterWithEitherOr).GetProperty(nameof(TestParamsTwoMasterWithEitherOr.Master2));
             var property4 = typeof(TestParamsTwoMasterWithEitherOr).GetProperty(nameof(TestParamsTwoMasterWithEitherOr.Dependency2));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMasterWithEitherOr>(resolver, masterProperty1, master1);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMasterWithEitherOr>(resolver, masterProperty2, master2);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMasterWithEitherOr>(resolver, property4, other);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMasterWithEitherOr>(resolver, masterProperty1, master1);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMasterWithEitherOr>(resolver, masterProperty2, master2);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMasterWithEitherOr>(resolver, property4, other);
 
             Assert.DoesNotThrow(() => target.GetParameters<TestParamsTwoMasterWithEitherOr>(fakeArgs.Object));
         }

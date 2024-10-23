@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Andy.Cmd.Parameter
 {
-    public class EitherOr_Tests
+    public class EitherOr_ParameterReader_Tests
     {
         ParameterReader target;
         Mock<IParameterValueResolver> resolver;

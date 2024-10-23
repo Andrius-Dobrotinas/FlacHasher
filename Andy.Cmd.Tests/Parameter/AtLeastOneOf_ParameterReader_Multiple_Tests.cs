@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Andy.Cmd.Parameter
 {
-    public class AtLeastOneOf_Multiple_Tests
+    public class AtLeastOneOf_ParameterReader_Multiple_Tests
     {
         ParameterReader target;
         Mock<IParameterValueResolver> resolver;
@@ -30,9 +30,9 @@ namespace Andy.Cmd.Parameter
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Shared));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.One));
             var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, shared);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value1);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, value2);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, shared);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value1);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, value2);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParams>(fakeArgs.Object));
@@ -46,9 +46,9 @@ namespace Andy.Cmd.Parameter
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Shared));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.One));
             var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, shared);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value1);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, value2);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, shared);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value1);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, value2);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParams>(fakeArgs.Object));
@@ -60,9 +60,9 @@ namespace Andy.Cmd.Parameter
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Shared));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.One));
             var property3 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
-            EitherOr_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, null);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
+            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property3, null);
 
             Assert.Throws<ParameterGroupException>(
                 () => target.GetParameters<TestParams>(fakeArgs.Object));
