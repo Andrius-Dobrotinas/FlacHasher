@@ -10,9 +10,6 @@ namespace Andy.FlacHash.Application
 
         public static string[] GetHashFileExtensions(string[] hashfileExtensions)
         {
-            if (hashfileExtensions == null || !hashfileExtensions.Any())
-                hashfileExtensions = new string[] { $".{DefaultHashfileExtension}" };
-
             return hashfileExtensions.Select(ext => $".{ext}").ToArray();
         }
     }
