@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests.TypeSpecific
+namespace Andy.Cmd.Parameter.ParameterValueResolver_Tests.TypeSpecific
 {
     public class ArrayOfStringType
     {

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests.TypeSpecific
+namespace Andy.Cmd.Parameter.ParameterValueResolver_Tests.TypeSpecific
 {
     public class StringType
     {

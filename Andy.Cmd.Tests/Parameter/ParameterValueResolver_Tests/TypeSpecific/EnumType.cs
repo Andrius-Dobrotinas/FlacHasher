@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests.TypeSpecific
+namespace Andy.Cmd.Parameter.ParameterValueResolver_Tests.TypeSpecific
 {
     public class EnumType
     {
@@ -80,7 +80,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests.
         {
             [Parameter("arg")]
             public TestEnum Regular { get; set; }
-            
+
             [Parameter("arg")]
             public TestEnumInteresting Interesting { get; set; }
         }

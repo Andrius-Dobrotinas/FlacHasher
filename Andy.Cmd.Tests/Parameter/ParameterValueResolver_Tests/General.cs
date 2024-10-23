@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
+namespace Andy.Cmd.Parameter.ParameterValueResolver_Tests
 {
     public class General
     {
@@ -113,7 +113,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams.Bool_Nullable), new[] { "false", "true" }, true)]
         [TestCase(nameof(TestParams.Bool_Nullable), new[] { "true", "true", "false" }, false)]
         [TestCase(nameof(TestParams.Enum), new[] { "Two", "One", "Three" }, TestEnum.Three)]
-        [TestCase(nameof(TestParams.Enum_Optional), new[] { "Three", "One", "Two" }, TestEnum.Two )]
+        [TestCase(nameof(TestParams.Enum_Optional), new[] { "Three", "One", "Two" }, TestEnum.Two)]
         [TestCase(nameof(TestParams.Enum_Nullable), new[] { "Two", "Two", "One" }, TestEnum.One)]
         public void ManyValues_ProvidedFor_NonArray_Parameter__Must_Take_Last_Value(string propertyName, string[] input, object expected)
         {
@@ -403,7 +403,7 @@ namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Bool_Nullable_True), true)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum), TestEnum.Two)]
         [TestCase(nameof(TestParams_OptionalWithDefaultValue.Enum_Nullable), TestEnum.Three)]
-        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), new string[] { "wazaa!!" } )]
+        [TestCase(nameof(TestParams_OptionalWithDefaultValue.Array), new string[] { "wazaa!!" })]
         public void Optional__With_DefaultValue_Specified__Parameter_NotProvided__Must__Return_Configured_DefaultValue(string propertyName, object expectedValue)
         {
             var argvs = new Dictionary<string, string[]>();

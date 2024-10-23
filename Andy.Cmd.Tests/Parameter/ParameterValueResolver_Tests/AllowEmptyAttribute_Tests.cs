@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using static Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests.General;
+using static Andy.Cmd.Parameter.ParameterValueResolver_Tests.General;
 
-namespace Andy.Cmd.Parameter.ParameterReader_Tests.ParameterValueResolver_Tests
+namespace Andy.Cmd.Parameter.ParameterValueResolver_Tests
 {
     public class AllowEmptyAttribute_Tests
     {
