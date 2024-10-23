@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win.UI
+namespace Andy.FlacHash.Application.Win.UI
 {
     public interface ITypedListBox<TListItem> where TListItem : class
     {

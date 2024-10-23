@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win.UI
+namespace Andy.FlacHash.Application.Win.UI
 {
     public class FileSizeProgressBarAdapter
     {

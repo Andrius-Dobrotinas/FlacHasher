@@ -1,4 +1,5 @@
-﻿using Andy.FlacHash.Hashing;
+﻿using Andy.FlacHash.Audio;
+using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
 using Andy.FlacHash.IO;
 using Andy.FlacHash.IO.Progress;
@@ -12,7 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win.UI
+namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class FormX : Form
     {
@@ -240,7 +241,7 @@ namespace Andy.FlacHash.Win.UI
                     }
                     else
                     {
-                        var result = (calcResult.Exception is Audio.InputFileNotFoundException)
+                        var result = (calcResult.Exception is InputFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
                         list_verification_results.Add(calcResult.File, result);

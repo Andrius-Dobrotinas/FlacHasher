@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Audio.Flac
+namespace Andy.FlacHash.Application.Audio.Flac
 {
     public static class FormatMetadata
     {

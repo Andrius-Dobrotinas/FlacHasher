@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application.Cmd
 {
     public class InitialParams
     {

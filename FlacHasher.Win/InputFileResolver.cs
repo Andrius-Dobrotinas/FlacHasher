@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Andy.FlacHash.Hashing;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Application.Win
 {
     public class InputFileResolver
     {

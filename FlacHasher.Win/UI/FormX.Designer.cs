@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash.Win.UI
+﻿namespace Andy.FlacHash.Application.Win.UI
 {
     partial class FormX
     {
@@ -32,18 +32,18 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormX));
             this.btn_chooseDir = new System.Windows.Forms.Button();
             this.btn_go = new System.Windows.Forms.Button();
-            this.list_results = new Andy.FlacHash.Win.UI.FileHashResultList();
+            this.list_results = new Andy.FlacHash.Application.Win.UI.FileHashResultList();
             this.ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.label_Status = new System.Windows.Forms.Label();
             this.mode_Verify = new System.Windows.Forms.RadioButton();
             this.mode_Calc = new System.Windows.Forms.RadioButton();
-            this.list_verification_results = new Andy.FlacHash.Win.UI.VerificationResultsList();
+            this.list_verification_results = new Andy.FlacHash.Application.Win.UI.VerificationResultsList();
             this.col_results_verification_file = new System.Windows.Forms.ColumnHeader();
             this.col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
             this.layoutGroup_input = new System.Windows.Forms.TableLayoutPanel();
-            this.list_hashFiles = new Andy.FlacHash.Win.UI.FileList();
-            this.list_files = new Andy.FlacHash.Win.UI.FileList();
+            this.list_hashFiles = new Andy.FlacHash.Application.Win.UI.FileList();
+            this.list_files = new Andy.FlacHash.Application.Win.UI.FileList();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.group_Left = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();

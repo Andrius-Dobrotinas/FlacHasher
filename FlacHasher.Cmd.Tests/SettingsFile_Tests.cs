@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application
 {
     public class SettingsFile_Tests
     {

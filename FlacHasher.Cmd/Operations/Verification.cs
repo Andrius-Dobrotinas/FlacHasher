@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application.Cmd
 {
     public static class Verification
     {

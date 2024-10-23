@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash.Audio.Flac
+﻿namespace Andy.FlacHash.Application.Audio.Flac
 {
     public enum CompressionLevel
     {

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Application.Win
 {
     /// <summary>
     /// Runs actions, one at a time, on dedicated new threads and provides the means to cancel them. Reports transitions between action states (ie running vs finished).

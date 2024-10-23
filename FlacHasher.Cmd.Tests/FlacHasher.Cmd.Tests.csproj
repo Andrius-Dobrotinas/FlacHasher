@@ -5,7 +5,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <RootNamespace>Andy.FlacHash.Cmd</RootNamespace>
+    <RootNamespace>Andy.FlacHash.Application.Cmd</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

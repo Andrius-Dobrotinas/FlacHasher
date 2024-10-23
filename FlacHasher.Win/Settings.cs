@@ -3,7 +3,7 @@ using Andy.FlacHash.Hashing.Verification;
 using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Application.Win
 {
     public class Settings : ApplicationSettings
     {

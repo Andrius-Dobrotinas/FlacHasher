@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Application.Win
 {
     public enum Mode
     {

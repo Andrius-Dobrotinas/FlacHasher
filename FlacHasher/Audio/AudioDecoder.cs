@@ -1,10 +1,11 @@
 ﻿using Andy.ExternalProcess;
+using Andy.FlacHash.Audio;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Audio
+namespace Andy.FlacHash.Application.Audio
 {
     public static class AudioDecoder
     {

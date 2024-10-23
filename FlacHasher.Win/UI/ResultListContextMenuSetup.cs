@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win.UI
+namespace Andy.FlacHash.Application.Win.UI
 {
     public static class ResultListContextMenuSetup
     {

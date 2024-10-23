@@ -8,7 +8,7 @@ namespace Andy.FlacHash.CompressionLevel
 {
     class Program
     {
-        const int maxCompressionLevel = (int)FlacHash.Audio.Flac.CompressionLevel.Highest;
+        const int maxCompressionLevel = (int)Application.Audio.Flac.CompressionLevel.Highest;
         const int processExitTimeoutMs = 1000;
         const int processStartDelayMs = 100;
         const int processTimeoutSec = 180;

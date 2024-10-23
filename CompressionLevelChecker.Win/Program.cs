@@ -11,21 +11,21 @@ namespace Andy.FlacHash.Win
 {
     static class Program
     {
-        private const int defaultCompressionLevel = (int)Audio.Flac.CompressionLevel.Highest;
+        private const int defaultCompressionLevel = (int)Application.Audio.Flac.CompressionLevel.Highest;
         private const int processExitTimeoutMs = 1000;
         private const int processStartDelayMs = 100;
         const int processTimeoutSec = 180;
 
         // todo: these values must be stored somewhere else
-        private const int maxCompressionLevel = (int)Audio.Flac.CompressionLevel.Highest;
-        private const int minCompressionLevel = (int)Audio.Flac.CompressionLevel.Lowest;
+        private const int maxCompressionLevel = (int)Application.Audio.Flac.CompressionLevel.Highest;
+        private const int minCompressionLevel = (int)Application.Audio.Flac.CompressionLevel.Lowest;
 
         [STAThread]
         static void Main()
         {
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            System.Windows.Forms.Application.EnableVisualStyles();
+            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
             // todo: read this from something like a settings file, or something
             FileInfo flacExe = new FileInfo(@"C:\Program Files (x86)\FLAC Frontend\tools\flac.exe");
@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Win
                     mainService,
                     fileOpenDialog))
                 {
-                    Application.Run(form);
+                    System.Windows.Forms.Application.Run(form);
                 };
             }
         }
@@ -66,7 +66,7 @@ namespace Andy.FlacHash.Win
             IAudioFileEncoder encoder_MetadataPreserved = new FileRecoder(flacExe, processRunner);
 
             IAudioFileEncoder encoder_MetadataDiscarded = new AudioFileEncoder(
-                new AudioFileDecoder(flacExe, processRunner, Audio.Flac.Parameters.Decode.File),
+                new AudioFileDecoder(flacExe, processRunner, Application.Audio.Flac.Parameters.Decode.File),
                 new StreamEncoder(flacExe, processRunner));
 
             IFileInfoSizeGetter fileSize = new FileInfoSizeGetter();

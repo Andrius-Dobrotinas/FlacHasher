@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application.Cmd
 {
     public static class Functions
     {

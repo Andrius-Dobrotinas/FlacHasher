@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static Andy.FlacHash.Cmd.Verification;
+using static Andy.FlacHash.Application.Cmd.Verification;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application.Cmd
 {
     public class Verification_Tests
     {

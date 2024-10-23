@@ -2,7 +2,7 @@
 using System.IO;
 using Andy.FlacHash.Hashing;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application.Cmd
 {
     public class OutputFormatting
     {

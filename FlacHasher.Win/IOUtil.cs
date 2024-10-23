@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Application.Win
 {
     public static class IOUtil
     {

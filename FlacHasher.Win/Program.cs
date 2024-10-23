@@ -1,4 +1,5 @@
 using Andy.Cmd.Parameter;
+using Andy.FlacHash.Application.Audio;
 using Andy.FlacHash.Audio;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
@@ -9,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win
+namespace Andy.FlacHash.Application.Win
 {
     static class Program
     {
@@ -36,9 +37,9 @@ namespace Andy.FlacHash.Win
             var hashfileExtensions = Param.GetHashFileExtensions(settings.HashfileExtensions);
             var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            System.Windows.Forms.Application.EnableVisualStyles();
+            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
@@ -53,7 +54,7 @@ namespace Andy.FlacHash.Win
                         ? Audio.Flac.FormatMetadata.FileExtension
                         : throw new ConfigurationException("Configure file extension for the specified decoder"));
 
-                Application.Run(
+                System.Windows.Forms.Application.Run(
                     new UI.FormX(
                         new UI.HashCalculationServiceFactory(
                             hasher),
@@ -92,7 +93,7 @@ namespace Andy.FlacHash.Win
                 new MultiFileHasher(
                     hasher, 
                     continueOnError: true,
-                    decoder is Audio.StdInputStreamAudioFileDecoder ? null : fileReadProgressReporter));
+                    decoder is StdInputStreamAudioFileDecoder ? null : fileReadProgressReporter));
 
             return (cancellableHasher, fileReadProgressReporter);
         }

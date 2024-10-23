@@ -2,9 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
-namespace Andy.FlacHash.Audio.Flac
+namespace Andy.FlacHash.Application.Audio.Flac
 {
     public static class Parameters
     {
@@ -35,7 +34,7 @@ namespace Andy.FlacHash.Audio.Flac
             {
                 Options.Decoder.Decode,
                 Options.Decoder.WriteToSdtOut,
-                Parameter.FilePlaceholder
+                FlacHash.Audio.Parameter.FilePlaceholder
             };
         }
     }

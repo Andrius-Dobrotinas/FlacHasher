@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Win.UI
+namespace Andy.FlacHash.Application.Win.UI
 {
     /// <summary>
     /// Disposes of its dependencies

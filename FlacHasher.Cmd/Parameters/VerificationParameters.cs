@@ -1,9 +1,9 @@
 ﻿using Andy.Cmd.Parameter;
 using System;
 using System.Collections.Generic;
-using static Andy.FlacHash.Cmd.Verification;
+using static Andy.FlacHash.Application.Cmd.Verification;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application.Cmd
 {
     public class VerificationParameters : IHashfileParams
     {

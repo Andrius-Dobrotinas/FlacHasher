@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Andy.FlacHash.Hashing;
-using static Andy.FlacHash.Win.CancellableBackgroundOperationRunner;
+using static Andy.FlacHash.Application.Win.CancellableBackgroundOperationRunner;
 
-namespace Andy.FlacHash.Win.UI
+namespace Andy.FlacHash.Application.Win.UI
 {
     public class NonBlockingHashComputation
     {

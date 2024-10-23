@@ -1,7 +1,7 @@
 ﻿using Andy.Cmd;
 using Andy.Cmd.Parameter;
 using Andy.ExternalProcess;
-using Andy.FlacHash.Audio;
+using Andy.FlacHash.Application.Audio;
 using Andy.FlacHash.Hashing.Crypto;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-namespace Andy.FlacHash.Cmd
+namespace Andy.FlacHash.Application.Cmd
 {
     public class Program
     {
@@ -92,7 +92,7 @@ namespace Andy.FlacHash.Cmd
                     cancellation.Cancel();
                 };
 
-                FileInfo decoderFile = AudioDecoder.ResolveDecoderOrThrow(settings);
+                FileInfo decoderFile = Audio.AudioDecoder.ResolveDecoderOrThrow(settings);
                 var fileSearch = new FlacHash.Hashing.FileSearch(settings.FileLookupIncludeHidden);
                 IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())
@@ -109,7 +109,7 @@ namespace Andy.FlacHash.Cmd
                     printProcessProgress);
 
                 var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderFile);
-                Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
+                FlacHash.Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
 
                 if (initialCmdlineParams.IsVerification)
                 {
@@ -125,7 +125,7 @@ namespace Andy.FlacHash.Cmd
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ConfigurationError;
             }
-            catch (Audio.IOException e)
+            catch (FlacHash.Audio.IOException e)
             {
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.InputReadingFailure;

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash
+namespace Andy.FlacHash.Application
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class CmdLineParameterAttribute : ParameterAttribute
