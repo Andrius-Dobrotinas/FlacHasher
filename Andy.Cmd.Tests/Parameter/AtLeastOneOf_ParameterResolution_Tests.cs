@@ -36,8 +36,7 @@ namespace Andy.Cmd.Parameter
 
         [TestCase(null)]
         [TestCase("")]
-        [TestCase("a value with spaces")]
-        public void Used_With_OptionalAttr_WithDefaultValue__Must_Reject(string value)
+        public void Used_With_OptionalAttr_WithDefaultValue__And_HasNoValue__Must_Use_DefaultValue(string value)
         {
             var argvs = new Dictionary<string, string[]>
             {
@@ -45,7 +44,23 @@ namespace Andy.Cmd.Parameter
             };
             var result = new TestParams();
             var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Optional_DefaultValue));
-            Assert.Throws<InvalidOperationException>(() => target.ReadParameter(prop, argvs, result));
+            target.ReadParameter<TestParams>(prop, argvs, result);
+
+            Assert.AreEqual("something", result.Optional_DefaultValue);
+        }
+
+        [TestCase("a value with spaces")]
+        public void Used_With_OptionalAttr_WithDefaultValue__And_HasValue__Must_Ignore_DefaultValue(string value)
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg1", new [] { value } }
+            };
+            var result = new TestParams();
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == nameof(TestParams.Optional_DefaultValue));
+            target.ReadParameter<TestParams>(prop, argvs, result);
+
+            Assert.AreEqual("something", result.Optional_DefaultValue);
         }
 
         class TestParams

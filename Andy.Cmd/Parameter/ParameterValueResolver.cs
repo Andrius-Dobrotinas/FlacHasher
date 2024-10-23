@@ -32,10 +32,13 @@ namespace Andy.Cmd.Parameter
             var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false);
             var isOptional = optionalAttrs.Any();
             if (isOptional
-                && optionalAttrs.Any(x => (x is RequiredWithAttribute) || (x is EitherOrAttribute) || (x is AtLeastOneOfAttribute))
+                && optionalAttrs.Any(x => (x is RequiredWithAttribute) || (x is EitherOrAttribute))
                 && optionalAttrs.Any(x => x.DefaultValue != null))
-                throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWithAttribute)}, {nameof(EitherOrAttribute)} or {nameof(AtLeastOneOfAttribute)} is not allowed to have a default value");
-            var optionalAttr = optionalAttrs.FirstOrDefault();
+                throw new InvalidOperationException($"A parameter marked with {nameof(RequiredWithAttribute)} or {nameof(EitherOrAttribute)} is not allowed to have a default value");
+
+            // More than one is allowed, by only one non-derivative Optional is allowed.
+            // One with default value is preferred (just for the said default value)
+            var optionalAttr = optionalAttrs.FirstOrDefault(x => x.DefaultValue != null) ?? optionalAttrs.FirstOrDefault();
 
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
 
