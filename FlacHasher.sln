@@ -17,13 +17,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Configuration.Ini", "Config
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Configuration.Ini.Tests", "Configuration.Ini\Configuration.Ini.Tests\Configuration.Ini.Tests.csproj", "{3A0805A3-6DA2-478E-BBEF-B0CF017D2C06}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacCompressionLevelChecker", "FlacCompressionLevelChecker\FlacCompressionLevelChecker.csproj", "{9D16EEEC-A352-49B4-AB31-F3BF5C72AAAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacCompressionLevelChecker", "Utils\FlacCompressionLevelChecker\FlacCompressionLevelChecker.csproj", "{9D16EEEC-A352-49B4-AB31-F3BF5C72AAAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmd", "Andy.Cmd\Cmd.csproj", "{A23CFC93-D168-4BBD-AAC8-9716AEEE0000}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompressionLevelChecker.Win", "CompressionLevelChecker.Win\CompressionLevelChecker.Win.csproj", "{675EC2A9-32BD-4571-8CDE-CAFED9457345}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompressionLevelChecker.Win", "Utils\CompressionLevelChecker.Win\CompressionLevelChecker.Win.csproj", "{675EC2A9-32BD-4571-8CDE-CAFED9457345}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompressionLevelChecker.Win.Tests", "CompressionLevelChecker.Win.Tests\CompressionLevelChecker.Win.Tests.csproj", "{7152A7B2-5E5F-4DBD-AA49-1D5B7E2D8163}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompressionLevelChecker.Win.Tests", "Utils\CompressionLevelChecker.Win.Tests\CompressionLevelChecker.Win.Tests.csproj", "{7152A7B2-5E5F-4DBD-AA49-1D5B7E2D8163}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher.Win", "FlacHasher.Win\FlacHasher.Win.csproj", "{98C23219-1364-4BC1-A906-1F609DAA8736}"
 EndProject
@@ -42,6 +42,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmd.Tests", "Andy.Cmd.Tests\Cmd.Tests.csproj", "{95145436-8391-469E-A15F-384E9888C69F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher", "FlacHasher\FlacHasher.csproj", "{1BC9B0EC-C47D-4D8E-A474-CB19E5699B61}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{0EB3C4B9-CE21-4775-B62B-060D593030B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -128,6 +130,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{5309C3FB-9B6A-4FDD-8AA0-7E903F7AEA0E} = {12895311-F9F7-4C71-A721-0F1F25A475E2}
 		{3A0805A3-6DA2-478E-BBEF-B0CF017D2C06} = {12895311-F9F7-4C71-A721-0F1F25A475E2}
+		{9D16EEEC-A352-49B4-AB31-F3BF5C72AAAF} = {0EB3C4B9-CE21-4775-B62B-060D593030B5}
+		{675EC2A9-32BD-4571-8CDE-CAFED9457345} = {0EB3C4B9-CE21-4775-B62B-060D593030B5}
+		{7152A7B2-5E5F-4DBD-AA49-1D5B7E2D8163} = {0EB3C4B9-CE21-4775-B62B-060D593030B5}
 		{E921D57F-9D09-4500-ADE4-DF361B07BC75} = {39AD7A67-C3C9-4D9C-93E0-097590F4C81A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
