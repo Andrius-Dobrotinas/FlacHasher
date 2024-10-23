@@ -100,7 +100,7 @@ namespace Andy.Cmd.Parameter
                     throw new ParameterGroupException("Only one parameter is allowed to have a value", GetParameterNames(parameterGroup.Value));
 
                 if (nullValues.All(x => x == true))
-                    throw new ParameterGroupException("One of the following parameter must have a value", GetParameterNames(parameterGroup.Value));
+                    throw new ParameterGroupException("One of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
             }
         }
 
@@ -137,7 +137,7 @@ namespace Andy.Cmd.Parameter
                 var nullValues = values.Select(x => x == null);
 
                 if (nullValues.All(x => x == true))
-                    throw new ParameterGroupException("At least one of the following parameter must have a value", GetParameterNames(parameterGroup.Value));
+                    throw new ParameterGroupException("At least one of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
             }
         }
 
