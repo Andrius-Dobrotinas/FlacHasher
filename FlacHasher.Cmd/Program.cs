@@ -27,12 +27,12 @@ namespace Andy.FlacHash.Application.Cmd
             var parameterReader = ParameterReader.Build();
             try
             {
-            var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
+                var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
                 initialCmdlineParams = parameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
 
                 IDictionary<string, string[]> settingsFileParams;
-            try
-            {
+                try
+                {
                     var settingsFile = new FileInfo(settingsFileName);
                     settingsFileParams = SettingsFile.ReadIniFile(settingsFile, initialCmdlineParams.Profile)
                         .ToDictionary(x => lowercaseParams ? x.Key.ToLowerInvariant() : x.Key, x => new[] { x.Value });
