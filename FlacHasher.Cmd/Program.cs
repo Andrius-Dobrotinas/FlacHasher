@@ -93,7 +93,7 @@ namespace Andy.FlacHash.Application.Cmd
                 };
 
                 FileInfo decoderFile = Audio.AudioDecoder.ResolveDecoderOrThrow(settings);
-                var fileSearch = new FlacHash.Hashing.FileSearch(settings.FileLookupIncludeHidden);
+                var fileSearch = new FlacHash.FileSearch(settings.FileLookupIncludeHidden);
                 IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Andy.FlacHash.Hashing;
 
 namespace Andy.FlacHash.Hashing.Verification
 {

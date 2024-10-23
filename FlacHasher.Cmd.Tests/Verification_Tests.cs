@@ -1,4 +1,3 @@
-using Andy.FlacHash.Hashing;
 using Moq;
 using NUnit.Framework;
 using System;
