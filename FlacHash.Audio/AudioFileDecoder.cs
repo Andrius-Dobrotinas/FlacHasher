@@ -25,7 +25,7 @@ namespace Andy.FlacHash.Audio
             this.@params = @params ?? throw new ArgumentNullException(nameof(@params));
 
             if (!ContainsFilePlaceholder(@params))
-                throw new ArgumentException($"One of the parameters has to be a file placeholder: {Parameter.FilePlaceholder}", nameof(@params));
+                throw new ArgumentException($"One of the parameters has to be a file placeholder: {DecoderParameter.FilePlaceholder}", nameof(@params));
         }
 
         public DecoderStream Read(FileInfo sourceFile, CancellationToken cancellation = default)
@@ -47,7 +47,7 @@ namespace Andy.FlacHash.Audio
         {
             return @params
                 .Select(param =>
-                    param.Equals(Parameter.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase)
+                    param.Equals(DecoderParameter.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase)
                         ? sourceFile.FullName
                         : param)
                 .ToArray();
@@ -55,7 +55,7 @@ namespace Andy.FlacHash.Audio
 
         public static bool ContainsFilePlaceholder(IEnumerable<string> @params)
         {
-            return @params.Any(param => param.Equals(Parameter.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase));
+            return @params.Any(param => param.Equals(DecoderParameter.FilePlaceholder, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Andy.FlacHash.Application.Audio.Flac
             {
                 Options.Decoder.Decode,
                 Options.Decoder.WriteToSdtOut,
-                FlacHash.Audio.Parameter.FilePlaceholder
+                FlacHash.Audio.DecoderParameter.FilePlaceholder
             };
         }
     }
