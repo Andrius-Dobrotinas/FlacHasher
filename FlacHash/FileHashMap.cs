@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash
 {
     public class FileHashMap
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash.Hashfile.Read
 {
     public interface IHashMapParser
     {
@@ -50,8 +50,8 @@ namespace Andy.FlacHash.Hashing.Verification
             {
                 var hasFilename = entry.Key != null;
 
-                if ((hasFilename && !firstItemHasFileName)
-                    || (!hasFilename && firstItemHasFileName))
+                if (hasFilename && !firstItemHasFileName
+                    || !hasFilename && firstItemHasFileName)
                     throw new MissingFileNameException(index + 1); // todo include index
             }
 

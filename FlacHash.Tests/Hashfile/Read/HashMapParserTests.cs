@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash.Hashfile.Read
 {
     public class HashMapParserTests
     {

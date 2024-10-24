@@ -1,4 +1,5 @@
 ﻿using Andy.Cmd.Parameter;
+using Andy.FlacHash.Hashfile.Read;
 using System;
 using System.Collections.Generic;
 using static Andy.FlacHash.Application.Cmd.Verification;
@@ -18,7 +19,7 @@ namespace Andy.FlacHash.Application.Cmd
         public string[] HashfileExtensions { get; set; }
 
         [IniEntry(nameof(HashfileEntrySeparator))]
-        [Optional(defaultValue: FlacHash.Hashing.Verification.HashFileReader.Default.HashfileEntrySeparator)]
+        [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
         public string HashfileEntrySeparator { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]

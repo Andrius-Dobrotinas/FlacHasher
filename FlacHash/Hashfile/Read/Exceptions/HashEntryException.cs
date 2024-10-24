@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash.Hashfile.Read
 {
     public class HashEntryException : Exception
     {

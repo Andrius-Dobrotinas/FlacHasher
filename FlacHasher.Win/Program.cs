@@ -1,6 +1,7 @@
 using Andy.Cmd.Parameter;
 using Andy.FlacHash.Application.Audio;
 using Andy.FlacHash.Audio;
+using Andy.FlacHash.Hashfile.Read;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
 using Andy.IO;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash.Hashfile.Read
 {
     public class CaseInsensitiveOrdinalStringComparer : IEqualityComparer<string>
     {

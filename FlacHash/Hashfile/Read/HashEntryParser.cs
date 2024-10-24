@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash.Hashfile.Read
 {
     public interface IHashEntryParser
     {
@@ -37,7 +37,7 @@ namespace Andy.FlacHash.Hashing.Verification
             if (string.IsNullOrWhiteSpace(line)) throw new ArgumentException("An empty string is unacceptable!", nameof(line));
 
             var separatorIndex = line.LastIndexOf(separator);
-            
+
             if (separatorIndex == -1)
                 // Return the whole line as value
                 return new KeyValuePair<string, string>(
