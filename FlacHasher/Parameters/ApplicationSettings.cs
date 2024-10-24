@@ -1,5 +1,5 @@
 ﻿using Andy.Cmd.Parameter;
-using Andy.FlacHash.Hashing.Crypto;
+using Andy.FlacHash.Crypto;
 using System;
 using System.Collections.Generic;
 

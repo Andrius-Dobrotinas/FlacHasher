@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace Andy.FlacHash.Hashing.Crypto
+namespace Andy.FlacHash.Crypto
 {
     public class Hasher : IHasher
     {

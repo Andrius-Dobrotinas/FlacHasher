@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash.Verification
 {
     public static class HashEntryMatching
     {
@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Hashing.Verification
         /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
         public static IEnumerable<KeyValuePair<FileInfo, string>> MatchFilesToHashesPositionBased(
-            IList<KeyValuePair<string, string>> expectedHashes, 
+            IList<KeyValuePair<string, string>> expectedHashes,
             IEnumerable<FileInfo> files)
         {
             var filesTargetedByTheHashes = files.Take(expectedHashes.Count).ToList();
@@ -25,12 +25,12 @@ namespace Andy.FlacHash.Hashing.Verification
             {
                 var expected = expectedHashes[i];
 
-                var matchingFile = (i < filesTargetedByTheHashes.Count)
+                var matchingFile = i < filesTargetedByTheHashes.Count
                     ? filesTargetedByTheHashes[i]
                     : null;
 
                 yield return new KeyValuePair<FileInfo, string>(
-                        matchingFile ?? new FileInfo(string.Format(MissingFileKey, i+1)),
+                        matchingFile ?? new FileInfo(string.Format(MissingFileKey, i + 1)),
                         expected.Value);
             }
         }
@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Hashing.Verification
         /// </summary>
         /// <param name="expectedHashes">Key = File name, Value = hash value</param>
         public static IEnumerable<KeyValuePair<FileInfo, string>> MatchFilesToHashesNameBased(
-            IList<KeyValuePair<string, string>> expectedHashes, 
+            IList<KeyValuePair<string, string>> expectedHashes,
             IEnumerable<FileInfo> files)
         {
             var fileDictionary = files.ToDictionary(x => x.Name, x => x);
@@ -65,8 +65,8 @@ namespace Andy.FlacHash.Hashing.Verification
         public static IDictionary<FileInfo, string> MatchFilesToHashes(FileHashMap expectedFileHashMap, IList<FileInfo> files)
         {
             var result = expectedFileHashMap.IsPositionBased
-                    ? HashEntryMatching.MatchFilesToHashesPositionBased(expectedFileHashMap.Hashes, files)
-                    : HashEntryMatching.MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files);
+                    ? MatchFilesToHashesPositionBased(expectedFileHashMap.Hashes, files)
+                    : MatchFilesToHashesNameBased(expectedFileHashMap.Hashes, files);
 
             return result.ToDictionary(x => x.Key, x => x.Value);
         }

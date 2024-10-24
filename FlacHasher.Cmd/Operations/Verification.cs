@@ -1,8 +1,8 @@
 ﻿using Andy.FlacHash.Audio;
+using Andy.FlacHash.Crypto;
 using Andy.FlacHash.Hashfile.Read;
 using Andy.FlacHash.Hashing;
-using Andy.FlacHash.Hashing.Crypto;
-using Andy.FlacHash.Hashing.Verification;
+using Andy.FlacHash.Verification;
 using Andy.IO;
 using System;
 using System.Collections.Generic;

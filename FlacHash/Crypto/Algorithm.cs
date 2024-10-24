@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Hashing.Crypto
+namespace Andy.FlacHash.Crypto
 {
     public enum Algorithm
     {

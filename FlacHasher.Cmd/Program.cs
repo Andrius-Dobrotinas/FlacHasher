@@ -2,7 +2,7 @@
 using Andy.Cmd.Parameter;
 using Andy.ExternalProcess;
 using Andy.FlacHash.Application.Audio;
-using Andy.FlacHash.Hashing.Crypto;
+using Andy.FlacHash.Crypto;
 using Andy.IO;
 using System;
 using System.Collections.Generic;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Hashing
+namespace Andy.FlacHash
 {
     /// <summary>
     /// Represents hash bytes as a lower-case string without any dashes or anything

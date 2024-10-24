@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash.Hashing.Verification
+﻿namespace Andy.FlacHash.Verification
 {
     public enum HashMatch
     {

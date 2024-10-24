@@ -3,7 +3,7 @@ using Andy.FlacHash.Application.Audio;
 using Andy.FlacHash.Audio;
 using Andy.FlacHash.Hashfile.Read;
 using Andy.FlacHash.Hashing;
-using Andy.FlacHash.Hashing.Verification;
+using Andy.FlacHash.Verification;
 using Andy.IO;
 using System;
 using System.Collections.Generic;
@@ -89,7 +89,7 @@ namespace Andy.FlacHash.Application.Win
 
             var hasher = new FileHasher(
                 decoder,
-                new Hashing.Crypto.Hasher(settings.HashAlgorithm));
+                new Crypto.Hasher(settings.HashAlgorithm));
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(
                     hasher, 

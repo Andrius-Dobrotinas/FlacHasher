@@ -1,5 +1,5 @@
 ﻿using Andy.FlacHash.Audio;
-using Andy.FlacHash.Hashing.Crypto;
+using Andy.FlacHash.Crypto;
 using System;
 using System.IO;
 using System.Threading;

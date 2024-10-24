@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FlacHash.Hashing.Verification
+namespace Andy.FlacHash.Verification
 {
     public class HashVerifier
     {

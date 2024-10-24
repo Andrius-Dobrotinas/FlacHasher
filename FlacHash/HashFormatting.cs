@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andy.FlacHash.Hashing
+namespace Andy.FlacHash
 {
     public static class HashFormatting
     {

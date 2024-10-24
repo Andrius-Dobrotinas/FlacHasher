@@ -1,4 +1,4 @@
-﻿namespace Andy.FlacHash.Hashing
+﻿namespace Andy.FlacHash
 {
     public interface IHashFormatter
     {

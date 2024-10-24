@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Andy.FlacHash.Hashing;
 
 namespace Andy.FlacHash.Application.Cmd
 {
