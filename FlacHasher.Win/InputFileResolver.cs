@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Andy.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,11 +9,11 @@ namespace Andy.FlacHash.Application.Win
     public class InputFileResolver
     {
         private readonly ICollection<string> hashFileExtensions;
-        private readonly FileSearch fileSearch;
+        private readonly IFileSearch fileSearch;
 
         public InputFileResolver(
             ICollection<string> hashFileExtensions,
-            FileSearch fileSearch)
+            IFileSearch fileSearch)
         {
             this.hashFileExtensions = hashFileExtensions;
             this.fileSearch = fileSearch;

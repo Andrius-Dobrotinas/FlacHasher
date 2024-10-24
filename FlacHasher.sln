@@ -45,6 +45,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher", "FlacHasher\Fl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{0EB3C4B9-CE21-4775-B62B-060D593030B5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{56E188CE-57E1-4C6D-9EBE-73662A08A37D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Tests", "Common.Tests\Common.Tests.csproj", "{7FBCD820-01EB-40D5-A8F5-F9C44C294A8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +127,14 @@ Global
 		{1BC9B0EC-C47D-4D8E-A474-CB19E5699B61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BC9B0EC-C47D-4D8E-A474-CB19E5699B61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BC9B0EC-C47D-4D8E-A474-CB19E5699B61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56E188CE-57E1-4C6D-9EBE-73662A08A37D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56E188CE-57E1-4C6D-9EBE-73662A08A37D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56E188CE-57E1-4C6D-9EBE-73662A08A37D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56E188CE-57E1-4C6D-9EBE-73662A08A37D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FBCD820-01EB-40D5-A8F5-F9C44C294A8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FBCD820-01EB-40D5-A8F5-F9C44C294A8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FBCD820-01EB-40D5-A8F5-F9C44C294A8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FBCD820-01EB-40D5-A8F5-F9C44C294A8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

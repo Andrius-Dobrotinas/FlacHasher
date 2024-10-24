@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace Andy.FlacHash.Hashing
+namespace Andy.IO
 {
     public class FileInfoEqualityComprarerTests
     {

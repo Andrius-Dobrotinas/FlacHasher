@@ -3,6 +3,7 @@ using Andy.Cmd.Parameter;
 using Andy.ExternalProcess;
 using Andy.FlacHash.Application.Audio;
 using Andy.FlacHash.Hashing.Crypto;
+using Andy.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -93,7 +94,7 @@ namespace Andy.FlacHash.Application.Cmd
                 };
 
                 FileInfo decoderFile = Audio.AudioDecoder.ResolveDecoderOrThrow(settings);
-                var fileSearch = new FlacHash.FileSearch(settings.FileLookupIncludeHidden);
+                var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
                 IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())
                     throw new InputFileMissingException("No files provided/found");

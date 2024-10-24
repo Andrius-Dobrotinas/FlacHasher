@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Andy.FlacHash.Application.Cmd</RootNamespace>
+    <RootNamespace>Andy</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" />
-    <ProjectReference Include="..\FlacHasher\FlacHasher.csproj" />
     <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using Andy.ExternalProcess;
 using Andy.FlacHash.Audio;
+using Andy.FlacHash.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,8 +34,8 @@ namespace Andy.FlacHash.Application.Audio
         public static IAudioFileDecoder BuildForStdin(FileInfo decoderFile, ProcessRunner processRunner, ICollection<string> args, IProgress<int> inputStreamReadProgressReporter = null)
         {
             var streamFactory = inputStreamReadProgressReporter == null
-                ? (IFileReadStreamFactory)new IO.ReadStreamFactory()
-                : new IO.Progress.ProgressReportingReadStreamFactory(inputStreamReadProgressReporter);
+                ? (IFileReadStreamFactory)new ReadStreamFactory()
+                : new ProgressReportingReadStreamFactory(inputStreamReadProgressReporter);
             var decoder = new StreamDecoder(
                 decoderFile,
                 processRunner,

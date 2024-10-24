@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Andy.FlacHash.Hashing
+namespace Andy.IO
 {
     public class FileInfoEqualityComprarer : IEqualityComparer<FileInfo>
     {

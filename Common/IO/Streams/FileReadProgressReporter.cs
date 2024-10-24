@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Andy.FlacHash.IO.Progress
+namespace Andy.IO
 {
     public class FileReadProgressReporter : IDataReadEventSource, IProgress<int>
     {

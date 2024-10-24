@@ -3,7 +3,7 @@ using Andy.FlacHash.Application.Audio;
 using Andy.FlacHash.Audio;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Hashing.Verification;
-using Andy.FlacHash.IO.Progress;
+using Andy.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -11,7 +11,7 @@ namespace Andy.FlacHash.IO
         {
             if (sourceFile.Exists == false)
                 throw new InputFileNotFoundException(sourceFile.FullName);
-            
+
             var stream = new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read);
 
             return stream;

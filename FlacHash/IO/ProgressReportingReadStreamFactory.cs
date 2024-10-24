@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using Andy.FlacHash.Audio;
+using Andy.IO;
 
-namespace Andy.FlacHash.IO.Progress
+namespace Andy.FlacHash.IO
 {
     public class ProgressReportingReadStreamFactory : IFileReadStreamFactory
     {
