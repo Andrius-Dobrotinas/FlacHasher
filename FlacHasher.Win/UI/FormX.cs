@@ -158,6 +158,13 @@ namespace Andy.FlacHash.Application.Win.UI
         private void Set_Go_Button_State()
         {
             btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || list_hashFiles.Any());
+
+            if (!list_files.Any())
+                label_Status.Text = "Select a directory that contains files";
+            else if (mode == Mode.Verification && !list_hashFiles.Any())
+                label_Status.Text = "Select a directory that contains a hashfile";
+            else
+                label_Status.Text = "Press Go";
         }
 
         private void SaveHashes(IEnumerable<FileHashResultListItem> results)
