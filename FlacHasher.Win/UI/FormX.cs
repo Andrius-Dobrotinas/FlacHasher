@@ -350,9 +350,6 @@ namespace Andy.FlacHash.Application.Win.UI
             this.list_results.Visible = mode == Mode.Calculation;
             this.list_verification_results.Visible = mode == Mode.Verification;
 
-            this.list_files.Size = new System.Drawing.Size(660, 139);
-
-
             Set_Go_Button_State();
         }
     }
