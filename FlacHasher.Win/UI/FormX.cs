@@ -31,6 +31,9 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private bool finishedWithErrors;
 
+        const string newline = "\r\n";
+        const string errorSeparator = "==========================";
+
         public FormX(
             HashComputationServiceFactory hashComputationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
@@ -263,6 +266,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             list_results.ClearList();
             list_verification_results.Items.Clear();
+            txtErrors.Clear();
 
             // Name-based verification includes files even if they don't exist just so they can be reported in the correct order
             long totalSize = files.Select(file => file.Exists ? file.Length : 0).Sum();
@@ -300,6 +304,9 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
+        /// <summary>
+        /// Gets invoked when an operation totally fails (doesn't move on to the next file)
+        /// </summary>
         private void OnFailure(Exception e)
         {
             btn_go.Enabled = true;
@@ -337,7 +344,21 @@ namespace Andy.FlacHash.Application.Win.UI
         private void ReportExecutionError(Exception exception, FileInfo file)
         {
             finishedWithErrors = true;
-            Task.Run(() => MessageBox.Show($"Error processing file {file.Name}: {exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error));
+            AddErrorMessage($"Error processing file: {file.Name}", exception.Message);
+        }
+
+        void AddErrorMessage(params string[] message)
+        {
+            tabs_Results.SelectTab(tabErrors);
+
+            txtErrors.AppendText(errorSeparator);
+            txtErrors.AppendText(newline);
+
+            foreach (var line in message)
+            {
+                txtErrors.AppendText(line);
+                txtErrors.AppendText(newline);
+            }
         }
 
         private Mode mode;
