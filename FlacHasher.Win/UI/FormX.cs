@@ -277,6 +277,8 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void OnCalcStateChanged(bool inProgress)
         {
+            grpModes.Enabled = !inProgress;
+
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
             this.label_Status.Text = "Working...";
         }
