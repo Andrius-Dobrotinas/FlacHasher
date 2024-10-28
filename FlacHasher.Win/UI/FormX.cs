@@ -95,7 +95,7 @@ namespace Andy.FlacHash.Application.Win.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowFatalError(ex);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Andy.FlacHash.Application.Win.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowFatalError(ex);
             }
         }
 
@@ -314,7 +314,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             label_Status.Text = "Failed";
 
-            MessageBox.Show($"Error processing file(s): {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            ShowFatalError(e);
         }
 
         private void ComputeHashes(IEnumerable<FileInfo> files)
@@ -359,6 +359,12 @@ namespace Andy.FlacHash.Application.Win.UI
                 txtErrors.AppendText(line);
                 txtErrors.AppendText(newline);
             }
+        }
+
+        void ShowFatalError(Exception e)
+        {
+            AddErrorMessage($"Error processing file(s)", e.Message);
+            MessageBox.Show($"Operation failed. See the error log", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private Mode mode;
