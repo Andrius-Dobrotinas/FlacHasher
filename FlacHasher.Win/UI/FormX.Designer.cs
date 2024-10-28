@@ -36,8 +36,6 @@
             ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(components);
             progressBar = new System.Windows.Forms.ProgressBar();
             label_Status = new System.Windows.Forms.Label();
-            mode_Verify = new System.Windows.Forms.RadioButton();
-            mode_Calc = new System.Windows.Forms.RadioButton();
             list_verification_results = new VerificationResultsList();
             col_results_verification_file = new System.Windows.Forms.ColumnHeader();
             col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
@@ -49,11 +47,15 @@
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             group_Results = new System.Windows.Forms.GroupBox();
             imgList_verification = new System.Windows.Forms.ImageList(components);
+            grpModes = new System.Windows.Forms.GroupBox();
+            mode_Calc = new System.Windows.Forms.RadioButton();
+            mode_Verify = new System.Windows.Forms.RadioButton();
             layoutGroup_input.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             group_Left.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             group_Results.SuspendLayout();
+            grpModes.SuspendLayout();
             SuspendLayout();
             // 
             // btn_chooseDir
@@ -112,32 +114,6 @@
             label_Status.Name = "label_Status";
             label_Status.Size = new System.Drawing.Size(0, 25);
             label_Status.TabIndex = 6;
-            // 
-            // mode_Verify
-            // 
-            mode_Verify.AutoSize = true;
-            mode_Verify.Location = new System.Drawing.Point(17, 158);
-            mode_Verify.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            mode_Verify.Name = "mode_Verify";
-            mode_Verify.Size = new System.Drawing.Size(81, 29);
-            mode_Verify.TabIndex = 8;
-            mode_Verify.TabStop = true;
-            mode_Verify.Text = "Verify";
-            mode_Verify.UseVisualStyleBackColor = true;
-            mode_Verify.CheckedChanged += mode_Verify_CheckedChanged;
-            // 
-            // mode_Calc
-            // 
-            mode_Calc.AutoSize = true;
-            mode_Calc.Location = new System.Drawing.Point(17, 117);
-            mode_Calc.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            mode_Calc.Name = "mode_Calc";
-            mode_Calc.Size = new System.Drawing.Size(107, 29);
-            mode_Calc.TabIndex = 7;
-            mode_Calc.TabStop = true;
-            mode_Calc.Text = "Calculate";
-            mode_Calc.UseVisualStyleBackColor = true;
-            mode_Calc.CheckedChanged += mode_Calc_CheckedChanged;
             // 
             // list_verification_results
             // 
@@ -220,12 +196,11 @@
             // 
             // group_Left
             // 
+            group_Left.Controls.Add(grpModes);
             group_Left.Controls.Add(btn_chooseDir);
-            group_Left.Controls.Add(mode_Calc);
             group_Left.Controls.Add(label_Status);
             group_Left.Controls.Add(btn_go);
             group_Left.Controls.Add(progressBar);
-            group_Left.Controls.Add(mode_Verify);
             group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
             group_Left.Location = new System.Drawing.Point(4, 5);
             group_Left.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -274,6 +249,42 @@
             imgList_verification.Images.SetKeyName(1, "good");
             imgList_verification.Images.SetKeyName(2, "error.png");
             // 
+            // grpModes
+            // 
+            grpModes.Controls.Add(mode_Calc);
+            grpModes.Controls.Add(mode_Verify);
+            grpModes.Location = new System.Drawing.Point(17, 114);
+            grpModes.Name = "grpModes";
+            grpModes.Size = new System.Drawing.Size(191, 111);
+            grpModes.TabIndex = 1;
+            grpModes.TabStop = false;
+            // 
+            // mode_Calc
+            // 
+            mode_Calc.AutoSize = true;
+            mode_Calc.Location = new System.Drawing.Point(14, 20);
+            mode_Calc.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            mode_Calc.Name = "mode_Calc";
+            mode_Calc.Size = new System.Drawing.Size(107, 29);
+            mode_Calc.TabIndex = 1;
+            mode_Calc.TabStop = true;
+            mode_Calc.Text = "Calculate";
+            mode_Calc.UseVisualStyleBackColor = true;
+            mode_Calc.CheckedChanged += mode_Calc_CheckedChanged;
+            // 
+            // mode_Verify
+            // 
+            mode_Verify.AutoSize = true;
+            mode_Verify.Location = new System.Drawing.Point(14, 61);
+            mode_Verify.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            mode_Verify.Name = "mode_Verify";
+            mode_Verify.Size = new System.Drawing.Size(81, 29);
+            mode_Verify.TabIndex = 2;
+            mode_Verify.TabStop = true;
+            mode_Verify.Text = "Verify";
+            mode_Verify.UseVisualStyleBackColor = true;
+            mode_Verify.CheckedChanged += mode_Verify_CheckedChanged;
+            // 
             // FormX
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
@@ -289,6 +300,8 @@
             group_Left.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
             group_Results.ResumeLayout(false);
+            grpModes.ResumeLayout(false);
+            grpModes.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -300,8 +313,6 @@
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label label_Status;
-        private System.Windows.Forms.RadioButton mode_Verify;
-        private System.Windows.Forms.RadioButton mode_Calc;
         private VerificationResultsList list_verification_results;
         private System.Windows.Forms.ColumnHeader col_results_verification_file;
         private System.Windows.Forms.ColumnHeader col_results_verification_isMatch;
@@ -313,5 +324,8 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.GroupBox group_Results;
         private System.Windows.Forms.ImageList imgList_verification;
+        private System.Windows.Forms.GroupBox grpModes;
+        private System.Windows.Forms.RadioButton mode_Calc;
+        private System.Windows.Forms.RadioButton mode_Verify;
     }
 }
