@@ -34,7 +34,6 @@
             btn_go = new System.Windows.Forms.Button();
             ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(components);
             progressBar = new System.Windows.Forms.ProgressBar();
-            label_Status = new System.Windows.Forms.Label();
             layoutGroup_input = new System.Windows.Forms.TableLayoutPanel();
             list_hashFiles = new FileList();
             list_files = new FileList();
@@ -45,13 +44,13 @@
             mode_Verify = new System.Windows.Forms.RadioButton();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             tabs_Results = new System.Windows.Forms.TabControl();
+            tabStatus = new System.Windows.Forms.TabPage();
+            txtStatus = new System.Windows.Forms.TextBox();
             tabResults = new System.Windows.Forms.TabPage();
             list_results = new FileHashResultList();
             list_verification_results = new VerificationResultsList();
             col_results_verification_file = new System.Windows.Forms.ColumnHeader();
             col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
-            tabErrors = new System.Windows.Forms.TabPage();
-            txtErrors = new System.Windows.Forms.TextBox();
             imgList_verification = new System.Windows.Forms.ImageList(components);
             layoutGroup_input.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
@@ -59,8 +58,8 @@
             grpModes.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tabs_Results.SuspendLayout();
+            tabStatus.SuspendLayout();
             tabResults.SuspendLayout();
-            tabErrors.SuspendLayout();
             SuspendLayout();
             // 
             // btn_chooseDir
@@ -98,15 +97,6 @@
             progressBar.Name = "progressBar";
             progressBar.Size = new System.Drawing.Size(191, 42);
             progressBar.TabIndex = 5;
-            // 
-            // label_Status
-            // 
-            label_Status.AutoSize = true;
-            label_Status.Location = new System.Drawing.Point(28, 250);
-            label_Status.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            label_Status.Name = "label_Status";
-            label_Status.Size = new System.Drawing.Size(0, 25);
-            label_Status.TabIndex = 6;
             // 
             // layoutGroup_input
             // 
@@ -169,7 +159,6 @@
             // 
             group_Left.Controls.Add(grpModes);
             group_Left.Controls.Add(btn_chooseDir);
-            group_Left.Controls.Add(label_Status);
             group_Left.Controls.Add(btn_go);
             group_Left.Controls.Add(progressBar);
             group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -235,8 +224,8 @@
             // 
             // tabs_Results
             // 
+            tabs_Results.Controls.Add(tabStatus);
             tabs_Results.Controls.Add(tabResults);
-            tabs_Results.Controls.Add(tabErrors);
             tabs_Results.Dock = System.Windows.Forms.DockStyle.Fill;
             tabs_Results.Location = new System.Drawing.Point(0, 280);
             tabs_Results.Margin = new System.Windows.Forms.Padding(0);
@@ -244,6 +233,29 @@
             tabs_Results.SelectedIndex = 0;
             tabs_Results.Size = new System.Drawing.Size(954, 280);
             tabs_Results.TabIndex = 13;
+            // 
+            // tabStatus
+            // 
+            tabStatus.Controls.Add(txtStatus);
+            tabStatus.Location = new System.Drawing.Point(4, 34);
+            tabStatus.Margin = new System.Windows.Forms.Padding(0);
+            tabStatus.Name = "tabStatus";
+            tabStatus.Size = new System.Drawing.Size(946, 242);
+            tabStatus.TabIndex = 1;
+            tabStatus.Text = "Status";
+            tabStatus.UseVisualStyleBackColor = true;
+            // 
+            // txtStatus
+            // 
+            txtStatus.Dock = System.Windows.Forms.DockStyle.Fill;
+            txtStatus.HideSelection = false;
+            txtStatus.Location = new System.Drawing.Point(0, 0);
+            txtStatus.Multiline = true;
+            txtStatus.Name = "txtStatus";
+            txtStatus.ReadOnly = true;
+            txtStatus.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            txtStatus.Size = new System.Drawing.Size(946, 242);
+            txtStatus.TabIndex = 0;
             // 
             // tabResults
             // 
@@ -291,29 +303,6 @@
             // 
             col_results_verification_isMatch.Text = "Matches";
             // 
-            // tabErrors
-            // 
-            tabErrors.Controls.Add(txtErrors);
-            tabErrors.Location = new System.Drawing.Point(4, 34);
-            tabErrors.Margin = new System.Windows.Forms.Padding(0);
-            tabErrors.Name = "tabErrors";
-            tabErrors.Size = new System.Drawing.Size(946, 242);
-            tabErrors.TabIndex = 1;
-            tabErrors.Text = "Errors";
-            tabErrors.UseVisualStyleBackColor = true;
-            // 
-            // txtErrors
-            // 
-            txtErrors.Dock = System.Windows.Forms.DockStyle.Fill;
-            txtErrors.HideSelection = false;
-            txtErrors.Location = new System.Drawing.Point(0, 0);
-            txtErrors.Multiline = true;
-            txtErrors.Name = "txtErrors";
-            txtErrors.ReadOnly = true;
-            txtErrors.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            txtErrors.Size = new System.Drawing.Size(946, 242);
-            txtErrors.TabIndex = 0;
-            // 
             // imgList_verification
             // 
             imgList_verification.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
@@ -335,14 +324,13 @@
             layoutGroup_input.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             group_Left.ResumeLayout(false);
-            group_Left.PerformLayout();
             grpModes.ResumeLayout(false);
             grpModes.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
             tabs_Results.ResumeLayout(false);
+            tabStatus.ResumeLayout(false);
+            tabStatus.PerformLayout();
             tabResults.ResumeLayout(false);
-            tabErrors.ResumeLayout(false);
-            tabErrors.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -352,7 +340,6 @@
         private System.Windows.Forms.Button btn_go;
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
         private System.Windows.Forms.ProgressBar progressBar;
-        private System.Windows.Forms.Label label_Status;
         private System.Windows.Forms.TableLayoutPanel layoutGroup_input;
         private FileList list_hashFiles;
         private FileList list_files;
@@ -369,7 +356,7 @@
         private VerificationResultsList list_verification_results;
         private System.Windows.Forms.ColumnHeader col_results_verification_file;
         private System.Windows.Forms.ColumnHeader col_results_verification_isMatch;
-        private System.Windows.Forms.TabPage tabErrors;
-        private System.Windows.Forms.TextBox txtErrors;
+        private System.Windows.Forms.TabPage tabStatus;
+        private System.Windows.Forms.TextBox txtStatus;
     }
 }

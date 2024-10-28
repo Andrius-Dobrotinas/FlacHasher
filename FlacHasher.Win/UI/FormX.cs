@@ -69,7 +69,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
-            this.label_Status.Text = "Select a directory";
+            ResetLog("Select a directory");
             this.btn_go.Enabled = false;
 
             this.mode_Calc.Checked = true;
@@ -131,9 +131,9 @@ namespace Andy.FlacHash.Application.Win.UI
             var (files, hashFiles) = targetFileResolver.FindFiles(directory, fileExtension);
 
             if (files.Any() == false)
-                label_Status.Text = "The selected directory doesn't contain suitable files";
+                ResetLog("The selected directory doesn't contain suitable files");
             else
-                label_Status.Text = @"Press ""Go""";
+                ResetLog(@"Press ""Go""");
 
             SetNewInputFiles(files, hashFiles);
         }
@@ -163,11 +163,11 @@ namespace Andy.FlacHash.Application.Win.UI
             btn_go.Enabled = list_files.Any() && (mode == Mode.Hashing || list_hashFiles.Any());
 
             if (!list_files.Any())
-                label_Status.Text = "Select a directory that contains files";
+                ResetLog("Select a directory that contains files");
             else if (mode == Mode.Verification && !list_hashFiles.Any())
-                label_Status.Text = "Select a directory that contains a hashfile";
+                ResetLog("Select a directory that contains a hashfile");
             else
-                label_Status.Text = "Press Go";
+                ResetLog("Select Operation and Press Go");
         }
 
         private void SaveHashes(IEnumerable<FileHashResultListItem> results)
@@ -266,11 +266,14 @@ namespace Andy.FlacHash.Application.Win.UI
 
             list_results.ClearList();
             list_verification_results.Items.Clear();
-            txtErrors.Clear();
+            txtStatus.Clear();
 
             // Name-based verification includes files even if they don't exist just so they can be reported in the correct order
             long totalSize = files.Select(file => file.Exists ? file.Length : 0).Sum();
             progressReporter.Reset(totalSize);
+
+            ResetLog("Working...");
+            tabs_Results.SelectTab(tabStatus);
         }
 
         private void OnCalcCancellation()
@@ -284,7 +287,6 @@ namespace Andy.FlacHash.Application.Win.UI
             grpModes.Enabled = !inProgress;
 
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
-            this.label_Status.Text = "Working...";
         }
 
         private void OnCalcFinished(bool cancelled)
@@ -294,13 +296,20 @@ namespace Andy.FlacHash.Application.Win.UI
                 btn_go.Enabled = true;
                 progressReporter.Reset(0);
 
-                label_Status.Text = "Canceled";
+                LogMessage("Canceled");
             }
             else
             {
                 progressReporter.SetToMax();
 
-                label_Status.Text = "Finished";
+                if (finishedWithErrors)
+                    LogMessage("Finished with errors ^^");
+                else
+                    LogMessage("Finished");
+
+                // Verification reflects errors, the user can go back to the log
+                if (mode == Mode.Verification || !finishedWithErrors)
+                    tabs_Results.SelectTab(tabResults);
             }
         }
 
@@ -312,8 +321,7 @@ namespace Andy.FlacHash.Application.Win.UI
             btn_go.Enabled = true;
             progressReporter.Reset(0);
 
-            label_Status.Text = "Failed";
-
+            LogMessage("Failed");
             ShowFatalError(e);
         }
 
@@ -344,26 +352,30 @@ namespace Andy.FlacHash.Application.Win.UI
         private void ReportExecutionError(Exception exception, FileInfo file)
         {
             finishedWithErrors = true;
-            AddErrorMessage($"Error processing file: {file.Name}", exception.Message);
+            LogMessage($"Error processing file: {file.Name}", exception.Message);
         }
 
-        void AddErrorMessage(params string[] message)
+        void LogMessage(params string[] message)
         {
-            tabs_Results.SelectTab(tabErrors);
-
-            txtErrors.AppendText(errorSeparator);
-            txtErrors.AppendText(newline);
+            txtStatus.AppendText(errorSeparator);
+            txtStatus.AppendText(newline);
 
             foreach (var line in message)
             {
-                txtErrors.AppendText(line);
-                txtErrors.AppendText(newline);
+                txtStatus.AppendText(line);
+                txtStatus.AppendText(newline);
             }
+        }
+
+        void ResetLog(string message)
+        {
+            txtStatus.Text = message;
+            txtStatus.AppendText(newline);
         }
 
         void ShowFatalError(Exception e)
         {
-            AddErrorMessage($"Error processing file(s)", e.Message);
+            LogMessage($"Error processing file(s)", e.Message);
             MessageBox.Show($"Operation failed. See the error log", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
