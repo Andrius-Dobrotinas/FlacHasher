@@ -57,7 +57,7 @@ namespace Andy.FlacHash.Application.Win
 
                 System.Windows.Forms.Application.Run(
                     new UI.FormX(
-                        new UI.HashCalculationServiceFactory(
+                        new UI.HashComputationServiceFactory(
                             hasher),
                         new UI.InteractiveTextFileWriter(saveHashesToFileDialog),
                         progressReporter,

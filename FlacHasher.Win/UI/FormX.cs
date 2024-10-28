@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private bool finishedWithErrors;
 
         public FormX(
-            HashCalculationServiceFactory hashCalculationServiceFactory,
+            HashComputationServiceFactory hashComputationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
             IDataReadEventSource fileReadEventSource,
             InteractiveDirectoryGetter dirBrowser,
@@ -52,7 +52,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashVerifier = hashVerifier;
             this.fileExtension = fileExtension;
 
-            this.hasherService = hashCalculationServiceFactory.Build(
+            this.hasherService = hashComputationServiceFactory.Build(
                 this,
                 OnCalcFinished,
                 OnFailure,
@@ -70,7 +70,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.btn_go.Enabled = false;
 
             this.mode_Calc.Checked = true;
-            SetMode(Mode.Calculation);
+            SetMode(Mode.Hashing);
 
             this.list_files.Initialize();
             this.list_hashFiles.Initialize();
@@ -157,7 +157,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void Set_Go_Button_State()
         {
-            btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || list_hashFiles.Any());
+            btn_go.Enabled = list_files.Any() && (mode == Mode.Hashing || list_hashFiles.Any());
 
             if (!list_files.Any())
                 label_Status.Text = "Select a directory that contains files";
@@ -188,7 +188,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
                 switch (mode)
                 {
-                    case Mode.Calculation:
+                    case Mode.Hashing:
                         {
                             ComputeHashes(files);
                             return;
@@ -344,7 +344,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void mode_Calc_CheckedChanged(object sender, EventArgs e)
         {
-            SetMode(Mode.Calculation);
+            SetMode(Mode.Hashing);
         }
 
         private void mode_Verify_CheckedChanged(object sender, EventArgs e)
@@ -356,7 +356,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             this.mode = mode;
 
-            this.list_results.Visible = mode == Mode.Calculation;
+            this.list_results.Visible = mode == Mode.Hashing;
             this.list_verification_results.Visible = mode == Mode.Verification;
 
             Set_Go_Button_State();

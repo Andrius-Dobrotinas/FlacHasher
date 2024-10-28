@@ -6,11 +6,11 @@ using static Andy.FlacHash.Application.Win.CancellableBackgroundOperationRunner;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public class HashCalculationServiceFactory
+    public class HashComputationServiceFactory
     {
         private readonly IReportingMultiFileHasher hasher;
 
-        public HashCalculationServiceFactory(
+        public HashComputationServiceFactory(
             IReportingMultiFileHasher hasher)
         {
             this.hasher = hasher;

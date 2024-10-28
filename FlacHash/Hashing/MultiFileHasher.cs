@@ -9,7 +9,7 @@ namespace Andy.FlacHash.Hashing
     public interface IMultiFileHasher
     {
         /// <summary>
-        /// Calculates hashes for each file upon enumeration.
+        /// Computes hashes for each file upon enumeration.
         /// On cancellation, throws <see cref="OperationCanceledException"/> exception
         /// </summary>
         IEnumerable<FileHashResult> ComputeHashes(IEnumerable<FileInfo> files, CancellationToken cancellation = default);

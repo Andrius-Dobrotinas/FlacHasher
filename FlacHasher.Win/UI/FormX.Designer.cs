@@ -268,7 +268,7 @@
             mode_Calc.Size = new System.Drawing.Size(107, 29);
             mode_Calc.TabIndex = 1;
             mode_Calc.TabStop = true;
-            mode_Calc.Text = "Calculate";
+            mode_Calc.Text = "Hash";
             mode_Calc.UseVisualStyleBackColor = true;
             mode_Calc.CheckedChanged += mode_Calc_CheckedChanged;
             // 

@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Hashing
     public interface IReportingMultiFileHasher
     {
         /// <summary>
-        /// Calculates hashes for each file and reports the hash as soon as it's calculated.
+        /// Computes hashes for each file and reports the hash as soon as it's calculated.
         /// On cancellation, returns quietly without exceptions.
         /// </summary>
         void ComputeHashes(
