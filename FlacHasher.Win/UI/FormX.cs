@@ -71,9 +71,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
             this.btn_go.Enabled = false;
 
-            this.mode_Calc.Checked = true;
-            SetMode(Mode.Hashing);
-
             this.list_files.Initialize();
             this.list_hashFiles.Initialize();
             this.list_results.Initialize();
@@ -84,6 +81,9 @@ namespace Andy.FlacHash.Application.Win.UI
 
             list_verification_results.Resize += List_verification_results_Resize;
             List_verification_results_Resize(null, null);
+
+            this.mode_Calc.Checked = true;
+            SetMode(Mode.Hashing);
         }
 
         private async Task WithTryCatch(Func<Task> function)
