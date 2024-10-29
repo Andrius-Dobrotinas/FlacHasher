@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Application
         {
             var settingsDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
 
-            return GetSettingsProfile(settingsDictionary, profileName);
+            return GetSettings(settingsDictionary, profileName);
         }
 
         /// <summary>
@@ -47,11 +47,7 @@ namespace Andy.FlacHash.Application
                 var @overrides = settingsDictionary[profileName];
 
                 // Override root value with those of the selected profile
-                foreach (var (key, value) in overrides)
-                    if (root.ContainsKey(key))
-                        root[key] = value;
-                    else
-                        root.Add(key, value);
+                Merge(root, overrides);
 
                 return root;
             }
@@ -62,6 +58,44 @@ namespace Andy.FlacHash.Application
 
                 return settingsDictionary[profileName];
             }
+        }
+
+        public static IDictionary<string, string> GetSettings(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null)
+        {
+            if (!settingsDictionary.Any())
+                return new Dictionary<string, string>();
+
+            var settings = GetSettingsProfile(settingsDictionary, profileName);
+
+            var decoderSectionName = settings.ContainsKey(ApplicationSettings.DecoderProfileKey) 
+                ? settings[ApplicationSettings.DecoderProfileKey]
+                : ApplicationSettings.DefaultDecoderSection;
+            var hashingSectionName = settings.ContainsKey(ApplicationSettings.HashingProfileKey) 
+                ? settings[ApplicationSettings.HashingProfileKey] 
+                : ApplicationSettings.DefaultHashingSection;
+
+            AddSection(settings, settingsDictionary, decoderSectionName);
+            AddSection(settings, settingsDictionary, hashingSectionName);
+
+            return settings;
+        }
+
+        static void AddSection(IDictionary<string, string> target, IDictionary<string, IDictionary<string, string>> settingsDictionary, string sectionName)
+        {
+            if (!settingsDictionary.ContainsKey(sectionName))
+                throw new ConfigurationException($"Configuration section not found: {sectionName}");
+
+            var decoderSection = settingsDictionary[sectionName];
+            Merge(target, decoderSection);
+        }
+
+        static void Merge(IDictionary<string, string> target, IDictionary<string, string> overrides)
+        {
+            foreach (var (key, value) in overrides)
+                if (target.ContainsKey(key))
+                    target[key] = value;
+                else
+                    target.Add(key, value);
         }
     }
 }

@@ -45,6 +45,10 @@ namespace Andy.FlacHash.Application
         public bool FileLookupIncludeHidden { get; set; }
 
         public const string ProfileKey = "Profile";
+        public const string DecoderProfileKey = "Profile.Decoder";
+        public const string HashingProfileKey = "Profile.Hashing";
+        public const string DefaultDecoderSection = "Decoder";
+        public const string DefaultHashingSection = "Hashing";
 
         public static class Defaults
         {
