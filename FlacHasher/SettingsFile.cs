@@ -12,11 +12,11 @@ namespace Andy.FlacHash.Application
         /// or, if empty, configured in the file.
         /// </summary>
         /// <param name="profileName">If not specified, uses the profile specified in the settings file</param>
-        public static IDictionary<string, string> ReadIniFile(FileInfo settingsFile, string profileName = null)
+        public static IDictionary<string, string> ReadIniFile(FileInfo settingsFile, string profileName = null, string decoderProfileName = null, string hashingProfileName = null)
         {
             var settingsDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
 
-            return GetSettings(settingsDictionary, profileName);
+            return GetSettings(settingsDictionary, profileName, decoderProfileName, hashingProfileName);
         }
 
         /// <summary>
@@ -60,24 +60,33 @@ namespace Andy.FlacHash.Application
             }
         }
 
-        public static IDictionary<string, string> GetSettings(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null)
+        public static IDictionary<string, string> GetSettings(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null, string decoderProfileName = null, string hashingProfileName = null)
         {
             if (!settingsDictionary.Any())
                 return new Dictionary<string, string>();
 
             var settings = GetSettingsProfile(settingsDictionary, profileName);
 
-            var decoderSectionName = settings.ContainsKey(ApplicationSettings.DecoderProfileKey) 
-                ? settings[ApplicationSettings.DecoderProfileKey]
-                : ApplicationSettings.DefaultDecoderSection;
-            var hashingSectionName = settings.ContainsKey(ApplicationSettings.HashingProfileKey) 
-                ? settings[ApplicationSettings.HashingProfileKey] 
-                : ApplicationSettings.DefaultHashingSection;
 
+            var decoderSectionName = ResolveProfileName(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection);
             AddSection(settings, settingsDictionary, decoderSectionName);
+
+            var hashingSectionName = ResolveProfileName(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection);
             AddSection(settings, settingsDictionary, hashingSectionName);
 
             return settings;
+        }
+
+        static string ResolveProfileName(IDictionary<string, string> settings, string profileSettingKey, string targetProfileName, string defaultProfileName)
+        {
+            if (targetProfileName == "")
+                return defaultProfileName;
+            else if (targetProfileName != null)
+                return targetProfileName;
+            else
+                return settings.ContainsKey(profileSettingKey)
+                    ? settings[profileSettingKey]
+                    : defaultProfileName;
         }
 
         static void AddSection(IDictionary<string, string> target, IDictionary<string, IDictionary<string, string>> settingsDictionary, string sectionName)

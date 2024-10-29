@@ -8,11 +8,11 @@ namespace Andy.FlacHash.Application
     public class ApplicationSettings
     {
         [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
-        [IniEntry(nameof(Decoder), Order = 1)]
-        public string Decoder { get; set; }
+        [IniEntry("Decoder", Order = 1)]
+        public string DecoderExe { get; set; }
 
         /// <summary>
-        /// An array of parameters to <see cref="Decoder"/> exactly the way they are supposed to appear
+        /// An array of parameters to <see cref="DecoderExe"/> exactly the way they are supposed to appear
         /// (with dashes and whatnot).
         /// There are default parameters defined in the code
         /// </summary>

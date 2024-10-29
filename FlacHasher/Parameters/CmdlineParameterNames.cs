@@ -3,6 +3,8 @@
     public static class CmdlineParameterNames
     {
         public const string Profile = "--profile";
+        public const string DecoderProfile = "--profile-decoder";
+        public const string HashingProfile = "--profile-hashing";
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
         public const string DecoderPrintProgress = "--decoder-verbose";

@@ -16,6 +16,16 @@ namespace Andy.FlacHash.Application.Cmd
         [AllowEmpty]
         public string Profile { get; set; }
 
+        [CmdLineParameter(CmdlineParameterNames.DecoderProfile)]
+        [AllowEmpty]
+        [Optional]
+        public string DecoderProfile { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.HashingProfile)]
+        [AllowEmpty]
+        [Optional]
+        public string HashingProfile { get; set; }
+
         [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
         [Optional]
         public bool IsVerification { get; set; }
