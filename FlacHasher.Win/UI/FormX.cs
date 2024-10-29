@@ -69,7 +69,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
-            ResetLog("Select a directory");
             this.btn_go.Enabled = false;
 
             this.mode_Calc.Checked = true;
