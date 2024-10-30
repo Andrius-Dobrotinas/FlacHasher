@@ -21,13 +21,13 @@ namespace Andy.FlacHash.Application.Win
         static void Main()
         {
             Settings settings;
+            DecoderProfile[] decoderProfiles;
             try
             {
                 var settingsFile = new FileInfo(settingsFileName);
-                var settingsFileParams = SettingsFile.ReadIniFile(settingsFile)
-                    .ToDictionary(x => x.Key, x => new[] { x.Value });
-
-                settings = ParameterReader.Build().GetParameters<Settings>(settingsFileParams);
+                var result = SettingsFile.GetSettings(settingsFile);
+                settings = result.Item1;
+                decoderProfiles = result.Item2;
             }
             catch (Exception e)
             {
@@ -45,22 +45,21 @@ namespace Andy.FlacHash.Application.Win
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
-                FileInfo decoderExe = AudioDecoder.ResolveDecoderOrThrow(settings);
+                var fileReadProgressReporter = new FileReadProgressReporter();
+                var processRunner = new ExternalProcess.ProcessRunner(
+                    settings.ProcessTimeoutSec,
+                    settings.ProcessExitTimeoutMs,
+                    settings.ProcessStartWaitMs,
+                    showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput);
 
-                var (hasher, progressReporter) = BuildHasher(decoderExe, settings);
+                var hasherFactory = new HasherFactory(processRunner, fileReadProgressReporter, settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();
-
-                var fileExtension = settings.TargetFileExtension
-                    ?? (AudioDecoder.IsFlac(decoderExe)
-                        ? Audio.Flac.FormatMetadata.FileExtension
-                        : throw new ConfigurationException("Configure file extension for the specified decoder"));
 
                 System.Windows.Forms.Application.Run(
                     new UI.FormX(
-                        new UI.HashComputationServiceFactory(
-                            hasher),
+                        hasherFactory,
                         new UI.InteractiveTextFileWriter(saveHashesToFileDialog),
-                        progressReporter,
+                        fileReadProgressReporter,
                         directoryResolver,
                         new InputFileResolver(
                             hashfileExtensions,
@@ -68,35 +67,8 @@ namespace Andy.FlacHash.Application.Win
                         hashFormatter,
                         HashFileReader.Default.BuildHashfileReader(settings.HashfileEntrySeparator),
                         new HashVerifier(hashFormatter),
-                        fileExtension));
+                        decoderProfiles));
             }
-        }
-
-        private static (IReportingMultiFileHasher, FileReadProgressReporter) BuildHasher(FileInfo decoderExe, Settings settings)
-        {
-            var fileReadProgressReporter = new FileReadProgressReporter();
-
-            var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderExe);
-            var decoder = AudioDecoder.Build(
-                decoderExe,
-                new ExternalProcess.ProcessRunner(
-                    settings.ProcessTimeoutSec,
-                    settings.ProcessExitTimeoutMs,
-                    settings.ProcessStartWaitMs,
-                    showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput),
-                decoderParams,
-                fileReadProgressReporter);
-
-            var hasher = new FileHasher(
-                decoder,
-                new Crypto.Hasher(settings.HashAlgorithm));
-            var cancellableHasher = new ReportingMultiFileHasher(
-                new MultiFileHasher(
-                    hasher, 
-                    continueOnError: !settings.FailOnError,
-                    decoder is StdInputStreamAudioFileDecoder ? null : fileReadProgressReporter));
-
-            return (cancellableHasher, fileReadProgressReporter);
         }
 
         private static UI.InteractiveDirectoryGetter Build_InteractiveDirectoryResolverGetter()

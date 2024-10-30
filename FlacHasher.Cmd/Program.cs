@@ -93,7 +93,7 @@ namespace Andy.FlacHash.Application.Cmd
                     cancellation.Cancel();
                 };
 
-                FileInfo decoderFile = Audio.AudioDecoder.ResolveDecoderOrThrow(settings);
+                FileInfo decoderFile = AudioDecoder.ResolveDecoderOrThrow(settings.DecoderExe);
                 var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
                 IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())

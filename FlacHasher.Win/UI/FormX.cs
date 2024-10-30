@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class FormX : Form
     {
-        private readonly NonBlockingHashComputation hasherService;
+        private readonly HasherFactory hasherFactory;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
 
@@ -27,15 +27,18 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly IHashFormatter hashFormatter;
         private readonly HashFileReader hashFileParser;
         private readonly HashVerifier hashVerifier;
-        private readonly string fileExtension;
+
+        private NonBlockingHashComputation hasherService;
 
         private bool finishedWithErrors;
+        private DirectoryInfo directory;
+        private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
 
         const string newline = "\r\n";
         const string errorSeparator = "==========================";
 
         public FormX(
-            HashComputationServiceFactory hashComputationServiceFactory,
+            HasherFactory hasherFactory,
             InteractiveTextFileWriter hashFileWriter,
             IDataReadEventSource fileReadEventSource,
             InteractiveDirectoryGetter dirBrowser,
@@ -43,7 +46,7 @@ namespace Andy.FlacHash.Application.Win.UI
             IHashFormatter hashFormatter,
             HashFileReader hashFileParser,
             HashVerifier hashVerifier,
-            string fileExtension)
+            DecoderProfile[] decoderProfiles)
         {
             InitializeComponent();
 
@@ -53,23 +56,22 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashFormatter = hashFormatter;
             this.hashFileParser = hashFileParser;
             this.hashVerifier = hashVerifier;
-            this.fileExtension = fileExtension;
-
-            this.hasherService = hashComputationServiceFactory.Build(
-                this,
-                OnCalcFinished,
-                OnFailure,
-                OnCalcStateChanged);
+            this.hasherFactory = hasherFactory;
 
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
-            fileReadEventSource.BytesRead += (bytesRead) => {
+            fileReadEventSource.BytesRead += (bytesRead) =>
+            {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
             this.btn_go.Enabled = false;
+
+            menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
+            menu_decoderProfiles.Items.AddRange(decoderProfiles);
+            menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
 
             this.list_files.Initialize();
             this.list_hashFiles.Initialize();
@@ -84,6 +86,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             this.mode_Calc.Checked = true;
             SetMode(Mode.Hashing);
+            menu_decoderProfiles.SelectedIndex = 0; // This triggeres a selection-changed handler
         }
 
         private async Task WithTryCatch(Func<Task> function)
@@ -124,10 +127,18 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void ChooseDir()
         {
-            var directory = dirBrowser.GetDirectory();
+            directory = dirBrowser.GetDirectory();
             if (directory == null) return;
 
-            var (files, hashFiles) = targetFileResolver.FindFiles(directory, fileExtension);
+            RefreshFilelist();
+        }
+
+        void RefreshFilelist()
+        {
+            if (directory == null)
+                return;
+
+            var (files, hashFiles) = targetFileResolver.FindFiles(directory, DecoderProfile.TargetFileExtension);
 
             if (files.Any() == false)
                 ResetLog("The selected directory doesn't contain suitable files");
@@ -398,6 +409,18 @@ namespace Andy.FlacHash.Application.Win.UI
             this.list_verification_results.Visible = mode == Mode.Verification;
 
             Set_Go_Button_State();
+        }
+
+        private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.hasherService = HashComputationServiceFactory.Build(
+                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters),
+                this,
+                OnCalcFinished,
+                OnFailure,
+                OnCalcStateChanged);
+
+            RefreshFilelist();
         }
     }
 }

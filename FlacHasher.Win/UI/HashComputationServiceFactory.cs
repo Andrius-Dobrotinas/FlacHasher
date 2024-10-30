@@ -8,15 +8,8 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public class HashComputationServiceFactory
     {
-        private readonly IReportingMultiFileHasher hasher;
-
-        public HashComputationServiceFactory(
-            IReportingMultiFileHasher hasher)
-        {
-            this.hasher = hasher;
-        }
-
-        public NonBlockingHashComputation Build(
+        public static NonBlockingHashComputation Build(
+            IReportingMultiFileHasher hasher,
             Control uiUpdateContext,
             CompletionHandler reportCompletion,
             Action<Exception> reportFailure,

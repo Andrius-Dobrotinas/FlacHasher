@@ -39,6 +39,7 @@
             list_files = new FileList();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             group_Left = new System.Windows.Forms.GroupBox();
+            menu_decoderProfiles = new System.Windows.Forms.ComboBox();
             grpModes = new System.Windows.Forms.GroupBox();
             mode_Calc = new System.Windows.Forms.RadioButton();
             mode_Verify = new System.Windows.Forms.RadioButton();
@@ -157,6 +158,7 @@
             // 
             // group_Left
             // 
+            group_Left.Controls.Add(menu_decoderProfiles);
             group_Left.Controls.Add(grpModes);
             group_Left.Controls.Add(btn_chooseDir);
             group_Left.Controls.Add(btn_go);
@@ -169,6 +171,15 @@
             group_Left.Size = new System.Drawing.Size(221, 560);
             group_Left.TabIndex = 0;
             group_Left.TabStop = false;
+            // 
+            // menu_decoderProfiles
+            // 
+            menu_decoderProfiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            menu_decoderProfiles.FormattingEnabled = true;
+            menu_decoderProfiles.Location = new System.Drawing.Point(17, 17);
+            menu_decoderProfiles.Name = "menu_decoderProfiles";
+            menu_decoderProfiles.Size = new System.Drawing.Size(191, 33);
+            menu_decoderProfiles.TabIndex = 6;
             // 
             // grpModes
             // 
@@ -358,5 +369,6 @@
         private System.Windows.Forms.ColumnHeader col_results_verification_isMatch;
         private System.Windows.Forms.TabPage tabStatus;
         private System.Windows.Forms.TextBox txtStatus;
+        private System.Windows.Forms.ComboBox menu_decoderProfiles;
     }
 }

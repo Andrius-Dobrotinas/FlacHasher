@@ -24,13 +24,13 @@ namespace Andy.FlacHash.Application.Audio.Flac
 
         public static class Decode
         {
-            public static ICollection<string> Stream = new string[]
+            public static string[] Stream = new string[]
             {
                 Options.Decoder.Decode,
                 Options.Decoder.ReadFromStdIn
             };
 
-            public static ICollection<string> File = new string[]
+            public static string[] File = new string[]
             {
                 Options.Decoder.Decode,
                 Options.Decoder.WriteToSdtOut,

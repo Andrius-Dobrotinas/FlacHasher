@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Application
         {
             var settingsDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
 
-            return GetSettings(settingsDictionary, profileName, decoderProfileName, hashingProfileName);
+            return GetSettingsForCmdline(settingsDictionary, profileName, decoderProfileName, hashingProfileName);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Andy.FlacHash.Application
             }
         }
 
-        public static IDictionary<string, string> GetSettings(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null, string decoderProfileName = null, string hashingProfileName = null)
+        public static IDictionary<string, string> GetSettingsForCmdline(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null, string decoderProfileName = null, string hashingProfileName = null)
         {
             if (!settingsDictionary.Any())
                 return new Dictionary<string, string>();
