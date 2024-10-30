@@ -1,3 +1,4 @@
+using Andy.FlacHash.Audio;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -100,9 +101,9 @@ namespace Andy.FlacHash.Hashing
                 () => target.ComputeHashes(files, new CancellationTokenSource().Token)
                             .ToArray());
         }
-
-        [TestCaseSource(nameof(GetFilesWithExceptions))]
-        public void When_ComputationErrorsOut_And_ConfiguredToContinueOnError__Must_ProcessAllFiles_And_ReturnException_For_FailedOnes(IList<(FileInfo, byte[], Exception)> filesWithResults)
+        
+        [TestCaseSource(nameof(GetFilesWithAudIOExceptions))]
+        public void When_ComputationErrorsOut_With_AudioIOException_And_ConfiguredToContinueOnError__Must_ProcessAllFiles_And_ReturnException_For_FailedOnes(IList<(FileInfo, byte[], Exception)> filesWithResults)
         {
             var expected = filesWithResults.Select(x => new FileHashResult { File = x.Item1, Hash = x.Item2, Exception = x.Item3 }).ToArray();
             var files = expected.Select(x => x.File).ToArray();
@@ -124,8 +125,29 @@ namespace Andy.FlacHash.Hashing
             AssertThat.CollectionsMatchExactly(results.Select(x => x.Exception), expected.Select(x => x.Exception), toString: x => x?.Message, "Exceptions");
         }
 
+        [TestCaseSource(nameof(GetFilesWithAudIOExceptions))]
+        public void When_ComputationErrorsOut_With_AudIOException__And_ConfiguredToFailOnError__Must_Rethrow_TheException_Rightaway(IList<(FileInfo, byte[], Exception)> filesWithResults)
+        {
+            var files = filesWithResults.Select(x => x.Item1).ToArray();
+            var expectedException = filesWithResults.Select(x => x.Item3).First(x => x != null);
+
+            foreach (var (file, hash, exception) in filesWithResults)
+                hasher.Setup(
+                    x => x.ComputeHash(
+                        It.Is<FileInfo>(arg => arg == file),
+                        It.IsAny<CancellationToken>()))
+                    .Returns<FileInfo, CancellationToken>((f, c) => hash ?? throw exception);
+
+            target = CreateTarget(false);
+
+            Assert.Throws(
+                expectedException.GetType(),
+                () => target.ComputeHashes(files)
+                            .ToArray());
+        }
+
         [TestCaseSource(nameof(GetFilesWithExceptions))]
-        public void When_ComputationErrorsOut_And_ConfiguredToFailOnError__Must_Rethrow_TheException_Rightaway(IList<(FileInfo, byte[], Exception)> filesWithResults)
+        public void When_ComputationErrorsOut_With_NonAudioException__And_ConfiguredToFailOnError__Must_Rethrow_TheException_Rightaway(IList<(FileInfo, byte[], Exception)> filesWithResults)
         {
             var files = filesWithResults.Select(x => x.Item1).ToArray();
             var expectedException = filesWithResults.Select(x => x.Item3).First(x => x != null);
@@ -188,6 +210,25 @@ namespace Andy.FlacHash.Hashing
                 {
                     (new FileInfo("path1"), null, new ArithmeticException("outta luck!")),
                     (new FileInfo("path2"), null, new Exception("error'd out - next!")),
+                    (new FileInfo("path3"), new byte[] { 3, 2, 3, 1 }, null )
+                });
+        }
+
+        private static IEnumerable<TestCaseData> GetFilesWithAudIOExceptions()
+        {
+            yield return new TestCaseData(
+                new (FileInfo, byte[], Exception)[]
+                {
+                    (new FileInfo("path1"), new byte[] { 1, 2, 1, 0 }, null),
+                    (new FileInfo("path2"), null, new DecoderException(new Exception("error'd out"))),
+                    (new FileInfo("path3"), new byte[] { 3, 2, 3, 1 }, null )
+                });
+
+            yield return new TestCaseData(
+                new (FileInfo, byte[], Exception)[]
+                {
+                    (new FileInfo("path1"), null, new InputFileNotFoundException("outta luck!")),
+                    (new FileInfo("path2"), null, new InputFileNotFoundException("error'd out - next!")),
                     (new FileInfo("path3"), new byte[] { 3, 2, 3, 1 }, null )
                 });
         }
