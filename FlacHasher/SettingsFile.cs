@@ -76,7 +76,7 @@ namespace Andy.FlacHash.Application
             return settings;
         }
 
-        static string ResolveConfigValue(IDictionary<string, string> settings, string configKey, string preferredValue, string defaultValue)
+        public static string ResolveConfigValue(IDictionary<string, string> settings, string configKey, string preferredValue, string defaultValue)
         {
             if (preferredValue == "")
                 return defaultValue;
@@ -88,13 +88,13 @@ namespace Andy.FlacHash.Application
                     : defaultValue;
         }
 
-        static void MergeSectionValuesIn(IDictionary<string, string> target, IDictionary<string, IDictionary<string, string>> settingsDictionary, string sectionName)
+        public static void MergeSectionValuesIn(IDictionary<string, string> destination, IDictionary<string, IDictionary<string, string>> wholeSettingsFileDictionary, string targetSectionName)
         {
-            if (!settingsDictionary.ContainsKey(sectionName))
-                throw new ConfigurationException($"Configuration section not found: {sectionName}");
+            if (!wholeSettingsFileDictionary.ContainsKey(targetSectionName))
+                throw new ConfigurationException($"Configuration section not found: {targetSectionName}");
 
-            var decoderSection = settingsDictionary[sectionName];
-            Merge(target, decoderSection);
+            var decoderSection = wholeSettingsFileDictionary[targetSectionName];
+            Merge(destination, decoderSection);
         }
 
         static void Merge(IDictionary<string, string> target, IDictionary<string, string> overrides)

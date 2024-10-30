@@ -33,6 +33,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private bool finishedWithErrors;
         private DirectoryInfo directory;
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
+        private AlgorithmOption HashingAlgorithmProfile => (AlgorithmOption)menu_hashingAlgorithm.SelectedItem;
 
         const string newline = "\r\n";
         const string errorSeparator = "==========================";
@@ -46,7 +47,9 @@ namespace Andy.FlacHash.Application.Win.UI
             IHashFormatter hashFormatter,
             HashFileReader hashFileParser,
             HashVerifier hashVerifier,
-            DecoderProfile[] decoderProfiles)
+            DecoderProfile[] decoderProfiles,
+            AlgorithmOption[] hashingAlgorithmOptions,
+            Settings settings)
         {
             InitializeComponent();
 
@@ -71,8 +74,10 @@ namespace Andy.FlacHash.Application.Win.UI
 
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
             menu_decoderProfiles.Items.AddRange(decoderProfiles);
-            menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
 
+            menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions);
+            menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
+            
             this.list_files.Initialize();
             this.list_hashFiles.Initialize();
             this.list_results.Initialize();
@@ -84,9 +89,20 @@ namespace Andy.FlacHash.Application.Win.UI
             list_verification_results.Resize += List_verification_results_Resize;
             List_verification_results_Resize(null, null);
 
+            // Initial values
+            menu_decoderProfiles.SelectedIndex = 0;
+            menu_hashingAlgorithm.SelectedIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
+
+            // Wire handlers up AFTER setting initial values to avoid them getting fired before everything is ready
+            menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
+            menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
+
             this.mode_Calc.Checked = true;
+
+            // Triggers all kinds of handlers
             SetMode(Mode.Hashing);
-            menu_decoderProfiles.SelectedIndex = 0; // This triggeres a selection-changed handler
+
+            BuildHasher();
         }
 
         private async Task WithTryCatch(Func<Task> function)
@@ -413,14 +429,24 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
+            BuildHasher();
+
+            RefreshFilelist();
+        }
+
+        private void hashingProfiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BuildHasher();
+        }
+
+        private void BuildHasher()
+        {
             this.hasherService = HashComputationServiceFactory.Build(
-                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters),
+                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters, HashingAlgorithmProfile.Value),
                 this,
                 OnCalcFinished,
                 OnFailure,
                 OnCalcStateChanged);
-
-            RefreshFilelist();
         }
     }
 }

@@ -17,21 +17,21 @@ namespace Andy.FlacHash.Application.Win
 
         public static (IDictionary<string, string[]>, IDictionary<string, Dictionary<string, string[]>>) ReadIniFile(FileInfo settingsFile, string profileName = null)
         {
-            var settingsDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
-            if (!settingsDictionary.Any())
+            var wholeSettingsFileDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
+            if (!wholeSettingsFileDictionary.Any())
                 throw new ConfigurationException("The Configuration file is empty");
 
-            var settings = Application.SettingsFile.GetSettingsProfile(settingsDictionary, profileName)
-                    .ToDictionary(x => x.Key, x => new[] { x.Value });
+            var settings = Application.SettingsFile.GetSettingsProfile(wholeSettingsFileDictionary, profileName);
+            Application.SettingsFile.MergeSectionValuesIn(settings, wholeSettingsFileDictionary, ApplicationSettings.DefaultHashingSection);
 
-            var decoderProfiles = settingsDictionary.Where(x => x.Key.StartsWith("Decoder", StringComparison.InvariantCultureIgnoreCase))
+            var decoderProfiles = wholeSettingsFileDictionary.Where(x => x.Key.StartsWith("Decoder", StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionary(
                     x => x.Key, 
                     x => x.Value.ToDictionary (
                         i => i.Key,
                         i => new[] { i.Value }));
 
-            return (settings, decoderProfiles);
+            return (settings.ToDictionary(x => x.Key, x => new[] { x.Value }), decoderProfiles);
         }
 
         public static (Settings, DecoderProfile[]) ParseSettings(IDictionary<string, string[]> settingsRaw, IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)

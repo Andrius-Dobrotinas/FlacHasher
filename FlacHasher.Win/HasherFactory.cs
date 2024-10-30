@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Application.Win
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public IReportingMultiFileHasher BuildDecoder(FileInfo decoderExe, string[] decoderParameters)
+        public IReportingMultiFileHasher BuildDecoder(FileInfo decoderExe, string[] decoderParameters, Crypto.Algorithm hashingAlgo)
         {
             var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(decoderParameters, decoderExe);
             var decoder = AudioDecoder.Build(
@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Application.Win
 
             var hasher = new FileHasher(
                 decoder,
-                new Crypto.Hasher(settings.HashAlgorithm));
+                new Crypto.Hasher(hashingAlgo));
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(
                     hasher,

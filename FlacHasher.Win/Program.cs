@@ -1,8 +1,5 @@
-using Andy.Cmd.Parameter;
-using Andy.FlacHash.Application.Audio;
-using Andy.FlacHash.Audio;
+using Andy.FlacHash.Crypto;
 using Andy.FlacHash.Hashfile.Read;
-using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Verification;
 using Andy.IO;
 using System;
@@ -34,6 +31,8 @@ namespace Andy.FlacHash.Application.Win
                 MessageBox.Show($"Failure reading a settings file. {e.Message}");
                 return;
             }
+
+            var algorithms = GetAllEnumValues<Algorithm>().Select(x => new AlgorithmOption { Name = x.ToString(), Value = x }).ToArray();
 
             var hashfileExtensions = FileExtension.PrefixWithDot(settings.HashfileExtensions);
             var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
@@ -67,7 +66,9 @@ namespace Andy.FlacHash.Application.Win
                         hashFormatter,
                         HashFileReader.Default.BuildHashfileReader(settings.HashfileEntrySeparator),
                         new HashVerifier(hashFormatter),
-                        decoderProfiles));
+                        decoderProfiles,
+                        algorithms,
+                        settings));
             }
         }
 
@@ -90,6 +91,12 @@ namespace Andy.FlacHash.Application.Win
                 Filter = "TEXT|*.txt|ANY|*.*",
                 Title = "Save As"
             };
+        }
+
+        static IEnumerable<TEnum> GetAllEnumValues<TEnum>()
+        {
+            foreach (var value in Enum.GetValues(typeof(TEnum)))
+                yield return (TEnum)value;
         }
     }
 }

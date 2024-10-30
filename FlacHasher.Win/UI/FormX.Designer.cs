@@ -53,6 +53,7 @@
             col_results_verification_file = new System.Windows.Forms.ColumnHeader();
             col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
             imgList_verification = new System.Windows.Forms.ImageList(components);
+            menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
             layoutGroup_input.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             group_Left.SuspendLayout();
@@ -158,6 +159,7 @@
             // 
             // group_Left
             // 
+            group_Left.Controls.Add(menu_hashingAlgorithm);
             group_Left.Controls.Add(menu_decoderProfiles);
             group_Left.Controls.Add(grpModes);
             group_Left.Controls.Add(btn_chooseDir);
@@ -323,6 +325,15 @@
             imgList_verification.Images.SetKeyName(1, "good");
             imgList_verification.Images.SetKeyName(2, "error.png");
             // 
+            // menu_hashingAlgorithm
+            // 
+            menu_hashingAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            menu_hashingAlgorithm.FormattingEnabled = true;
+            menu_hashingAlgorithm.Location = new System.Drawing.Point(17, 231);
+            menu_hashingAlgorithm.Name = "menu_hashingAlgorithm";
+            menu_hashingAlgorithm.Size = new System.Drawing.Size(191, 33);
+            menu_hashingAlgorithm.TabIndex = 7;
+            // 
             // FormX
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
@@ -370,5 +381,6 @@
         private System.Windows.Forms.TabPage tabStatus;
         private System.Windows.Forms.TextBox txtStatus;
         private System.Windows.Forms.ComboBox menu_decoderProfiles;
+        private System.Windows.Forms.ComboBox menu_hashingAlgorithm;
     }
 }
