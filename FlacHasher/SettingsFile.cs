@@ -68,10 +68,10 @@ namespace Andy.FlacHash.Application
             var settings = GetSettingsProfile(settingsDictionary, profileName);
 
             var decoderSectionName = ResolveConfigValue(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection);
-            AddSection(settings, settingsDictionary, decoderSectionName);
+            MergeSectionValuesIn(settings, settingsDictionary, decoderSectionName);
 
             var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection);
-            AddSection(settings, settingsDictionary, hashingSectionName);
+            MergeSectionValuesIn(settings, settingsDictionary, hashingSectionName);
 
             return settings;
         }
@@ -88,7 +88,7 @@ namespace Andy.FlacHash.Application
                     : defaultValue;
         }
 
-        static void AddSection(IDictionary<string, string> target, IDictionary<string, IDictionary<string, string>> settingsDictionary, string sectionName)
+        static void MergeSectionValuesIn(IDictionary<string, string> target, IDictionary<string, IDictionary<string, string>> settingsDictionary, string sectionName)
         {
             if (!settingsDictionary.ContainsKey(sectionName))
                 throw new ConfigurationException($"Configuration section not found: {sectionName}");
