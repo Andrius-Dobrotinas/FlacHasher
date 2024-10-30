@@ -90,7 +90,8 @@ namespace Andy.FlacHash.Application.Cmd
         {
             var @params = new Params
             {
-                InputDirectory = dirname
+                InputDirectory = dirname,
+                HashfileExtensions = Array.Empty<string>()
             };
             var result = Verification.GetHashFile(@params, filesearch.Object);
 
