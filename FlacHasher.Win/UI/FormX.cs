@@ -63,43 +63,39 @@ namespace Andy.FlacHash.Application.Win.UI
 
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
-            fileReadEventSource.BytesRead += (bytesRead) =>
-            {
-                this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
-            };
-
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
-            this.btn_go.Enabled = false;
-
+            // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
             menu_decoderProfiles.Items.AddRange(decoderProfiles);
 
             menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions);
             menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
-            
+
+            list_verification_results.View = View.Details;
+            list_verification_results.SmallImageList = imgList_verification;
+
             this.list_files.Initialize();
             this.list_hashFiles.Initialize();
             this.list_results.Initialize();
-
-            this.list_verification_results.View = View.Details;
-
-            list_verification_results.SmallImageList = imgList_verification;
-
-            list_verification_results.Resize += List_verification_results_Resize;
-            List_verification_results_Resize(null, null);
-
+            
             // Initial values
             menu_decoderProfiles.SelectedIndex = 0;
             menu_hashingAlgorithm.SelectedIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
-
-            // Wire handlers up AFTER setting initial values to avoid them getting fired before everything is ready
-            menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
-            menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
-
+            this.btn_go.Enabled = false;
             this.mode_Calc.Checked = true;
 
+            // Wire handlers up AFTER setting initial values to avoid them getting fired before everything is ready
+            fileReadEventSource.BytesRead += (bytesRead) =>
+            {
+                this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
+            };
+            menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
+            menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
+            list_verification_results.Resize += List_verification_results_Resize;
+
             // Triggers all kinds of handlers
+            List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
 
             BuildHasher();
