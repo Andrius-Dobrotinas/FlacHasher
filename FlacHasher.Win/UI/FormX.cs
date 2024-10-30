@@ -1,4 +1,5 @@
 ﻿using Andy.FlacHash.Audio;
+using Andy.FlacHash.Crypto;
 using Andy.FlacHash.Hashfile.Read;
 using Andy.FlacHash.Hashing;
 using Andy.FlacHash.Verification;
@@ -29,6 +30,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly HashVerifier hashVerifier;
 
         private NonBlockingHashComputation hasherService;
+        Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
 
         private bool finishedWithErrors;
         private DirectoryInfo directory;
@@ -98,7 +100,7 @@ namespace Andy.FlacHash.Application.Win.UI
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
 
-            BuildHasher();
+            BuildHasherCached();
         }
 
         private async Task WithTryCatch(Func<Task> function)
@@ -425,14 +427,14 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BuildHasher();
+            BuildHasherCached();
 
             RefreshFilelist();
         }
 
         private void hashingProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BuildHasher();
+            BuildHasherCached();
         }
 
         private void BuildHasher()
@@ -443,6 +445,31 @@ namespace Andy.FlacHash.Application.Win.UI
                 OnCalcFinished,
                 OnFailure,
                 OnCalcStateChanged);
+        }
+
+        private void BuildHasherCached()
+        {
+            var key = new HasherKey(DecoderProfile.Name, HashingAlgorithmProfile.Value);
+
+            hashers.TryGetValue(key, out hasherService);
+
+            if (hasherService != null)
+                return;
+
+            BuildHasher();
+            hashers.Add(key, this.hasherService);
+        }
+
+        struct HasherKey
+        {
+            public string DecoderProfile { get; }
+            public Algorithm HashAlgorightm { get; }
+
+            public HasherKey(string DecoderProfile, Algorithm HashAlgorightm)
+            {
+                this.DecoderProfile = DecoderProfile;
+                this.HashAlgorightm = HashAlgorightm;
+            }
         }
     }
 }
