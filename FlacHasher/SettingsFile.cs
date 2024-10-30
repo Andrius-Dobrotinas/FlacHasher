@@ -67,26 +67,25 @@ namespace Andy.FlacHash.Application
 
             var settings = GetSettingsProfile(settingsDictionary, profileName);
 
-
-            var decoderSectionName = ResolveProfileName(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection);
+            var decoderSectionName = ResolveConfigValue(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection);
             AddSection(settings, settingsDictionary, decoderSectionName);
 
-            var hashingSectionName = ResolveProfileName(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection);
+            var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection);
             AddSection(settings, settingsDictionary, hashingSectionName);
 
             return settings;
         }
 
-        static string ResolveProfileName(IDictionary<string, string> settings, string profileSettingKey, string targetProfileName, string defaultProfileName)
+        static string ResolveConfigValue(IDictionary<string, string> settings, string configKey, string preferredValue, string defaultValue)
         {
-            if (targetProfileName == "")
-                return defaultProfileName;
-            else if (targetProfileName != null)
-                return targetProfileName;
+            if (preferredValue == "")
+                return defaultValue;
+            else if (preferredValue != null)
+                return preferredValue;
             else
-                return settings.ContainsKey(profileSettingKey)
-                    ? settings[profileSettingKey]
-                    : defaultProfileName;
+                return settings.ContainsKey(configKey)
+                    ? settings[configKey]
+                    : defaultValue;
         }
 
         static void AddSection(IDictionary<string, string> target, IDictionary<string, IDictionary<string, string>> settingsDictionary, string sectionName)
