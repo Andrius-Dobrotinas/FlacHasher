@@ -65,9 +65,12 @@ namespace Andy.FlacHash.Application.Cmd
                 .ToList();
 
             var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, filesUnique);
+            var extraneousFiles = fileHashes.Where(x => x.Value == null).ToList();
+            var expectedFiles = fileHashes.Except(extraneousFiles).Select(x => x.Key);
+
             var results = new List<KeyValuePair<FileInfo, HashMatch>>(fileHashes.Count);
 
-            foreach (FileHashResult calcResult in hasher.ComputeHashes(fileHashes.Keys, cancellation))
+            foreach (FileHashResult calcResult in hasher.ComputeHashes(expectedFiles, cancellation))
             {
                 cancellation.ThrowIfCancellationRequested();
 
@@ -89,6 +92,9 @@ namespace Andy.FlacHash.Application.Cmd
                 //so it doesn't go back to the enumerator, which would result in launching decoding the next file
                 cancellation.ThrowIfCancellationRequested();
             }
+
+            foreach (var file in extraneousFiles.Select(x => x.Key))
+                results.Add(new KeyValuePair<FileInfo, HashMatch>(file, HashMatch.NotExpected));
 
             return results;
         }

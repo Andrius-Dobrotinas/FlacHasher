@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Verification
         }
 
         [TestCaseSource(nameof(GetCases_MoreFilesThanExpected))]
-        public void When_Theres_MoreFiles_Than_Hashes__Must_Must_Return_AllHashes_MatchedWithFilesAtRespectiveIndexes_IgnoringExtraFiles(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
+        public void When_Theres_MoreFiles_Than_Hashes__Must_Must_Return_AllHashes_MatchedWithFilesAtRespectiveIndexes_Adding_Extras_AtTheEnd(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
             var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles).ToList();
 
@@ -52,10 +52,26 @@ namespace Andy.FlacHash.Verification
                 result.Select(x => x.Key),
                 expected.Select(x => x.Key),
                 "File infos");
+        }
+
+        [TestCaseSource(nameof(GetCases_MoreFilesThanExpected))]
+        public void When_TheresExtraFiles_Must_Return_NullsForHashValue(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
+        {
+            var extraFiles = inputFiles.Skip(inputHashes.Count).ToList();
+
+            var result = HashEntryMatching.MatchFilesToHashesPositionBased(inputHashes, inputFiles).ToList();
+
+            Assert.IsNotEmpty(result);
 
             AssertThat.CollectionsMatchExactly(
-                result.Select(x => x.Value),
-                expected.Select(x => x.Value),
+                result.Select(x => x.Key),
+                expected.Select(x => x.Key),
+                "File infos");
+
+            var resultExtraFiles = result.Where(x => extraFiles.Select(f => f.Name).Contains(x.Key.Name));
+            AssertThat.CollectionsMatchExactly(
+                resultExtraFiles.Select(x => x.Value),
+                resultExtraFiles.Select(x => (string)null),
                 "Hash values");
         }
 
@@ -184,7 +200,8 @@ namespace Andy.FlacHash.Verification
                 new KeyValuePair<FileInfo, string>[]
                 {
                     new KeyValuePair<FileInfo, string>(file1, hash1),
-                    new KeyValuePair<FileInfo, string>(file2, hash2)
+                    new KeyValuePair<FileInfo, string>(file2, hash2),
+                    new KeyValuePair<FileInfo, string>(file3, null)
                 });
 
             yield return new TestCaseData(
@@ -208,7 +225,9 @@ namespace Andy.FlacHash.Verification
                 {
                     new KeyValuePair<FileInfo, string>(file1, hash1),
                     new KeyValuePair<FileInfo, string>(file2, hash2),
-                    new KeyValuePair<FileInfo, string>(file3, hash3)
+                    new KeyValuePair<FileInfo, string>(file3, hash3),
+                    new KeyValuePair<FileInfo, string>(file4, null),
+                    new KeyValuePair<FileInfo, string>(file5, null)
                 });
         }
 

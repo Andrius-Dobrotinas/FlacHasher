@@ -256,13 +256,15 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
 
-            BeforeCalc(fileHashes.Keys);
+            var expectedFiles = fileHashes.Where(x => x.Value != null).Select(x => x.Key);
+            BeforeCalc(expectedFiles);
             await VerifyHashes(fileHashes);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
         {
-            var files = expectedHashes.Keys;
+            var extraneousFiles = expectedHashes.Where(x => x.Value == null).ToList();
+            var files = expectedHashes.Except(extraneousFiles).Select(x => x.Key);
 
             await hasherService.Start(files,
                 (FileHashResult calcResult) =>
@@ -282,6 +284,9 @@ namespace Andy.FlacHash.Application.Win.UI
                         ReportExecutionError(calcResult.Exception, calcResult.File);
                     }
                 });
+
+            foreach (var file in extraneousFiles.Select(x => x.Key))
+                list_verification_results.Add(file, HashMatch.NotExpected);
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
