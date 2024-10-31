@@ -95,6 +95,7 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
             menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
             list_verification_results.Resize += List_verification_results_Resize;
+            list_hashFiles.DoubleClick += HashfileList_DoubleClick;
 
             // Triggers all kinds of handlers
             List_verification_results_Resize(null, null);
@@ -428,6 +429,20 @@ namespace Andy.FlacHash.Application.Win.UI
             this.list_verification_results.Visible = mode == Mode.Verification;
 
             Set_Go_Button_State();
+        }
+
+        void HashfileList_DoubleClick(object sender, EventArgs e)
+        {
+            var hashFile = (FileInfo)list_hashFiles.SelectedItem;
+            var fileHashMap = hashFileParser.Read(hashFile);
+
+            var filesInCurrentDir = fileHashMap.Hashes
+                .Select(
+                    x => new FileInfo(
+                        Path.Combine(directory.FullName, x.Key)))
+                .ToArray();
+
+            list_files.ReplaceItems(filesInCurrentDir);
         }
 
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
