@@ -244,7 +244,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private IList<FileInfo> GetFiles()
         {
-            return fileList.Select(x => new FileInfo(x.Name)).ToArray();
+            return fileList.Select(x => x.Key).ToArray();
         }
 
         private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)

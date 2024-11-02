@@ -4,10 +4,16 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public interface IListView<TItem> : IEnumerable<ListViewItem>
+    public interface IListView<TData, TListItem> : IEnumerable<TListItem>
+        where TListItem : ListViewItem
     {
-        void AddRange(TItem[] files);
+        void AddRange(TData[] itemKey);
         void ClearList();
-        void Reset(params TItem[] files);
+
+        /// <summary>
+        /// Clears the list and Adds new items
+        /// </summary>
+        /// <param name="newItemKeys"></param>
+        void Reset(params TData[] newItemKeys);
     }
 }
