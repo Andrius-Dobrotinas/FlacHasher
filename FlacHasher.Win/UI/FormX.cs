@@ -84,7 +84,6 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_decoderProfiles.SelectedIndex = 0;
             menu_hashingAlgorithm.SelectedIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
             this.btn_go.Enabled = false;
-            this.mode_Calc.Checked = true;
 
             // Wire handlers up AFTER setting initial values to avoid them getting fired before everything is ready
             fileReadEventSource.BytesRead += (bytesRead) =>
@@ -135,10 +134,12 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
-            if (mode == Mode.Hashing)
-                WithTryCatch(ChooseDir);
-            else
-                WithTryCatch(ChooseVerificationFile);
+            WithTryCatch(ChooseDir);
+        }
+
+        private void BtnChooseHashfile_Click(object sender, EventArgs e)
+        {
+            WithTryCatch(ChooseVerificationFile);
         }
 
         private void ChooseDir()
@@ -146,18 +147,31 @@ namespace Andy.FlacHash.Application.Win.UI
             directory = dirBrowser.GetDirectory();
             if (directory == null) return;
 
+            SetMode(Mode.Hashing);
+
             RefreshFilelist();
         }
 
         void ChooseVerificationFile()
         {
-            directory = dirBrowser.GetDirectory();
-            if (directory == null) return;
+            var box = new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = "HASH|*.hash|ANY|*.*",
+                Title = "Open a Hash File",
+                Multiselect = false
+            };
 
-            var hashfiles = targetFileResolver.GetHashfile(directory);
-            var hashfile = hashfiles.First();
+            var result = box.ShowDialog();
+            if (result != DialogResult.OK) return;
+
+            var hashfile = new FileInfo(box.FileName);
+            directory = hashfile.Directory;
             
             fileHashMap = hashFileParser.Read(hashfile);
+
+            SetMode(Mode.Verification);
 
             ReadFilesFromHashmap();
         }
@@ -172,7 +186,7 @@ namespace Andy.FlacHash.Application.Win.UI
             if (files.Any() == false)
                 ResetLog("The selected directory doesn't contain suitable files");
             else
-                ResetLog(@"Press ""Go""");
+                ResetLog(@"Press ""Go"""); // TODO: move into set button state
 
             SetNewInputFiles(files);
         }
@@ -197,7 +211,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 else
                     ResetLog("Select a hashfile that contains data");
             else
-                ResetLog("Select Operation and Press Go");
+                ResetLog("Press Go!");
         }
 
         private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
@@ -254,8 +268,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
         {
-            var extraneousFiles = expectedHashes.Where(x => x.Value == null).ToList();
-            var files = expectedHashes.Except(extraneousFiles).Select(x => x.Key);
+            var files = expectedHashes.Select(x => x.Key);
 
             await hasherService.Start(files,
                 (FileHashResult calcResult) =>
@@ -276,9 +289,6 @@ namespace Andy.FlacHash.Application.Win.UI
                         ReportExecutionError(calcResult.Exception, calcResult.File);
                     }
                 });
-
-            foreach (var file in extraneousFiles.Select(x => x.Key))
-                list_verification_results.SetData(file, HashMatch.NotExpected);
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
@@ -302,8 +312,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void OnCalcStateChanged(bool inProgress)
         {
-            grpModes.Enabled = !inProgress;
-
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
 
@@ -394,16 +402,6 @@ namespace Andy.FlacHash.Application.Win.UI
         }
 
         private Mode mode;
-
-        private void mode_Calc_CheckedChanged(object sender, EventArgs e)
-        {
-            SetMode(Mode.Hashing);
-        }
-
-        private void mode_Verify_CheckedChanged(object sender, EventArgs e)
-        {
-            SetMode(Mode.Verification);
-        }
 
         private void SetMode(Mode mode)
         {

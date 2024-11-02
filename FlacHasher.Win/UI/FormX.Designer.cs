@@ -36,11 +36,9 @@
             progressBar = new System.Windows.Forms.ProgressBar();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             group_Left = new System.Windows.Forms.GroupBox();
+            btn_openHashfile = new System.Windows.Forms.Button();
             menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
             menu_decoderProfiles = new System.Windows.Forms.ComboBox();
-            grpModes = new System.Windows.Forms.GroupBox();
-            mode_Calc = new System.Windows.Forms.RadioButton();
-            mode_Verify = new System.Windows.Forms.RadioButton();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             txtStatus = new System.Windows.Forms.TextBox();
             groupFiles = new System.Windows.Forms.GroupBox();
@@ -53,14 +51,13 @@
             imgList_verification = new System.Windows.Forms.ImageList(components);
             tableLayoutPanel1.SuspendLayout();
             group_Left.SuspendLayout();
-            grpModes.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             groupFiles.SuspendLayout();
             SuspendLayout();
             // 
             // btn_chooseDir
             // 
-            btn_chooseDir.Location = new System.Drawing.Point(17, 226);
+            btn_chooseDir.Location = new System.Drawing.Point(17, 131);
             btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_chooseDir.Name = "btn_chooseDir";
             btn_chooseDir.Size = new System.Drawing.Size(191, 48);
@@ -112,10 +109,10 @@
             // 
             // group_Left
             // 
+            group_Left.Controls.Add(btn_openHashfile);
             group_Left.Controls.Add(menu_hashingAlgorithm);
             group_Left.Controls.Add(menu_decoderProfiles);
             group_Left.Controls.Add(btn_chooseDir);
-            group_Left.Controls.Add(grpModes);
             group_Left.Controls.Add(btn_go);
             group_Left.Controls.Add(progressBar);
             group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -126,6 +123,17 @@
             group_Left.Size = new System.Drawing.Size(221, 560);
             group_Left.TabIndex = 0;
             group_Left.TabStop = false;
+            // 
+            // btn_openHashfile
+            // 
+            btn_openHashfile.Location = new System.Drawing.Point(17, 189);
+            btn_openHashfile.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btn_openHashfile.Name = "btn_openHashfile";
+            btn_openHashfile.Size = new System.Drawing.Size(191, 48);
+            btn_openHashfile.TabIndex = 8;
+            btn_openHashfile.Text = "Choose a Hashfile";
+            btn_openHashfile.UseVisualStyleBackColor = true;
+            btn_openHashfile.Click += BtnChooseHashfile_Click;
             // 
             // menu_hashingAlgorithm
             // 
@@ -144,42 +152,6 @@
             menu_decoderProfiles.Name = "menu_decoderProfiles";
             menu_decoderProfiles.Size = new System.Drawing.Size(191, 33);
             menu_decoderProfiles.TabIndex = 6;
-            // 
-            // grpModes
-            // 
-            grpModes.Controls.Add(mode_Calc);
-            grpModes.Controls.Add(mode_Verify);
-            grpModes.Location = new System.Drawing.Point(17, 98);
-            grpModes.Name = "grpModes";
-            grpModes.Size = new System.Drawing.Size(191, 111);
-            grpModes.TabIndex = 1;
-            grpModes.TabStop = false;
-            // 
-            // mode_Calc
-            // 
-            mode_Calc.AutoSize = true;
-            mode_Calc.Location = new System.Drawing.Point(14, 20);
-            mode_Calc.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            mode_Calc.Name = "mode_Calc";
-            mode_Calc.Size = new System.Drawing.Size(77, 29);
-            mode_Calc.TabIndex = 1;
-            mode_Calc.TabStop = true;
-            mode_Calc.Text = "Hash";
-            mode_Calc.UseVisualStyleBackColor = true;
-            mode_Calc.CheckedChanged += mode_Calc_CheckedChanged;
-            // 
-            // mode_Verify
-            // 
-            mode_Verify.AutoSize = true;
-            mode_Verify.Location = new System.Drawing.Point(14, 61);
-            mode_Verify.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            mode_Verify.Name = "mode_Verify";
-            mode_Verify.Size = new System.Drawing.Size(81, 29);
-            mode_Verify.TabIndex = 2;
-            mode_Verify.TabStop = true;
-            mode_Verify.Text = "Verify";
-            mode_Verify.UseVisualStyleBackColor = true;
-            mode_Verify.CheckedChanged += mode_Verify_CheckedChanged;
             // 
             // tableLayoutPanel2
             // 
@@ -288,8 +260,6 @@
             Text = "FormX";
             tableLayoutPanel1.ResumeLayout(false);
             group_Left.ResumeLayout(false);
-            grpModes.ResumeLayout(false);
-            grpModes.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             groupFiles.ResumeLayout(false);
@@ -306,9 +276,6 @@
         private System.Windows.Forms.GroupBox group_Left;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.ImageList imgList_verification;
-        private System.Windows.Forms.GroupBox grpModes;
-        private System.Windows.Forms.RadioButton mode_Calc;
-        private System.Windows.Forms.RadioButton mode_Verify;
         private System.Windows.Forms.ComboBox menu_decoderProfiles;
         private System.Windows.Forms.ComboBox menu_hashingAlgorithm;
         private System.Windows.Forms.GroupBox groupFiles;
@@ -319,5 +286,6 @@
         private FileHashResultList list_results;
         private System.Windows.Forms.ColumnHeader columnHashResult_File;
         private System.Windows.Forms.ColumnHeader columnHashResult_Hash;
+        private System.Windows.Forms.Button btn_openHashfile;
     }
 }
