@@ -6,6 +6,19 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public class MainParameters : ApplicationSettings
     {
+        [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
+        [IniEntry("Decoder", Order = 1)]
+        public string DecoderExe { get; set; }
+
+        /// <summary>
+        /// An array of parameters to <see cref="DecoderExe"/> exactly the way they are supposed to appear
+        /// (with dashes and whatnot).
+        /// There are default parameters defined in the code
+        /// </summary>
+        [IniEntry(nameof(DecoderParameters))]
+        [Optional]
+        public string[] DecoderParameters { get; set; }
+
         [CmdLineParameter(CmdlineParameterNames.OutputFormat, Order = 0)]
         [IniEntry(nameof(OutputFormat), Order = 1)]
         [Optional]

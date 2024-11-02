@@ -71,6 +71,8 @@ namespace Andy.FlacHash.Application.Audio
 
         public static FileInfo ResolveDecoder(string decoderPath)
         {
+            if (decoderPath == null) throw new ArgumentNullException(nameof(decoderPath));
+
             // If it's a relative path but the decoder is in the same directory as this program, then the decoder will be found
             if (File.Exists(decoderPath))
                 return new FileInfo(decoderPath);
@@ -82,10 +84,10 @@ namespace Andy.FlacHash.Application.Audio
             return FindDecoderInPaths(decoderPath, paths);
         }
 
-        public static FileInfo ResolveDecoderOrThrow(ApplicationSettings settings)
+        public static FileInfo ResolveDecoderOrThrow(string decoderExe)
         {
-            return ResolveDecoder(settings.Decoder)
-                ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {settings.Decoder}");
+            return ResolveDecoder(decoderExe)
+                ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {decoderExe}");
         }
     }
 }

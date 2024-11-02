@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Application.Cmd
                 try
                 {
                     var settingsFile = new FileInfo(settingsFileName);
-                    settingsFileParams = SettingsFile.ReadIniFile(settingsFile, initialCmdlineParams.Profile)
+                    settingsFileParams = SettingsFile.ReadIniFile(settingsFile, initialCmdlineParams.Profile, initialCmdlineParams.DecoderProfile, initialCmdlineParams.HashingProfile)
                         .ToDictionary(x => lowercaseParams ? x.Key.ToLowerInvariant() : x.Key, x => new[] { x.Value });
                 }
                 catch (Exception e)
@@ -93,7 +93,7 @@ namespace Andy.FlacHash.Application.Cmd
                     cancellation.Cancel();
                 };
 
-                FileInfo decoderFile = Audio.AudioDecoder.ResolveDecoderOrThrow(settings);
+                FileInfo decoderFile = AudioDecoder.ResolveDecoderOrThrow(settings.DecoderExe);
                 var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
                 IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
                 if (!inputFiles.Any())

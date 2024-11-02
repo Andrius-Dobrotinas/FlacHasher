@@ -11,10 +11,20 @@ namespace Andy.FlacHash.Application.Cmd
         /// Overrides one configured in the settings file.
         /// Empty value results in overriding a pre-configured Profile value to use the default one.
         /// </summary>
-        [Parameter(CmdlineParameterNames.Profile)]
+        [CmdLineParameter(CmdlineParameterNames.Profile)]
         [Optional]
         [AllowEmpty]
         public string Profile { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.DecoderProfile)]
+        [AllowEmpty]
+        [Optional]
+        public string DecoderProfile { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.HashingProfile)]
+        [AllowEmpty]
+        [Optional]
+        public string HashingProfile { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
         [Optional]
