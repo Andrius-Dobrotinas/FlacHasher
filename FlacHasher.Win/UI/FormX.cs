@@ -36,6 +36,7 @@ namespace Andy.FlacHash.Application.Win.UI
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
 
         private bool finishedWithErrors;
+        private bool freshOperation = false;
         private DirectoryInfo directory;
         private IFileListView fileList;
         private FileHashMap fileHashMap;
@@ -198,7 +199,8 @@ namespace Andy.FlacHash.Application.Win.UI
         private void SetNewInputFiles(FileInfo[] files)
         {
             fileList.Reset(files);
-      
+            freshOperation = true;
+
             progressReporter.Reset(0);
 
             btn_go.Enabled = fileList.Any();
@@ -231,7 +233,9 @@ namespace Andy.FlacHash.Application.Win.UI
             if (!hasherService.InProgress)
             {
                 var files = fileList.ToArray();
-
+                if (!freshOperation)
+                    fileList.Reset(files);
+                
                 switch (mode)
                 {
                     case Mode.Hashing:
@@ -315,6 +319,7 @@ namespace Andy.FlacHash.Application.Win.UI
             if (inProgress)
             {
                 finishedWithErrors = false;
+                freshOperation = false;
                 ResetLog("Working...");
             }
 
