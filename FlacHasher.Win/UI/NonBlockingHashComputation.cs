@@ -13,20 +13,20 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly IReportingMultiFileHasher hasher;
         private readonly CompletionHandler reportCompletion;
         private readonly Action<Exception> reportFailure;
-        private readonly StateChangeHandler stateChanged;
+        private readonly StateChangeHandler stateTransitioned;
 
         public NonBlockingHashComputation(
             CancellableBackgroundOperationRunner operationRunner,
             IReportingMultiFileHasher hasher,
             CompletionHandler reportCompletion, 
             Action<Exception> reportFailure, 
-            StateChangeHandler stateChanged)
+            StateChangeHandler stateTransitioned)
         {
             this.operationRunner = operationRunner ?? throw new ArgumentNullException(nameof(operationRunner));
             this.hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
             this.reportCompletion = reportCompletion ?? throw new ArgumentNullException(nameof(reportCompletion));
             this.reportFailure = reportFailure ?? throw new ArgumentNullException(nameof(reportFailure));
-            this.stateChanged = stateChanged ?? throw new ArgumentNullException(nameof(stateChanged));
+            this.stateTransitioned = stateTransitioned ?? throw new ArgumentNullException(nameof(stateTransitioned));
         }
 
         public bool InProgress => operationRunner.InProgress;
@@ -39,7 +39,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 hashComputed,
                 reportCompletion,
                 reportFailure,
-                stateChanged,
+                stateTransitioned,
                 (report, cancel) => hasher.ComputeHashes(sourceFiles, report, cancel));
         }
 

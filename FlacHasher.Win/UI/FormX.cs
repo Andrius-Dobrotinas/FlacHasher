@@ -250,7 +250,7 @@ namespace Andy.FlacHash.Application.Win.UI
             }
             else
             {
-                OnCalcCancellation(); //TODO: make the hasher service invoke this when cancelled?
+                OnOperationCancellation(); //TODO: make the hasher service invoke this when cancelled?
                 hasherService.Cancel();
             }
         }
@@ -296,13 +296,13 @@ namespace Andy.FlacHash.Application.Win.UI
             progressReporter.Reset(totalSize);
         }
 
-        private void OnCalcCancellation()
+        private void OnOperationCancellation()
         {
             btn_go.Enabled = false;
             btn_go.Text = "Stopping...";
         }
 
-        private void OnCalcStateChanged(bool inProgress)
+        private void OnOperationStateTransition(bool inProgress)
         {
             if (inProgress)
             {
@@ -313,7 +313,7 @@ namespace Andy.FlacHash.Application.Win.UI
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
 
-        private void OnCalcFinished(bool cancelled)
+        private void OnOperationFinished(bool cancelled)
         {
             if (cancelled)
             {
@@ -348,10 +348,10 @@ namespace Andy.FlacHash.Application.Win.UI
         private void ComputeHashes(IEnumerable<FileInfo> files)
         {
             SetProgressBar(files);
-            hasherService.Start(files, UpdateUIWithCalcResult);
+            hasherService.Start(files, UpdateUIWithHashingResult);
         }
 
-        private void UpdateUIWithCalcResult(FileHashResult result)
+        private void UpdateUIWithHashingResult(FileHashResult result)
         {
             if (result.Exception != null)
             {
@@ -439,9 +439,9 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hasherService = HashComputationServiceFactory.Build(
                 hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters, HashingAlgorithmProfile.Value),
                 this,
-                OnCalcFinished,
+                OnOperationFinished,
                 OnFailure,
-                OnCalcStateChanged);
+                OnOperationStateTransition);
         }
 
         private void BuildHasherCached()
