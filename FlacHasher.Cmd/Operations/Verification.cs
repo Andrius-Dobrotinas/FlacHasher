@@ -20,6 +20,7 @@ namespace Andy.FlacHash.Application.Cmd
             string[] HashfileExtensions { get; set; }
             string HashfileEntrySeparator { get; set; }
             string InputDirectory { get; set; }
+            bool InputIgnoreExtraneous { get; set; }
         }
 
         /// <summary>
@@ -39,12 +40,12 @@ namespace Andy.FlacHash.Application.Cmd
             var hasher = BuildHasher(audioFileDecoder, hashAlgorithm);
             var verifier = BuildVerifier();
 
-            Verify(hasher, verifier, targetFiles, fileHashMap, cancellation);
+            Verify(hasher, verifier, targetFiles, fileHashMap, parameters, cancellation);
         }
 
-        public static void Verify(IMultiFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, CancellationToken cancellation)
+        public static void Verify(IMultiFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, IHashfileParams parameters, CancellationToken cancellation)
         {
-            var results = VerifyHashes(files, fileHashMap, hashVerifier, hasher, cancellation);
+            var results = VerifyHashes(files, fileHashMap, hashVerifier, hasher, parameters, cancellation);
 
             WriteStdErrLine();
             WriteStdErrLine();
@@ -58,16 +59,19 @@ namespace Andy.FlacHash.Application.Cmd
             WriteStdErrLine("======== The End =========");
         }
 
-        private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultiFileHasher hasher, CancellationToken cancellation)
+        private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultiFileHasher hasher, IHashfileParams parameters, CancellationToken cancellation)
         {
             var filesUnique = files
                 .Distinct(new FileInfoEqualityComprarer())
                 .ToList();
 
             var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, filesUnique);
+            var extraneousFiles = fileHashes.Where(x => x.Value == null).ToList();
+            var expectedFiles = fileHashes.Except(extraneousFiles).Select(x => x.Key);
+
             var results = new List<KeyValuePair<FileInfo, HashMatch>>(fileHashes.Count);
 
-            foreach (FileHashResult calcResult in hasher.ComputeHashes(fileHashes.Keys, cancellation))
+            foreach (FileHashResult calcResult in hasher.ComputeHashes(expectedFiles, cancellation))
             {
                 cancellation.ThrowIfCancellationRequested();
 
@@ -89,6 +93,10 @@ namespace Andy.FlacHash.Application.Cmd
                 //so it doesn't go back to the enumerator, which would result in launching decoding the next file
                 cancellation.ThrowIfCancellationRequested();
             }
+
+            if (!parameters.InputIgnoreExtraneous)
+                foreach (var file in extraneousFiles.Select(x => x.Key))
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(file, HashMatch.NotExpected));
 
             return results;
         }

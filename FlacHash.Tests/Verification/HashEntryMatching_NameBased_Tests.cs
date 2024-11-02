@@ -43,20 +43,29 @@ namespace Andy.FlacHash.Verification
         }
 
         [TestCaseSource(nameof(GetCases_AllMatches_WithExtraFiles))]
-        public void When_All_FilesReferencedByHashlist_ArePresent_And_ThereAreExtraUnreferencedFiles__Must_IgnoreThem(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
+        public void When_All_FilesReferencedByHashlist_ArePresent_And_ThereAreExtraUnreferencedFiles__Must_ReturnThem_AfterHashedFiles_With_NullHashValue(string description, IList<KeyValuePair<string, string>> inputHashes, ICollection<FileInfo> inputFiles, ICollection<FileInfo> expectedExtras)
         {
-            var expected = inputHashes.ToList();
+            var hashedFiles = inputHashes.Select(x => x.Key).ToList();
 
             var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles).ToList();
 
             AssertThat.CollectionsMatchExactly(
-                result.Select(x => x.Key.Name),
-                expected.Select(x => x.Key),
-                "File infos");
+                result.Select(x => x.Key).OrderBy(x => x.FullName),
+                inputFiles.OrderBy(x => x.FullName),
+                "File infos - contain all files, irrespective of order");
+
+            var extraFiles = inputFiles.Where(x => expectedExtras.Contains(x)).ToList();
+            var hashedFilesInOrder = inputHashes.Select(x => inputFiles.First(f => f.Name == x.Key)).ToList();
 
             AssertThat.CollectionsMatchExactly(
-                result.Select(x => x.Value),
-                expected.Select(x => x.Value),
+                result.Select(x => x.Key),
+                hashedFilesInOrder.Concat(expectedExtras),
+                "File infos - ordering");
+
+            var resultExtras = result.Where(x => expectedExtras.Contains(x.Key));
+            AssertThat.CollectionsMatchExactly(
+                resultExtras.Select(x => x.Value),
+                resultExtras.Select(x => (string)null),
                 "Hash values");
         }
 
@@ -77,7 +86,7 @@ namespace Andy.FlacHash.Verification
         }
 
         [TestCaseSource(nameof(GetCases_SomeMissing_SomeExtra))]
-        public void When_Some_ReferencedFilesAreMissing_And_ExtraFilesArePresent__Must_Return_Hashes_OnlyForReferencedFiles_ThatArePresent(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
+        public void When_Some_ReferencedFilesAreMissing_And_ExtraFilesArePresent__Must_Return_All_Files(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
             var results = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles).ToList();
 
@@ -101,25 +110,6 @@ namespace Andy.FlacHash.Verification
             var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, Array.Empty<FileInfo>()).ToList();
 
             Assert.IsNotEmpty(result, "Missing items");
-
-            AssertThat.CollectionsMatchExactly(
-                result.Select(x => x.Key.Name),
-                expectedNames,
-                "File infos");
-
-            AssertThat.CollectionsMatchExactly(
-                result.Select(x => x.Value),
-                expectedHashes,
-                "Hash values");
-        }
-
-        [TestCaseSource(nameof(GetCases_AllMissing_SomeExtra))]
-        public void When_All_FilesReferencedByHashlist_AreMissing_AndExtraFilesArePresent__Must_Return_OnlyReferencedFiles_AsFileInfoWithSameName(IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles)
-        {
-            var expectedNames = inputHashes.Select(x => x.Key).ToList();
-            var expectedHashes = inputHashes.Select(x => x.Value).ToList();
-
-            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, inputFiles).ToList();
 
             AssertThat.CollectionsMatchExactly(
                 result.Select(x => x.Key.Name),
@@ -278,7 +268,8 @@ namespace Andy.FlacHash.Verification
                 {
                     new KeyValuePair<FileInfo, string>(file1, hash1),
                     new KeyValuePair<FileInfo, string>(file2, hash2),
-                    new KeyValuePair<FileInfo, string>(new FileInfo(filename3), hash3)
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename3), hash3),
+                    new KeyValuePair<FileInfo, string>(file5, null),
                 });
 
             yield return new TestCaseData(
@@ -301,7 +292,8 @@ namespace Andy.FlacHash.Verification
                     new KeyValuePair<FileInfo, string>(new FileInfo(filename2), hash2),
                     new KeyValuePair<FileInfo, string>(file3, hash3),
                     new KeyValuePair<FileInfo, string>(file1, hash1),
-                    new KeyValuePair<FileInfo, string>(new FileInfo(filename4), hash4)
+                    new KeyValuePair<FileInfo, string>(new FileInfo(filename4), hash4),
+                    new KeyValuePair<FileInfo, string>(file5, null),
                 });
 
             yield return new TestCaseData(
@@ -327,6 +319,8 @@ namespace Andy.FlacHash.Verification
                     new KeyValuePair<FileInfo, string>(file5, hash5),
                     new KeyValuePair<FileInfo, string>(new FileInfo(filename4), hash4),
                     new KeyValuePair<FileInfo, string>(file1, hash1),
+                    new KeyValuePair<FileInfo, string>(file3, null),
+                    new KeyValuePair<FileInfo, string>(file6, null),
                 });
         }
 
@@ -478,6 +472,10 @@ namespace Andy.FlacHash.Verification
                 {
                     file1,
                     file2 //extra
+                },
+                new FileInfo[] // expected extras
+                {
+                    file2
                 });
 
             yield return new TestCaseData(
@@ -495,6 +493,11 @@ namespace Andy.FlacHash.Verification
                     file3,
                     file4, //extra
                     file5 //extra
+                },
+                new FileInfo[] // expected extras
+                {
+                    file4,
+                    file5
                 });
 
             yield return new TestCaseData(
@@ -511,6 +514,10 @@ namespace Andy.FlacHash.Verification
                     file1,
                     file3,
                     file2
+                },
+                new FileInfo[] // expected extras
+                {
+                    file4
                 });
 
             yield return new TestCaseData(
@@ -528,6 +535,11 @@ namespace Andy.FlacHash.Verification
                     file3,
                     file4,
                     file5 //extra
+                },
+                new FileInfo[] // expected extras
+                {
+                    file2,
+                    file5
                 });
         }
     }

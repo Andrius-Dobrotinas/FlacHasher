@@ -25,5 +25,10 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [AtLeastOneOf("hashfile")]
         public string InputDirectory { get; set; }
+
+        [CmdLineParameter("--ignore-extra")]
+        [IniEntry(nameof(InputIgnoreExtraneous))]
+        [Optional(defaultValue: false)]
+        public bool InputIgnoreExtraneous { get; set; }
     }
 }

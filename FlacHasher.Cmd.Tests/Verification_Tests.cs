@@ -242,6 +242,7 @@ namespace Andy.FlacHash.Application.Cmd
             public string[] HashfileExtensions { get; set; }
             public string HashfileEntrySeparator { get; set; }
             public string InputDirectory { get; set; }
+            public bool InputIgnoreExtraneous { get; set; }
         }
     }
 }

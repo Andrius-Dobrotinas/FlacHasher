@@ -56,7 +56,6 @@ namespace Andy.FlacHash.Application.Cmd
                 verificationSettings = initialCmdlineParams.IsVerification
                     ? parameterReader.GetParameters<VerificationParameters>(allParams, inLowercase: lowercaseParams)
                     : null;
-
             }
             catch (ParameterMissingException e)
             {

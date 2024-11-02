@@ -33,6 +33,10 @@ namespace Andy.FlacHash.Verification
                         matchingFile ?? new FileInfo(string.Format(MissingFileKey, i + 1)),
                         expected.Value);
             }
+
+            var extraneousFiles = files.Skip(expectedHashes.Count);
+            foreach (var file in extraneousFiles)
+                yield return new KeyValuePair<FileInfo, string>(file, null);
         }
 
         /// <summary>
@@ -46,15 +50,25 @@ namespace Andy.FlacHash.Verification
             IEnumerable<FileInfo> files)
         {
             var fileDictionary = files.ToDictionary(x => x.Name, x => x);
+            var tempMatches = new List<FileInfo>();
 
             for (int i = 0; i < expectedHashes.Count; i++)
             {
                 var expected = expectedHashes[i];
                 var matchingFile = fileDictionary.GetValueOrDefault(expected.Key);
 
+                if (matchingFile != null)
+                    tempMatches.Add(matchingFile);
+
                 yield return new KeyValuePair<FileInfo, string>(
                         matchingFile ?? new FileInfo(expected.Key),
                         expected.Value);
+            }
+
+            var extraneousFiles = files.Except(tempMatches);
+            foreach (var file in extraneousFiles)
+            {
+                yield return new KeyValuePair<FileInfo, string>(file, null);
             }
         }
 
