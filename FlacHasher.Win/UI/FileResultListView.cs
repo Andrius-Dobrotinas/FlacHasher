@@ -13,11 +13,16 @@ namespace Andy.FlacHash.Application.Win.UI
     public interface IFileListView<TData> : IFileListView
     {
         public void SetData(FileInfo key, TData data);
+        public IEnumerable<KeyValuePair<FileInfo, TData>> BackingData { get; }
     }
 
     public abstract class FileResultListView<TData> : ListView, IFileListView<TData>
     {
-        protected IEnumerable<ListViewItem<FileInfo, TData>> ListViewItems => this.Items.Cast<ListViewItem<FileInfo, TData>>();
+        protected IEnumerable<ListViewItem<FileInfo, TData>> ListViewItems
+            => this.Items.Cast<ListViewItem<FileInfo, TData>>();
+
+        public IEnumerable<KeyValuePair<FileInfo, TData>> BackingData
+            => this.ListViewItems.Select(x => new KeyValuePair<FileInfo, TData>(x.Key, x.Data));
 
         protected ListViewItem<FileInfo, TData> FindItem(FileInfo key)
         {

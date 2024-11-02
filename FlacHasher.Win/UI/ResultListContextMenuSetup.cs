@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -11,7 +12,7 @@ namespace Andy.FlacHash.Application.Win.UI
         public static void WireUp(
             FileHashResultList resultList,
             ContextMenuStrip contextMenu,
-            Action<IEnumerable<FileHashResultListItem>> saveHashesAction)
+            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction)
         {
             void resultList_MouseDown(object sender, MouseEventArgs e)
             {
@@ -28,10 +29,10 @@ namespace Andy.FlacHash.Application.Win.UI
         private static void BuildResultsCtxMenu(
             FileHashResultList resultList,
             ContextMenuStrip contextMenu,
-            Action<IEnumerable<FileHashResultListItem>> saveHashesAction)
+            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction)
         {
             var saveEventHandler = new EventHandler(
-                (sender, e) => saveHashesAction(resultList.GetUnderlyingData()));
+                (sender, e) => saveHashesAction(resultList.BackingData));
 
             contextMenu.Items.Add(
                 "Save to a File...",

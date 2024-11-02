@@ -14,23 +14,11 @@ namespace Andy.FlacHash.Application.Win.UI
 
     public class FileHashResultList : FileResultListView<FileHashResultListItem>
     {
-        const string SubitemHashKey = "hash";
-
         protected override void UpdateItem(ListViewItem<FileInfo> item, FileHashResultListItem data)
         {
             item.SubItems.Add(new ListViewSubItem
             {
-                Name = SubitemHashKey,
                 Text = data.HashString
-            });
-        }
-
-        public IEnumerable<FileHashResultListItem> GetUnderlyingData()
-        {
-            return ListViewItems.Select(x => new FileHashResultListItem
-            {
-                File = x.Key,
-                HashString = x.Data?.HashString
             });
         }
     }

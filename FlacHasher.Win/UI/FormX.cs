@@ -136,7 +136,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
             if (mode == Mode.Hashing)
-            WithTryCatch(ChooseDir);
+                WithTryCatch(ChooseDir);
             else
                 WithTryCatch(ChooseVerificationFile);
         }
@@ -179,9 +179,9 @@ namespace Andy.FlacHash.Application.Win.UI
 
 
         private void SetNewInputFiles(FileInfo[] files)
-            {
+        {
             fileList.Reset(files);
-
+      
             progressReporter.Reset(0);
 
             Set_Go_Button_State();
@@ -193,16 +193,16 @@ namespace Andy.FlacHash.Application.Win.UI
 
             if (!fileList.Any())
                 if (mode == Mode.Hashing)
-                ResetLog("Select a directory that contains files");
-            else
+                    ResetLog("Select a directory that contains files");
+                else
                     ResetLog("Select a hashfile that contains data");
             else
                 ResetLog("Select Operation and Press Go");
         }
 
-        private void SaveHashes(IEnumerable<FileHashResultListItem> results)
+        private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
         {
-            var hashes = results.Select(x => x.HashString);
+            var hashes = results.Select(x => x.Value?.HashString);
 
             if (hashFileWriter.GetFileAndSave(hashes) == true)
                 MessageBox.Show("Hashes saved!");
@@ -433,7 +433,7 @@ namespace Andy.FlacHash.Application.Win.UI
             BuildHasherCached();
 
             if (mode == Mode.Hashing)
-            RefreshFilelist();
+                RefreshFilelist();
         }
 
         private void hashingProfiles_SelectedIndexChanged(object sender, EventArgs e)
