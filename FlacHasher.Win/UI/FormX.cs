@@ -236,7 +236,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 {
                     case Mode.Hashing:
                         {
-                            ComputeHashes(files);
+                            await ComputeHashes(files);
                             return;
                         }
                     case Mode.Verification:
@@ -345,10 +345,10 @@ namespace Andy.FlacHash.Application.Win.UI
             ShowFatalError(e);
         }
 
-        private void ComputeHashes(IEnumerable<FileInfo> files)
+        private async Task ComputeHashes(IEnumerable<FileInfo> files)
         {
             SetProgressBar(files);
-            hasherService.Start(files, UpdateUIWithHashingResult);
+            await hasherService.Start(files, UpdateUIWithHashingResult);
         }
 
         private void UpdateUIWithHashingResult(FileHashResult result)
