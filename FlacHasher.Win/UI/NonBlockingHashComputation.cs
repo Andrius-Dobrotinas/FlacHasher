@@ -33,10 +33,10 @@ namespace Andy.FlacHash.Application.Win.UI
 
         public Task Start(
             IEnumerable<FileInfo> sourceFiles,
-            Action<FileHashResult> hashCalculated)
+            Action<FileHashResult> hashComputed)
         {
             return operationRunner.Start(
-                hashCalculated,
+                hashComputed,
                 reportCompletion,
                 reportFailure,
                 stateChanged,

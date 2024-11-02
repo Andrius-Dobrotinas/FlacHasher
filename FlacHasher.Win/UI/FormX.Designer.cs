@@ -28,285 +28,335 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormX));
-            this.btn_chooseDir = new System.Windows.Forms.Button();
-            this.btn_go = new System.Windows.Forms.Button();
-            this.list_results = new Andy.FlacHash.Application.Win.UI.FileHashResultList();
-            this.ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.progressBar = new System.Windows.Forms.ProgressBar();
-            this.label_Status = new System.Windows.Forms.Label();
-            this.mode_Verify = new System.Windows.Forms.RadioButton();
-            this.mode_Calc = new System.Windows.Forms.RadioButton();
-            this.list_verification_results = new Andy.FlacHash.Application.Win.UI.VerificationResultsList();
-            this.col_results_verification_file = new System.Windows.Forms.ColumnHeader();
-            this.col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
-            this.layoutGroup_input = new System.Windows.Forms.TableLayoutPanel();
-            this.list_hashFiles = new Andy.FlacHash.Application.Win.UI.FileList();
-            this.list_files = new Andy.FlacHash.Application.Win.UI.FileList();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.group_Left = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.group_Results = new System.Windows.Forms.GroupBox();
-            this.imgList_verification = new System.Windows.Forms.ImageList(this.components);
-            this.layoutGroup_input.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.group_Left.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.group_Results.SuspendLayout();
-            this.SuspendLayout();
+            btn_chooseDir = new System.Windows.Forms.Button();
+            btn_go = new System.Windows.Forms.Button();
+            ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(components);
+            progressBar = new System.Windows.Forms.ProgressBar();
+            layoutGroup_input = new System.Windows.Forms.TableLayoutPanel();
+            list_hashFiles = new FileList();
+            list_files = new FileList();
+            tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            group_Left = new System.Windows.Forms.GroupBox();
+            grpModes = new System.Windows.Forms.GroupBox();
+            mode_Calc = new System.Windows.Forms.RadioButton();
+            mode_Verify = new System.Windows.Forms.RadioButton();
+            tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            tabs_Results = new System.Windows.Forms.TabControl();
+            tabStatus = new System.Windows.Forms.TabPage();
+            txtStatus = new System.Windows.Forms.TextBox();
+            tabResults = new System.Windows.Forms.TabPage();
+            list_results = new FileHashResultList();
+            list_verification_results = new VerificationResultsList();
+            col_results_verification_file = new System.Windows.Forms.ColumnHeader();
+            col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
+            imgList_verification = new System.Windows.Forms.ImageList(components);
+            layoutGroup_input.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
+            group_Left.SuspendLayout();
+            grpModes.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
+            tabs_Results.SuspendLayout();
+            tabStatus.SuspendLayout();
+            tabResults.SuspendLayout();
+            SuspendLayout();
             // 
             // btn_chooseDir
             // 
-            this.btn_chooseDir.Location = new System.Drawing.Point(12, 35);
-            this.btn_chooseDir.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btn_chooseDir.Name = "btn_chooseDir";
-            this.btn_chooseDir.Size = new System.Drawing.Size(134, 29);
-            this.btn_chooseDir.TabIndex = 0;
-            this.btn_chooseDir.Text = "Choose a dir";
-            this.btn_chooseDir.UseVisualStyleBackColor = true;
-            this.btn_chooseDir.Click += new System.EventHandler(this.BtnChooseDir_Click);
+            btn_chooseDir.Location = new System.Drawing.Point(17, 58);
+            btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btn_chooseDir.Name = "btn_chooseDir";
+            btn_chooseDir.Size = new System.Drawing.Size(191, 48);
+            btn_chooseDir.TabIndex = 0;
+            btn_chooseDir.Text = "Choose a dir";
+            btn_chooseDir.UseVisualStyleBackColor = true;
+            btn_chooseDir.Click += BtnChooseDir_Click;
             // 
             // btn_go
             // 
-            this.btn_go.Location = new System.Drawing.Point(12, 170);
-            this.btn_go.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btn_go.Name = "btn_go";
-            this.btn_go.Size = new System.Drawing.Size(134, 36);
-            this.btn_go.TabIndex = 3;
-            this.btn_go.Text = "Go!";
-            this.btn_go.UseVisualStyleBackColor = true;
-            this.btn_go.Click += new System.EventHandler(this.Btn_Go_Click);
-            // 
-            // list_results
-            // 
-            this.list_results.DisplayMember = "HashString";
-            this.list_results.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.list_results.FormattingEnabled = true;
-            this.list_results.ItemHeight = 15;
-            this.list_results.Location = new System.Drawing.Point(0, 16);
-            this.list_results.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.list_results.Name = "list_results";
-            this.list_results.Size = new System.Drawing.Size(662, 146);
-            this.list_results.TabIndex = 4;
+            btn_go.Location = new System.Drawing.Point(17, 283);
+            btn_go.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btn_go.Name = "btn_go";
+            btn_go.Size = new System.Drawing.Size(191, 60);
+            btn_go.TabIndex = 3;
+            btn_go.Text = "Go!";
+            btn_go.UseVisualStyleBackColor = true;
+            btn_go.Click += Btn_Go_Click;
             // 
             // ctxMenu_results
             // 
-            this.ctxMenu_results.Name = "ctxMenu_results";
-            this.ctxMenu_results.Size = new System.Drawing.Size(61, 4);
+            ctxMenu_results.ImageScalingSize = new System.Drawing.Size(24, 24);
+            ctxMenu_results.Name = "ctxMenu_results";
+            ctxMenu_results.Size = new System.Drawing.Size(61, 4);
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(12, 214);
-            this.progressBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(134, 25);
-            this.progressBar.TabIndex = 5;
-            // 
-            // label_Status
-            // 
-            this.label_Status.AutoSize = true;
-            this.label_Status.Location = new System.Drawing.Point(160, 158);
-            this.label_Status.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label_Status.Name = "label_Status";
-            this.label_Status.Size = new System.Drawing.Size(0, 15);
-            this.label_Status.TabIndex = 6;
-            // 
-            // mode_Verify
-            // 
-            this.mode_Verify.AutoSize = true;
-            this.mode_Verify.Location = new System.Drawing.Point(12, 95);
-            this.mode_Verify.Name = "mode_Verify";
-            this.mode_Verify.Size = new System.Drawing.Size(54, 19);
-            this.mode_Verify.TabIndex = 8;
-            this.mode_Verify.TabStop = true;
-            this.mode_Verify.Text = "Verify";
-            this.mode_Verify.UseVisualStyleBackColor = true;
-            this.mode_Verify.CheckedChanged += new System.EventHandler(this.mode_Verify_CheckedChanged);
-            // 
-            // mode_Calc
-            // 
-            this.mode_Calc.AutoSize = true;
-            this.mode_Calc.Location = new System.Drawing.Point(12, 70);
-            this.mode_Calc.Name = "mode_Calc";
-            this.mode_Calc.Size = new System.Drawing.Size(74, 19);
-            this.mode_Calc.TabIndex = 7;
-            this.mode_Calc.TabStop = true;
-            this.mode_Calc.Text = "Calculate";
-            this.mode_Calc.UseVisualStyleBackColor = true;
-            this.mode_Calc.CheckedChanged += new System.EventHandler(this.mode_Calc_CheckedChanged);
-            // 
-            // list_verification_results
-            // 
-            this.list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.col_results_verification_file,
-            this.col_results_verification_isMatch});
-            this.list_verification_results.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.list_verification_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.list_verification_results.HideSelection = false;
-            this.list_verification_results.Location = new System.Drawing.Point(0, 16);
-            this.list_verification_results.Name = "list_verification_results";
-            this.list_verification_results.Size = new System.Drawing.Size(662, 146);
-            this.list_verification_results.TabIndex = 10;
-            this.list_verification_results.UseCompatibleStateImageBehavior = false;
-            // 
-            // col_results_verification_file
-            // 
-            this.col_results_verification_file.Text = "File";
-            this.col_results_verification_file.Width = 200;
-            // 
-            // col_results_verification_isMatch
-            // 
-            this.col_results_verification_isMatch.Text = "Matches";
+            progressBar.Location = new System.Drawing.Point(17, 357);
+            progressBar.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            progressBar.Name = "progressBar";
+            progressBar.Size = new System.Drawing.Size(191, 42);
+            progressBar.TabIndex = 5;
             // 
             // layoutGroup_input
             // 
-            this.layoutGroup_input.ColumnCount = 1;
-            this.layoutGroup_input.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.layoutGroup_input.Controls.Add(this.list_hashFiles, 0, 1);
-            this.layoutGroup_input.Controls.Add(this.list_files, 0, 0);
-            this.layoutGroup_input.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layoutGroup_input.Location = new System.Drawing.Point(0, 0);
-            this.layoutGroup_input.Margin = new System.Windows.Forms.Padding(0);
-            this.layoutGroup_input.Name = "layoutGroup_input";
-            this.layoutGroup_input.RowCount = 2;
-            this.layoutGroup_input.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.layoutGroup_input.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.layoutGroup_input.Size = new System.Drawing.Size(668, 168);
-            this.layoutGroup_input.TabIndex = 12;
+            layoutGroup_input.ColumnCount = 1;
+            layoutGroup_input.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            layoutGroup_input.Controls.Add(list_hashFiles, 0, 1);
+            layoutGroup_input.Controls.Add(list_files, 0, 0);
+            layoutGroup_input.Dock = System.Windows.Forms.DockStyle.Fill;
+            layoutGroup_input.Location = new System.Drawing.Point(0, 0);
+            layoutGroup_input.Margin = new System.Windows.Forms.Padding(0);
+            layoutGroup_input.Name = "layoutGroup_input";
+            layoutGroup_input.RowCount = 2;
+            layoutGroup_input.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            layoutGroup_input.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            layoutGroup_input.Size = new System.Drawing.Size(954, 280);
+            layoutGroup_input.TabIndex = 12;
             // 
             // list_hashFiles
             // 
-            this.list_hashFiles.DisplayMember = "Name";
-            this.list_hashFiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.list_hashFiles.FormattingEnabled = true;
-            this.list_hashFiles.ItemHeight = 15;
-            this.list_hashFiles.Location = new System.Drawing.Point(3, 127);
-            this.list_hashFiles.Name = "list_hashFiles";
-            this.list_hashFiles.Size = new System.Drawing.Size(662, 38);
-            this.list_hashFiles.TabIndex = 14;
+            list_hashFiles.DisplayMember = "Name";
+            list_hashFiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            list_hashFiles.FormattingEnabled = true;
+            list_hashFiles.ItemHeight = 25;
+            list_hashFiles.Location = new System.Drawing.Point(4, 214);
+            list_hashFiles.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            list_hashFiles.Name = "list_hashFiles";
+            list_hashFiles.Size = new System.Drawing.Size(946, 61);
+            list_hashFiles.TabIndex = 14;
             // 
             // list_files
             // 
-            this.list_files.DisplayMember = "Name";
-            this.list_files.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.list_files.FormattingEnabled = true;
-            this.list_files.ItemHeight = 15;
-            this.list_files.Location = new System.Drawing.Point(4, 3);
-            this.list_files.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.list_files.Name = "list_files";
-            this.list_files.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.list_files.Size = new System.Drawing.Size(660, 118);
-            this.list_files.TabIndex = 4;
+            list_files.DisplayMember = "Name";
+            list_files.Dock = System.Windows.Forms.DockStyle.Fill;
+            list_files.FormattingEnabled = true;
+            list_files.ItemHeight = 25;
+            list_files.Location = new System.Drawing.Point(6, 5);
+            list_files.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            list_files.Name = "list_files";
+            list_files.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            list_files.Size = new System.Drawing.Size(942, 199);
+            list_files.TabIndex = 4;
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.group_Left, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 1, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(834, 342);
-            this.tableLayoutPanel1.TabIndex = 13;
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 229F));
+            tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            tableLayoutPanel1.Controls.Add(group_Left, 0, 0);
+            tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 1, 0);
+            tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 1;
+            tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            tableLayoutPanel1.Size = new System.Drawing.Size(1191, 570);
+            tableLayoutPanel1.TabIndex = 13;
             // 
             // group_Left
             // 
-            this.group_Left.Controls.Add(this.btn_chooseDir);
-            this.group_Left.Controls.Add(this.mode_Calc);
-            this.group_Left.Controls.Add(this.btn_go);
-            this.group_Left.Controls.Add(this.progressBar);
-            this.group_Left.Controls.Add(this.mode_Verify);
-            this.group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.group_Left.Location = new System.Drawing.Point(3, 3);
-            this.group_Left.Name = "group_Left";
-            this.group_Left.Padding = new System.Windows.Forms.Padding(0);
-            this.group_Left.Size = new System.Drawing.Size(154, 336);
-            this.group_Left.TabIndex = 0;
-            this.group_Left.TabStop = false;
+            group_Left.Controls.Add(grpModes);
+            group_Left.Controls.Add(btn_chooseDir);
+            group_Left.Controls.Add(btn_go);
+            group_Left.Controls.Add(progressBar);
+            group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
+            group_Left.Location = new System.Drawing.Point(4, 5);
+            group_Left.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            group_Left.Name = "group_Left";
+            group_Left.Padding = new System.Windows.Forms.Padding(0);
+            group_Left.Size = new System.Drawing.Size(221, 560);
+            group_Left.TabIndex = 0;
+            group_Left.TabStop = false;
+            // 
+            // grpModes
+            // 
+            grpModes.Controls.Add(mode_Calc);
+            grpModes.Controls.Add(mode_Verify);
+            grpModes.Location = new System.Drawing.Point(17, 114);
+            grpModes.Name = "grpModes";
+            grpModes.Size = new System.Drawing.Size(191, 111);
+            grpModes.TabIndex = 1;
+            grpModes.TabStop = false;
+            // 
+            // mode_Calc
+            // 
+            mode_Calc.AutoSize = true;
+            mode_Calc.Location = new System.Drawing.Point(14, 20);
+            mode_Calc.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            mode_Calc.Name = "mode_Calc";
+            mode_Calc.Size = new System.Drawing.Size(77, 29);
+            mode_Calc.TabIndex = 1;
+            mode_Calc.TabStop = true;
+            mode_Calc.Text = "Hash";
+            mode_Calc.UseVisualStyleBackColor = true;
+            mode_Calc.CheckedChanged += mode_Calc_CheckedChanged;
+            // 
+            // mode_Verify
+            // 
+            mode_Verify.AutoSize = true;
+            mode_Verify.Location = new System.Drawing.Point(14, 61);
+            mode_Verify.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            mode_Verify.Name = "mode_Verify";
+            mode_Verify.Size = new System.Drawing.Size(81, 29);
+            mode_Verify.TabIndex = 2;
+            mode_Verify.TabStop = true;
+            mode_Verify.Text = "Verify";
+            mode_Verify.UseVisualStyleBackColor = true;
+            mode_Verify.CheckedChanged += mode_Verify_CheckedChanged;
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.layoutGroup_input, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.group_Results, 0, 1);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(163, 3);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 2;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(668, 336);
-            this.tableLayoutPanel2.TabIndex = 1;
+            tableLayoutPanel2.ColumnCount = 1;
+            tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel2.Controls.Add(tabs_Results, 0, 1);
+            tableLayoutPanel2.Controls.Add(layoutGroup_input, 0, 0);
+            tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            tableLayoutPanel2.Location = new System.Drawing.Point(233, 5);
+            tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 2;
+            tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            tableLayoutPanel2.Size = new System.Drawing.Size(954, 560);
+            tableLayoutPanel2.TabIndex = 1;
             // 
-            // group_Results
+            // tabs_Results
             // 
-            this.group_Results.Controls.Add(this.list_verification_results);
-            this.group_Results.Controls.Add(this.list_results);
-            this.group_Results.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.group_Results.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.group_Results.Location = new System.Drawing.Point(3, 171);
-            this.group_Results.Name = "group_Results";
-            this.group_Results.Padding = new System.Windows.Forms.Padding(0);
-            this.group_Results.Size = new System.Drawing.Size(662, 162);
-            this.group_Results.TabIndex = 13;
-            this.group_Results.TabStop = false;
+            tabs_Results.Controls.Add(tabStatus);
+            tabs_Results.Controls.Add(tabResults);
+            tabs_Results.Dock = System.Windows.Forms.DockStyle.Fill;
+            tabs_Results.Location = new System.Drawing.Point(0, 280);
+            tabs_Results.Margin = new System.Windows.Forms.Padding(0);
+            tabs_Results.Name = "tabs_Results";
+            tabs_Results.SelectedIndex = 0;
+            tabs_Results.Size = new System.Drawing.Size(954, 280);
+            tabs_Results.TabIndex = 13;
+            // 
+            // tabStatus
+            // 
+            tabStatus.Controls.Add(txtStatus);
+            tabStatus.Location = new System.Drawing.Point(4, 34);
+            tabStatus.Margin = new System.Windows.Forms.Padding(0);
+            tabStatus.Name = "tabStatus";
+            tabStatus.Size = new System.Drawing.Size(946, 242);
+            tabStatus.TabIndex = 1;
+            tabStatus.Text = "Status";
+            tabStatus.UseVisualStyleBackColor = true;
+            // 
+            // txtStatus
+            // 
+            txtStatus.Dock = System.Windows.Forms.DockStyle.Fill;
+            txtStatus.HideSelection = false;
+            txtStatus.Location = new System.Drawing.Point(0, 0);
+            txtStatus.Multiline = true;
+            txtStatus.Name = "txtStatus";
+            txtStatus.ReadOnly = true;
+            txtStatus.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            txtStatus.Size = new System.Drawing.Size(946, 242);
+            txtStatus.TabIndex = 0;
+            // 
+            // tabResults
+            // 
+            tabResults.Controls.Add(list_results);
+            tabResults.Controls.Add(list_verification_results);
+            tabResults.Location = new System.Drawing.Point(4, 34);
+            tabResults.Margin = new System.Windows.Forms.Padding(0);
+            tabResults.Name = "tabResults";
+            tabResults.Size = new System.Drawing.Size(946, 242);
+            tabResults.TabIndex = 0;
+            tabResults.Text = "Results";
+            tabResults.UseVisualStyleBackColor = true;
+            // 
+            // list_results
+            // 
+            list_results.DisplayMember = "HashString";
+            list_results.Dock = System.Windows.Forms.DockStyle.Fill;
+            list_results.FormattingEnabled = true;
+            list_results.ItemHeight = 25;
+            list_results.Location = new System.Drawing.Point(0, 0);
+            list_results.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            list_results.Name = "list_results";
+            list_results.Size = new System.Drawing.Size(946, 242);
+            list_results.TabIndex = 12;
+            // 
+            // list_verification_results
+            // 
+            list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { col_results_verification_file, col_results_verification_isMatch });
+            list_verification_results.Dock = System.Windows.Forms.DockStyle.Fill;
+            list_verification_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            list_verification_results.HideSelection = false;
+            list_verification_results.Location = new System.Drawing.Point(0, 0);
+            list_verification_results.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            list_verification_results.Name = "list_verification_results";
+            list_verification_results.Size = new System.Drawing.Size(946, 242);
+            list_verification_results.TabIndex = 11;
+            list_verification_results.UseCompatibleStateImageBehavior = false;
+            // 
+            // col_results_verification_file
+            // 
+            col_results_verification_file.Text = "File";
+            col_results_verification_file.Width = 200;
+            // 
+            // col_results_verification_isMatch
+            // 
+            col_results_verification_isMatch.Text = "Matches";
             // 
             // imgList_verification
             // 
-            this.imgList_verification.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.imgList_verification.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgList_verification.ImageStream")));
-            this.imgList_verification.TransparentColor = System.Drawing.Color.Transparent;
-            this.imgList_verification.Images.SetKeyName(0, "bad");
-            this.imgList_verification.Images.SetKeyName(1, "good");
-            this.imgList_verification.Images.SetKeyName(2, "error.png");
+            imgList_verification.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            imgList_verification.ImageStream = (System.Windows.Forms.ImageListStreamer)resources.GetObject("imgList_verification.ImageStream");
+            imgList_verification.TransparentColor = System.Drawing.Color.Transparent;
+            imgList_verification.Images.SetKeyName(0, "bad");
+            imgList_verification.Images.SetKeyName(1, "good");
+            imgList_verification.Images.SetKeyName(2, "error.png");
             // 
             // FormX
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(834, 342);
-            this.Controls.Add(this.tableLayoutPanel1);
-            this.Controls.Add(this.label_Status);
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "FormX";
-            this.Text = "FormX";
-            this.layoutGroup_input.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.group_Left.ResumeLayout(false);
-            this.group_Left.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.group_Results.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(1191, 570);
+            Controls.Add(tableLayoutPanel1);
+            Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            Name = "FormX";
+            Text = "FormX";
+            layoutGroup_input.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
+            group_Left.ResumeLayout(false);
+            grpModes.ResumeLayout(false);
+            grpModes.PerformLayout();
+            tableLayoutPanel2.ResumeLayout(false);
+            tabs_Results.ResumeLayout(false);
+            tabStatus.ResumeLayout(false);
+            tabStatus.PerformLayout();
+            tabResults.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
         #endregion
 
         private System.Windows.Forms.Button btn_chooseDir;
         private System.Windows.Forms.Button btn_go;
-        private FileHashResultList list_results;
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
         private System.Windows.Forms.ProgressBar progressBar;
-        private System.Windows.Forms.Label label_Status;
-        private System.Windows.Forms.RadioButton mode_Verify;
-        private System.Windows.Forms.RadioButton mode_Calc;
-        private VerificationResultsList list_verification_results;
-        private System.Windows.Forms.ColumnHeader col_results_verification_file;
-        private System.Windows.Forms.ColumnHeader col_results_verification_isMatch;
         private System.Windows.Forms.TableLayoutPanel layoutGroup_input;
         private FileList list_hashFiles;
         private FileList list_files;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.GroupBox group_Left;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.GroupBox group_Results;
         private System.Windows.Forms.ImageList imgList_verification;
+        private System.Windows.Forms.GroupBox grpModes;
+        private System.Windows.Forms.RadioButton mode_Calc;
+        private System.Windows.Forms.RadioButton mode_Verify;
+        private System.Windows.Forms.TabControl tabs_Results;
+        private System.Windows.Forms.TabPage tabResults;
+        private FileHashResultList list_results;
+        private VerificationResultsList list_verification_results;
+        private System.Windows.Forms.ColumnHeader col_results_verification_file;
+        private System.Windows.Forms.ColumnHeader col_results_verification_isMatch;
+        private System.Windows.Forms.TabPage tabStatus;
+        private System.Windows.Forms.TextBox txtStatus;
     }
 }

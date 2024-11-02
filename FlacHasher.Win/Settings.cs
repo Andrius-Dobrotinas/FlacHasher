@@ -22,5 +22,9 @@ namespace Andy.FlacHash.Application.Win
         [IniEntry(nameof(ShowProcessWindowWithOutput))]
         [Optional]
         public bool ShowProcessWindowWithOutput { get; set; }
+
+        [IniEntry(nameof(FailOnError))]
+        [Optional]
+        public bool FailOnError { get; set; }
     }
 }

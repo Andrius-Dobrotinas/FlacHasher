@@ -31,8 +31,11 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private bool finishedWithErrors;
 
+        const string newline = "\r\n";
+        const string errorSeparator = "==========================";
+
         public FormX(
-            HashCalculationServiceFactory hashCalculationServiceFactory,
+            HashComputationServiceFactory hashComputationServiceFactory,
             InteractiveTextFileWriter hashFileWriter,
             IDataReadEventSource fileReadEventSource,
             InteractiveDirectoryGetter dirBrowser,
@@ -52,7 +55,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashVerifier = hashVerifier;
             this.fileExtension = fileExtension;
 
-            this.hasherService = hashCalculationServiceFactory.Build(
+            this.hasherService = hashComputationServiceFactory.Build(
                 this,
                 OnCalcFinished,
                 OnFailure,
@@ -66,11 +69,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
-            this.label_Status.Text = "Select a directory";
             this.btn_go.Enabled = false;
-
-            this.mode_Calc.Checked = true;
-            SetMode(Mode.Calculation);
 
             this.list_files.Initialize();
             this.list_hashFiles.Initialize();
@@ -82,6 +81,9 @@ namespace Andy.FlacHash.Application.Win.UI
 
             list_verification_results.Resize += List_verification_results_Resize;
             List_verification_results_Resize(null, null);
+
+            this.mode_Calc.Checked = true;
+            SetMode(Mode.Hashing);
         }
 
         private async Task WithTryCatch(Func<Task> function)
@@ -92,7 +94,7 @@ namespace Andy.FlacHash.Application.Win.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowFatalError(ex);
             }
         }
 
@@ -104,7 +106,7 @@ namespace Andy.FlacHash.Application.Win.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowFatalError(ex);
             }
         }
 
@@ -128,9 +130,9 @@ namespace Andy.FlacHash.Application.Win.UI
             var (files, hashFiles) = targetFileResolver.FindFiles(directory, fileExtension);
 
             if (files.Any() == false)
-                label_Status.Text = "The selected directory doesn't contain suitable files";
+                ResetLog("The selected directory doesn't contain suitable files");
             else
-                label_Status.Text = @"Press ""Go""";
+                ResetLog(@"Press ""Go""");
 
             SetNewInputFiles(files, hashFiles);
         }
@@ -157,7 +159,14 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void Set_Go_Button_State()
         {
-            btn_go.Enabled = list_files.Any() && (mode == Mode.Calculation || list_hashFiles.Any());
+            btn_go.Enabled = list_files.Any() && (mode == Mode.Hashing || list_hashFiles.Any());
+
+            if (!list_files.Any())
+                ResetLog("Select a directory that contains files");
+            else if (mode == Mode.Verification && !list_hashFiles.Any())
+                ResetLog("Select a directory that contains a hashfile");
+            else
+                ResetLog("Select Operation and Press Go");
         }
 
         private void SaveHashes(IEnumerable<FileHashResultListItem> results)
@@ -181,7 +190,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
                 switch (mode)
                 {
-                    case Mode.Calculation:
+                    case Mode.Hashing:
                         {
                             ComputeHashes(files);
                             return;
@@ -256,10 +265,14 @@ namespace Andy.FlacHash.Application.Win.UI
 
             list_results.ClearList();
             list_verification_results.Items.Clear();
+            txtStatus.Clear();
 
             // Name-based verification includes files even if they don't exist just so they can be reported in the correct order
             long totalSize = files.Select(file => file.Exists ? file.Length : 0).Sum();
             progressReporter.Reset(totalSize);
+
+            ResetLog("Working...");
+            tabs_Results.SelectTab(tabStatus);
         }
 
         private void OnCalcCancellation()
@@ -270,8 +283,9 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void OnCalcStateChanged(bool inProgress)
         {
+            grpModes.Enabled = !inProgress;
+
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
-            this.label_Status.Text = "Working...";
         }
 
         private void OnCalcFinished(bool cancelled)
@@ -281,24 +295,33 @@ namespace Andy.FlacHash.Application.Win.UI
                 btn_go.Enabled = true;
                 progressReporter.Reset(0);
 
-                label_Status.Text = "Canceled";
+                LogMessage("Canceled");
             }
             else
             {
                 progressReporter.SetToMax();
 
-                label_Status.Text = "Finished";
+                if (finishedWithErrors)
+                    LogMessage("Finished with errors ^^");
+                else
+                    LogMessage("Finished");
+
+                // Verification reflects errors, the user can go back to the log
+                if (mode == Mode.Verification || !finishedWithErrors)
+                    tabs_Results.SelectTab(tabResults);
             }
         }
 
+        /// <summary>
+        /// Gets invoked when an operation totally fails (doesn't move on to the next file)
+        /// </summary>
         private void OnFailure(Exception e)
         {
             btn_go.Enabled = true;
             progressReporter.Reset(0);
 
-            label_Status.Text = "Failed";
-
-            MessageBox.Show($"Error processing file(s): {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            LogMessage("Failed");
+            ShowFatalError(e);
         }
 
         private void ComputeHashes(IEnumerable<FileInfo> files)
@@ -328,14 +351,38 @@ namespace Andy.FlacHash.Application.Win.UI
         private void ReportExecutionError(Exception exception, FileInfo file)
         {
             finishedWithErrors = true;
-            Task.Run(() => MessageBox.Show($"Error processing file {file.Name}: {exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error));
+            LogMessage($"Error processing file: {file.Name}", exception.Message);
+        }
+
+        void LogMessage(params string[] message)
+        {
+            txtStatus.AppendText(errorSeparator);
+            txtStatus.AppendText(newline);
+
+            foreach (var line in message)
+            {
+                txtStatus.AppendText(line);
+                txtStatus.AppendText(newline);
+            }
+        }
+
+        void ResetLog(string message)
+        {
+            txtStatus.Text = message;
+            txtStatus.AppendText(newline);
+        }
+
+        void ShowFatalError(Exception e)
+        {
+            LogMessage($"Error processing file(s)", e.Message);
+            MessageBox.Show($"Operation failed. See the error log", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private Mode mode;
 
         private void mode_Calc_CheckedChanged(object sender, EventArgs e)
         {
-            SetMode(Mode.Calculation);
+            SetMode(Mode.Hashing);
         }
 
         private void mode_Verify_CheckedChanged(object sender, EventArgs e)
@@ -347,11 +394,8 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             this.mode = mode;
 
-            this.list_results.Visible = mode == Mode.Calculation;
+            this.list_results.Visible = mode == Mode.Hashing;
             this.list_verification_results.Visible = mode == Mode.Verification;
-
-            this.list_files.Size = new System.Drawing.Size(660, 139);
-
 
             Set_Go_Button_State();
         }

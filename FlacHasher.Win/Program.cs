@@ -57,7 +57,7 @@ namespace Andy.FlacHash.Application.Win
 
                 System.Windows.Forms.Application.Run(
                     new UI.FormX(
-                        new UI.HashCalculationServiceFactory(
+                        new UI.HashComputationServiceFactory(
                             hasher),
                         new UI.InteractiveTextFileWriter(saveHashesToFileDialog),
                         progressReporter,
@@ -93,7 +93,7 @@ namespace Andy.FlacHash.Application.Win
             var cancellableHasher = new ReportingMultiFileHasher(
                 new MultiFileHasher(
                     hasher, 
-                    continueOnError: true,
+                    continueOnError: !settings.FailOnError,
                     decoder is StdInputStreamAudioFileDecoder ? null : fileReadProgressReporter));
 
             return (cancellableHasher, fileReadProgressReporter);
