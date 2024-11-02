@@ -6,29 +6,33 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public interface IFileResultListView : IListView<FileInfo, FileListViewItem>
+    public interface IFileListView : IListView<FileInfo, ListViewItem<FileInfo>>
     {
     }
 
-    public class FileListViewItem : ListViewItem
+    public abstract class FileResultListView<TData> : ListView, IFileListView
     {
-        public FileInfo Key { get; set; }
-    }
+        protected IEnumerable<ListViewItem<FileInfo>> ListViewItems => this.Items.Cast<ListViewItem<FileInfo>>();
 
-    public class FileResultListView : ListView, IFileResultListView
-    {
-        protected IEnumerable<FileListViewItem> ListViewItems => this.Items.Cast<FileListViewItem>();
-
-        protected FileListViewItem FindItem(FileInfo key)
+        protected ListViewItem<FileInfo> FindItem(FileInfo key)
         {
             return ListViewItems.FirstOrDefault(x => x.Key == key)
                 ?? throw new Exception($"Item not found: {key.FullName}");
         }
 
+        public void UpdateItem(FileInfo key, TData data)
+        {
+            var item = FindItem(key);
+
+            UpdateItem(item, data);
+        }
+
+        protected abstract void UpdateItem(ListViewItem<FileInfo> item, TData data);
+
         public void AddRange(FileInfo[] files)
         {
             var items = files.Select(
-                file => new FileListViewItem
+                file => new ListViewItem<FileInfo>
                 {
                     Key = file,
                     Text = file.Name,
@@ -48,7 +52,7 @@ namespace Andy.FlacHash.Application.Win.UI
             AddRange(files);
         }
 
-        public IEnumerator<FileListViewItem> GetEnumerator()
+        public IEnumerator<ListViewItem<FileInfo>> GetEnumerator()
         {
             return ListViewItems.GetEnumerator();
         }

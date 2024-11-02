@@ -5,12 +5,10 @@ using System.IO;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public class VerificationResultsList : FileResultListView
+    public class VerificationResultsList : FileResultListView<HashMatch>
     {
-        public void UpdateItem(FileInfo file, HashMatch isMatch)
+        protected override void UpdateItem(ListViewItem<FileInfo> item, HashMatch isMatch)
         {
-            var item = FindItem(file);
-
             item.ImageIndex = (int)(isMatch == HashMatch.NotFound ? HashMatch.Error : isMatch);
             item.SubItems.Add(isMatch.ToString());
         }

@@ -8,22 +8,20 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public class FileHashResultListItem
     {
-        public string FileName { get; set; }
+        public FileInfo File { get; set; }
         public string HashString { get; set; }
     }
 
-    public class FileHashResultList : FileResultListView
+    public class FileHashResultList : FileResultListView<FileHashResultListItem>
     {
         const string SubitemHashKey = "hash";
 
-        public void UpdateItem(FileInfo file, string hashstring)
+        protected override void UpdateItem(ListViewItem<FileInfo> item, FileHashResultListItem data)
         {
-            var item = FindItem(file);
-
             item.SubItems.Add(new ListViewSubItem
             {
                 Name = SubitemHashKey,
-                Text = hashstring
+                Text = data.HashString
             });
         }
 
@@ -31,7 +29,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             return ListViewItems.Select(x => new FileHashResultListItem
             {
-                FileName = x.Name,
+                File = x.Key,
                 HashString = x.SubItems.Cast<ListViewSubItem>().FirstOrDefault(x => x.Name == SubitemHashKey)?.Text
             });
         }

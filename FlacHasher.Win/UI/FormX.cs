@@ -37,7 +37,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private bool finishedWithErrors;
         private DirectoryInfo directory;
-        private IFileResultListView fileList;
+        private IFileListView fileList;
         private FileHashMap fileHashMap;
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
@@ -359,7 +359,10 @@ namespace Andy.FlacHash.Application.Win.UI
 
             this.list_results.UpdateItem(
                 result.File,
-                hashFormatter.GetString(result.Hash));
+                new FileHashResultListItem
+                {
+                    HashString = hashFormatter.GetString(result.Hash)
+                });
 
             this.Text = result.File.Name;
         }
@@ -410,7 +413,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             this.mode = mode;
             fileList = mode == Mode.Hashing 
-                ? (FileResultListView)list_results 
+                ? (IFileListView)list_results 
                 : list_verification_results;
 
             this.list_results.Visible = mode == Mode.Hashing;
