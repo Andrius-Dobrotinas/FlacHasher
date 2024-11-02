@@ -260,7 +260,7 @@ namespace Andy.FlacHash.Application.Win.UI
             var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
 
             var expectedFiles = fileHashes.Where(x => x.Value != null).Select(x => x.Key);
-            BeforeCalc(expectedFiles);
+            SetProgressBar(expectedFiles);
             await VerifyHashes(fileHashes);
         }
 
@@ -289,17 +289,11 @@ namespace Andy.FlacHash.Application.Win.UI
                 });
         }
 
-        private void BeforeCalc(IEnumerable<FileInfo> files)
+        private void SetProgressBar(IEnumerable<FileInfo> files)
         {
-            finishedWithErrors = false;
-
-            txtStatus.Clear();
-
             // Name-based verification includes files even if they don't exist just so they can be reported in the correct order
             long totalSize = files.Select(file => file.Exists ? file.Length : 0).Sum();
             progressReporter.Reset(totalSize);
-
-            ResetLog("Working...");
         }
 
         private void OnCalcCancellation()
@@ -310,6 +304,12 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void OnCalcStateChanged(bool inProgress)
         {
+            if (inProgress)
+            {
+                finishedWithErrors = false;
+                ResetLog("Working...");
+            }
+
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
 
@@ -347,7 +347,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void ComputeHashes(IEnumerable<FileInfo> files)
         {
-            BeforeCalc(files);
+            SetProgressBar(files);
             hasherService.Start(files, UpdateUIWithCalcResult);
         }
 
