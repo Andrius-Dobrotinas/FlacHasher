@@ -39,6 +39,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private DirectoryInfo directory;
         private IFileListView fileList;
         private FileHashMap fileHashMap;
+        private Mode mode;
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
         private AlgorithmOption HashingAlgorithmProfile => (AlgorithmOption)menu_hashingAlgorithm.SelectedItem;
@@ -400,8 +401,6 @@ namespace Andy.FlacHash.Application.Win.UI
             LogMessage($"Error processing file(s)", e.Message);
             MessageBox.Show($"Operation failed. See the error log", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-
-        private Mode mode;
 
         private void SetMode(Mode mode)
         {
