@@ -189,9 +189,9 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void Set_Go_Button_State()
         {
-            btn_go.Enabled = fileList.ListViewItems.Any();
+            btn_go.Enabled = fileList.Any();
 
-            if (!fileList.ListViewItems.Any())
+            if (!fileList.Any())
                 if (mode == Mode.Hashing)
                 ResetLog("Select a directory that contains files");
             else
@@ -244,7 +244,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private IList<FileInfo> GetFiles()
         {
-            return fileList.ListViewItems.Select(x => new FileInfo(x.Name)).ToArray();
+            return fileList.Select(x => new FileInfo(x.Name)).ToArray();
         }
 
         private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)

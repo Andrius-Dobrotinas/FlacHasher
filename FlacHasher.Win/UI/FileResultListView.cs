@@ -6,9 +6,8 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public interface IFileResultListView
+    public interface IFileResultListView : IEnumerable<ListViewItem>
     {
-        IEnumerable<ListViewItem> ListViewItems { get; }
         void AddRange(FileInfo[] files);
         void ClearList();
         void Reset(params FileInfo[] files);
@@ -16,7 +15,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
     public class FileResultListView : ListView, IFileResultListView
     {
-        public IEnumerable<ListViewItem> ListViewItems => this.Items.Cast<ListViewItem>();
+        protected IEnumerable<ListViewItem> ListViewItems => this.Items.Cast<ListViewItem>();
 
         protected ListViewItem FindItem(FileInfo key)
         {
@@ -45,6 +44,16 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             ClearList();
             AddRange(files);
+        }
+
+        public IEnumerator<ListViewItem> GetEnumerator()
+        {
+            return ListViewItems.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return ListViewItems.GetEnumerator();
         }
     }
 }
