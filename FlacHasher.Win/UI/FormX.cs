@@ -100,6 +100,15 @@ namespace Andy.FlacHash.Application.Win.UI
             SetMode(Mode.Hashing);
 
             BuildHasherCached();
+            ResetStatusMessages();
+        }
+
+        void ResetStatusMessages()
+        {
+            if (mode == Mode.Hashing)
+                ResetLog("Select a directory to hash some files!");
+            else
+                ResetLog("Select a hashfile to verify files");
         }
 
         private async Task WithTryCatch(Func<Task> function)
@@ -183,15 +192,8 @@ namespace Andy.FlacHash.Application.Win.UI
                 return;
 
             var files = targetFileResolver.FindFiles(directory, DecoderProfile.TargetFileExtension);
-
-            if (files.Any() == false)
-                ResetLog("The selected directory doesn't contain suitable files");
-            else
-                ResetLog(@"Press ""Go"""); // TODO: move into set button state
-
             SetNewInputFiles(files);
         }
-
 
         private void SetNewInputFiles(FileInfo[] files)
         {
@@ -199,18 +201,13 @@ namespace Andy.FlacHash.Application.Win.UI
       
             progressReporter.Reset(0);
 
-            Set_Go_Button_State();
-        }
-
-        private void Set_Go_Button_State()
-        {
             btn_go.Enabled = fileList.Any();
 
             if (!fileList.Any())
                 if (mode == Mode.Hashing)
-                    ResetLog("Select a directory that contains files");
+                    ResetLog("The directory doesn't contain suitable files!");
                 else
-                    ResetLog("Select a hashfile that contains data");
+                    ResetLog("The hashfile doesn't contain any data!");
             else
                 ResetLog("Press Go!");
         }
@@ -411,8 +408,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
             this.list_results.Visible = mode == Mode.Hashing;
             this.list_verification_results.Visible = mode == Mode.Verification;
-
-            Set_Go_Button_State();
         }
 
         void ReadFilesFromHashmap()
