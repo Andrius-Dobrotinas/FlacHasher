@@ -202,7 +202,8 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
         {
-            var hashes = results.Select(x => x.Value?.HashString);
+            var hashes = results.Select(x => x.Value?.HashString)
+                .Where(x => x != null);
 
             if (hashFileWriter.GetFileAndSave(hashes) == true)
                 MessageBox.Show("Hashes saved!");
