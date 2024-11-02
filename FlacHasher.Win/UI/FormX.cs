@@ -296,6 +296,14 @@ namespace Andy.FlacHash.Application.Win.UI
             progressReporter.Reset(totalSize);
         }
 
+        void SetSelectorElementAccesibility(bool isEnabled)
+        {
+            btn_chooseDir.Enabled = isEnabled;
+            btn_openHashfile.Enabled = isEnabled;
+            menu_decoderProfiles.Enabled = isEnabled;
+            menu_hashingAlgorithm.Enabled = isEnabled;
+        }
+
         private void OnOperationCancellation()
         {
             btn_go.Enabled = false;
@@ -309,6 +317,8 @@ namespace Andy.FlacHash.Application.Win.UI
                 finishedWithErrors = false;
                 ResetLog("Working...");
             }
+
+            SetSelectorElementAccesibility(!inProgress);
 
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
