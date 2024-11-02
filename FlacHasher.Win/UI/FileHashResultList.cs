@@ -1,23 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using Andy.FlacHash.Hashing;
+using System.IO;
+using System.Linq;
+using static System.Windows.Forms.ListViewItem;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
     public class FileHashResultListItem
     {
-        public FileHashResult Value { get; set; }
+        public string FileName { get; set; }
         public string HashString { get; set; }
     }
 
-    public class FileHashResultList : TypedListBox<FileHashResultListItem>
+    public class FileHashResultList : FileResultListView
     {
-        /// <summary>
-        /// Since the object is created by the Winforms Designer, this method makes sure the desired default values are used
-        /// </summary>
-        public void Initialize()
+        const string SubitemHashKey = "hash";
+
+        public void UpdateItem(FileInfo file, string hashstring)
         {
-            DisplayMember = nameof(FileHashResultListItem.HashString);
+            var item = FindItem(file);
+
+            item.SubItems.Add(new ListViewSubItem
+            {
+                Name = SubitemHashKey,
+                Text = hashstring
+            });
+        }
+
+        public IEnumerable<FileHashResultListItem> GetUnderlyingData()
+        {
+            return ListViewItems.Select(x => new FileHashResultListItem
+            {
+                FileName = x.Name,
+                HashString = x.SubItems.Cast<ListViewSubItem>().FirstOrDefault(x => x.Name == SubitemHashKey)?.Text
+            });
         }
     }
 }
