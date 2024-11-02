@@ -306,6 +306,7 @@ namespace Andy.FlacHash.Application.Win.UI
             btn_openHashfile.Enabled = isEnabled;
             menu_decoderProfiles.Enabled = isEnabled;
             menu_hashingAlgorithm.Enabled = isEnabled;
+            ctxMenu_results.Enabled = isEnabled;
         }
 
         private void OnOperationCancellation()
