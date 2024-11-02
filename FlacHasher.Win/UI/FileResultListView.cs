@@ -6,11 +6,8 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public interface IFileResultListView : IEnumerable<ListViewItem>
+    public interface IFileResultListView : IListView<FileInfo>
     {
-        void AddRange(FileInfo[] files);
-        void ClearList();
-        void Reset(params FileInfo[] files);
     }
 
     public class FileResultListView : ListView, IFileResultListView
