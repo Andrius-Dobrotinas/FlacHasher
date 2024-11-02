@@ -6,23 +6,29 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public interface IFileListView : IListView<FileInfo, ListViewItem<FileInfo>>
+    public interface IFileListView : IListView<FileInfo>
     {
     }
 
-    public abstract class FileResultListView<TData> : ListView, IFileListView
+    public interface IFileListView<TData> : IFileListView
     {
-        protected IEnumerable<ListViewItem<FileInfo>> ListViewItems => this.Items.Cast<ListViewItem<FileInfo>>();
+        public void SetData(FileInfo key, TData data);
+    }
 
-        protected ListViewItem<FileInfo> FindItem(FileInfo key)
+    public abstract class FileResultListView<TData> : ListView, IFileListView<TData>
+    {
+        protected IEnumerable<ListViewItem<FileInfo, TData>> ListViewItems => this.Items.Cast<ListViewItem<FileInfo, TData>>();
+
+        protected ListViewItem<FileInfo, TData> FindItem(FileInfo key)
         {
             return ListViewItems.FirstOrDefault(x => x.Key == key)
                 ?? throw new Exception($"Item not found: {key.FullName}");
         }
 
-        public void UpdateItem(FileInfo key, TData data)
+        public void SetData(FileInfo key, TData data)
         {
             var item = FindItem(key);
+            item.Data = data;
 
             UpdateItem(item, data);
         }
@@ -32,7 +38,7 @@ namespace Andy.FlacHash.Application.Win.UI
         public void AddRange(FileInfo[] files)
         {
             var items = files.Select(
-                file => new ListViewItem<FileInfo>
+                file => new ListViewItem<FileInfo, TData>
                 {
                     Key = file,
                     Text = file.Name,
@@ -52,14 +58,14 @@ namespace Andy.FlacHash.Application.Win.UI
             AddRange(files);
         }
 
-        public IEnumerator<ListViewItem<FileInfo>> GetEnumerator()
-        {
-            return ListViewItems.GetEnumerator();
-        }
-
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return ListViewItems.GetEnumerator();
+            return ListViewItems.Select(x => x.Key).GetEnumerator();
+        }
+
+        IEnumerator<FileInfo> IEnumerable<FileInfo>.GetEnumerator()
+        {
+            return ListViewItems.Select(x => x.Key).GetEnumerator();
         }
     }
 }

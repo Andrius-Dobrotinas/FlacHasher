@@ -8,4 +8,9 @@ namespace Andy.FlacHash.Application.Win.UI
     {
         public TKey Key { get; set; }
     }
+
+    public class ListViewItem<TKey, TData> : ListViewItem<TKey>
+    {
+        public TData Data { get; set; }
+    }
 }

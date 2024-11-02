@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Application.Win.UI
             return ListViewItems.Select(x => new FileHashResultListItem
             {
                 File = x.Key,
-                HashString = x.SubItems.Cast<ListViewSubItem>().FirstOrDefault(x => x.Name == SubitemHashKey)?.Text
+                HashString = x.Data?.HashString
             });
         }
     }

@@ -217,7 +217,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             if (!hasherService.InProgress)
             {
-                var files = GetFiles();
+                var files = fileList.ToArray();
 
                 switch (mode)
                 {
@@ -242,11 +242,6 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
-        private IList<FileInfo> GetFiles()
-        {
-            return fileList.Select(x => x.Key).ToArray();
-        }
-
         private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
         {
             var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
@@ -268,21 +263,21 @@ namespace Andy.FlacHash.Application.Win.UI
                     {
                         var isMatch = hashVerifier.DoesMatch(expectedHashes, calcResult.File, calcResult.Hash);
 
-                        list_verification_results.UpdateItem(calcResult.File, isMatch ? HashMatch.True : HashMatch.False);
+                        list_verification_results.SetData(calcResult.File, isMatch ? HashMatch.True : HashMatch.False);
                     }
                     else
                     {
                         var result = (calcResult.Exception is InputFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
-                        list_verification_results.UpdateItem(calcResult.File, result);
+                        list_verification_results.SetData(calcResult.File, result);
 
                         ReportExecutionError(calcResult.Exception, calcResult.File);
                     }
                 });
 
             foreach (var file in extraneousFiles.Select(x => x.Key))
-                list_verification_results.UpdateItem(file, HashMatch.NotExpected);
+                list_verification_results.SetData(file, HashMatch.NotExpected);
         }
 
         private void BeforeCalc(IEnumerable<FileInfo> files)
@@ -357,7 +352,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 return;
             }
 
-            this.list_results.UpdateItem(
+            this.list_results.SetData(
                 result.File,
                 new FileHashResultListItem
                 {
