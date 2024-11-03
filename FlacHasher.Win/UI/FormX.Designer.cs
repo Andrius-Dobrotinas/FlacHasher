@@ -30,14 +30,16 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormX));
-            btn_chooseDir = new System.Windows.Forms.Button();
             btn_go = new System.Windows.Forms.Button();
             ctxMenu_results = new System.Windows.Forms.ContextMenuStrip(components);
             progressBar = new System.Windows.Forms.ProgressBar();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             group_Left = new System.Windows.Forms.GroupBox();
-            btn_chooseFiles = new System.Windows.Forms.Button();
+            groupVerification = new System.Windows.Forms.GroupBox();
             btn_openHashfile = new System.Windows.Forms.Button();
+            groupHashing = new System.Windows.Forms.GroupBox();
+            btn_chooseFiles = new System.Windows.Forms.Button();
+            btn_chooseDir = new System.Windows.Forms.Button();
             menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
             menu_decoderProfiles = new System.Windows.Forms.ComboBox();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -52,28 +54,19 @@
             imgList_verification = new System.Windows.Forms.ImageList(components);
             tableLayoutPanel1.SuspendLayout();
             group_Left.SuspendLayout();
+            groupVerification.SuspendLayout();
+            groupHashing.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             groupFiles.SuspendLayout();
             SuspendLayout();
             // 
-            // btn_chooseDir
-            // 
-            btn_chooseDir.Location = new System.Drawing.Point(17, 163);
-            btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            btn_chooseDir.Name = "btn_chooseDir";
-            btn_chooseDir.Size = new System.Drawing.Size(191, 48);
-            btn_chooseDir.TabIndex = 0;
-            btn_chooseDir.Text = "Choose a dir";
-            btn_chooseDir.UseVisualStyleBackColor = true;
-            btn_chooseDir.Click += BtnChooseDir_Click;
-            // 
             // btn_go
             // 
-            btn_go.Location = new System.Drawing.Point(17, 313);
+            btn_go.Location = new System.Drawing.Point(17, 359);
             btn_go.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_go.Name = "btn_go";
             btn_go.Size = new System.Drawing.Size(191, 60);
-            btn_go.TabIndex = 3;
+            btn_go.TabIndex = 5;
             btn_go.Text = "Go!";
             btn_go.UseVisualStyleBackColor = true;
             btn_go.Click += Btn_Go_Click;
@@ -86,7 +79,7 @@
             // 
             // progressBar
             // 
-            progressBar.Location = new System.Drawing.Point(17, 387);
+            progressBar.Location = new System.Drawing.Point(17, 433);
             progressBar.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             progressBar.Name = "progressBar";
             progressBar.Size = new System.Drawing.Size(191, 42);
@@ -110,11 +103,10 @@
             // 
             // group_Left
             // 
-            group_Left.Controls.Add(btn_chooseFiles);
-            group_Left.Controls.Add(btn_openHashfile);
+            group_Left.Controls.Add(groupVerification);
+            group_Left.Controls.Add(groupHashing);
             group_Left.Controls.Add(menu_hashingAlgorithm);
             group_Left.Controls.Add(menu_decoderProfiles);
-            group_Left.Controls.Add(btn_chooseDir);
             group_Left.Controls.Add(btn_go);
             group_Left.Controls.Add(progressBar);
             group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -126,27 +118,60 @@
             group_Left.TabIndex = 0;
             group_Left.TabStop = false;
             // 
+            // groupVerification
+            // 
+            groupVerification.Controls.Add(btn_openHashfile);
+            groupVerification.Location = new System.Drawing.Point(17, 256);
+            groupVerification.Name = "groupVerification";
+            groupVerification.Size = new System.Drawing.Size(191, 93);
+            groupVerification.TabIndex = 3;
+            groupVerification.TabStop = false;
+            groupVerification.Text = "Verification";
+            // 
+            // btn_openHashfile
+            // 
+            btn_openHashfile.Location = new System.Drawing.Point(11, 32);
+            btn_openHashfile.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btn_openHashfile.Name = "btn_openHashfile";
+            btn_openHashfile.Size = new System.Drawing.Size(171, 48);
+            btn_openHashfile.TabIndex = 4;
+            btn_openHashfile.Text = "Choose a Hashfile";
+            btn_openHashfile.UseVisualStyleBackColor = true;
+            btn_openHashfile.Click += BtnChooseHashfile_Click;
+            // 
+            // groupHashing
+            // 
+            groupHashing.Controls.Add(btn_chooseFiles);
+            groupHashing.Controls.Add(btn_chooseDir);
+            groupHashing.Location = new System.Drawing.Point(17, 100);
+            groupHashing.Name = "groupHashing";
+            groupHashing.Size = new System.Drawing.Size(191, 155);
+            groupHashing.TabIndex = 0;
+            groupHashing.TabStop = false;
+            groupHashing.Text = "Hashing";
+            // 
             // btn_chooseFiles
             // 
-            btn_chooseFiles.Location = new System.Drawing.Point(17, 105);
+            btn_chooseFiles.Location = new System.Drawing.Point(11, 32);
             btn_chooseFiles.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_chooseFiles.Name = "btn_chooseFiles";
-            btn_chooseFiles.Size = new System.Drawing.Size(191, 48);
-            btn_chooseFiles.TabIndex = 9;
+            btn_chooseFiles.Size = new System.Drawing.Size(171, 48);
+            btn_chooseFiles.TabIndex = 1;
             btn_chooseFiles.Text = "Choose files";
             btn_chooseFiles.UseVisualStyleBackColor = true;
             btn_chooseFiles.Click += BtnChooseFiles_Click;
             // 
-            // btn_openHashfile
+            // btn_chooseDir
             // 
-            btn_openHashfile.Location = new System.Drawing.Point(17, 237);
-            btn_openHashfile.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            btn_openHashfile.Name = "btn_openHashfile";
-            btn_openHashfile.Size = new System.Drawing.Size(191, 48);
-            btn_openHashfile.TabIndex = 8;
-            btn_openHashfile.Text = "Choose a Hashfile";
-            btn_openHashfile.UseVisualStyleBackColor = true;
-            btn_openHashfile.Click += BtnChooseHashfile_Click;
+            btn_chooseDir.Location = new System.Drawing.Point(11, 90);
+            btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btn_chooseDir.Name = "btn_chooseDir";
+            btn_chooseDir.Size = new System.Drawing.Size(171, 48);
+            btn_chooseDir.TabIndex = 2;
+            btn_chooseDir.TabStop = false;
+            btn_chooseDir.Text = "Choose a Directory";
+            btn_chooseDir.UseVisualStyleBackColor = true;
+            btn_chooseDir.Click += BtnChooseDir_Click;
             // 
             // menu_hashingAlgorithm
             // 
@@ -273,6 +298,8 @@
             Text = "FormX";
             tableLayoutPanel1.ResumeLayout(false);
             group_Left.ResumeLayout(false);
+            groupVerification.ResumeLayout(false);
+            groupHashing.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             groupFiles.ResumeLayout(false);
@@ -280,8 +307,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btn_chooseDir;
         private System.Windows.Forms.Button btn_go;
         private System.Windows.Forms.ContextMenuStrip ctxMenu_results;
         private System.Windows.Forms.ProgressBar progressBar;
@@ -299,7 +324,10 @@
         private FileHashResultList list_results;
         private System.Windows.Forms.ColumnHeader columnHashResult_File;
         private System.Windows.Forms.ColumnHeader columnHashResult_Hash;
-        private System.Windows.Forms.Button btn_openHashfile;
+        private System.Windows.Forms.GroupBox groupHashing;
         private System.Windows.Forms.Button btn_chooseFiles;
+        private System.Windows.Forms.Button btn_chooseDir;
+        private System.Windows.Forms.GroupBox groupVerification;
+        private System.Windows.Forms.Button btn_openHashfile;
     }
 }
