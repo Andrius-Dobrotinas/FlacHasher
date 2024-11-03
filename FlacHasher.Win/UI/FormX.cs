@@ -192,7 +192,7 @@ namespace Andy.FlacHash.Application.Win.UI
             if (directory == null)
                 return;
 
-            var files = targetFileResolver.FindFiles(directory, DecoderProfile.TargetFileExtension);
+            var files = targetFileResolver.FindFiles(directory, DecoderProfile.TargetFileExtensions);
             SetNewInputFiles(files);
         }
 

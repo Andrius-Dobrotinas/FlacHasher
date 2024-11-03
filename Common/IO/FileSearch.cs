@@ -7,7 +7,7 @@ namespace Andy.IO
 {
     public interface IFileSearch
     {
-        IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, string fileExtension);
+        IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, params string[] fileExtensions);
     }
 
     public class FileSearch : IFileSearch
@@ -19,7 +19,7 @@ namespace Andy.IO
             this.includeHidden = includeHidden;
         }
 
-        public IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, string fileExtension)
+        public IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, params string[] fileExtensions)
         {
             var settings = new EnumerationOptions
             {
@@ -31,7 +31,7 @@ namespace Andy.IO
             if (!includeHidden)
                 settings.AttributesToSkip = settings.AttributesToSkip | FileAttributes.Hidden;
 
-            return FindFiles(directory, fileExtension, settings);
+            return FindFiles(directory, fileExtensions, settings);
         }
 
 
@@ -41,6 +41,19 @@ namespace Andy.IO
                 .EnumerateFiles(
                     $"*.{fileExtension}",
                     settings);
+        }
+
+        public static IEnumerable<FileInfo> FindFiles(DirectoryInfo directory, string[] fileExtensions, EnumerationOptions settings)
+        {
+            if (fileExtensions.Length == 1)
+                return FindFiles(directory, fileExtensions.First(), settings);
+            else
+            {
+                var extensions = fileExtensions.Select(ext => $".{ext}").ToArray();
+
+                return FindFiles(directory, "*", settings)
+                    .Where(file => extensions.Contains(file.Extension));
+            }
         }
     }
 }

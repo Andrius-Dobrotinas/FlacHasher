@@ -19,9 +19,9 @@ namespace Andy.FlacHash.Application.Win
             this.fileSearch = fileSearch;
         }
 
-        public FileInfo[] FindFiles(DirectoryInfo directory, string sourceFileExtension)
+        public FileInfo[] FindFiles(DirectoryInfo directory, params string[] sourceFileExtensions)
         {
-            return fileSearch.FindFiles(directory, sourceFileExtension).ToArray();
+            return fileSearch.FindFiles(directory, sourceFileExtensions).ToArray();
         }
 
         public FileInfo[] GetHashfile(DirectoryInfo directory)
