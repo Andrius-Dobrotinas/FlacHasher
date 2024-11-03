@@ -15,10 +15,6 @@ namespace Andy.FlacHash.Application.Win
         [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
         public string HashfileEntrySeparator { get; set; }
 
-        [IniEntry(nameof(TargetFileExtension))]
-        [Optional]
-        public string TargetFileExtension { get; set; }
-
         [IniEntry(nameof(ShowProcessWindowWithOutput))]
         [Optional]
         public bool ShowProcessWindowWithOutput { get; set; }
