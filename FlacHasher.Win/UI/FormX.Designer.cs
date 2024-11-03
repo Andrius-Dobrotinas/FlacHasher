@@ -36,6 +36,7 @@
             progressBar = new System.Windows.Forms.ProgressBar();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             group_Left = new System.Windows.Forms.GroupBox();
+            btn_chooseFiles = new System.Windows.Forms.Button();
             btn_openHashfile = new System.Windows.Forms.Button();
             menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
             menu_decoderProfiles = new System.Windows.Forms.ComboBox();
@@ -57,7 +58,7 @@
             // 
             // btn_chooseDir
             // 
-            btn_chooseDir.Location = new System.Drawing.Point(17, 131);
+            btn_chooseDir.Location = new System.Drawing.Point(17, 163);
             btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_chooseDir.Name = "btn_chooseDir";
             btn_chooseDir.Size = new System.Drawing.Size(191, 48);
@@ -68,7 +69,7 @@
             // 
             // btn_go
             // 
-            btn_go.Location = new System.Drawing.Point(17, 283);
+            btn_go.Location = new System.Drawing.Point(17, 313);
             btn_go.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_go.Name = "btn_go";
             btn_go.Size = new System.Drawing.Size(191, 60);
@@ -85,7 +86,7 @@
             // 
             // progressBar
             // 
-            progressBar.Location = new System.Drawing.Point(17, 357);
+            progressBar.Location = new System.Drawing.Point(17, 387);
             progressBar.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             progressBar.Name = "progressBar";
             progressBar.Size = new System.Drawing.Size(191, 42);
@@ -109,6 +110,7 @@
             // 
             // group_Left
             // 
+            group_Left.Controls.Add(btn_chooseFiles);
             group_Left.Controls.Add(btn_openHashfile);
             group_Left.Controls.Add(menu_hashingAlgorithm);
             group_Left.Controls.Add(menu_decoderProfiles);
@@ -124,9 +126,20 @@
             group_Left.TabIndex = 0;
             group_Left.TabStop = false;
             // 
+            // btn_chooseFiles
+            // 
+            btn_chooseFiles.Location = new System.Drawing.Point(17, 105);
+            btn_chooseFiles.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btn_chooseFiles.Name = "btn_chooseFiles";
+            btn_chooseFiles.Size = new System.Drawing.Size(191, 48);
+            btn_chooseFiles.TabIndex = 9;
+            btn_chooseFiles.Text = "Choose files";
+            btn_chooseFiles.UseVisualStyleBackColor = true;
+            btn_chooseFiles.Click += BtnChooseFiles_Click;
+            // 
             // btn_openHashfile
             // 
-            btn_openHashfile.Location = new System.Drawing.Point(17, 189);
+            btn_openHashfile.Location = new System.Drawing.Point(17, 237);
             btn_openHashfile.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_openHashfile.Name = "btn_openHashfile";
             btn_openHashfile.Size = new System.Drawing.Size(191, 48);
@@ -287,5 +300,6 @@
         private System.Windows.Forms.ColumnHeader columnHashResult_File;
         private System.Windows.Forms.ColumnHeader columnHashResult_Hash;
         private System.Windows.Forms.Button btn_openHashfile;
+        private System.Windows.Forms.Button btn_chooseFiles;
     }
 }

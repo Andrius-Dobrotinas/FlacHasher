@@ -41,6 +41,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private IFileListView fileList;
         private FileHashMap fileHashMap;
         private Mode mode;
+        private string supportedFilesFilter;
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
         private AlgorithmOption HashingAlgorithmProfile => (AlgorithmOption)menu_hashingAlgorithm.SelectedItem;
@@ -68,6 +69,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashVerifier = hashVerifier;
             this.hasherFactory = hasherFactory;
 
+            this.supportedFilesFilter = PrepSupportedFileExtensions(decoderProfiles);
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
@@ -148,6 +150,11 @@ namespace Andy.FlacHash.Application.Win.UI
             WithTryCatch(ChooseDir);
         }
 
+        private void BtnChooseFiles_Click(object sender, EventArgs e)
+        {
+            WithTryCatch(ChooseFiles);
+        }
+
         private void BtnChooseHashfile_Click(object sender, EventArgs e)
         {
             WithTryCatch(ChooseVerificationFile);
@@ -163,21 +170,25 @@ namespace Andy.FlacHash.Application.Win.UI
             RefreshFilelist();
         }
 
+        void ChooseFiles()
+        {
+            var selectedFiles = GetFilesFromUser(supportedFilesFilter, true, "Select files");
+            if (selectedFiles == null) return;
+
+            var inputFiles = selectedFiles.Select(x => new FileInfo(x)).ToArray();
+            directory = null;
+
+            SetMode(Mode.Hashing);
+
+            SetNewInputFiles(inputFiles);
+        }
+
         void ChooseVerificationFile()
         {
-            var box = new OpenFileDialog
-            {
-                CheckPathExists = true,
-                DereferenceLinks = true,
-                Filter = "HASH|*.hash|ANY|*.*",
-                Title = "Open a Hash File",
-                Multiselect = false
-            };
+            var selectedFiles = GetFilesFromUser("HASH|*.hash|ANY|*.*", false, "Open a Hash File");
+            if (selectedFiles == null) return;
 
-            var result = box.ShowDialog();
-            if (result != DialogResult.OK) return;
-
-            var hashfile = new FileInfo(box.FileName);
+            var hashfile = new FileInfo(selectedFiles.First());
             directory = hashfile.Directory;
             
             fileHashMap = hashFileParser.Read(hashfile);
@@ -303,6 +314,7 @@ namespace Andy.FlacHash.Application.Win.UI
         void SetSelectorElementAccesibility(bool isEnabled)
         {
             btn_chooseDir.Enabled = isEnabled;
+            btn_chooseFiles.Enabled = isEnabled;
             btn_openHashfile.Enabled = isEnabled;
             menu_decoderProfiles.Enabled = isEnabled;
             menu_hashingAlgorithm.Enabled = isEnabled;
@@ -471,6 +483,35 @@ namespace Andy.FlacHash.Application.Win.UI
 
             BuildHasher();
             hashers.Add(key, this.hasherService);
+        }
+
+        static string[] GetFilesFromUser(string filter, bool multiselect, string title)
+        {
+            var box = new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = filter,
+                Title = title,
+                Multiselect = multiselect
+            };
+
+            var result = box.ShowDialog();
+            if (result != DialogResult.OK) return null;
+
+            return box.FileNames;
+        }
+
+        static string PrepSupportedFileExtensions(IEnumerable<DecoderProfile> decoderProfiles)
+        {
+            var filters = decoderProfiles.Select(x =>
+            {
+                var extensionString = string.Join(";", x.TargetFileExtensions.Select(x => $"*.{x}"));
+                return $"{x.Name}|{extensionString}";
+            }).ToList();
+            var filterString = string.Join("|", filters);
+
+            return $"{filterString}|Other files|*.*";
         }
 
         struct HasherKey
