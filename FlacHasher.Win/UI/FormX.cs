@@ -179,6 +179,8 @@ namespace Andy.FlacHash.Application.Win.UI
             directory = dirBrowser.GetDirectory();
             if (directory == null) return;
 
+            ResetLog($"Current directory: {directory.FullName}");
+
             SetMode(Mode.Hashing);
 
             RefreshFilelist();
@@ -191,6 +193,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             var inputFiles = selectedFiles.Select(x => new FileInfo(x)).ToArray();
             directory = null;
+            ResetLog();
 
             SetMode(Mode.Hashing);
 
@@ -206,6 +209,8 @@ namespace Andy.FlacHash.Application.Win.UI
             directory = hashfile.Directory;
             
             fileHashMap = hashFileParser.Read(hashfile);
+
+            ResetLog($"Hashfile: {hashfile.FullName}", $"Working directory: {directory.FullName}");
 
             SetMode(Mode.Verification);
 
@@ -234,11 +239,11 @@ namespace Andy.FlacHash.Application.Win.UI
 
             if (!fileList.Any())
                 if (mode == Mode.Hashing)
-                    ResetLog("The directory doesn't contain suitable files!");
+                    LogMessage("The directory doesn't contain suitable files!");
                 else
-                    ResetLog("The hashfile doesn't contain any data!");
+                    LogMessage("The hashfile doesn't contain any data!");
             else
-                ResetLog("Press Go!");
+                LogMessage("Press Go!");
         }
 
         void SelectAppropriateDecoder()
@@ -442,10 +447,11 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
-        void ResetLog(string message)
+        void ResetLog(params string[] message)
         {
-            txtStatus.Text = message;
-            txtStatus.AppendText(newline);
+            txtStatus.Text = null;
+            if (message != null && message.Any())
+                LogMessage(message);
         }
 
         void ShowFatalError(Exception e)
