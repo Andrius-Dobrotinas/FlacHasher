@@ -31,6 +31,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly IHashFormatter hashFormatter;
         private readonly HashFileReader hashFileParser;
         private readonly HashVerifier hashVerifier;
+        private readonly DecoderProfile[] decoderProfiles;
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
@@ -44,6 +45,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private string supportedFilesFilter;
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
+        private FileExtensionsOption SelectedFileType => (FileExtensionsOption)menu_fileExtensions.SelectedItem;
         private AlgorithmOption HashingAlgorithmProfile => (AlgorithmOption)menu_hashingAlgorithm.SelectedItem;
 
         public FormX(
@@ -68,6 +70,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashFileParser = hashFileParser;
             this.hashVerifier = hashVerifier;
             this.hasherFactory = hasherFactory;
+            this.decoderProfiles = decoderProfiles;
 
             this.supportedFilesFilter = PrepSupportedFileExtensions(decoderProfiles);
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
@@ -80,6 +83,17 @@ namespace Andy.FlacHash.Application.Win.UI
 
             menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions);
             menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
+
+            menu_fileExtensions.DisplayMember = nameof(FileExtensionsOption.Name);
+
+            var exts = decoderProfiles.Select(x => new FileExtensionsOption(x.Name, x.TargetFileExtensions))
+                .ToArray();
+            menu_fileExtensions.Items.AddRange(exts);
+            menu_fileExtensions.SelectedIndex = 0;
+            menu_fileExtensions.SelectedIndexChanged += (object sender, EventArgs e) =>
+            {
+                RefreshFilelist();
+            };
 
             list_verification_results.View = View.Details;
             list_verification_results.SmallImageList = imgList_verification;
@@ -203,7 +217,7 @@ namespace Andy.FlacHash.Application.Win.UI
             if (directory == null)
                 return;
 
-            var files = targetFileResolver.FindFiles(directory, DecoderProfile.TargetFileExtensions);
+            var files = targetFileResolver.FindFiles(directory, SelectedFileType.Extensions);
             SetNewInputFiles(files);
         }
 
@@ -216,6 +230,8 @@ namespace Andy.FlacHash.Application.Win.UI
 
             btn_go.Enabled = fileList.Any();
 
+            SelectAppropriateDecoder();
+
             if (!fileList.Any())
                 if (mode == Mode.Hashing)
                     ResetLog("The directory doesn't contain suitable files!");
@@ -223,6 +239,17 @@ namespace Andy.FlacHash.Application.Win.UI
                     ResetLog("The hashfile doesn't contain any data!");
             else
                 ResetLog("Press Go!");
+        }
+
+        void SelectAppropriateDecoder()
+        {
+            if (!fileList.Any())
+                return;
+
+            var ext = fileList.FirstOrDefault().Extension.Split(".").Last();
+            var match = decoderProfiles.FirstOrDefault(x => x.TargetFileExtensions.Contains(ext));
+            if (match != null)
+                menu_decoderProfiles.SelectedItem = match;
         }
 
         private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
@@ -452,9 +479,6 @@ namespace Andy.FlacHash.Application.Win.UI
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
             BuildHasherCached();
-
-            if (mode == Mode.Hashing)
-                RefreshFilelist();
         }
 
         private void hashingProfiles_SelectedIndexChanged(object sender, EventArgs e)
