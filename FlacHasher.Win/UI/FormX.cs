@@ -311,22 +311,22 @@ namespace Andy.FlacHash.Application.Win.UI
             var files = expectedHashes.Select(x => x.Key);
 
             await hasherService.Start(files,
-                (FileHashResult calcResult) =>
+                (FileHashResult hashingResult) =>
                 {
-                    if (calcResult.Exception == null)
+                    if (hashingResult.Exception == null)
                     {
-                        var isMatch = hashVerifier.DoesMatch(expectedHashes, calcResult.File, calcResult.Hash);
+                        var isMatch = hashVerifier.DoesMatch(expectedHashes, hashingResult.File, hashingResult.Hash);
 
-                        list_verification_results.SetData(calcResult.File, isMatch ? HashMatch.True : HashMatch.False);
+                        list_verification_results.SetData(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False);
                     }
                     else
                     {
-                        var result = (calcResult.Exception is InputFileNotFoundException)
+                        var result = (hashingResult.Exception is InputFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
-                        list_verification_results.SetData(calcResult.File, result);
+                        list_verification_results.SetData(hashingResult.File, result);
 
-                        ReportExecutionError(calcResult.Exception, calcResult.File);
+                        ReportExecutionError(hashingResult.Exception, hashingResult.File);
                     }
                 });
         }
