@@ -64,7 +64,7 @@
             // 
             // btn_go
             // 
-            btn_go.Location = new System.Drawing.Point(17, 441);
+            btn_go.Location = new System.Drawing.Point(17, 426);
             btn_go.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_go.Name = "btn_go";
             btn_go.Size = new System.Drawing.Size(191, 60);
@@ -81,7 +81,7 @@
             // 
             // progressBar
             // 
-            progressBar.Location = new System.Drawing.Point(17, 515);
+            progressBar.Location = new System.Drawing.Point(17, 500);
             progressBar.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             progressBar.Name = "progressBar";
             progressBar.Size = new System.Drawing.Size(191, 42);
