@@ -171,7 +171,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void BtnChooseHashfile_Click(object sender, EventArgs e)
         {
-            WithTryCatch(ChooseVerificationFile);
+            WithTryCatch(ChooseHashFile);
         }
 
         private void ChooseDir()
@@ -197,7 +197,7 @@ namespace Andy.FlacHash.Application.Win.UI
             SetNewInputFiles(inputFiles);
         }
 
-        void ChooseVerificationFile()
+        void ChooseHashFile()
         {
             var selectedFiles = GetFilesFromUser("HASH|*.hash|ANY|*.*", false, "Open a Hash File");
             if (selectedFiles == null) return;
