@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Andy.FlacHash.Application.Win
 {
@@ -14,6 +15,11 @@ namespace Andy.FlacHash.Application.Win
             }
 
             return -1;
+        }
+
+        public static string DeDotFileExtension(string extension)
+        {
+            return extension.Split(".").Last();
         }
     }
 }

@@ -210,6 +210,9 @@ namespace Andy.FlacHash.Application.Win.UI
             
             fileHashMap = hashFileParser.Read(hashfile);
 
+            var fileExt = Util.DeDotFileExtension(hashfile.Extension);
+            SetHashingAlgorigthm(fileExt);
+
             ResetLog($"Hashfile: {hashfile.FullName}", $"Working directory: {directory.FullName}");
 
             SetMode(Mode.Verification);
@@ -246,12 +249,22 @@ namespace Andy.FlacHash.Application.Win.UI
                 LogMessage("Press Go!");
         }
 
+        void SetHashingAlgorigthm(string fileExtension)
+        {
+            var matchingAlgo = menu_hashingAlgorithm.Items.Cast<AlgorithmOption>()
+                .FirstOrDefault(
+                    x => x.Value.ToString()
+                        .Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
+            if (matchingAlgo != null)
+                menu_hashingAlgorithm.SelectedItem = matchingAlgo;
+        }
+
         void SelectAppropriateDecoder()
         {
             if (!fileList.Any())
                 return;
 
-            var ext = fileList.FirstOrDefault().Extension.Split(".").Last();
+            var ext = Util.DeDotFileExtension(fileList.FirstOrDefault().Extension);
             var match = decoderProfiles.FirstOrDefault(x => x.TargetFileExtensions.Contains(ext));
             if (match != null)
                 menu_decoderProfiles.SelectedItem = match;
