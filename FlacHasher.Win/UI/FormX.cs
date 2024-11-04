@@ -34,6 +34,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly DecoderProfile[] decoderProfiles;
         private readonly int defaultAlgorithmIndex;
         private readonly string supportedFilesFilter;
+        private readonly string supportHashfileFilter;
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
@@ -74,6 +75,8 @@ namespace Andy.FlacHash.Application.Win.UI
             this.decoderProfiles = decoderProfiles;
 
             this.supportedFilesFilter = PrepSupportedFileExtensions(decoderProfiles);
+            this.supportHashfileFilter = PrepSupportedHashfileExtensions(hashingAlgorithmOptions);
+
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
 
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
@@ -205,7 +208,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         void ChooseHashVerificationFile()
         {
-            var selectedFiles = GetFilesFromUser("HASH|*.hash|ANY|*.*", false, "Open a Hash File");
+            var selectedFiles = GetFilesFromUser(supportHashfileFilter, false, "Open a Hash File");
             if (selectedFiles == null) return;
 
             var hashfile = new FileInfo(selectedFiles.First());
@@ -557,12 +560,18 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var filters = decoderProfiles.Select(x =>
             {
-                var extensionString = string.Join(";", x.TargetFileExtensions.Select(x => $"*.{x}"));
+                var extensionString = string.Join(';', x.TargetFileExtensions.Select(x => $"*.{x}"));
                 return $"{x.Name}|{extensionString}";
             }).ToList();
-            var filterString = string.Join("|", filters);
+            var filterString = string.Join('|', filters);
 
             return $"{filterString}|Other files|*.*";
+        }
+
+        static string PrepSupportedHashfileExtensions(IEnumerable<AlgorithmOption> algorithms)
+        {
+            var algosString = string.Join('|', algorithms.Select(x => $"{x.Value}|*.{x.Value}"));
+            return $"Hash|*.hash|{algosString}|Text files|*.txt|Any files|*.*";
         }
 
         struct HasherKey
