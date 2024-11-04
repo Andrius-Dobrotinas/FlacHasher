@@ -161,20 +161,20 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
-            WithTryCatch(ChooseDir);
+            WithTryCatch(ChooseHashingDir);
         }
 
         private void BtnChooseFiles_Click(object sender, EventArgs e)
         {
-            WithTryCatch(ChooseFiles);
+            WithTryCatch(ChooseHashingInputFiles);
         }
 
         private void BtnChooseHashfile_Click(object sender, EventArgs e)
         {
-            WithTryCatch(ChooseHashFile);
+            WithTryCatch(ChooseHashVerificationFile);
         }
 
-        private void ChooseDir()
+        private void ChooseHashingDir()
         {
             directory = dirBrowser.GetDirectory();
             if (directory == null) return;
@@ -184,7 +184,7 @@ namespace Andy.FlacHash.Application.Win.UI
             RefreshFilelist();
         }
 
-        void ChooseFiles()
+        void ChooseHashingInputFiles()
         {
             var selectedFiles = GetFilesFromUser(supportedFilesFilter, true, "Select files");
             if (selectedFiles == null) return;
@@ -197,7 +197,7 @@ namespace Andy.FlacHash.Application.Win.UI
             SetNewInputFiles(inputFiles);
         }
 
-        void ChooseHashFile()
+        void ChooseHashVerificationFile()
         {
             var selectedFiles = GetFilesFromUser("HASH|*.hash|ANY|*.*", false, "Open a Hash File");
             if (selectedFiles == null) return;
