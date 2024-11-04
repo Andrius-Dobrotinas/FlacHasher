@@ -437,8 +437,11 @@ namespace Andy.FlacHash.Application.Win.UI
 
         void LogMessage(params string[] message)
         {
-            txtStatus.AppendText(errorSeparator);
-            txtStatus.AppendText(newline);
+            if (!string.IsNullOrEmpty(txtStatus.Text))
+            {
+                txtStatus.AppendText(errorSeparator);
+                txtStatus.AppendText(newline);
+            }
 
             foreach (var line in message)
             {
