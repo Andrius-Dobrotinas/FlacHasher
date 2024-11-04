@@ -32,6 +32,8 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly HashFileReader hashFileParser;
         private readonly HashVerifier hashVerifier;
         private readonly DecoderProfile[] decoderProfiles;
+        private readonly int defaultAlgorithmIndex;
+        private readonly string supportedFilesFilter;
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
@@ -42,7 +44,6 @@ namespace Andy.FlacHash.Application.Win.UI
         private IFileListView fileList;
         private FileHashMap fileHashMap;
         private Mode mode;
-        private string supportedFilesFilter;
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
         private FileExtensionsOption SelectedFileType => (FileExtensionsOption)menu_fileExtensions.SelectedItem;
@@ -73,6 +74,8 @@ namespace Andy.FlacHash.Application.Win.UI
             this.decoderProfiles = decoderProfiles;
 
             this.supportedFilesFilter = PrepSupportedFileExtensions(decoderProfiles);
+            this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
+
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
@@ -100,7 +103,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             // Initial values
             menu_decoderProfiles.SelectedIndex = 0;
-            menu_hashingAlgorithm.SelectedIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
+            menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
             this.btn_go.Enabled = false;
 
             // Wire handlers up AFTER setting initial values to avoid them getting fired before everything is ready
@@ -257,6 +260,8 @@ namespace Andy.FlacHash.Application.Win.UI
                         .Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
             if (matchingAlgo != null)
                 menu_hashingAlgorithm.SelectedItem = matchingAlgo;
+            else
+                menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
         }
 
         void SelectAppropriateDecoder()
