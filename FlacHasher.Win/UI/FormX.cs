@@ -33,8 +33,8 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly HashVerifier hashVerifier;
         private readonly DecoderProfile[] decoderProfiles;
         private readonly int defaultAlgorithmIndex;
-        private readonly string supportedFilesFilter;
-        private readonly string supportHashfileFilter;
+        private readonly OpenFileDialog openFileDialog_hashfile = null;
+        private readonly OpenFileDialog openFileDialog_inputFiles = null;
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
@@ -73,9 +73,6 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashVerifier = hashVerifier;
             this.hasherFactory = hasherFactory;
             this.decoderProfiles = decoderProfiles;
-
-            this.supportedFilesFilter = PrepSupportedFileExtensions(decoderProfiles);
-            this.supportHashfileFilter = PrepSupportedHashfileExtensions(hashingAlgorithmOptions);
 
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
 
@@ -117,6 +114,23 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
             menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
             list_verification_results.Resize += List_verification_results_Resize;
+
+            openFileDialog_hashfile = new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = PrepSupportedHashfileExtensions(hashingAlgorithmOptions),
+                Title = "Open a Hash File",
+                Multiselect = false
+            };
+            openFileDialog_inputFiles = new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = PrepSupportedFileExtensions(decoderProfiles),
+                Title = "Select files",
+                Multiselect = true
+            };
 
             // Triggers all kinds of handlers
             List_verification_results_Resize(null, null);
@@ -194,7 +208,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         void ChooseHashingInputFiles()
         {
-            var selectedFiles = GetFilesFromUser(supportedFilesFilter, true, "Select files");
+            var selectedFiles = GetFilesFromUser(openFileDialog_inputFiles);
             if (selectedFiles == null) return;
 
             var inputFiles = selectedFiles.Select(x => new FileInfo(x)).ToArray();
@@ -208,7 +222,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         void ChooseHashVerificationFile()
         {
-            var selectedFiles = GetFilesFromUser(supportHashfileFilter, false, "Open a Hash File");
+            var selectedFiles = GetFilesFromUser(openFileDialog_hashfile);
             if (selectedFiles == null) return;
 
             var hashfile = new FileInfo(selectedFiles.First());
@@ -539,17 +553,8 @@ namespace Andy.FlacHash.Application.Win.UI
             hashers.Add(key, this.hasherService);
         }
 
-        static string[] GetFilesFromUser(string filter, bool multiselect, string title)
+        static string[] GetFilesFromUser(OpenFileDialog box)
         {
-            var box = new OpenFileDialog
-            {
-                CheckPathExists = true,
-                DereferenceLinks = true,
-                Filter = filter,
-                Title = title,
-                Multiselect = multiselect
-            };
-
             var result = box.ShowDialog();
             if (result != DialogResult.OK) return null;
 
