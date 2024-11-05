@@ -22,5 +22,8 @@ namespace Andy.FlacHash.Application.Win
         [IniEntry(nameof(FailOnError))]
         [Optional]
         public bool FailOnError { get; set; }
+
+        [IniEntry(nameof(OutputFormat))]
+        public string OutputFormat { get; set; }
     }
 }

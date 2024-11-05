@@ -33,8 +33,9 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly HashVerifier hashVerifier;
         private readonly DecoderProfile[] decoderProfiles;
         private readonly int defaultAlgorithmIndex;
-        private readonly OpenFileDialog openFileDialog_hashfile = null;
-        private readonly OpenFileDialog openFileDialog_inputFiles = null;
+        private readonly OpenFileDialog openFileDialog_hashfile;
+        private readonly OpenFileDialog openFileDialog_inputFiles;
+        private readonly Settings settings;
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
@@ -73,6 +74,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashVerifier = hashVerifier;
             this.hasherFactory = hasherFactory;
             this.decoderProfiles = decoderProfiles;
+            this.settings = settings;
 
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
 
@@ -294,10 +296,10 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
         {
-            var hashes = results.Select(x => x.Value?.HashString)
-                .Where(x => x != null);
+            var hashes = results.Where(x => x.Value?.HashString != null);
 
-            if (hashFileWriter.GetFileAndSave(hashes) == true)
+            var lines = hashes.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
+            if (hashFileWriter.GetFileAndSave(lines) == true)
                 MessageBox.Show("Hashes saved!");
         }
 
