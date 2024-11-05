@@ -571,7 +571,7 @@ namespace Andy.FlacHash.Application.Win.UI
         static string PrepSupportedHashfileExtensions(IEnumerable<AlgorithmOption> algorithms)
         {
             var algosString = string.Join('|', algorithms.Select(x => $"{x.Value}|*.{x.Value}"));
-            return $"Hash|*.hash|{algosString}|Text files|*.txt|Any files|*.*";
+            return $"Any file type|*.*|Hash|*.hash|{algosString}|Text files|*.txt";
         }
 
         struct HasherKey
