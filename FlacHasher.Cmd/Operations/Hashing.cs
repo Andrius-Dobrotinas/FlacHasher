@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Application.Cmd
                 WriteStdErrLine("\n======== Results =========");
                 foreach (var result in results)
                 {
-                    string formattedOutput = OutputFormatting.GetFormattedString(outputFormat, result.Hash, result.File);
+                    string formattedOutput = OutputFormatting.GetFormattedString(outputFormat, HashFormatting.GetInLowercase(result.Hash), result.File);
                     WriteStdErrLine(formattedOutput);
                 }
                 WriteStdErrLine("======== The End =========");
@@ -74,7 +74,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             else
             {
-                string formattedOutput = OutputFormatting.GetFormattedString(format, hash, sourceFile);
+                string formattedOutput = OutputFormatting.GetFormattedString(format, HashFormatting.GetInLowercase(hash), sourceFile);
                 Console.WriteLine(formattedOutput);
             }
         }
