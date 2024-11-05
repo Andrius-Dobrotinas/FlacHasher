@@ -385,6 +385,7 @@ namespace Andy.FlacHash.Application.Win.UI
             btn_openHashfile.Enabled = isEnabled;
             menu_decoderProfiles.Enabled = isEnabled;
             menu_hashingAlgorithm.Enabled = isEnabled;
+            menu_fileExtensions.Enabled = isEnabled;
             ctxMenu_results.Enabled = isEnabled;
         }
 
@@ -458,6 +459,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 result.File,
                 new FileHashResultListItem
                 {
+                    File = result.File,
                     HashString = hashFormatter.GetString(result.Hash)
                 });
 
