@@ -71,23 +71,23 @@ namespace Andy.FlacHash.Application.Cmd
 
             var results = new List<KeyValuePair<FileInfo, HashMatch>>(fileHashes.Count);
 
-            foreach (FileHashResult calcResult in hasher.ComputeHashes(expectedFiles, cancellation))
+            foreach (FileHashResult hashingResult in hasher.ComputeHashes(expectedFiles, cancellation))
             {
                 cancellation.ThrowIfCancellationRequested();
 
-                if (calcResult.Exception == null)
+                if (hashingResult.Exception == null)
                 {
-                    var isMatch = hashVerifier.DoesMatch(fileHashes, calcResult.File, calcResult.Hash);
-                    Console.WriteLine($"{calcResult.File.Name} => {isMatch}");
-                    results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, isMatch ? HashMatch.True : HashMatch.False));
+                    var isMatch = hashVerifier.DoesMatch(fileHashes, hashingResult.File, hashingResult.Hash);
+                    Console.WriteLine($"{hashingResult.File.Name} => {isMatch}");
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False));
                 }
                 else
                 {
-                    var result = (calcResult.Exception is InputFileNotFoundException)
+                    var result = (hashingResult.Exception is InputFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
-                    results.Add(new KeyValuePair<FileInfo, HashMatch>(calcResult.File, result));
-                    Console.WriteLine($"{calcResult.File.Name} => Error: {calcResult.Exception.Message}");
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, result));
+                    Console.WriteLine($"{hashingResult.File.Name} => Error: {hashingResult.Exception.Message}");
                 }
 
                 //so it doesn't go back to the enumerator, which would result in launching decoding the next file
