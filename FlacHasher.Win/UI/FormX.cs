@@ -459,6 +459,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 result.File,
                 new FileHashResultListItem
                 {
+                    File = result.File,
                     HashString = hashFormatter.GetString(result.Hash)
                 });
 
