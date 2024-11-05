@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Application.Win
                 return;
             }
 
-            var algorithms = GetAllEnumValues<Algorithm>().Select(x => new AlgorithmOption { Name = x.ToString(), Value = x }).ToArray();
+            var algorithms = GetAllEnumValues<Algorithm>().ToArray();
 
             var hashfileExtensions = FileExtension.PrefixWithDot(settings.HashfileExtensions);
             var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);

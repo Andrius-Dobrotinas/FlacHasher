@@ -48,7 +48,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
         private FileExtensionsOption SelectedFileType => (FileExtensionsOption)menu_fileExtensions.SelectedItem;
-        private AlgorithmOption HashingAlgorithmProfile => (AlgorithmOption)menu_hashingAlgorithm.SelectedItem;
+        private Algorithm HashingAlgorithmProfile => (Algorithm)menu_hashingAlgorithm.SelectedItem;
 
         public FormX(
             HasherFactory hasherFactory,
@@ -60,7 +60,7 @@ namespace Andy.FlacHash.Application.Win.UI
             HashFileReader hashFileParser,
             HashVerifier hashVerifier,
             DecoderProfile[] decoderProfiles,
-            AlgorithmOption[] hashingAlgorithmOptions,
+            Algorithm[] hashingAlgorithmOptions,
             Settings settings)
         {
             InitializeComponent();
@@ -74,7 +74,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hasherFactory = hasherFactory;
             this.decoderProfiles = decoderProfiles;
 
-            this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
+            this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
 
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
 
@@ -84,8 +84,8 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
             menu_decoderProfiles.Items.AddRange(decoderProfiles);
 
-            menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions);
-            menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
+            menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions.Cast<object>().ToArray());
+            //menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
 
             menu_fileExtensions.DisplayMember = nameof(FileExtensionsOption.Name);
 
@@ -271,10 +271,10 @@ namespace Andy.FlacHash.Application.Win.UI
 
         void SetHashingAlgorigthm(string fileExtension)
         {
-            var matchingAlgo = menu_hashingAlgorithm.Items.Cast<AlgorithmOption>()
+            var matchingAlgo = menu_hashingAlgorithm.Items.Cast<Algorithm>()
+                .Select(x => x.ToString())
                 .FirstOrDefault(
-                    x => x.Value.ToString()
-                        .Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
+                    x => x.Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
             if (matchingAlgo != null)
                 menu_hashingAlgorithm.SelectedItem = matchingAlgo;
             else
@@ -533,7 +533,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private void BuildHasher()
         {
             this.hasherService = HashComputationServiceFactory.Build(
-                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters, HashingAlgorithmProfile.Value),
+                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters, HashingAlgorithmProfile),
                 this,
                 OnOperationFinished,
                 OnFailure,
@@ -542,7 +542,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void BuildHasherCached()
         {
-            var key = new HasherKey(DecoderProfile.Name, HashingAlgorithmProfile.Value);
+            var key = new HasherKey(DecoderProfile.Name, HashingAlgorithmProfile);
 
             hashers.TryGetValue(key, out hasherService);
 
@@ -573,9 +573,9 @@ namespace Andy.FlacHash.Application.Win.UI
             return $"{filterString}|Other files|*.*";
         }
 
-        static string PrepSupportedHashfileExtensions(IEnumerable<AlgorithmOption> algorithms)
+        static string PrepSupportedHashfileExtensions(IEnumerable<Algorithm> algorithms)
         {
-            var algosString = string.Join('|', algorithms.Select(x => $"{x.Value}|*.{x.Value}"));
+            var algosString = string.Join('|', algorithms.Select(x => $"{x}|*.{x}"));
             return $"Any file type|*.*|Hash|*.hash|{algosString}|Text files|*.txt";
         }
 
