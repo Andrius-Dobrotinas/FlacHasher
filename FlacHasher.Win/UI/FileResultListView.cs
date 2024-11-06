@@ -18,9 +18,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
     public abstract class FileResultListView<TData> : ListView, IFileListView<TData>
     {
-        public event EventHandler<IEnumerable<FileInfo>> ItemsAdded;
-        public event EventHandler Cleared;
-
         protected IEnumerable<ListViewItem<FileInfo, TData>> ListViewItems
             => this.Items.Cast<ListViewItem<FileInfo, TData>>();
 
@@ -53,14 +50,11 @@ namespace Andy.FlacHash.Application.Win.UI
                 });
 
             this.Items.AddRange(items.ToArray());
-
-            ItemsAdded?.Invoke(this, files);
         }
 
         public void ClearList()
         {
             this.Items.Clear();
-            Cleared?.Invoke(this, null);
         }
 
         public void Reset(FileInfo[] files)
