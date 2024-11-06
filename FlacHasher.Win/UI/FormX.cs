@@ -353,7 +353,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var fileHashes = HashEntryMatching.MatchFilesToHashes(fileHashMap, fileList.ToArray());
 
-            var expectedFiles = fileHashes.Where(x => x.Value != null).Select(x => x.Key);
+            var expectedFiles = fileHashes.Select(x => x.Key);
             SetProgressBar(expectedFiles);
             await VerifyHashes(fileHashes);
         }
