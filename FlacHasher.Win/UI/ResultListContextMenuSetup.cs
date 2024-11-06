@@ -18,6 +18,9 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 if (e.Button != MouseButtons.Right) return;
 
+                var hasAnyData = resultList.BackingData.Any(x => x.Value?.HashString != null);
+                contextMenu.Enabled = hasAnyData;
+
                 contextMenu.Show(resultList, new Point(e.X, e.Y));
             }
 
