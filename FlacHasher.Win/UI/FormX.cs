@@ -509,6 +509,8 @@ namespace Andy.FlacHash.Application.Win.UI
 
             this.list_results.Visible = mode == Mode.Hashing;
             this.list_verification_results.Visible = mode == Mode.Verification;
+
+            menu_fileExtensions.Enabled = mode == Mode.Hashing;
         }
 
         void ReadFilesFromHashmap()
