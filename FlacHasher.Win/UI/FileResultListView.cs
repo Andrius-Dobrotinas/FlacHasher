@@ -63,6 +63,11 @@ namespace Andy.FlacHash.Application.Win.UI
             AddRange(files);
         }
 
+        public void ResetData()
+        {
+            Reset(this.ToArray());
+        }
+
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return ListViewItems.Select(x => x.Key).GetEnumerator();

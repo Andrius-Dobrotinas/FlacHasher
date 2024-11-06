@@ -44,7 +44,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private bool freshOperation = false;
         private DirectoryInfo directory;
         private IFileListView fileList;
-        private FileHashMap fileHashMap;
+        private IDictionary<FileInfo, string> fileHashes;
         private Mode mode;
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
@@ -97,7 +97,7 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_fileExtensions.SelectedIndex = 0;
             menu_fileExtensions.SelectedIndexChanged += (object sender, EventArgs e) =>
             {
-                RefreshFilelist();
+                RefreshHashingFilelist();
             };
 
             list_verification_results.View = View.Details;
@@ -115,6 +115,8 @@ namespace Andy.FlacHash.Application.Win.UI
             };
             menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
             menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
+
+            list_results.Resize += List_hashing_results_Resize;
             list_verification_results.Resize += List_verification_results_Resize;
 
             openFileDialog_hashfile = new OpenFileDialog
@@ -135,6 +137,7 @@ namespace Andy.FlacHash.Application.Win.UI
             };
 
             // Triggers all kinds of handlers
+            List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
 
@@ -174,11 +177,19 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
+        private void List_hashing_results_Resize(object sender, EventArgs e)
+        {
+            var newWidth = list_results.Width / 2;
+            columnHashResult_File.Width = newWidth;
+            columnHashResult_Hash.Width = list_results.Width - newWidth;
+        }
+
         private void List_verification_results_Resize(object sender, EventArgs e)
         {
-            var newWidth = list_verification_results.Width - col_results_verification_isMatch.Width;
+            var newWidth = list_verification_results.Width * 0.8;
 
-            col_results_verification_file.Width = (int)(newWidth * .95);
+            col_results_verification_file.Width = (int)newWidth;
+            col_results_verification_isMatch.Width = list_verification_results.Width - col_results_verification_file.Width;
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
@@ -204,8 +215,9 @@ namespace Andy.FlacHash.Application.Win.UI
             ResetLog($"Current directory: {directory.FullName}");
 
             SetMode(Mode.Hashing);
+            SetHashingFileExtensionMenuAvailability();
 
-            RefreshFilelist();
+            RefreshHashingFilelist();
         }
 
         void ChooseHashingInputFiles()
@@ -218,6 +230,7 @@ namespace Andy.FlacHash.Application.Win.UI
             ResetLog();
 
             SetMode(Mode.Hashing);
+            SetHashingFileExtensionMenuAvailability();
 
             SetNewInputFiles(inputFiles);
         }
@@ -230,7 +243,12 @@ namespace Andy.FlacHash.Application.Win.UI
             var hashfile = new FileInfo(selectedFiles.First());
             directory = hashfile.Directory;
             
-            fileHashMap = hashFileParser.Read(hashfile);
+            var fileHashMap = hashFileParser.Read(hashfile);
+            if (fileHashMap.IsPositionBased)
+            {
+                MessageBox.Show("Hashfile must contain file names (use the cmd-line tool to verify a plain no-names hashlist)", "Not so fast", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
 
             var fileExt = Util.DeDotFileExtension(hashfile.Extension);
             SetHashingAlgorigthm(fileExt);
@@ -239,12 +257,12 @@ namespace Andy.FlacHash.Application.Win.UI
 
             SetMode(Mode.Verification);
 
-            ReadFilesFromHashmap();
+            LoadFilesFromHashmap(fileHashMap);
         }
 
-        void RefreshFilelist()
+        void RefreshHashingFilelist()
         {
-            if (directory == null)
+            if (!isHashingDirectorySelected())
                 return;
 
             var files = targetFileResolver.FindFiles(directory, SelectedFileType.Extensions);
@@ -312,20 +330,19 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             if (!hasherService.InProgress)
             {
-                var files = fileList.ToArray();
                 if (!freshOperation)
-                    fileList.Reset(files);
+                    fileList.ResetData();
                 
                 switch (mode)
                 {
                     case Mode.Hashing:
                         {
-                            await ComputeHashes(files);
+                            await ComputeHashes();
                             return;
                         }
                     case Mode.Verification:
                         {
-                            await VerifyHashes(files, fileHashMap);
+                            await VerifyHashes();
                             return;
                         }
                     default:
@@ -339,19 +356,24 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
-        private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
+        private async Task VerifyHashes()
         {
-            var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
-
-            var expectedFiles = fileHashes.Where(x => x.Value != null).Select(x => x.Key);
+            var expectedFiles = fileHashes.Select(x => x.Key);
             SetProgressBar(expectedFiles);
             await VerifyHashes(fileHashes);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
         {
-            var files = expectedHashes.Select(x => x.Key);
+            var exist = expectedHashes.Where(x => x.Key.Exists).ToList();
 
+            foreach (var file in expectedHashes.Except(exist))
+            {
+                // TODO: if hashfile position-based, replace file name with something more generic
+                list_verification_results.SetData(file.Key, HashMatch.NotFound);
+            }
+
+            var files = exist.Select(x => x.Key);
             await hasherService.Start(files,
                 (FileHashResult hashingResult) =>
                 {
@@ -387,8 +409,23 @@ namespace Andy.FlacHash.Application.Win.UI
             btn_openHashfile.Enabled = isEnabled;
             menu_decoderProfiles.Enabled = isEnabled;
             menu_hashingAlgorithm.Enabled = isEnabled;
-            menu_fileExtensions.Enabled = isEnabled;
+            SetHashingFileExtensionMenuAvailability(!isEnabled);
             ctxMenu_results.Enabled = isEnabled;
+        }
+
+        void SetHashingFileExtensionMenuAvailability(bool forceDisable = false)
+        {
+            /* It should only be available when choosing a Directory for hashing.
+             * Not when choosing specific files, not when doing verification.
+             * It's important to react to in-progress transitions too */
+            menu_fileExtensions.Enabled = (forceDisable == true)
+                ? false
+                : isHashingDirectorySelected();
+        }
+
+        bool isHashingDirectorySelected()
+        {
+            return mode == Mode.Hashing && directory != null;
         }
 
         private void OnOperationCancellation()
@@ -443,8 +480,10 @@ namespace Andy.FlacHash.Application.Win.UI
             ShowFatalError(e);
         }
 
-        private async Task ComputeHashes(IEnumerable<FileInfo> files)
+        private async Task ComputeHashes()
         {
+            var files = fileList.ToArray();
+
             SetProgressBar(files);
             await hasherService.Start(files, UpdateUIWithHashingResult);
         }
@@ -511,17 +550,26 @@ namespace Andy.FlacHash.Application.Win.UI
 
             this.list_results.Visible = mode == Mode.Hashing;
             this.list_verification_results.Visible = mode == Mode.Verification;
+
+            SetHashingFileExtensionMenuAvailability();
         }
 
-        void ReadFilesFromHashmap()
+        void LoadFilesFromHashmap(FileHashMap fileHashMap)
+        {
+            // Storing fileHashes separately from fileList is good for repeating the same op on the same input: fileHashes doesn't have to be re-read
+            fileHashes = ReadFilesFromHashmap(fileHashMap);
+            
+            SetNewInputFiles(fileHashes.Select(x => x.Key).ToArray());
+        }
+
+        IDictionary<FileInfo, string> ReadFilesFromHashmap(FileHashMap fileHashMap)
         {
             var filesInCurrentDir = fileHashMap.Hashes
                 .Select(
                     x => new FileInfo(
                         Path.Combine(directory.FullName, x.Key)))
                 .ToArray();
-
-            SetNewInputFiles(filesInCurrentDir);
+            return HashEntryMatching.MatchFilesToHashes(fileHashMap, filesInCurrentDir);
         }
 
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
