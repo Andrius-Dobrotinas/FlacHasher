@@ -259,6 +259,7 @@
             // 
             list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { col_results_verification_file, col_results_verification_isMatch });
             list_verification_results.Dock = System.Windows.Forms.DockStyle.Fill;
+            list_verification_results.GridLines = true;
             list_verification_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             list_verification_results.HideSelection = false;
             list_verification_results.Location = new System.Drawing.Point(3, 27);
@@ -282,6 +283,7 @@
             list_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHashResult_File, columnHashResult_Hash });
             list_results.Dock = System.Windows.Forms.DockStyle.Fill;
             list_results.FullRowSelect = true;
+            list_results.GridLines = true;
             list_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             list_results.HideSelection = false;
             list_results.Location = new System.Drawing.Point(3, 27);
