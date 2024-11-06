@@ -323,20 +323,19 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             if (!hasherService.InProgress)
             {
-                var files = fileList.ToArray();
                 if (!freshOperation)
-                    fileList.Reset(files);
+                    fileList.ResetData();
                 
                 switch (mode)
                 {
                     case Mode.Hashing:
                         {
-                            await ComputeHashes(files);
+                            await ComputeHashes();
                             return;
                         }
                     case Mode.Verification:
                         {
-                            await VerifyHashes(files, fileHashMap);
+                            await VerifyHashes();
                             return;
                         }
                     default:
@@ -350,9 +349,9 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
-        private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
+        private async Task VerifyHashes()
         {
-            var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
+            var fileHashes = HashEntryMatching.MatchFilesToHashes(fileHashMap, fileList.ToArray());
 
             var expectedFiles = fileHashes.Where(x => x.Value != null).Select(x => x.Key);
             SetProgressBar(expectedFiles);
@@ -469,8 +468,10 @@ namespace Andy.FlacHash.Application.Win.UI
             ShowFatalError(e);
         }
 
-        private async Task ComputeHashes(IEnumerable<FileInfo> files)
+        private async Task ComputeHashes()
         {
+            var files = fileList.ToArray();
+
             SetProgressBar(files);
             await hasherService.Start(files, UpdateUIWithHashingResult);
         }

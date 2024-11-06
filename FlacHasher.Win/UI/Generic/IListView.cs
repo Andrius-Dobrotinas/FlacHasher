@@ -13,5 +13,10 @@ namespace Andy.FlacHash.Application.Win.UI
         /// </summary>
         /// <param name="newItemKeys"></param>
         void Reset(params TKey[] newItemKeys);
+
+        /// <summary>
+        /// Removes all data retaining actual elements
+        /// </summary>
+        void ResetData();
     }
 }
