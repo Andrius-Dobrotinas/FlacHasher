@@ -13,7 +13,7 @@ namespace Andy.FlacHash.Application.Win.UI
             FileHashResultList resultList,
             ContextMenuStrip contextMenu,
             Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> copyResultsAction)
+            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>, bool> copyResultsAction)
         {
             void resultList_MouseDown(object sender, MouseEventArgs e)
             {
@@ -34,7 +34,7 @@ namespace Andy.FlacHash.Application.Win.UI
             FileHashResultList resultList,
             ContextMenuStrip contextMenu,
             Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> copyResultsAction)
+            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>, bool> copyResultsAction)
         {
             var saveEventHandler = new EventHandler(
                 (sender, e) => saveHashesAction(resultList.BackingData));
@@ -44,13 +44,17 @@ namespace Andy.FlacHash.Application.Win.UI
                 null,
                 saveEventHandler);
 
-            var copyEventHandler = new EventHandler(
-                (sender, e) => copyResultsAction(resultList.BackingData));
-
             contextMenu.Items.Add(
                 "Copy",
                 null,
-                copyEventHandler);
+                new EventHandler(
+                    (sender, e) => copyResultsAction(resultList.BackingData, false)));
+
+            contextMenu.Items.Add(
+                "Copy (Using Save formatting)",
+                null,
+                new EventHandler(
+                    (sender, e) => copyResultsAction(resultList.BackingData, true)));
         }
     }
 }

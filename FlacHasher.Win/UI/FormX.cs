@@ -101,7 +101,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 list_results, 
                 ctxMenu_results, 
                 (results) => WithTryCatch(() => SaveHashes(results)),
-                (results) => WithTryCatch(() => CopyHashes(results)));
+                (results, useConfiguredFormatting) => WithTryCatch(() => CopyHashes(results, useConfiguredFormatting)));
 
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
@@ -324,9 +324,11 @@ namespace Andy.FlacHash.Application.Win.UI
                 LogMessage("Hashes saved!");
         }
 
-        private void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
+        private void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results, bool useConfiguredFormatting)
         {
-            var values = results.Select(x => $"{x.Key.Name}\t{x.Value?.HashString}");
+            var values = useConfiguredFormatting
+                ? results.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value?.HashString, x.Key))
+                : results.Select(x => $"{x.Key.Name}\t{x.Value?.HashString}");
 
             Clipboard.SetText(string.Join(Environment.NewLine, values));
         }
