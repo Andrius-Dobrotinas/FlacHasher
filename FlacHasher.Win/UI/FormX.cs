@@ -202,6 +202,7 @@ namespace Andy.FlacHash.Application.Win.UI
             ResetLog($"Current directory: {directory.FullName}");
 
             SetMode(Mode.Hashing);
+            SetHashingFileExtensionMenuAvailability();
 
             RefreshFilelist();
         }
@@ -216,6 +217,7 @@ namespace Andy.FlacHash.Application.Win.UI
             ResetLog();
 
             SetMode(Mode.Hashing);
+            SetHashingFileExtensionMenuAvailability();
 
             SetNewInputFiles(inputFiles);
         }
@@ -385,8 +387,18 @@ namespace Andy.FlacHash.Application.Win.UI
             btn_openHashfile.Enabled = isEnabled;
             menu_decoderProfiles.Enabled = isEnabled;
             menu_hashingAlgorithm.Enabled = isEnabled;
-            menu_fileExtensions.Enabled = isEnabled;
+            SetHashingFileExtensionMenuAvailability(!isEnabled);
             ctxMenu_results.Enabled = isEnabled;
+        }
+
+        void SetHashingFileExtensionMenuAvailability(bool forceDisable = false)
+        {
+            /* It should only be available when choosing a Directory for hashing.
+             * Not when choosing specific files, not when doing verification.
+             * It's important to react to in-progress transitions too */
+            menu_fileExtensions.Enabled = (forceDisable == true)
+                ? false
+                : mode == Mode.Hashing && directory != null;
         }
 
         private void OnOperationCancellation()
@@ -510,7 +522,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.list_results.Visible = mode == Mode.Hashing;
             this.list_verification_results.Visible = mode == Mode.Verification;
 
-            menu_fileExtensions.Enabled = mode == Mode.Hashing;
+            SetHashingFileExtensionMenuAvailability();
         }
 
         void ReadFilesFromHashmap()
