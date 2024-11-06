@@ -79,6 +79,23 @@ namespace Andy.FlacHash.Application.Win.UI
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
 
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
+            
+            openFileDialog_hashfile = new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = PrepSupportedHashfileExtensions(hashingAlgorithmOptions),
+                Title = "Open a Hash File",
+                Multiselect = false
+            };
+            openFileDialog_inputFiles = new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = PrepSupportedFileExtensions(decoderProfiles),
+                Title = "Select files",
+                Multiselect = true
+            };
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
@@ -87,7 +104,6 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_decoderProfiles.Items.AddRange(decoderProfiles);
 
             menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions.Cast<object>().ToArray());
-            //menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
 
             menu_fileExtensions.DisplayMember = nameof(FileExtensionsOption.Name);
 
@@ -118,23 +134,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
             list_results.Resize += List_hashing_results_Resize;
             list_verification_results.Resize += List_verification_results_Resize;
-
-            openFileDialog_hashfile = new OpenFileDialog
-            {
-                CheckPathExists = true,
-                DereferenceLinks = true,
-                Filter = PrepSupportedHashfileExtensions(hashingAlgorithmOptions),
-                Title = "Open a Hash File",
-                Multiselect = false
-            };
-            openFileDialog_inputFiles = new OpenFileDialog
-            {
-                CheckPathExists = true,
-                DereferenceLinks = true,
-                Filter = PrepSupportedFileExtensions(decoderProfiles),
-                Title = "Select files",
-                Multiselect = true
-            };
 
             // Triggers all kinds of handlers
             List_hashing_results_Resize(null, null);
