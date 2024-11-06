@@ -317,7 +317,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             var lines = hashes.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
             if (hashFileWriter.GetFileAndSave(lines) == true)
-                MessageBox.Show("Hashes saved!");
+                LogMessage("Hashes saved!");
         }
 
         private async void Btn_Go_Click(object sender, EventArgs e)
