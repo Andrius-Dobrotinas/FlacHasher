@@ -360,7 +360,14 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
         {
-            var files = expectedHashes.Select(x => x.Key);
+            var exist = expectedHashes.Where(x => x.Key.Exists).ToList();
+            var files = exist.Select(x => x.Key);
+
+            foreach (var file in expectedHashes.Except(exist))
+            {
+                // TODO: if hashfile position-based, replace file name with something more generic
+                list_verification_results.SetData(file.Key, HashMatch.NotFound);
+            }
 
             await hasherService.Start(files,
                 (FileHashResult hashingResult) =>
