@@ -113,6 +113,8 @@ namespace Andy.FlacHash.Application.Win.UI
             };
             menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
             menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
+
+            list_results.Resize += List_hashing_results_Resize;
             list_verification_results.Resize += List_verification_results_Resize;
 
             openFileDialog_hashfile = new OpenFileDialog
@@ -133,6 +135,7 @@ namespace Andy.FlacHash.Application.Win.UI
             };
 
             // Triggers all kinds of handlers
+            List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
 
@@ -170,6 +173,13 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 ShowFatalError(ex);
             }
+        }
+
+        private void List_hashing_results_Resize(object sender, EventArgs e)
+        {
+            var newWidth = list_results.Width / 2;
+            columnHashResult_File.Width = newWidth;
+            columnHashResult_Hash.Width = list_results.Width - newWidth;
         }
 
         private void List_verification_results_Resize(object sender, EventArgs e)
