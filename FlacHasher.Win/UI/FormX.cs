@@ -97,7 +97,11 @@ namespace Andy.FlacHash.Application.Win.UI
                 Multiselect = true
             };
 
-            ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
+            ResultListContextMenuSetup.WireUp(
+                list_results, 
+                ctxMenu_results, 
+                (results) => WithTryCatch(() => SaveHashes(results)),
+                (results) => WithTryCatch(() => CopyHashes(results)));
 
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
@@ -318,6 +322,13 @@ namespace Andy.FlacHash.Application.Win.UI
             var lines = hashes.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
             if (hashFileWriter.GetFileAndSave(lines) == true)
                 LogMessage("Hashes saved!");
+        }
+
+        private void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
+        {
+            var values = results.Select(x => $"{x.Key.Name}\t{x.Value?.HashString}");
+
+            Clipboard.SetText(string.Join(Environment.NewLine, values));
         }
 
         private async void Btn_Go_Click(object sender, EventArgs e)
