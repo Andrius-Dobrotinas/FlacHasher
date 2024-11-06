@@ -18,7 +18,6 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class FormX : Form
     {
-        const string newline = "\r\n";
         const string errorSeparator = "==========================";
 
         private readonly HasherFactory hasherFactory;
@@ -530,13 +529,13 @@ namespace Andy.FlacHash.Application.Win.UI
             if (!string.IsNullOrEmpty(txtStatus.Text))
             {
                 txtStatus.AppendText(errorSeparator);
-                txtStatus.AppendText(newline);
+                txtStatus.AppendText(Environment.NewLine);
             }
 
             foreach (var line in message)
             {
                 txtStatus.AppendText(line);
-                txtStatus.AppendText(newline);
+                txtStatus.AppendText(Environment.NewLine);
             }
         }
 
