@@ -95,7 +95,7 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_fileExtensions.SelectedIndex = 0;
             menu_fileExtensions.SelectedIndexChanged += (object sender, EventArgs e) =>
             {
-                RefreshFilelist();
+                RefreshHashingFilelist();
             };
 
             list_verification_results.View = View.Details;
@@ -204,7 +204,7 @@ namespace Andy.FlacHash.Application.Win.UI
             SetMode(Mode.Hashing);
             SetHashingFileExtensionMenuAvailability();
 
-            RefreshFilelist();
+            RefreshHashingFilelist();
         }
 
         void ChooseHashingInputFiles()
@@ -242,9 +242,9 @@ namespace Andy.FlacHash.Application.Win.UI
             ReadFilesFromHashmap();
         }
 
-        void RefreshFilelist()
+        void RefreshHashingFilelist()
         {
-            if (directory == null)
+            if (!isHashingDirectorySelected())
                 return;
 
             var files = targetFileResolver.FindFiles(directory, SelectedFileType.Extensions);
@@ -398,7 +398,12 @@ namespace Andy.FlacHash.Application.Win.UI
              * It's important to react to in-progress transitions too */
             menu_fileExtensions.Enabled = (forceDisable == true)
                 ? false
-                : mode == Mode.Hashing && directory != null;
+                : isHashingDirectorySelected();
+        }
+
+        bool isHashingDirectorySelected()
+        {
+            return mode == Mode.Hashing && directory != null;
         }
 
         private void OnOperationCancellation()
