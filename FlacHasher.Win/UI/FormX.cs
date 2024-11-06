@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Application.Win.UI
         private bool freshOperation = false;
         private DirectoryInfo directory;
         private IFileListView fileList;
-        private FileHashMap fileHashMap;
+        private IDictionary<FileInfo, string> fileHashes;
         private Mode mode;
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
@@ -241,7 +241,7 @@ namespace Andy.FlacHash.Application.Win.UI
             var hashfile = new FileInfo(selectedFiles.First());
             directory = hashfile.Directory;
             
-            fileHashMap = hashFileParser.Read(hashfile);
+            var fileHashMap = hashFileParser.Read(hashfile);
 
             var fileExt = Util.DeDotFileExtension(hashfile.Extension);
             SetHashingAlgorigthm(fileExt);
@@ -250,7 +250,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             SetMode(Mode.Verification);
 
-            ReadFilesFromHashmap();
+            LoadFilesFromHashmap(fileHashMap);
         }
 
         void RefreshHashingFilelist()
@@ -351,8 +351,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private async Task VerifyHashes()
         {
-            var fileHashes = HashEntryMatching.MatchFilesToHashes(fileHashMap, fileList.ToArray());
-
             var expectedFiles = fileHashes.Select(x => x.Key);
             SetProgressBar(expectedFiles);
             await VerifyHashes(fileHashes);
@@ -549,15 +547,22 @@ namespace Andy.FlacHash.Application.Win.UI
             SetHashingFileExtensionMenuAvailability();
         }
 
-        void ReadFilesFromHashmap()
+        void LoadFilesFromHashmap(FileHashMap fileHashMap)
+        {
+            // Storing fileHashes separately from fileList is good for repeating the same op on the same input: fileHashes doesn't have to be re-read
+            fileHashes = ReadFilesFromHashmap(fileHashMap);
+            
+            SetNewInputFiles(fileHashes.Select(x => x.Key).ToArray());
+        }
+
+        IDictionary<FileInfo, string> ReadFilesFromHashmap(FileHashMap fileHashMap)
         {
             var filesInCurrentDir = fileHashMap.Hashes
                 .Select(
                     x => new FileInfo(
                         Path.Combine(directory.FullName, x.Key)))
                 .ToArray();
-
-            SetNewInputFiles(filesInCurrentDir);
+            return HashEntryMatching.MatchFilesToHashes(fileHashMap, filesInCurrentDir);
         }
 
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
