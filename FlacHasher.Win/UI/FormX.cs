@@ -242,6 +242,11 @@ namespace Andy.FlacHash.Application.Win.UI
             directory = hashfile.Directory;
             
             var fileHashMap = hashFileParser.Read(hashfile);
+            if (fileHashMap.IsPositionBased)
+            {
+                MessageBox.Show("Hashfile must contain file names (use the cmd-line tool to verify a plain no-names hashlist)", "Not so fast", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
 
             var fileExt = Util.DeDotFileExtension(hashfile.Extension);
             SetHashingAlgorigthm(fileExt);
