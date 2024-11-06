@@ -359,7 +359,6 @@ namespace Andy.FlacHash.Application.Win.UI
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
         {
             var exist = expectedHashes.Where(x => x.Key.Exists).ToList();
-            var files = exist.Select(x => x.Key);
 
             foreach (var file in expectedHashes.Except(exist))
             {
@@ -367,6 +366,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 list_verification_results.SetData(file.Key, HashMatch.NotFound);
             }
 
+            var files = exist.Select(x => x.Key);
             await hasherService.Start(files,
                 (FileHashResult hashingResult) =>
                 {
