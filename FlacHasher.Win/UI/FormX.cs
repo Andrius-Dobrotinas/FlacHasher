@@ -99,6 +99,17 @@ namespace Andy.FlacHash.Application.Win.UI
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
+            ctxMenu_results.Enabled = false;
+            list_results.Cleared += (s, e) =>
+            {
+                ctxMenu_results.Enabled = false;
+            };
+
+            list_results.ItemsAdded += (s, e) =>
+            {
+                ctxMenu_results.Enabled = true;
+            };
+
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
             menu_decoderProfiles.Items.AddRange(decoderProfiles);

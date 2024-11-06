@@ -18,5 +18,8 @@ namespace Andy.FlacHash.Application.Win.UI
         /// Removes all data retaining actual elements
         /// </summary>
         void ResetData();
+
+        event EventHandler<IEnumerable<TKey>> ItemsAdded;
+        event EventHandler Cleared;
     }
 }
