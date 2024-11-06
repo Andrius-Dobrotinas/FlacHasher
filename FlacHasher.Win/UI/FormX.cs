@@ -85,7 +85,6 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_decoderProfiles.Items.AddRange(decoderProfiles);
 
             menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions.Cast<object>().ToArray());
-            //menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
 
             menu_fileExtensions.DisplayMember = nameof(FileExtensionsOption.Name);
 
