@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
     public abstract class FileResultListView<TData> : ListView, IFileListView<TData>
     {
-        protected IEnumerable<ListViewItem<FileInfo, TData>> ListViewItems
+        public IEnumerable<ListViewItem<FileInfo, TData>> ListViewItems
             => this.Items.Cast<ListViewItem<FileInfo, TData>>();
 
         public IEnumerable<KeyValuePair<FileInfo, TData>> BackingData

@@ -48,13 +48,22 @@ namespace Andy.FlacHash.Application.Win.UI
                 "Copy",
                 null,
                 new EventHandler(
-                    (sender, e) => copyResultsAction(resultList.BackingData, false)));
+                    (sender, e) => copyResultsAction(GetData(resultList), false)));
 
             contextMenu.Items.Add(
                 "Copy (Using Save formatting)",
                 null,
                 new EventHandler(
-                    (sender, e) => copyResultsAction(resultList.BackingData, true)));
+                    (sender, e) => copyResultsAction(GetData(resultList), true)));
+        }
+
+        static IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> GetData(FileHashResultList resultList)
+        {
+            var selectedItems = resultList.ListViewItems.Where(x => x.Selected);
+            if (selectedItems.Any())
+                return selectedItems.Select(x => new KeyValuePair<FileInfo, FileHashResultListItem>(x.Key, x.Data));
+            else
+                return resultList.BackingData;
         }
     }
 }
