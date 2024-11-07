@@ -77,9 +77,13 @@ namespace Andy.FlacHash.Application.Win.UI
             this.settings = settings;
 
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
-
-            this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
             
+            this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
+            fileReadEventSource.BytesRead += (bytesRead) =>
+            {
+                this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
+            };
+
             openFileDialog_hashfile = new OpenFileDialog
             {
                 CheckPathExists = true,
@@ -106,35 +110,30 @@ namespace Andy.FlacHash.Application.Win.UI
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
             menu_decoderProfiles.Items.AddRange(decoderProfiles);
+            menu_decoderProfiles.SelectedIndex = 0;
 
             menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions.Cast<object>().ToArray());
+            menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
 
             menu_fileExtensions.DisplayMember = nameof(FileExtensionsOption.Name);
-
-            var exts = decoderProfiles.Select(x => new FileExtensionsOption(x.Name, x.TargetFileExtensions))
-                .ToArray();
+            var exts = decoderProfiles.Select(x => new FileExtensionsOption(x.Name, x.TargetFileExtensions)).ToArray();
             menu_fileExtensions.Items.AddRange(exts);
             menu_fileExtensions.SelectedIndex = 0;
-            menu_fileExtensions.SelectedIndexChanged += (object sender, EventArgs e) =>
-            {
-                RefreshHashingFilelist();
-            };
+            
 
             list_verification_results.View = View.Details;
             list_verification_results.SmallImageList = imgList_verification;
 
             // Initial values
-            menu_decoderProfiles.SelectedIndex = 0;
-            menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
-            this.btn_go.Enabled = false;
+            btn_go.Enabled = false;
 
             // Wire handlers up AFTER setting initial values to avoid them getting fired before everything is ready
-            fileReadEventSource.BytesRead += (bytesRead) =>
-            {
-                this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
-            };
             menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
             menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
+            menu_fileExtensions.SelectedIndexChanged += (object sender, EventArgs e) =>
+            {
+                RefreshHashingFilelist();
+            };
 
             list_results.Resize += List_hashing_results_Resize;
             list_verification_results.Resize += List_verification_results_Resize;
@@ -144,7 +143,7 @@ namespace Andy.FlacHash.Application.Win.UI
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
 
-            BuildHasherCached();
+            BuildHasherCached(); // needs mode and decoder+algorithm to be pre-set
             ResetStatusMessages();
         }
 
