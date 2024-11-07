@@ -108,9 +108,9 @@
             group_Left.Controls.Add(groupVerification);
             group_Left.Controls.Add(groupHashing);
             group_Left.Controls.Add(menu_hashingAlgorithm);
-            group_Left.Controls.Add(menu_decoderProfiles);
             group_Left.Controls.Add(btn_go);
             group_Left.Controls.Add(progressBar);
+            group_Left.Controls.Add(menu_decoderProfiles);
             group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
             group_Left.Location = new System.Drawing.Point(4, 5);
             group_Left.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -123,7 +123,7 @@
             // groupVerification
             // 
             groupVerification.Controls.Add(btn_openHashfile);
-            groupVerification.Location = new System.Drawing.Point(17, 320);
+            groupVerification.Location = new System.Drawing.Point(17, 220);
             groupVerification.Name = "groupVerification";
             groupVerification.Size = new System.Drawing.Size(191, 93);
             groupVerification.TabIndex = 3;
@@ -147,7 +147,7 @@
             groupHashing.Controls.Add(lbl_inputSelectionMethod);
             groupHashing.Controls.Add(btn_chooseFiles);
             groupHashing.Controls.Add(btn_chooseDir);
-            groupHashing.Location = new System.Drawing.Point(17, 100);
+            groupHashing.Location = new System.Drawing.Point(17, 0);
             groupHashing.Name = "groupHashing";
             groupHashing.Size = new System.Drawing.Size(191, 214);
             groupHashing.TabIndex = 0;
@@ -178,7 +178,7 @@
             btn_chooseFiles.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_chooseFiles.Name = "btn_chooseFiles";
             btn_chooseFiles.Size = new System.Drawing.Size(171, 48);
-            btn_chooseFiles.TabIndex = 1;
+            btn_chooseFiles.TabIndex = 0;
             btn_chooseFiles.Text = "Choose files";
             btn_chooseFiles.UseVisualStyleBackColor = true;
             btn_chooseFiles.Click += BtnChooseFiles_Click;
@@ -199,7 +199,7 @@
             // 
             menu_hashingAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             menu_hashingAlgorithm.FormattingEnabled = true;
-            menu_hashingAlgorithm.Location = new System.Drawing.Point(17, 59);
+            menu_hashingAlgorithm.Location = new System.Drawing.Point(17, 368);
             menu_hashingAlgorithm.Name = "menu_hashingAlgorithm";
             menu_hashingAlgorithm.Size = new System.Drawing.Size(191, 33);
             menu_hashingAlgorithm.TabIndex = 7;
@@ -208,7 +208,7 @@
             // 
             menu_decoderProfiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             menu_decoderProfiles.FormattingEnabled = true;
-            menu_decoderProfiles.Location = new System.Drawing.Point(17, 17);
+            menu_decoderProfiles.Location = new System.Drawing.Point(17, 326);
             menu_decoderProfiles.Name = "menu_decoderProfiles";
             menu_decoderProfiles.Size = new System.Drawing.Size(191, 33);
             menu_decoderProfiles.TabIndex = 6;
