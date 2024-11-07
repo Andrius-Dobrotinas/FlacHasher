@@ -233,7 +233,10 @@
             // 
             // txtStatus
             // 
+            txtStatus.BackColor = System.Drawing.Color.Black;
             txtStatus.Dock = System.Windows.Forms.DockStyle.Fill;
+            txtStatus.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            txtStatus.ForeColor = System.Drawing.Color.White;
             txtStatus.HideSelection = false;
             txtStatus.Location = new System.Drawing.Point(3, 283);
             txtStatus.Multiline = true;
