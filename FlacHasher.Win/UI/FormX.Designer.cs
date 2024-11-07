@@ -37,13 +37,14 @@
             group_Left = new System.Windows.Forms.GroupBox();
             groupVerification = new System.Windows.Forms.GroupBox();
             btn_openHashfile = new System.Windows.Forms.Button();
+            groupSettings = new System.Windows.Forms.GroupBox();
+            menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
+            menu_decoderProfiles = new System.Windows.Forms.ComboBox();
             groupHashing = new System.Windows.Forms.GroupBox();
             grp_hashing_dir = new System.Windows.Forms.GroupBox();
             menu_fileExtensions = new System.Windows.Forms.ComboBox();
             btn_chooseDir = new System.Windows.Forms.Button();
             btn_chooseFiles = new System.Windows.Forms.Button();
-            menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
-            menu_decoderProfiles = new System.Windows.Forms.ComboBox();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             txtStatus = new System.Windows.Forms.TextBox();
             groupFiles = new System.Windows.Forms.GroupBox();
@@ -57,6 +58,7 @@
             tableLayoutPanel1.SuspendLayout();
             group_Left.SuspendLayout();
             groupVerification.SuspendLayout();
+            groupSettings.SuspendLayout();
             groupHashing.SuspendLayout();
             grp_hashing_dir.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
@@ -69,7 +71,7 @@
             btn_go.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_go.Name = "btn_go";
             btn_go.Size = new System.Drawing.Size(191, 60);
-            btn_go.TabIndex = 8;
+            btn_go.TabIndex = 9;
             btn_go.Text = "Go!";
             btn_go.UseVisualStyleBackColor = true;
             btn_go.Click += Btn_Go_Click;
@@ -107,11 +109,10 @@
             // group_Left
             // 
             group_Left.Controls.Add(groupVerification);
+            group_Left.Controls.Add(groupSettings);
             group_Left.Controls.Add(groupHashing);
-            group_Left.Controls.Add(menu_hashingAlgorithm);
             group_Left.Controls.Add(btn_go);
             group_Left.Controls.Add(progressBar);
-            group_Left.Controls.Add(menu_decoderProfiles);
             group_Left.Dock = System.Windows.Forms.DockStyle.Fill;
             group_Left.Location = new System.Drawing.Point(4, 5);
             group_Left.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -126,7 +127,7 @@
             groupVerification.Controls.Add(btn_openHashfile);
             groupVerification.Location = new System.Drawing.Point(0, 220);
             groupVerification.Name = "groupVerification";
-            groupVerification.Size = new System.Drawing.Size(221, 99);
+            groupVerification.Size = new System.Drawing.Size(221, 90);
             groupVerification.TabIndex = 4;
             groupVerification.TabStop = false;
             groupVerification.Text = "Verification";
@@ -141,6 +142,34 @@
             btn_openHashfile.Text = "Choose a Hashfile";
             btn_openHashfile.UseVisualStyleBackColor = true;
             btn_openHashfile.Click += BtnChooseHashfile_Click;
+            // 
+            // groupSettings
+            // 
+            groupSettings.Controls.Add(menu_hashingAlgorithm);
+            groupSettings.Controls.Add(menu_decoderProfiles);
+            groupSettings.Location = new System.Drawing.Point(0, 297);
+            groupSettings.Name = "groupSettings";
+            groupSettings.Size = new System.Drawing.Size(221, 110);
+            groupSettings.TabIndex = 4;
+            groupSettings.TabStop = false;
+            // 
+            // menu_hashingAlgorithm
+            // 
+            menu_hashingAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            menu_hashingAlgorithm.FormattingEnabled = true;
+            menu_hashingAlgorithm.Location = new System.Drawing.Point(15, 65);
+            menu_hashingAlgorithm.Name = "menu_hashingAlgorithm";
+            menu_hashingAlgorithm.Size = new System.Drawing.Size(191, 33);
+            menu_hashingAlgorithm.TabIndex = 8;
+            // 
+            // menu_decoderProfiles
+            // 
+            menu_decoderProfiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            menu_decoderProfiles.FormattingEnabled = true;
+            menu_decoderProfiles.Location = new System.Drawing.Point(15, 23);
+            menu_decoderProfiles.Name = "menu_decoderProfiles";
+            menu_decoderProfiles.Size = new System.Drawing.Size(191, 33);
+            menu_decoderProfiles.TabIndex = 7;
             // 
             // groupHashing
             // 
@@ -194,24 +223,6 @@
             btn_chooseFiles.Text = "Choose files";
             btn_chooseFiles.UseVisualStyleBackColor = true;
             btn_chooseFiles.Click += BtnChooseFiles_Click;
-            // 
-            // menu_hashingAlgorithm
-            // 
-            menu_hashingAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            menu_hashingAlgorithm.FormattingEnabled = true;
-            menu_hashingAlgorithm.Location = new System.Drawing.Point(15, 368);
-            menu_hashingAlgorithm.Name = "menu_hashingAlgorithm";
-            menu_hashingAlgorithm.Size = new System.Drawing.Size(191, 33);
-            menu_hashingAlgorithm.TabIndex = 7;
-            // 
-            // menu_decoderProfiles
-            // 
-            menu_decoderProfiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            menu_decoderProfiles.FormattingEnabled = true;
-            menu_decoderProfiles.Location = new System.Drawing.Point(15, 326);
-            menu_decoderProfiles.Name = "menu_decoderProfiles";
-            menu_decoderProfiles.Size = new System.Drawing.Size(191, 33);
-            menu_decoderProfiles.TabIndex = 6;
             // 
             // tableLayoutPanel2
             // 
@@ -328,6 +339,7 @@
             tableLayoutPanel1.ResumeLayout(false);
             group_Left.ResumeLayout(false);
             groupVerification.ResumeLayout(false);
+            groupSettings.ResumeLayout(false);
             groupHashing.ResumeLayout(false);
             grp_hashing_dir.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
@@ -344,8 +356,6 @@
         private System.Windows.Forms.GroupBox group_Left;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.ImageList imgList_verification;
-        private System.Windows.Forms.ComboBox menu_decoderProfiles;
-        private System.Windows.Forms.ComboBox menu_hashingAlgorithm;
         private System.Windows.Forms.GroupBox groupFiles;
         private System.Windows.Forms.TextBox txtStatus;
         private VerificationResultsList list_verification_results;
@@ -361,5 +371,8 @@
         private System.Windows.Forms.Button btn_openHashfile;
         private System.Windows.Forms.GroupBox grp_hashing_dir;
         private System.Windows.Forms.ComboBox menu_fileExtensions;
+        private System.Windows.Forms.GroupBox groupSettings;
+        private System.Windows.Forms.ComboBox menu_hashingAlgorithm;
+        private System.Windows.Forms.ComboBox menu_decoderProfiles;
     }
 }
