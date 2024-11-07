@@ -38,10 +38,10 @@
             groupVerification = new System.Windows.Forms.GroupBox();
             btn_openHashfile = new System.Windows.Forms.Button();
             groupHashing = new System.Windows.Forms.GroupBox();
+            grp_hashing_dir = new System.Windows.Forms.GroupBox();
             menu_fileExtensions = new System.Windows.Forms.ComboBox();
-            lbl_inputSelectionMethod = new System.Windows.Forms.Label();
-            btn_chooseFiles = new System.Windows.Forms.Button();
             btn_chooseDir = new System.Windows.Forms.Button();
+            btn_chooseFiles = new System.Windows.Forms.Button();
             menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
             menu_decoderProfiles = new System.Windows.Forms.ComboBox();
             tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -58,6 +58,7 @@
             group_Left.SuspendLayout();
             groupVerification.SuspendLayout();
             groupHashing.SuspendLayout();
+            grp_hashing_dir.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             groupFiles.SuspendLayout();
             SuspendLayout();
@@ -126,7 +127,7 @@
             groupVerification.Location = new System.Drawing.Point(17, 220);
             groupVerification.Name = "groupVerification";
             groupVerification.Size = new System.Drawing.Size(191, 93);
-            groupVerification.TabIndex = 3;
+            groupVerification.TabIndex = 4;
             groupVerification.TabStop = false;
             groupVerification.Text = "Verification";
             // 
@@ -143,10 +144,8 @@
             // 
             // groupHashing
             // 
-            groupHashing.Controls.Add(menu_fileExtensions);
-            groupHashing.Controls.Add(lbl_inputSelectionMethod);
+            groupHashing.Controls.Add(grp_hashing_dir);
             groupHashing.Controls.Add(btn_chooseFiles);
-            groupHashing.Controls.Add(btn_chooseDir);
             groupHashing.Location = new System.Drawing.Point(17, 0);
             groupHashing.Name = "groupHashing";
             groupHashing.Size = new System.Drawing.Size(191, 214);
@@ -154,23 +153,36 @@
             groupHashing.TabStop = false;
             groupHashing.Text = "Hashing";
             // 
+            // grp_hashing_dir
+            // 
+            grp_hashing_dir.Controls.Add(menu_fileExtensions);
+            grp_hashing_dir.Controls.Add(btn_chooseDir);
+            grp_hashing_dir.Location = new System.Drawing.Point(6, 80);
+            grp_hashing_dir.Name = "grp_hashing_dir";
+            grp_hashing_dir.Size = new System.Drawing.Size(180, 128);
+            grp_hashing_dir.TabIndex = 1;
+            grp_hashing_dir.TabStop = false;
+            grp_hashing_dir.Text = "Or";
+            // 
             // menu_fileExtensions
             // 
             menu_fileExtensions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             menu_fileExtensions.FormattingEnabled = true;
-            menu_fileExtensions.Location = new System.Drawing.Point(11, 170);
+            menu_fileExtensions.Location = new System.Drawing.Point(5, 85);
             menu_fileExtensions.Name = "menu_fileExtensions";
             menu_fileExtensions.Size = new System.Drawing.Size(171, 33);
-            menu_fileExtensions.TabIndex = 5;
+            menu_fileExtensions.TabIndex = 3;
             // 
-            // lbl_inputSelectionMethod
+            // btn_chooseDir
             // 
-            lbl_inputSelectionMethod.AutoSize = true;
-            lbl_inputSelectionMethod.Location = new System.Drawing.Point(81, 84);
-            lbl_inputSelectionMethod.Name = "lbl_inputSelectionMethod";
-            lbl_inputSelectionMethod.Size = new System.Drawing.Size(32, 25);
-            lbl_inputSelectionMethod.TabIndex = 3;
-            lbl_inputSelectionMethod.Text = "Or";
+            btn_chooseDir.Location = new System.Drawing.Point(5, 32);
+            btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btn_chooseDir.Name = "btn_chooseDir";
+            btn_chooseDir.Size = new System.Drawing.Size(171, 48);
+            btn_chooseDir.TabIndex = 2;
+            btn_chooseDir.Text = "Choose a Directory";
+            btn_chooseDir.UseVisualStyleBackColor = true;
+            btn_chooseDir.Click += BtnChooseDir_Click;
             // 
             // btn_chooseFiles
             // 
@@ -182,18 +194,6 @@
             btn_chooseFiles.Text = "Choose files";
             btn_chooseFiles.UseVisualStyleBackColor = true;
             btn_chooseFiles.Click += BtnChooseFiles_Click;
-            // 
-            // btn_chooseDir
-            // 
-            btn_chooseDir.Location = new System.Drawing.Point(11, 114);
-            btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            btn_chooseDir.Name = "btn_chooseDir";
-            btn_chooseDir.Size = new System.Drawing.Size(171, 48);
-            btn_chooseDir.TabIndex = 2;
-            btn_chooseDir.TabStop = false;
-            btn_chooseDir.Text = "Choose a Directory";
-            btn_chooseDir.UseVisualStyleBackColor = true;
-            btn_chooseDir.Click += BtnChooseDir_Click;
             // 
             // menu_hashingAlgorithm
             // 
@@ -326,7 +326,7 @@
             group_Left.ResumeLayout(false);
             groupVerification.ResumeLayout(false);
             groupHashing.ResumeLayout(false);
-            groupHashing.PerformLayout();
+            grp_hashing_dir.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             groupFiles.ResumeLayout(false);
@@ -356,7 +356,7 @@
         private System.Windows.Forms.Button btn_chooseDir;
         private System.Windows.Forms.GroupBox groupVerification;
         private System.Windows.Forms.Button btn_openHashfile;
-        private System.Windows.Forms.Label lbl_inputSelectionMethod;
+        private System.Windows.Forms.GroupBox grp_hashing_dir;
         private System.Windows.Forms.ComboBox menu_fileExtensions;
     }
 }
