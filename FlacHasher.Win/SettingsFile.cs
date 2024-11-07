@@ -52,15 +52,12 @@ namespace Andy.FlacHash.Application.Win
                         : paramReader.GetParameters<DecoderProfileTemp>(profileSection.Value);
 
                     var decoderExe = AudioDecoder.ResolveDecoderOrThrow(profileRaw.Decoder);
-                    var @params = isDefaultFlacSection
-                        ? profileRaw.DecoderParameters ?? Audio.Flac.Parameters.Decode.Stream
-                        : profileRaw.DecoderParameters;
 
                     return new DecoderProfile
                     {
                         Name = profileSection.Key.Replace("Decoder.", "", StringComparison.InvariantCultureIgnoreCase),
                         Decoder = decoderExe,
-                        DecoderParameters = @params,
+                        DecoderParameters = profileRaw.DecoderParameters,
                         TargetFileExtensions = profileRaw.TargetFileExtensions
                     };
                 })
@@ -84,8 +81,10 @@ namespace Andy.FlacHash.Application.Win
         class DecoderProfileTempDefaultFlac : DecoderProfileTemp
         {
             [Parameter(nameof(DecoderParameters))]
-            //[Optional(defaultValue: Audio.Flac.Parameters.Decode.Stream)]
-            [Optional]
+            [Optional(defaultValue: new string[] {
+                Audio.Flac.Parameters.Options.Decoder.Decode,
+                Audio.Flac.Parameters.Options.Decoder.ReadFromStdIn
+            })]
             public override string[] DecoderParameters { get; set; }
 
             [Parameter(nameof(TargetFileExtensions))]
