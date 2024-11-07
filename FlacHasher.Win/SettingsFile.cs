@@ -44,7 +44,6 @@ namespace Andy.FlacHash.Application.Win
 
             var decoderProfiles = decoderProfilesRaw
                 .Select(profileSection => {
-                    // Default Decoder section is for FLAC. I can insert file extension and decoder params in there, but I can't hardcode a path to the exe
                     var isDefaultFlacSection = profileSection.Key.Equals(ApplicationSettings.DefaultDecoderSection, StringComparison.InvariantCultureIgnoreCase);
 
                     var profileRaw = isDefaultFlacSection
@@ -69,7 +68,7 @@ namespace Andy.FlacHash.Application.Win
         class DecoderProfileTemp
         {
             [Parameter(nameof(Decoder))]
-            public string Decoder { get; set; }
+            public virtual string Decoder { get; set; }
 
             [Parameter(nameof(DecoderParameters))]
             public virtual string[] DecoderParameters { get; set; }
@@ -80,6 +79,10 @@ namespace Andy.FlacHash.Application.Win
 
         class DecoderProfileTempDefaultFlac : DecoderProfileTemp
         {
+            [Parameter(nameof(Decoder))]
+            [Optional(defaultValue: "flac.exe")]
+            public override string Decoder { get; set; }
+
             [Parameter(nameof(DecoderParameters))]
             [Optional(defaultValue: new string[] {
                 Audio.Flac.Parameters.Options.Decoder.Decode,
