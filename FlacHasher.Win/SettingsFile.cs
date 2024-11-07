@@ -36,33 +36,46 @@ namespace Andy.FlacHash.Application.Win
 
         public static (Settings, DecoderProfile[]) ParseSettings(IDictionary<string, string[]> settingsRaw, IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
         {
-            if (!decoderProfilesRaw.Any())
-                throw new ConfigurationException("At least one decoder profile must be defined");
-
             var paramReader = ParameterReader.Build();
             var settings = ParameterReader.Build().GetParameters<Settings>(settingsRaw);
 
-            var decoderProfiles = decoderProfilesRaw
-                .Select(profileSection => {
-                    var isDefaultFlacSection = profileSection.Key.Equals(ApplicationSettings.DefaultDecoderSection, StringComparison.InvariantCultureIgnoreCase);
-
-                    var profileRaw = isDefaultFlacSection
-                        ? paramReader.GetParameters<DecoderProfileTempDefaultFlac>(profileSection.Value)
-                        : paramReader.GetParameters<DecoderProfileTemp>(profileSection.Value);
-
-                    var decoderExe = AudioDecoder.ResolveDecoderOrThrow(profileRaw.Decoder);
-
-                    return new DecoderProfile
+            var decoderProfiles = decoderProfilesRaw.Any()
+                ? decoderProfilesRaw
+                    .Select(profileSection =>
                     {
-                        Name = profileSection.Key.Replace("Decoder.", "", StringComparison.InvariantCultureIgnoreCase),
-                        Decoder = decoderExe,
-                        DecoderParameters = profileRaw.DecoderParameters,
-                        TargetFileExtensions = profileRaw.TargetFileExtensions
-                    };
-                })
-                .ToArray();
+                        var isDefaultFlacSection = profileSection.Key.Equals(ApplicationSettings.DefaultDecoderSection, StringComparison.InvariantCultureIgnoreCase);
+
+                        var profileRaw = isDefaultFlacSection
+                            ? paramReader.GetParameters<DecoderProfileTempDefaultFlac>(profileSection.Value)
+                            : paramReader.GetParameters<DecoderProfileTemp>(profileSection.Value);
+
+                        return new DecoderProfile
+                        {
+                            Name = profileSection.Key.Replace("Decoder.", "", StringComparison.InvariantCultureIgnoreCase),
+                            Decoder = AudioDecoder.ResolveDecoderOrThrow(profileRaw.Decoder),
+                            DecoderParameters = profileRaw.DecoderParameters,
+                            TargetFileExtensions = profileRaw.TargetFileExtensions
+                        };
+                    }).ToArray()
+                : new DecoderProfile[]
+                {
+                    GetDefaultFlacProfile(paramReader)
+                };
 
             return (settings, decoderProfiles);
+        }
+
+        static DecoderProfile GetDefaultFlacProfile(ParameterReader paramReader)
+        {
+            var profileRaw = paramReader.GetParameters<DecoderProfileTempDefaultFlac>(new Dictionary<string, string[]>());
+
+            return new DecoderProfile
+            {
+                Name = "FLAC",
+                Decoder = AudioDecoder.ResolveDecoderOrThrow(profileRaw.Decoder),
+                DecoderParameters = profileRaw.DecoderParameters,
+                TargetFileExtensions = profileRaw.TargetFileExtensions
+            };
         }
 
         class DecoderProfileTemp
