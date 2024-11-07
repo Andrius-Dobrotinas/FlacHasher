@@ -19,6 +19,7 @@ namespace Andy.FlacHash.Application.Win.UI
     public partial class FormX : Form
     {
         const string errorSeparator = ".......................";
+        const int hashfileMaxSizeBytes = 512 * 1024;
 
         private readonly HasherFactory hasherFactory;
         private readonly InteractiveTextFileWriter hashFileWriter;
@@ -277,6 +278,16 @@ namespace Andy.FlacHash.Application.Win.UI
             if (selectedFiles == null) return;
 
             var hashfile = new FileInfo(selectedFiles.First());
+            if (hashfile.Length > hashfileMaxSizeBytes && MessageBox.Show(
+                        $"The selected hashfile (\"{hashfile.Name}\") is quite big ({hashfileMaxSizeBytes / 1024} kb), " +
+                        $"which means it may contain some more serious (and unusable for this purposes) data. " +
+                        $"Do you want to continue?",
+                        "Hashfile too big?",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning)
+                    != DialogResult.Yes)
+                return;
+
             directory = hashfile.Directory;
 
             var fileHashMap = hashFileParser.Read(hashfile);
