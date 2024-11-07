@@ -338,7 +338,7 @@ namespace Andy.FlacHash.Application.Win.UI
             if (!fileList.Any())
                 return;
 
-            var ext = Util.DeDotFileExtension(fileList.FirstOrDefault().Extension);
+            var ext = Util.DeDotFileExtension(fileList.ItemKeys.FirstOrDefault().Extension);
             var match = decoderProfiles.FirstOrDefault(x => x.TargetFileExtensions.Contains(ext));
             if (match != null)
                 menu_decoderProfiles.SelectedItem = match;
@@ -541,7 +541,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private async Task ComputeHashes()
         {
-            var files = fileList.ToArray();
+            var files = fileList.ItemKeys.ToArray();
 
             SetProgressBar(files);
             await hasherService.Start(files, UpdateUIWithHashingResult);

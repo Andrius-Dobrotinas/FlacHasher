@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public interface IFileListView : IListView<FileInfo>
+    public interface IFileListView : IListView<FileInfo, ListViewItem<FileInfo>>
     {
     }
 
@@ -18,6 +18,8 @@ namespace Andy.FlacHash.Application.Win.UI
 
     public abstract class FileResultListView<TData> : ListView, IFileListView<TData>
     {
+        public IEnumerable<FileInfo> ItemKeys => ListViewItems.Select(x => x.Key);
+
         public IEnumerable<ListViewItem<FileInfo, TData>> ListViewItems
             => this.Items.Cast<ListViewItem<FileInfo, TData>>();
 
@@ -65,17 +67,17 @@ namespace Andy.FlacHash.Application.Win.UI
 
         public void ResetData()
         {
-            Reset(this.ToArray());
+            Reset(this.ItemKeys.ToArray());
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return ListViewItems.Select(x => x.Key).GetEnumerator();
+            return ListViewItems.GetEnumerator();
         }
 
-        IEnumerator<FileInfo> IEnumerable<FileInfo>.GetEnumerator()
+        public IEnumerator<ListViewItem<FileInfo>> GetEnumerator()
         {
-            return ListViewItems.Select(x => x.Key).GetEnumerator();
+            return ListViewItems.GetEnumerator();
         }
     }
 }

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
-    public interface IListView<TKey> : IEnumerable<TKey>
+    public interface IListView<TKey, TListViewItem> : IEnumerable<TListViewItem>
+        where TListViewItem : ListViewItem<TKey>
     {
+        IEnumerable<TKey> ItemKeys { get; }
         void AddRange(TKey[] itemKey);
         void ClearList();
 
