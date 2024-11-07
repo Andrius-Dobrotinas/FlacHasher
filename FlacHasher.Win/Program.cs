@@ -88,7 +88,7 @@ namespace Andy.FlacHash.Application.Win
             {
                 AddExtension = true,
                 CheckPathExists = true,
-                Filter = "TEXT|*.txt|ANY|*.*",
+                Filter = "HASH|*.hash|TEXT|*.txt|ANY|*.*",
                 Title = "Save As"
             };
         }
