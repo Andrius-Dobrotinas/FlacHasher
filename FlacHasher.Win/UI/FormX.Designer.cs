@@ -65,7 +65,7 @@
             // 
             // btn_go
             // 
-            btn_go.Location = new System.Drawing.Point(17, 426);
+            btn_go.Location = new System.Drawing.Point(15, 426);
             btn_go.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_go.Name = "btn_go";
             btn_go.Size = new System.Drawing.Size(191, 60);
@@ -82,7 +82,7 @@
             // 
             // progressBar
             // 
-            progressBar.Location = new System.Drawing.Point(17, 500);
+            progressBar.Location = new System.Drawing.Point(15, 500);
             progressBar.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             progressBar.Name = "progressBar";
             progressBar.Size = new System.Drawing.Size(191, 42);
@@ -124,19 +124,19 @@
             // groupVerification
             // 
             groupVerification.Controls.Add(btn_openHashfile);
-            groupVerification.Location = new System.Drawing.Point(17, 220);
+            groupVerification.Location = new System.Drawing.Point(0, 220);
             groupVerification.Name = "groupVerification";
-            groupVerification.Size = new System.Drawing.Size(191, 93);
+            groupVerification.Size = new System.Drawing.Size(221, 99);
             groupVerification.TabIndex = 4;
             groupVerification.TabStop = false;
             groupVerification.Text = "Verification";
             // 
             // btn_openHashfile
             // 
-            btn_openHashfile.Location = new System.Drawing.Point(11, 32);
+            btn_openHashfile.Location = new System.Drawing.Point(15, 32);
             btn_openHashfile.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_openHashfile.Name = "btn_openHashfile";
-            btn_openHashfile.Size = new System.Drawing.Size(171, 48);
+            btn_openHashfile.Size = new System.Drawing.Size(191, 48);
             btn_openHashfile.TabIndex = 5;
             btn_openHashfile.Text = "Choose a Hashfile";
             btn_openHashfile.UseVisualStyleBackColor = true;
@@ -146,9 +146,9 @@
             // 
             groupHashing.Controls.Add(grp_hashing_dir);
             groupHashing.Controls.Add(btn_chooseFiles);
-            groupHashing.Location = new System.Drawing.Point(17, 0);
+            groupHashing.Location = new System.Drawing.Point(0, 0);
             groupHashing.Name = "groupHashing";
-            groupHashing.Size = new System.Drawing.Size(191, 214);
+            groupHashing.Size = new System.Drawing.Size(221, 221);
             groupHashing.TabIndex = 0;
             groupHashing.TabStop = false;
             groupHashing.Text = "Hashing";
@@ -157,9 +157,9 @@
             // 
             grp_hashing_dir.Controls.Add(menu_fileExtensions);
             grp_hashing_dir.Controls.Add(btn_chooseDir);
-            grp_hashing_dir.Location = new System.Drawing.Point(6, 80);
+            grp_hashing_dir.Location = new System.Drawing.Point(8, 80);
             grp_hashing_dir.Name = "grp_hashing_dir";
-            grp_hashing_dir.Size = new System.Drawing.Size(180, 128);
+            grp_hashing_dir.Size = new System.Drawing.Size(207, 134);
             grp_hashing_dir.TabIndex = 1;
             grp_hashing_dir.TabStop = false;
             grp_hashing_dir.Text = "Or";
@@ -168,17 +168,17 @@
             // 
             menu_fileExtensions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             menu_fileExtensions.FormattingEnabled = true;
-            menu_fileExtensions.Location = new System.Drawing.Point(5, 85);
+            menu_fileExtensions.Location = new System.Drawing.Point(7, 88);
             menu_fileExtensions.Name = "menu_fileExtensions";
-            menu_fileExtensions.Size = new System.Drawing.Size(171, 33);
+            menu_fileExtensions.Size = new System.Drawing.Size(191, 33);
             menu_fileExtensions.TabIndex = 3;
             // 
             // btn_chooseDir
             // 
-            btn_chooseDir.Location = new System.Drawing.Point(5, 32);
+            btn_chooseDir.Location = new System.Drawing.Point(7, 32);
             btn_chooseDir.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_chooseDir.Name = "btn_chooseDir";
-            btn_chooseDir.Size = new System.Drawing.Size(171, 48);
+            btn_chooseDir.Size = new System.Drawing.Size(191, 48);
             btn_chooseDir.TabIndex = 2;
             btn_chooseDir.Text = "Choose a Directory";
             btn_chooseDir.UseVisualStyleBackColor = true;
@@ -186,10 +186,10 @@
             // 
             // btn_chooseFiles
             // 
-            btn_chooseFiles.Location = new System.Drawing.Point(11, 32);
+            btn_chooseFiles.Location = new System.Drawing.Point(15, 32);
             btn_chooseFiles.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_chooseFiles.Name = "btn_chooseFiles";
-            btn_chooseFiles.Size = new System.Drawing.Size(171, 48);
+            btn_chooseFiles.Size = new System.Drawing.Size(191, 48);
             btn_chooseFiles.TabIndex = 0;
             btn_chooseFiles.Text = "Choose files";
             btn_chooseFiles.UseVisualStyleBackColor = true;
@@ -199,7 +199,7 @@
             // 
             menu_hashingAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             menu_hashingAlgorithm.FormattingEnabled = true;
-            menu_hashingAlgorithm.Location = new System.Drawing.Point(17, 368);
+            menu_hashingAlgorithm.Location = new System.Drawing.Point(15, 368);
             menu_hashingAlgorithm.Name = "menu_hashingAlgorithm";
             menu_hashingAlgorithm.Size = new System.Drawing.Size(191, 33);
             menu_hashingAlgorithm.TabIndex = 7;
@@ -208,7 +208,7 @@
             // 
             menu_decoderProfiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             menu_decoderProfiles.FormattingEnabled = true;
-            menu_decoderProfiles.Location = new System.Drawing.Point(17, 326);
+            menu_decoderProfiles.Location = new System.Drawing.Point(15, 326);
             menu_decoderProfiles.Name = "menu_decoderProfiles";
             menu_decoderProfiles.Size = new System.Drawing.Size(191, 33);
             menu_decoderProfiles.TabIndex = 6;
