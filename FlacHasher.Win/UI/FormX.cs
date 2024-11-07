@@ -250,6 +250,8 @@ namespace Andy.FlacHash.Application.Win.UI
             SetHashingFileExtensionMenuAvailability();
 
             RefreshHashingFilelist();
+
+            menu_fileExtensions.Focus();
         }
 
         void ChooseHashingInputFiles()
@@ -265,6 +267,8 @@ namespace Andy.FlacHash.Application.Win.UI
             SetHashingFileExtensionMenuAvailability();
 
             SetNewInputFiles(inputFiles);
+
+            menu_decoderProfiles.Focus();
         }
 
         void ChooseHashVerificationFile()
@@ -290,6 +294,8 @@ namespace Andy.FlacHash.Application.Win.UI
             SetMode(Mode.Verification);
 
             LoadFilesFromHashmap(fileHashMap);
+
+            menu_decoderProfiles.Focus();
         }
 
         void RefreshHashingFilelist()
