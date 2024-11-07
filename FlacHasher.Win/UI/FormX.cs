@@ -147,6 +147,21 @@ namespace Andy.FlacHash.Application.Win.UI
             ResetStatusMessages();
         }
 
+        bool listResults_selectionReversal = false;
+        private void List_results_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            if (listResults_selectionReversal)
+            {
+                listResults_selectionReversal = false;
+                return;
+            }
+            if (Form.MouseButtons == MouseButtons.Right)
+            {
+                listResults_selectionReversal = true;
+                e.Item.Selected = !e.IsSelected;
+            }
+        }
+
         void ResetStatusMessages()
         {
             if (mode == Mode.Hashing)

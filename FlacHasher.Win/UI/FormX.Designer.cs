@@ -293,6 +293,7 @@
             list_results.TabIndex = 17;
             list_results.UseCompatibleStateImageBehavior = false;
             list_results.View = System.Windows.Forms.View.Details;
+            list_results.ItemSelectionChanged += List_results_ItemSelectionChanged;
             // 
             // columnHashResult_File
             // 
