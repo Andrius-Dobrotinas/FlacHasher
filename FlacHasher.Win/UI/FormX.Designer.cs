@@ -282,6 +282,7 @@
             list_verification_results.Size = new System.Drawing.Size(942, 244);
             list_verification_results.TabIndex = 11;
             list_verification_results.UseCompatibleStateImageBehavior = false;
+            list_verification_results.Resize += List_verification_results_Resize;
             // 
             // col_results_verification_file
             // 
@@ -309,6 +310,7 @@
             list_results.View = System.Windows.Forms.View.Details;
             list_results.ItemSelectionChanged += List_results_ItemSelectionChanged;
             list_results.KeyDown += list_results_KeyDown;
+            list_results.Resize += List_hashing_results_Resize;
             // 
             // columnHashResult_File
             // 

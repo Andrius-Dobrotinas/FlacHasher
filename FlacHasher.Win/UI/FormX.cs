@@ -135,9 +135,6 @@ namespace Andy.FlacHash.Application.Win.UI
                 RefreshHashingFilelist();
             };
 
-            list_results.Resize += List_hashing_results_Resize;
-            list_verification_results.Resize += List_verification_results_Resize;
-
             // Triggers all kinds of handlers
             List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
