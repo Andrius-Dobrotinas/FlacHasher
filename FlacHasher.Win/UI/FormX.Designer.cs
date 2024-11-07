@@ -294,6 +294,7 @@
             list_results.UseCompatibleStateImageBehavior = false;
             list_results.View = System.Windows.Forms.View.Details;
             list_results.ItemSelectionChanged += List_results_ItemSelectionChanged;
+            list_results.KeyDown += list_results_KeyDown;
             // 
             // columnHashResult_File
             // 

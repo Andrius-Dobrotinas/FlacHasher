@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
 
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
-            
+
             openFileDialog_hashfile = new OpenFileDialog
             {
                 CheckPathExists = true,
@@ -97,8 +97,8 @@ namespace Andy.FlacHash.Application.Win.UI
             };
 
             ResultListContextMenuSetup.WireUp(
-                list_results, 
-                ctxMenu_results, 
+                list_results,
+                ctxMenu_results,
                 (results) => WithTryCatch(() => SaveHashes(results)),
                 (results, useConfiguredFormatting) => WithTryCatch(() => CopyHashes(results, useConfiguredFormatting)));
 
@@ -160,6 +160,13 @@ namespace Andy.FlacHash.Application.Win.UI
                 listResults_selectionReversal = true;
                 e.Item.Selected = !e.IsSelected;
             }
+        }
+
+        private void list_results_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+                foreach (var i in list_results.Items.Cast<ListViewItem>())
+                    i.Selected = true;
         }
 
         void ResetStatusMessages()
@@ -259,7 +266,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
             var hashfile = new FileInfo(selectedFiles.First());
             directory = hashfile.Directory;
-            
+
             var fileHashMap = hashFileParser.Read(hashfile);
             if (fileHashMap.IsPositionBased)
             {
@@ -358,7 +365,7 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 if (!freshOperation)
                     fileList.ResetData();
-                
+
                 switch (mode)
                 {
                     case Mode.Hashing:
@@ -570,8 +577,8 @@ namespace Andy.FlacHash.Application.Win.UI
         private void SetMode(Mode mode)
         {
             this.mode = mode;
-            fileList = mode == Mode.Hashing 
-                ? (IFileListView)list_results 
+            fileList = mode == Mode.Hashing
+                ? (IFileListView)list_results
                 : list_verification_results;
 
             this.list_results.Visible = mode == Mode.Hashing;
@@ -584,7 +591,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             // Storing fileHashes separately from fileList is good for repeating the same op on the same input: fileHashes doesn't have to be re-read
             fileHashes = ReadFilesFromHashmap(fileHashMap);
-            
+
             SetNewInputFiles(fileHashes.Select(x => x.Key).ToArray());
         }
 
