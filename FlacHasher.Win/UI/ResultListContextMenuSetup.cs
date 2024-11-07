@@ -13,7 +13,7 @@ namespace Andy.FlacHash.Application.Win.UI
             FileHashResultList resultList,
             ContextMenuStrip contextMenu,
             Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>, bool> copyResultsAction)
+            Action<bool> copyResultsAction)
         {
             void resultList_MouseDown(object sender, MouseEventArgs e)
             {
@@ -34,7 +34,7 @@ namespace Andy.FlacHash.Application.Win.UI
             FileHashResultList resultList,
             ContextMenuStrip contextMenu,
             Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>, bool> copyResultsAction)
+            Action<bool> copyResultsAction)
         {
             var saveEventHandler = new EventHandler(
                 (sender, e) => saveHashesAction(resultList.BackingData));
@@ -48,22 +48,15 @@ namespace Andy.FlacHash.Application.Win.UI
                 "Copy",
                 null,
                 new EventHandler(
-                    (sender, e) => copyResultsAction(GetData(resultList), false)));
+                    (sender, e) => copyResultsAction(false)));
 
             contextMenu.Items.Add(
                 "Copy (Using Save formatting)",
                 null,
                 new EventHandler(
-                    (sender, e) => copyResultsAction(GetData(resultList), true)));
+                    (sender, e) => copyResultsAction(true)));
         }
 
-        static IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> GetData(FileHashResultList resultList)
-        {
-            var selectedItems = resultList.ListViewItems.Where(x => x.Selected);
-            if (selectedItems.Any())
-                return selectedItems.Select(x => new KeyValuePair<FileInfo, FileHashResultListItem>(x.Key, x.Data));
-            else
-                return resultList.BackingData;
-        }
+        
     }
 }

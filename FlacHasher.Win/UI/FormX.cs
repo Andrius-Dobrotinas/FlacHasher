@@ -100,7 +100,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 list_results,
                 ctxMenu_results,
                 (results) => WithTryCatch(() => SaveHashes(results)),
-                (results, useConfiguredFormatting) => WithTryCatch(() => CopyHashes(results, useConfiguredFormatting)));
+                (useConfiguredFormatting) => WithTryCatch(() => CopyHashesHandler(useConfiguredFormatting)));
 
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
@@ -165,8 +165,16 @@ namespace Andy.FlacHash.Application.Win.UI
         private void list_results_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.A)
+            {
                 foreach (var i in list_results.Items.Cast<ListViewItem>())
                     i.Selected = true;
+                return;
+            }
+            else if (e.Control && e.KeyCode == Keys.C)
+            {
+                CopyHashesHandler(false);
+                return;
+            }
         }
 
         void ResetStatusMessages()
@@ -345,13 +353,28 @@ namespace Andy.FlacHash.Application.Win.UI
                 LogMessage("Hashes saved!");
         }
 
-        private void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results, bool useConfiguredFormatting)
+        void CopyHashesHandler(bool useConfiguredFormatting)
+        {
+            var items = GetSelectedData(list_results);
+            CopyHashes(items, useConfiguredFormatting);
+        }
+
+        void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results, bool useConfiguredFormatting)
         {
             var values = useConfiguredFormatting
                 ? results.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value?.HashString, x.Key))
                 : results.Select(x => $"{x.Key.Name}\t{x.Value?.HashString}");
 
             Clipboard.SetText(string.Join(Environment.NewLine, values));
+        }
+
+        static IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> GetSelectedData(FileHashResultList resultList)
+        {
+            var selectedItems = resultList.ListViewItems.Where(x => x.Selected);
+            if (selectedItems.Any())
+                return selectedItems.Select(x => new KeyValuePair<FileInfo, FileHashResultListItem>(x.Key, x.Data));
+            else
+                return resultList.BackingData;
         }
 
         private async void Btn_Go_Click(object sender, EventArgs e)
