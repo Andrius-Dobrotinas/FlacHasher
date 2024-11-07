@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "FlacHasher.Win": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PATH": "C:\\Program Files (x86)\\FLAC Frontend\\tools\\;C:\\Program Files\\Monkey's Audio x64"
+      }
+    }
+  }
+}

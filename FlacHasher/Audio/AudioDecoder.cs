@@ -80,7 +80,12 @@ namespace Andy.FlacHash.Application.Audio
             if (Path.IsPathRooted(decoderPath))
                 return null;
 
-            var paths = Environment.GetEnvironmentVariable("PATH").Split(';');
+            var paths = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process).Split(';')
+                .Concat(Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User).Split(';'))
+                .Concat(Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine).Split(';'))
+                .Distinct()
+                .Where(x => !string.IsNullOrWhiteSpace(x));
+
             return FindDecoderInPaths(decoderPath, paths);
         }
 
