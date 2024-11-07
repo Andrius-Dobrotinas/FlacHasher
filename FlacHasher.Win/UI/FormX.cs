@@ -99,7 +99,7 @@ namespace Andy.FlacHash.Application.Win.UI
             ResultListContextMenuSetup.WireUp(
                 list_results,
                 ctxMenu_results,
-                (results) => WithTryCatch(() => SaveHashes(results)),
+                () => WithTryCatch(SaveHashesHandler),
                 (useConfiguredFormatting) => WithTryCatch(() => CopyHashesHandler(useConfiguredFormatting)));
 
             // List etc initialization
@@ -344,11 +344,14 @@ namespace Andy.FlacHash.Application.Win.UI
                 menu_decoderProfiles.SelectedItem = match;
         }
 
-        private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
+        void SaveHashesHandler()
         {
-            var hashes = results.Where(x => x.Value?.HashString != null);
+            SaveHashes(list_results.BackingData.Where(x => x.Value?.HashString != null));
+        }
 
-            var lines = hashes.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
+        void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
+        {
+            var lines = results.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
             if (hashFileWriter.GetFileAndSave(lines) == true)
                 LogMessage("Hashes saved!");
         }
