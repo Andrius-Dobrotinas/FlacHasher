@@ -120,10 +120,7 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_fileExtensions.Items.AddRange(exts);
             menu_fileExtensions.SelectedIndex = 0;
             
-
-            list_verification_results.View = View.Details;
-            list_verification_results.SmallImageList = imgList_verification;
-
+            
             // Initial values
             btn_go.Enabled = false;
 

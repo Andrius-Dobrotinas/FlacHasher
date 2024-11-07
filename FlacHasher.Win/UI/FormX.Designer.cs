@@ -280,8 +280,10 @@
             list_verification_results.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             list_verification_results.Name = "list_verification_results";
             list_verification_results.Size = new System.Drawing.Size(942, 244);
+            list_verification_results.SmallImageList = imgList_verification;
             list_verification_results.TabIndex = 11;
             list_verification_results.UseCompatibleStateImageBehavior = false;
+            list_verification_results.View = System.Windows.Forms.View.Details;
             list_verification_results.Resize += List_verification_results_Resize;
             // 
             // col_results_verification_file
