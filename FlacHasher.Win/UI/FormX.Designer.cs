@@ -69,7 +69,7 @@
             btn_go.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_go.Name = "btn_go";
             btn_go.Size = new System.Drawing.Size(191, 60);
-            btn_go.TabIndex = 5;
+            btn_go.TabIndex = 8;
             btn_go.Text = "Go!";
             btn_go.UseVisualStyleBackColor = true;
             btn_go.Click += Btn_Go_Click;
@@ -137,7 +137,7 @@
             btn_openHashfile.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             btn_openHashfile.Name = "btn_openHashfile";
             btn_openHashfile.Size = new System.Drawing.Size(171, 48);
-            btn_openHashfile.TabIndex = 4;
+            btn_openHashfile.TabIndex = 5;
             btn_openHashfile.Text = "Choose a Hashfile";
             btn_openHashfile.UseVisualStyleBackColor = true;
             btn_openHashfile.Click += BtnChooseHashfile_Click;
@@ -241,7 +241,7 @@
             txtStatus.ReadOnly = true;
             txtStatus.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             txtStatus.Size = new System.Drawing.Size(948, 274);
-            txtStatus.TabIndex = 19;
+            txtStatus.TabIndex = 12;
             // 
             // groupFiles
             // 
@@ -252,7 +252,7 @@
             groupFiles.Location = new System.Drawing.Point(3, 3);
             groupFiles.Name = "groupFiles";
             groupFiles.Size = new System.Drawing.Size(948, 274);
-            groupFiles.TabIndex = 18;
+            groupFiles.TabIndex = 9;
             groupFiles.TabStop = false;
             // 
             // list_verification_results
@@ -266,7 +266,7 @@
             list_verification_results.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             list_verification_results.Name = "list_verification_results";
             list_verification_results.Size = new System.Drawing.Size(942, 244);
-            list_verification_results.TabIndex = 18;
+            list_verification_results.TabIndex = 11;
             list_verification_results.UseCompatibleStateImageBehavior = false;
             // 
             // col_results_verification_file
@@ -290,7 +290,7 @@
             list_results.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             list_results.Name = "list_results";
             list_results.Size = new System.Drawing.Size(942, 244);
-            list_results.TabIndex = 17;
+            list_results.TabIndex = 10;
             list_results.UseCompatibleStateImageBehavior = false;
             list_results.View = System.Windows.Forms.View.Details;
             list_results.ItemSelectionChanged += List_results_ItemSelectionChanged;
