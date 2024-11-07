@@ -562,8 +562,6 @@ namespace Andy.FlacHash.Application.Win.UI
                     File = result.File,
                     HashString = hashFormatter.GetString(result.Hash)
                 });
-
-            this.Text = result.File.Name;
         }
 
         private void ReportExecutionError(Exception exception, FileInfo file)
