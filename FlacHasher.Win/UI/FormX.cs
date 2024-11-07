@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class FormX : Form
     {
-        const string errorSeparator = "==========================";
+        const string errorSeparator = ".......................";
 
         private readonly HasherFactory hasherFactory;
         private readonly InteractiveTextFileWriter hashFileWriter;
