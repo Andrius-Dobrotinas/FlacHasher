@@ -44,7 +44,7 @@ namespace Andy.FlacHash.Application.Win
             var algosString = BuildFileFilter(algorithms);
 
             using (var openFileDialog_inputFiles = Build_OpenInputfilesDialog(
-                PrepSupportedFileExtensions(decoderProfiles)))
+                GetSupportedAudioFiletypeExtensions(decoderProfiles)))
             using (var openFileDialog_hashfile = Build_OpenHashfileDialog(algosString))
             using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog(algosString))
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
@@ -130,7 +130,7 @@ namespace Andy.FlacHash.Application.Win
                 yield return (TEnum)value;
         }
 
-        static string PrepSupportedFileExtensions(IEnumerable<DecoderProfile> decoderProfiles)
+        static string GetSupportedAudioFiletypeExtensions(IEnumerable<DecoderProfile> decoderProfiles)
         {
             var filters = decoderProfiles.Select(x =>
             {
