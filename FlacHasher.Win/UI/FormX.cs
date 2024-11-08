@@ -89,10 +89,10 @@ namespace Andy.FlacHash.Application.Win.UI
             };
             
             ResultListContextMenuSetup.WireUp(
-                list_results, 
-                ctxMenu_results, 
-                (results) => WithTryCatch(() => SaveHashes(results)),
-                (results, useConfiguredFormatting) => WithTryCatch(() => CopyHashes(results, useConfiguredFormatting)));
+                list_results,
+                ctxMenu_results,
+                () => WithTryCatch(SaveHashesHandler),
+                (useConfiguredFormatting) => WithTryCatch(() => CopyHashesHandler(useConfiguredFormatting)));
 
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
@@ -132,6 +132,36 @@ namespace Andy.FlacHash.Application.Win.UI
 
             BuildHasherCached(); // needs mode and decoder+algorithm to be pre-set
             ResetStatusMessages();
+        }
+
+        bool listResults_selectionReversal = false;
+        private void List_results_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            if (listResults_selectionReversal)
+            {
+                listResults_selectionReversal = false;
+                return;
+            }
+            if (Form.MouseButtons == MouseButtons.Right)
+            {
+                listResults_selectionReversal = true;
+                e.Item.Selected = !e.IsSelected;
+            }
+        }
+
+        private void list_results_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+            {
+                foreach (var i in list_results.Items.Cast<ListViewItem>())
+                    i.Selected = true;
+                return;
+            }
+            else if (e.Control && e.KeyCode == Keys.C)
+            {
+                CopyHashesHandler(false);
+                return;
+            }
         }
 
         void ResetStatusMessages()
@@ -241,7 +271,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 return;
 
             directory = hashfile.Directory;
-            
+
             var fileHashMap = hashFileParser.Read(hashfile);
             if (fileHashMap.IsPositionBased)
             {
@@ -311,22 +341,40 @@ namespace Andy.FlacHash.Application.Win.UI
                 menu_decoderProfiles.SelectedItem = match;
         }
 
-        private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
+        void SaveHashesHandler()
         {
-            var hashes = results.Where(x => x.Value?.HashString != null);
+            SaveHashes(list_results.BackingData.Where(x => x.Value?.HashString != null));
+        }
 
-            var lines = hashes.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
+        void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
+        {
+            var lines = results.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
             if (hashFileWriter.GetFileAndSave(lines) == true)
                 LogMessage("Hashes saved!");
         }
 
-        private void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results, bool useConfiguredFormatting)
+        void CopyHashesHandler(bool useConfiguredFormatting)
+        {
+            var items = GetSelectedData(list_results);
+            CopyHashes(items, useConfiguredFormatting);
+        }
+
+        void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results, bool useConfiguredFormatting)
         {
             var values = useConfiguredFormatting
                 ? results.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value?.HashString, x.Key))
                 : results.Select(x => $"{x.Key.Name}\t{x.Value?.HashString}");
 
             Clipboard.SetText(string.Join(Environment.NewLine, values));
+        }
+
+        static IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> GetSelectedData(FileHashResultList resultList)
+        {
+            var selectedItems = resultList.ListViewItems.Where(x => x.Selected);
+            if (selectedItems.Any())
+                return selectedItems.Select(x => new KeyValuePair<FileInfo, FileHashResultListItem>(x.Key, x.Data));
+            else
+                return resultList.BackingData;
         }
 
         private async void Btn_Go_Click(object sender, EventArgs e)
@@ -340,7 +388,7 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 if (!freshOperation)
                     fileList.ResetData();
-                
+
                 switch (mode)
                 {
                     case Mode.Hashing:
@@ -552,8 +600,8 @@ namespace Andy.FlacHash.Application.Win.UI
         private void SetMode(Mode mode)
         {
             this.mode = mode;
-            fileList = mode == Mode.Hashing 
-                ? (IFileListView)list_results 
+            fileList = mode == Mode.Hashing
+                ? (IFileListView)list_results
                 : list_verification_results;
 
             this.list_results.Visible = mode == Mode.Hashing;
@@ -566,7 +614,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             // Storing fileHashes separately from fileList is good for repeating the same op on the same input: fileHashes doesn't have to be re-read
             fileHashes = ReadFilesFromHashmap(fileHashMap);
-            
+
             SetNewInputFiles(fileHashes.Select(x => x.Key).ToArray());
         }
 

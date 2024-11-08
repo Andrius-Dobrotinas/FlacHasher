@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -12,8 +11,8 @@ namespace Andy.FlacHash.Application.Win.UI
         public static void WireUp(
             FileHashResultList resultList,
             ContextMenuStrip contextMenu,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>, bool> copyResultsAction)
+            Action saveHashesAction,
+            Action<bool> copyResultsAction)
         {
             void resultList_MouseDown(object sender, MouseEventArgs e)
             {
@@ -27,17 +26,16 @@ namespace Andy.FlacHash.Application.Win.UI
 
             resultList.MouseDown += new MouseEventHandler(resultList_MouseDown);
 
-            BuildResultsCtxMenu(resultList, contextMenu, saveHashesAction, copyResultsAction);
+            BuildResultsCtxMenu(contextMenu, saveHashesAction, copyResultsAction);
         }
 
         private static void BuildResultsCtxMenu(
-            FileHashResultList resultList,
             ContextMenuStrip contextMenu,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>> saveHashesAction,
-            Action<IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>>, bool> copyResultsAction)
+            Action saveHashesAction,
+            Action<bool> copyResultsAction)
         {
             var saveEventHandler = new EventHandler(
-                (sender, e) => saveHashesAction(resultList.BackingData));
+                (sender, e) => saveHashesAction());
 
             contextMenu.Items.Add(
                 "Save to a File...",
@@ -48,13 +46,15 @@ namespace Andy.FlacHash.Application.Win.UI
                 "Copy",
                 null,
                 new EventHandler(
-                    (sender, e) => copyResultsAction(resultList.BackingData, false)));
+                    (sender, e) => copyResultsAction(false)));
 
             contextMenu.Items.Add(
                 "Copy (Using Save formatting)",
                 null,
                 new EventHandler(
-                    (sender, e) => copyResultsAction(resultList.BackingData, true)));
+                    (sender, e) => copyResultsAction(true)));
         }
+
+        
     }
 }
