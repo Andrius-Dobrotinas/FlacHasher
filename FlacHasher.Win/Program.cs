@@ -41,11 +41,12 @@ namespace Andy.FlacHash.Application.Win
             System.Windows.Forms.Application.EnableVisualStyles();
             System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
+            var algosString = BuildFileFilter(algorithms);
+
             using (var openFileDialog_inputFiles = Build_OpenInputfilesDialog(
                 PrepSupportedFileExtensions(decoderProfiles)))
-            using (var openFileDialog_hashfile = Build_OpenHashfileDialog(
-                PrepSupportedHashfileExtensions(algorithms)))
-            using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
+            using (var openFileDialog_hashfile = Build_OpenHashfileDialog(algosString))
+            using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog(algosString))
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
                 var fileReadProgressReporter = new FileReadProgressReporter();
@@ -100,25 +101,25 @@ namespace Andy.FlacHash.Application.Win
             };
         }
 
-        private static OpenFileDialog Build_OpenHashfileDialog(string filter)
+        private static OpenFileDialog Build_OpenHashfileDialog(string filterSpecificFiles)
         {
             return new OpenFileDialog
             {
                 CheckPathExists = true,
                 DereferenceLinks = true,
-                Filter = filter,
+                Filter = $"Any file type|*.*|Hash|*.hash|{filterSpecificFiles}|Text files|*.txt",
                 Title = "Open a Hash File",
                 Multiselect = false
             };
         }
 
-        private static SaveFileDialog Build_SaveHashesToFileDialog()
+        private static SaveFileDialog Build_SaveHashesToFileDialog(string filterSpecificFiles)
         {
             return new SaveFileDialog
             {
                 AddExtension = true,
                 CheckPathExists = true,
-                Filter = "TEXT|*.txt|ANY|*.*",
+                Filter = $"Hash|*.hash|Text files|*.txt|{filterSpecificFiles}|Any|*.*",
                 Title = "Save As"
             };
         }
@@ -141,10 +142,7 @@ namespace Andy.FlacHash.Application.Win
             return $"{filterString}|Other files|*.*";
         }
 
-        static string PrepSupportedHashfileExtensions(IEnumerable<Algorithm> algorithms)
-        {
-            var algosString = string.Join('|', algorithms.Select(x => $"{x}|*.{x}"));
-            return $"Any file type|*.*|Hash|*.hash|{algosString}|Text files|*.txt";
-        }
+        static string BuildFileFilter(IEnumerable<Algorithm> algorithms)
+            => string.Join('|', algorithms.Select(x => $"{x}|*.{x}"));
     }
 }
