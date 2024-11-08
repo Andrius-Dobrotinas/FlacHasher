@@ -44,19 +44,19 @@ namespace Andy.FlacHash.Application.Win
 
         /// <summary>
         /// Runs the supplied <paramref name="operation"/> on a non-UI thread, if it's currently not running anything,
-        /// and invokes <paramref name="reportUpdate"/>, <paramref name="reportCompletion"/>, <paramref name="reportFailure"/> and <paramref name="stateChanged"/>
+        /// and invokes <paramref name="reportUpdate"/>, <paramref name="reportCompletion"/>, <paramref name="reportFailure"/> and <paramref name="stateTransitioned"/>
         /// callbacks on a UI thread
         /// </summary>
         /// <param name="reportUpdate">Whatever the action reports from time to time</param>
         /// <param name="reportCompletion">When the action finishes successfully or is cancelled</param>
         /// <param name="reportFailure">When the action errors out</param>
-        /// <param name="stateChanged">Gets invoked whenever action transitions from running to completed</param>
+        /// <param name="stateTransitioned">Gets invoked whenever action transitions from running to completed</param>
         /// <exception cref="InvalidOperationException">If attempting to start an action while there's one still running</exception>
         public Task Start<TUpdate>(
             Action<TUpdate> reportUpdate,
             CompletionHandler reportCompletion,
             Action<Exception> reportFailure,
-            StateChangeHandler stateChanged,
+            StateChangeHandler stateTransitioned,
             ReportableOperation<TUpdate> operation)
         {
             if (inProgress)
@@ -67,7 +67,7 @@ namespace Andy.FlacHash.Application.Win
             void SetRunnerState(bool inProgress)
             {
                 this.inProgress = inProgress;
-                stateChanged(inProgress);
+                stateTransitioned(inProgress);
             }
 
             SetRunnerState(true);

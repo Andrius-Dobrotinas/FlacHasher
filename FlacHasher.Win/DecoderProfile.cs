@@ -9,6 +9,6 @@ namespace Andy.FlacHash.Application.Win
         public string Name { get; set; }
         public FileInfo Decoder { get; set; }
         public string[] DecoderParameters { get; set; }
-        public string TargetFileExtension { get; set; }
+        public string[] TargetFileExtensions { get; set; }
     }
 }

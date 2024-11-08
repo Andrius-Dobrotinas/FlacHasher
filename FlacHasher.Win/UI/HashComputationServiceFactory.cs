@@ -13,12 +13,12 @@ namespace Andy.FlacHash.Application.Win.UI
             Control uiUpdateContext,
             CompletionHandler reportCompletion,
             Action<Exception> reportFailure,
-            StateChangeHandler stateChanged)
+            StateChangeHandler stateTransitioned)
         {
             return new NonBlockingHashComputation(
                 new CancellableBackgroundOperationRunner(uiUpdateContext),
                 hasher,
-                reportCompletion, reportFailure, stateChanged);
+                reportCompletion, reportFailure, stateTransitioned);
         }
     }
 }

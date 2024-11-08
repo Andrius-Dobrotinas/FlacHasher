@@ -17,7 +17,6 @@ namespace Andy.FlacHash.Application.Win.UI
             FolderBrowserDialog dirBrowser)
         {
             this.dirBrowser = dirBrowser;
-            dirBrowser.ShowNewFolderButton = false;
         }
 
         /// <summary>

@@ -61,7 +61,7 @@ namespace Andy.FlacHash.Application.Win
                         Name = profileSection.Key.Replace("Decoder.", "", StringComparison.InvariantCultureIgnoreCase),
                         Decoder = decoderExe,
                         DecoderParameters = @params,
-                        TargetFileExtension = profileRaw.TargetFileExtension
+                        TargetFileExtensions = profileRaw.TargetFileExtensions
                     };
                 })
                 .ToArray();
@@ -77,8 +77,8 @@ namespace Andy.FlacHash.Application.Win
             [Parameter(nameof(DecoderParameters))]
             public virtual string[] DecoderParameters { get; set; }
 
-            [Parameter(nameof(TargetFileExtension))]
-            public virtual string TargetFileExtension { get; set; }
+            [Parameter(nameof(TargetFileExtensions))]
+            public virtual string[] TargetFileExtensions { get; set; }
         }
 
         class DecoderProfileTempDefaultFlac : DecoderProfileTemp
@@ -88,9 +88,9 @@ namespace Andy.FlacHash.Application.Win
             [Optional]
             public override string[] DecoderParameters { get; set; }
 
-            [Parameter(nameof(TargetFileExtension))]
+            [Parameter(nameof(TargetFileExtensions))]
             [Optional(defaultValue: "flac")]
-            public override string TargetFileExtension { get; set; }
+            public override string[] TargetFileExtensions { get; set; }
         }
     }
 }

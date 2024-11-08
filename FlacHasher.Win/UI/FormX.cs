@@ -18,6 +18,10 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class FormX : Form
     {
+        const string newline = "\r\n";
+        const string errorSeparator = "==========================";
+        const int hashfileMaxSizeBytes = 512 * 1024;
+
         private readonly HasherFactory hasherFactory;
         private readonly InteractiveTextFileWriter hashFileWriter;
         private readonly FileSizeProgressBarAdapter progressReporter;
@@ -28,17 +32,24 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly IHashFormatter hashFormatter;
         private readonly HashFileReader hashFileParser;
         private readonly HashVerifier hashVerifier;
+        private readonly DecoderProfile[] decoderProfiles;
+        private readonly int defaultAlgorithmIndex;
+        private readonly OpenFileDialog openFileDialog_hashfile = null;
+        private readonly OpenFileDialog openFileDialog_inputFiles = null;
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
 
         private bool finishedWithErrors;
+        private bool freshOperation = false;
         private DirectoryInfo directory;
-        private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
-        private AlgorithmOption HashingAlgorithmProfile => (AlgorithmOption)menu_hashingAlgorithm.SelectedItem;
+        private IFileListView fileList;
+        private IDictionary<FileInfo, string> fileHashes;
+        private Mode mode;
 
-        const string newline = "\r\n";
-        const string errorSeparator = "==========================";
+        private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
+        private FileExtensionsOption SelectedFileType => (FileExtensionsOption)menu_fileExtensions.SelectedItem;
+        private Algorithm HashingAlgorithmProfile => (Algorithm)menu_hashingAlgorithm.SelectedItem;
 
         public FormX(
             HasherFactory hasherFactory,
@@ -50,8 +61,10 @@ namespace Andy.FlacHash.Application.Win.UI
             HashFileReader hashFileParser,
             HashVerifier hashVerifier,
             DecoderProfile[] decoderProfiles,
-            AlgorithmOption[] hashingAlgorithmOptions,
-            Settings settings)
+            Algorithm[] hashingAlgorithmOptions,
+            Settings settings,
+            OpenFileDialog openFileDialog_hashfile,
+            OpenFileDialog openFileDialog_inputFiles)
         {
             InitializeComponent();
 
@@ -62,46 +75,66 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashFileParser = hashFileParser;
             this.hashVerifier = hashVerifier;
             this.hasherFactory = hasherFactory;
+            this.decoderProfiles = decoderProfiles;
+            this.openFileDialog_hashfile = openFileDialog_hashfile;
+            this.openFileDialog_inputFiles = openFileDialog_inputFiles;
 
+            this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
+            
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
+            fileReadEventSource.BytesRead += (bytesRead) =>
+            {
+                this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
+            };
 
             ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
 
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
             menu_decoderProfiles.Items.AddRange(decoderProfiles);
+            menu_decoderProfiles.SelectedIndex = 0;
 
-            menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions);
-            menu_hashingAlgorithm.DisplayMember = nameof(AlgorithmOption.Name);
+            menu_hashingAlgorithm.Items.AddRange(hashingAlgorithmOptions.Cast<object>().ToArray());
+            menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
+
+            menu_fileExtensions.DisplayMember = nameof(FileExtensionsOption.Name);
+            var exts = decoderProfiles.Select(x => new FileExtensionsOption(x.Name, x.TargetFileExtensions)).ToArray();
+            menu_fileExtensions.Items.AddRange(exts);
+            menu_fileExtensions.SelectedIndex = 0;
+            
 
             list_verification_results.View = View.Details;
             list_verification_results.SmallImageList = imgList_verification;
 
-            this.list_files.Initialize();
-            this.list_hashFiles.Initialize();
-            this.list_results.Initialize();
-            
             // Initial values
-            menu_decoderProfiles.SelectedIndex = 0;
-            menu_hashingAlgorithm.SelectedIndex = Util.FindIndex(hashingAlgorithmOptions, x => x.Value == settings.HashAlgorithm);
-            this.btn_go.Enabled = false;
-            this.mode_Calc.Checked = true;
+            btn_go.Enabled = false;
 
             // Wire handlers up AFTER setting initial values to avoid them getting fired before everything is ready
-            fileReadEventSource.BytesRead += (bytesRead) =>
-            {
-                this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
-            };
             menu_decoderProfiles.SelectedIndexChanged += decoderProfiles_SelectedIndexChanged;
             menu_hashingAlgorithm.SelectedIndexChanged += hashingProfiles_SelectedIndexChanged;
+            menu_fileExtensions.SelectedIndexChanged += (object sender, EventArgs e) =>
+            {
+                RefreshHashingFilelist();
+            };
+
+            list_results.Resize += List_hashing_results_Resize;
             list_verification_results.Resize += List_verification_results_Resize;
-            list_hashFiles.DoubleClick += HashfileList_DoubleClick;
 
             // Triggers all kinds of handlers
+            List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
 
-            BuildHasherCached();
+            BuildHasherCached(); // needs mode and decoder+algorithm to be pre-set
+            ResetStatusMessages();
+        }
+
+        void ResetStatusMessages()
+        {
+            if (mode == Mode.Hashing)
+                ResetLog("Select a directory to hash some files!");
+            else
+                ResetLog("Select a hashfile to verify files");
         }
 
         private async Task WithTryCatch(Func<Task> function)
@@ -128,76 +161,155 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
+        private void List_hashing_results_Resize(object sender, EventArgs e)
+        {
+            var newWidth = list_results.Width / 2;
+            columnHashResult_File.Width = newWidth;
+            columnHashResult_Hash.Width = list_results.Width - newWidth;
+        }
+
         private void List_verification_results_Resize(object sender, EventArgs e)
         {
-            var newWidth = list_verification_results.Width - col_results_verification_isMatch.Width;
+            var newWidth = list_verification_results.Width * 0.8;
 
-            col_results_verification_file.Width = (int)(newWidth * .95);
+            col_results_verification_file.Width = (int)newWidth;
+            col_results_verification_isMatch.Width = list_verification_results.Width - col_results_verification_file.Width;
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
-            WithTryCatch(ChooseDir);
+            WithTryCatch(ChooseHashingDir);
         }
 
-        private void ChooseDir()
+        private void BtnChooseFiles_Click(object sender, EventArgs e)
+        {
+            WithTryCatch(ChooseHashingInputFiles);
+        }
+
+        private void BtnChooseHashfile_Click(object sender, EventArgs e)
+        {
+            WithTryCatch(ChooseHashVerificationFile);
+        }
+
+        private void ChooseHashingDir()
         {
             directory = dirBrowser.GetDirectory();
             if (directory == null) return;
 
-            RefreshFilelist();
+            ResetLog($"Current directory: {directory.FullName}");
+
+            SetMode(Mode.Hashing);
+            SetHashingFileExtensionMenuAvailability();
+
+            RefreshHashingFilelist();
         }
 
-        void RefreshFilelist()
+        void ChooseHashingInputFiles()
         {
-            if (directory == null)
+            var selectedFiles = GetFilesFromUser(openFileDialog_inputFiles);
+            if (selectedFiles == null) return;
+
+            var inputFiles = selectedFiles.Select(x => new FileInfo(x)).ToArray();
+            directory = null;
+            ResetLog();
+
+            SetMode(Mode.Hashing);
+            SetHashingFileExtensionMenuAvailability();
+
+            SetNewInputFiles(inputFiles);
+        }
+
+        void ChooseHashVerificationFile()
+        {
+            var selectedFiles = GetFilesFromUser(openFileDialog_hashfile);
+            if (selectedFiles == null) return;
+
+            var hashfile = new FileInfo(selectedFiles.First());
+            if (hashfile.Length > hashfileMaxSizeBytes && MessageBox.Show(
+                        $"The selected hashfile (\"{hashfile.Name}\") is quite big ({hashfileMaxSizeBytes / 1024} kb), " +
+                        $"which means it may contain some more serious (and unusable for this purposes) data. " +
+                        $"Do you want to continue?",
+                        "Hashfile too big?",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning)
+                    != DialogResult.Yes)
                 return;
 
-            var (files, hashFiles) = targetFileResolver.FindFiles(directory, DecoderProfile.TargetFileExtension);
+            directory = hashfile.Directory;
+            
+            var fileHashMap = hashFileParser.Read(hashfile);
+            if (fileHashMap.IsPositionBased)
+            {
+                MessageBox.Show("Hashfile must contain file names (use the cmd-line tool to verify a plain no-names hashlist)", "Not so fast", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
 
-            if (files.Any() == false)
-                ResetLog("The selected directory doesn't contain suitable files");
-            else
-                ResetLog(@"Press ""Go""");
+            var fileExt = Util.DeDotFileExtension(hashfile.Extension);
+            SetHashingAlgorigthm(fileExt);
 
-            SetNewInputFiles(files, hashFiles);
+            ResetLog($"Hashfile: {hashfile.FullName}", $"Working directory: {directory.FullName}");
+
+            SetMode(Mode.Verification);
+
+            LoadFilesFromHashmap(fileHashMap);
         }
 
-        private void SetNewInputFiles(FileInfo[] files, FileInfo[] hashFiles)
+        void RefreshHashingFilelist()
         {
-            list_files.ReplaceItems(files);
+            if (!isHashingDirectorySelected())
+                return;
 
-            if (hashFiles.Any())
-            {
-                list_hashFiles.ReplaceItems(hashFiles);
-                list_hashFiles.SelectedIndex = 0;
-            }
-            else
-                list_hashFiles.Items.Clear();
+            var files = targetFileResolver.FindFiles(directory, SelectedFileType.Extensions);
+            SetNewInputFiles(files);
+        }
 
-            list_results.ClearList();
-            list_verification_results.Items.Clear();
+        private void SetNewInputFiles(FileInfo[] files)
+        {
+            fileList.Reset(files);
+            freshOperation = true;
 
             progressReporter.Reset(0);
 
-            Set_Go_Button_State();
-        }
+            btn_go.Enabled = fileList.Any();
 
-        private void Set_Go_Button_State()
-        {
-            btn_go.Enabled = list_files.Any() && (mode == Mode.Hashing || list_hashFiles.Any());
+            SelectAppropriateDecoder();
 
-            if (!list_files.Any())
-                ResetLog("Select a directory that contains files");
-            else if (mode == Mode.Verification && !list_hashFiles.Any())
-                ResetLog("Select a directory that contains a hashfile");
+            if (!fileList.Any())
+                if (mode == Mode.Hashing)
+                    LogMessage("The directory doesn't contain suitable files!");
+                else
+                    LogMessage("The hashfile doesn't contain any data!");
             else
-                ResetLog("Select Operation and Press Go");
+                LogMessage("Press Go!");
         }
 
-        private void SaveHashes(IEnumerable<FileHashResultListItem> results)
+        void SetHashingAlgorigthm(string fileExtension)
         {
-            var hashes = results.Select(x => x.HashString);
+            var matchingAlgo = menu_hashingAlgorithm.Items.Cast<Algorithm>()
+                .Select(x => x.ToString())
+                .FirstOrDefault(
+                    x => x.Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
+            if (matchingAlgo != null)
+                menu_hashingAlgorithm.SelectedItem = matchingAlgo;
+            else
+                menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
+        }
+
+        void SelectAppropriateDecoder()
+        {
+            if (!fileList.Any())
+                return;
+
+            var ext = Util.DeDotFileExtension(fileList.ItemKeys.FirstOrDefault().Extension);
+            var match = decoderProfiles.FirstOrDefault(x => x.TargetFileExtensions.Contains(ext));
+            if (match != null)
+                menu_decoderProfiles.SelectedItem = match;
+        }
+
+        private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
+        {
+            var hashes = results.Select(x => x.Value?.HashString)
+                .Where(x => x != null);
 
             if (hashFileWriter.GetFileAndSave(hashes) == true)
                 MessageBox.Show("Hashes saved!");
@@ -212,19 +324,19 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             if (!hasherService.InProgress)
             {
-                var files = GetFiles();
-
+                if (!freshOperation)
+                    fileList.ResetData();
+                
                 switch (mode)
                 {
                     case Mode.Hashing:
                         {
-                            ComputeHashes(files);
+                            await ComputeHashes();
                             return;
                         }
                     case Mode.Verification:
                         {
-                            var expectedHashes = GetExpectedHashes();
-                            await VerifyHashes(files, expectedHashes);
+                            await VerifyHashes();
                             return;
                         }
                     default:
@@ -233,93 +345,104 @@ namespace Andy.FlacHash.Application.Win.UI
             }
             else
             {
-                OnCalcCancellation(); //TODO: make the hasher service invoke this when cancelled?
+                OnOperationCancellation(); //TODO: make the hasher service invoke this when cancelled?
                 hasherService.Cancel();
             }
         }
 
-        private IList<FileInfo> GetFiles()
+        private async Task VerifyHashes()
         {
-            return list_files.GetItems().ToList();
-        }
-
-        private FileHashMap GetExpectedHashes()
-        {
-            var hashFile = list_hashFiles.GetSelectedItem();
-
-            if (hashFile.Exists == false)
-                throw new Exception($"Hash file doesn't exist: {hashFile.FullName}");
-
-            return hashFileParser.Read(hashFile);
-        }
-
-        private async Task VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes)
-        {
-            var fileHashes = HashEntryMatching.MatchFilesToHashes(expectedHashes, files);
-
-            var expectedFiles = fileHashes.Where(x => x.Value != null).Select(x => x.Key);
-            BeforeCalc(expectedFiles);
+            var expectedFiles = fileHashes.Select(x => x.Key);
+            SetProgressBar(expectedFiles);
             await VerifyHashes(fileHashes);
         }
 
         private async Task VerifyHashes(IDictionary<FileInfo, string> expectedHashes)
         {
-            var extraneousFiles = expectedHashes.Where(x => x.Value == null).ToList();
-            var files = expectedHashes.Except(extraneousFiles).Select(x => x.Key);
+            var exist = expectedHashes.Where(x => x.Key.Exists).ToList();
 
+            foreach (var file in expectedHashes.Except(exist))
+            {
+                // TODO: if hashfile position-based, replace file name with something more generic
+                list_verification_results.SetData(file.Key, HashMatch.NotFound);
+            }
+
+            var files = exist.Select(x => x.Key);
             await hasherService.Start(files,
-                (FileHashResult calcResult) =>
+                (FileHashResult hashingResult) =>
                 {
-                    if (calcResult.Exception == null)
+                    if (hashingResult.Exception == null)
                     {
-                        var isMatch = hashVerifier.DoesMatch(expectedHashes, calcResult.File, calcResult.Hash);
+                        var isMatch = hashVerifier.DoesMatch(expectedHashes, hashingResult.File, hashingResult.Hash);
 
-                        list_verification_results.Add(calcResult.File, isMatch ? HashMatch.True : HashMatch.False);
+                        list_verification_results.SetData(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False);
                     }
                     else
                     {
-                        var result = (calcResult.Exception is InputFileNotFoundException)
+                        var result = (hashingResult.Exception is InputFileNotFoundException)
                             ? HashMatch.NotFound
                             : HashMatch.Error;
-                        list_verification_results.Add(calcResult.File, result);
-                        ReportExecutionError(calcResult.Exception, calcResult.File);
+                        list_verification_results.SetData(hashingResult.File, result);
+
+                        ReportExecutionError(hashingResult.Exception, hashingResult.File);
                     }
                 });
-
-            foreach (var file in extraneousFiles.Select(x => x.Key))
-                list_verification_results.Add(file, HashMatch.NotExpected);
         }
 
-        private void BeforeCalc(IEnumerable<FileInfo> files)
+        private void SetProgressBar(IEnumerable<FileInfo> files)
         {
-            finishedWithErrors = false;
-
-            list_results.ClearList();
-            list_verification_results.Items.Clear();
-            txtStatus.Clear();
-
             // Name-based verification includes files even if they don't exist just so they can be reported in the correct order
             long totalSize = files.Select(file => file.Exists ? file.Length : 0).Sum();
             progressReporter.Reset(totalSize);
-
-            ResetLog("Working...");
-            tabs_Results.SelectTab(tabStatus);
         }
 
-        private void OnCalcCancellation()
+        void SetSelectorElementAccesibility(bool isEnabled)
+        {
+            btn_chooseDir.Enabled = isEnabled;
+            btn_chooseFiles.Enabled = isEnabled;
+            btn_openHashfile.Enabled = isEnabled;
+            menu_decoderProfiles.Enabled = isEnabled;
+            menu_hashingAlgorithm.Enabled = isEnabled;
+            SetHashingFileExtensionMenuAvailability(!isEnabled);
+            ctxMenu_results.Enabled = isEnabled;
+        }
+
+        void SetHashingFileExtensionMenuAvailability(bool forceDisable = false)
+        {
+            /* It should only be available when choosing a Directory for hashing.
+             * Not when choosing specific files, not when doing verification.
+             * It's important to react to in-progress transitions too */
+            menu_fileExtensions.Enabled = (forceDisable == true)
+                ? false
+                : isHashingDirectorySelected();
+        }
+
+        bool isHashingDirectorySelected()
+        {
+            return mode == Mode.Hashing && directory != null;
+        }
+
+        private void OnOperationCancellation()
         {
             btn_go.Enabled = false;
             btn_go.Text = "Stopping...";
         }
 
-        private void OnCalcStateChanged(bool inProgress)
+        private void OnOperationStateTransition(bool inProgress)
         {
-            grpModes.Enabled = !inProgress;
+            if (inProgress)
+            {
+                finishedWithErrors = false;
+                freshOperation = false;
+                ResetLog("Working...");
+            }
+
+            SetSelectorElementAccesibility(!inProgress);
 
             btn_go.Text = inProgress ? "Stop" : "Go!"; //todo: put these into a resource file
         }
 
-        private void OnCalcFinished(bool cancelled)
+        private void OnOperationFinished(bool cancelled)
         {
             if (cancelled)
             {
@@ -336,10 +459,6 @@ namespace Andy.FlacHash.Application.Win.UI
                     LogMessage("Finished with errors ^^");
                 else
                     LogMessage("Finished");
-
-                // Verification reflects errors, the user can go back to the log
-                if (mode == Mode.Verification || !finishedWithErrors)
-                    tabs_Results.SelectTab(tabResults);
             }
         }
 
@@ -355,13 +474,15 @@ namespace Andy.FlacHash.Application.Win.UI
             ShowFatalError(e);
         }
 
-        private void ComputeHashes(IEnumerable<FileInfo> files)
+        private async Task ComputeHashes()
         {
-            BeforeCalc(files);
-            hasherService.Start(files, UpdateUIWithCalcResult);
+            var files = fileList.ItemKeys.ToArray();
+
+            SetProgressBar(files);
+            await hasherService.Start(files, UpdateUIWithHashingResult);
         }
 
-        private void UpdateUIWithCalcResult(FileHashResult result)
+        private void UpdateUIWithHashingResult(FileHashResult result)
         {
             if (result.Exception != null)
             {
@@ -369,10 +490,11 @@ namespace Andy.FlacHash.Application.Win.UI
                 return;
             }
 
-            this.list_results.AddItem(
+            this.list_results.SetData(
+                result.File,
                 new FileHashResultListItem
                 {
-                    Value = result,
+                    File = result.File,
                     HashString = hashFormatter.GetString(result.Hash)
                 });
 
@@ -387,8 +509,11 @@ namespace Andy.FlacHash.Application.Win.UI
 
         void LogMessage(params string[] message)
         {
-            txtStatus.AppendText(errorSeparator);
-            txtStatus.AppendText(newline);
+            if (!string.IsNullOrEmpty(txtStatus.Text))
+            {
+                txtStatus.AppendText(errorSeparator);
+                txtStatus.AppendText(newline);
+            }
 
             foreach (var line in message)
             {
@@ -397,10 +522,11 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
-        void ResetLog(string message)
+        void ResetLog(params string[] message)
         {
-            txtStatus.Text = message;
-            txtStatus.AppendText(newline);
+            txtStatus.Text = null;
+            if (message != null && message.Any())
+                LogMessage(message);
         }
 
         void ShowFatalError(Exception e)
@@ -409,47 +535,40 @@ namespace Andy.FlacHash.Application.Win.UI
             MessageBox.Show($"Operation failed. See the error log", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private Mode mode;
-
-        private void mode_Calc_CheckedChanged(object sender, EventArgs e)
-        {
-            SetMode(Mode.Hashing);
-        }
-
-        private void mode_Verify_CheckedChanged(object sender, EventArgs e)
-        {
-            SetMode(Mode.Verification);
-        }
-
         private void SetMode(Mode mode)
         {
             this.mode = mode;
+            fileList = mode == Mode.Hashing 
+                ? (IFileListView)list_results 
+                : list_verification_results;
 
             this.list_results.Visible = mode == Mode.Hashing;
             this.list_verification_results.Visible = mode == Mode.Verification;
 
-            Set_Go_Button_State();
+            SetHashingFileExtensionMenuAvailability();
         }
 
-        void HashfileList_DoubleClick(object sender, EventArgs e)
+        void LoadFilesFromHashmap(FileHashMap fileHashMap)
         {
-            var hashFile = (FileInfo)list_hashFiles.SelectedItem;
-            var fileHashMap = hashFileParser.Read(hashFile);
+            // Storing fileHashes separately from fileList is good for repeating the same op on the same input: fileHashes doesn't have to be re-read
+            fileHashes = ReadFilesFromHashmap(fileHashMap);
+            
+            SetNewInputFiles(fileHashes.Select(x => x.Key).ToArray());
+        }
 
+        IDictionary<FileInfo, string> ReadFilesFromHashmap(FileHashMap fileHashMap)
+        {
             var filesInCurrentDir = fileHashMap.Hashes
                 .Select(
                     x => new FileInfo(
                         Path.Combine(directory.FullName, x.Key)))
                 .ToArray();
-
-            list_files.ReplaceItems(filesInCurrentDir);
+            return HashEntryMatching.MatchFilesToHashes(fileHashMap, filesInCurrentDir);
         }
 
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
             BuildHasherCached();
-
-            RefreshFilelist();
         }
 
         private void hashingProfiles_SelectedIndexChanged(object sender, EventArgs e)
@@ -460,16 +579,16 @@ namespace Andy.FlacHash.Application.Win.UI
         private void BuildHasher()
         {
             this.hasherService = HashComputationServiceFactory.Build(
-                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters, HashingAlgorithmProfile.Value),
+                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters, HashingAlgorithmProfile),
                 this,
-                OnCalcFinished,
+                OnOperationFinished,
                 OnFailure,
-                OnCalcStateChanged);
+                OnOperationStateTransition);
         }
 
         private void BuildHasherCached()
         {
-            var key = new HasherKey(DecoderProfile.Name, HashingAlgorithmProfile.Value);
+            var key = new HasherKey(DecoderProfile.Name, HashingAlgorithmProfile);
 
             hashers.TryGetValue(key, out hasherService);
 
@@ -478,6 +597,14 @@ namespace Andy.FlacHash.Application.Win.UI
 
             BuildHasher();
             hashers.Add(key, this.hasherService);
+        }
+
+        static string[] GetFilesFromUser(OpenFileDialog box)
+        {
+            var result = box.ShowDialog();
+            if (result != DialogResult.OK) return null;
+
+            return box.FileNames;
         }
 
         struct HasherKey
