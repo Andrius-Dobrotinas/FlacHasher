@@ -39,7 +39,7 @@
             btn_openHashfile = new System.Windows.Forms.Button();
             groupHashing = new System.Windows.Forms.GroupBox();
             menu_fileExtensions = new System.Windows.Forms.ComboBox();
-            label1 = new System.Windows.Forms.Label();
+            lbl_inputSelectionMethod = new System.Windows.Forms.Label();
             btn_chooseFiles = new System.Windows.Forms.Button();
             btn_chooseDir = new System.Windows.Forms.Button();
             menu_hashingAlgorithm = new System.Windows.Forms.ComboBox();
@@ -144,7 +144,7 @@
             // groupHashing
             // 
             groupHashing.Controls.Add(menu_fileExtensions);
-            groupHashing.Controls.Add(label1);
+            groupHashing.Controls.Add(lbl_inputSelectionMethod);
             groupHashing.Controls.Add(btn_chooseFiles);
             groupHashing.Controls.Add(btn_chooseDir);
             groupHashing.Location = new System.Drawing.Point(17, 100);
@@ -163,14 +163,14 @@
             menu_fileExtensions.Size = new System.Drawing.Size(171, 33);
             menu_fileExtensions.TabIndex = 5;
             // 
-            // label1
+            // lbl_inputSelectionMethod
             // 
-            label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(81, 84);
-            label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(32, 25);
-            label1.TabIndex = 3;
-            label1.Text = "Or";
+            lbl_inputSelectionMethod.AutoSize = true;
+            lbl_inputSelectionMethod.Location = new System.Drawing.Point(81, 84);
+            lbl_inputSelectionMethod.Name = "lbl_inputSelectionMethod";
+            lbl_inputSelectionMethod.Size = new System.Drawing.Size(32, 25);
+            lbl_inputSelectionMethod.TabIndex = 3;
+            lbl_inputSelectionMethod.Text = "Or";
             // 
             // btn_chooseFiles
             // 
@@ -259,6 +259,7 @@
             // 
             list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { col_results_verification_file, col_results_verification_isMatch });
             list_verification_results.Dock = System.Windows.Forms.DockStyle.Fill;
+            list_verification_results.GridLines = true;
             list_verification_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             list_verification_results.HideSelection = false;
             list_verification_results.Location = new System.Drawing.Point(3, 27);
@@ -282,6 +283,7 @@
             list_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHashResult_File, columnHashResult_Hash });
             list_results.Dock = System.Windows.Forms.DockStyle.Fill;
             list_results.FullRowSelect = true;
+            list_results.GridLines = true;
             list_results.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             list_results.HideSelection = false;
             list_results.Location = new System.Drawing.Point(3, 27);
@@ -352,7 +354,7 @@
         private System.Windows.Forms.Button btn_chooseDir;
         private System.Windows.Forms.GroupBox groupVerification;
         private System.Windows.Forms.Button btn_openHashfile;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lbl_inputSelectionMethod;
         private System.Windows.Forms.ComboBox menu_fileExtensions;
     }
 }

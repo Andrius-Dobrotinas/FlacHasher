@@ -18,7 +18,6 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class FormX : Form
     {
-        const string newline = "\r\n";
         const string errorSeparator = "==========================";
         const int hashfileMaxSizeBytes = 512 * 1024;
 
@@ -34,8 +33,9 @@ namespace Andy.FlacHash.Application.Win.UI
         private readonly HashVerifier hashVerifier;
         private readonly DecoderProfile[] decoderProfiles;
         private readonly int defaultAlgorithmIndex;
-        private readonly OpenFileDialog openFileDialog_hashfile = null;
-        private readonly OpenFileDialog openFileDialog_inputFiles = null;
+        private readonly OpenFileDialog openFileDialog_hashfile;
+        private readonly OpenFileDialog openFileDialog_inputFiles;
+        private readonly Settings settings;
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
@@ -78,6 +78,7 @@ namespace Andy.FlacHash.Application.Win.UI
             this.decoderProfiles = decoderProfiles;
             this.openFileDialog_hashfile = openFileDialog_hashfile;
             this.openFileDialog_inputFiles = openFileDialog_inputFiles;
+            this.settings = settings;
 
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
             
@@ -86,8 +87,12 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
-
-            ResultListContextMenuSetup.WireUp(list_results, ctxMenu_results, (results) => WithTryCatch(() => SaveHashes(results)));
+            
+            ResultListContextMenuSetup.WireUp(
+                list_results, 
+                ctxMenu_results, 
+                (results) => WithTryCatch(() => SaveHashes(results)),
+                (results, useConfiguredFormatting) => WithTryCatch(() => CopyHashes(results, useConfiguredFormatting)));
 
             // List etc initialization
             menu_decoderProfiles.DisplayMember = nameof(DecoderProfile.Name);
@@ -308,11 +313,20 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void SaveHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results)
         {
-            var hashes = results.Select(x => x.Value?.HashString)
-                .Where(x => x != null);
+            var hashes = results.Where(x => x.Value?.HashString != null);
 
-            if (hashFileWriter.GetFileAndSave(hashes) == true)
-                MessageBox.Show("Hashes saved!");
+            var lines = hashes.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value.HashString, x.Value.File));
+            if (hashFileWriter.GetFileAndSave(lines) == true)
+                LogMessage("Hashes saved!");
+        }
+
+        private void CopyHashes(IEnumerable<KeyValuePair<FileInfo, FileHashResultListItem>> results, bool useConfiguredFormatting)
+        {
+            var values = useConfiguredFormatting
+                ? results.Select(x => OutputFormatting.GetFormattedString(settings.OutputFormat, x.Value?.HashString, x.Key))
+                : results.Select(x => $"{x.Key.Name}\t{x.Value?.HashString}");
+
+            Clipboard.SetText(string.Join(Environment.NewLine, values));
         }
 
         private async void Btn_Go_Click(object sender, EventArgs e)
@@ -512,13 +526,13 @@ namespace Andy.FlacHash.Application.Win.UI
             if (!string.IsNullOrEmpty(txtStatus.Text))
             {
                 txtStatus.AppendText(errorSeparator);
-                txtStatus.AppendText(newline);
+                txtStatus.AppendText(Environment.NewLine);
             }
 
             foreach (var line in message)
             {
                 txtStatus.AppendText(line);
-                txtStatus.AppendText(newline);
+                txtStatus.AppendText(Environment.NewLine);
             }
         }
 
