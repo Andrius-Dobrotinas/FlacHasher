@@ -41,7 +41,12 @@ namespace Andy.FlacHash.Application.Win
             System.Windows.Forms.Application.EnableVisualStyles();
             System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
-            using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog())
+            var algosString = BuildFileFilter(algorithms);
+
+            using (var openFileDialog_inputFiles = Build_OpenInputfilesDialog(
+                GetSupportedAudioFiletypeExtensions(decoderProfiles)))
+            using (var openFileDialog_hashfile = Build_OpenHashfileDialog(algosString))
+            using (var saveHashesToFileDialog = Build_SaveHashesToFileDialog(algosString))
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
                 var fileReadProgressReporter = new FileReadProgressReporter();
@@ -68,7 +73,9 @@ namespace Andy.FlacHash.Application.Win
                         new HashVerifier(hashFormatter),
                         decoderProfiles,
                         algorithms,
-                        settings));
+                        settings,
+                        openFileDialog_hashfile,
+                        openFileDialog_inputFiles));
             }
         }
 
@@ -82,13 +89,37 @@ namespace Andy.FlacHash.Application.Win
             return new UI.InteractiveDirectoryGetter(dirBrowser);
         }
 
-        private static SaveFileDialog Build_SaveHashesToFileDialog()
+        private static OpenFileDialog Build_OpenInputfilesDialog(string filter)
+        {
+            return new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = filter,
+                Title = "Select files",
+                Multiselect = true
+            };
+        }
+
+        private static OpenFileDialog Build_OpenHashfileDialog(string filterSpecificFiles)
+        {
+            return new OpenFileDialog
+            {
+                CheckPathExists = true,
+                DereferenceLinks = true,
+                Filter = $"Any file type|*.*|Hash|*.hash|{filterSpecificFiles}|Text files|*.txt",
+                Title = "Open a Hash File",
+                Multiselect = false
+            };
+        }
+
+        private static SaveFileDialog Build_SaveHashesToFileDialog(string filterSpecificFiles)
         {
             return new SaveFileDialog
             {
                 AddExtension = true,
                 CheckPathExists = true,
-                Filter = "TEXT|*.txt|ANY|*.*",
+                Filter = $"Hash|*.hash|Text files|*.txt|{filterSpecificFiles}|Any|*.*",
                 Title = "Save As"
             };
         }
@@ -98,5 +129,20 @@ namespace Andy.FlacHash.Application.Win
             foreach (var value in Enum.GetValues(typeof(TEnum)))
                 yield return (TEnum)value;
         }
+
+        static string GetSupportedAudioFiletypeExtensions(IEnumerable<DecoderProfile> decoderProfiles)
+        {
+            var filters = decoderProfiles.Select(x =>
+            {
+                var extensionString = string.Join(';', x.TargetFileExtensions.Select(x => $"*.{x}"));
+                return $"{x.Name}|{extensionString}";
+            }).ToList();
+            var filterString = string.Join('|', filters);
+
+            return $"{filterString}|Other files|*.*";
+        }
+
+        static string BuildFileFilter(IEnumerable<Algorithm> algorithms)
+            => string.Join('|', algorithms.Select(x => $"{x}|*.{x}"));
     }
 }
