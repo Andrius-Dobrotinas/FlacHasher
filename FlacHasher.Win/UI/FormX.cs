@@ -62,7 +62,9 @@ namespace Andy.FlacHash.Application.Win.UI
             HashVerifier hashVerifier,
             DecoderProfile[] decoderProfiles,
             Algorithm[] hashingAlgorithmOptions,
-            Settings settings)
+            Settings settings,
+            OpenFileDialog openFileDialog_hashfile,
+            OpenFileDialog openFileDialog_inputFiles)
         {
             InitializeComponent();
 
@@ -74,6 +76,8 @@ namespace Andy.FlacHash.Application.Win.UI
             this.hashVerifier = hashVerifier;
             this.hasherFactory = hasherFactory;
             this.decoderProfiles = decoderProfiles;
+            this.openFileDialog_hashfile = openFileDialog_hashfile;
+            this.openFileDialog_inputFiles = openFileDialog_inputFiles;
             this.settings = settings;
 
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
@@ -83,24 +87,7 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
-
-            openFileDialog_hashfile = new OpenFileDialog
-            {
-                CheckPathExists = true,
-                DereferenceLinks = true,
-                Filter = PrepSupportedHashfileExtensions(hashingAlgorithmOptions),
-                Title = "Open a Hash File",
-                Multiselect = false
-            };
-            openFileDialog_inputFiles = new OpenFileDialog
-            {
-                CheckPathExists = true,
-                DereferenceLinks = true,
-                Filter = PrepSupportedFileExtensions(decoderProfiles),
-                Title = "Select files",
-                Multiselect = true
-            };
-
+            
             ResultListContextMenuSetup.WireUp(
                 list_results, 
                 ctxMenu_results, 
@@ -632,24 +619,6 @@ namespace Andy.FlacHash.Application.Win.UI
             if (result != DialogResult.OK) return null;
 
             return box.FileNames;
-        }
-
-        static string PrepSupportedFileExtensions(IEnumerable<DecoderProfile> decoderProfiles)
-        {
-            var filters = decoderProfiles.Select(x =>
-            {
-                var extensionString = string.Join(';', x.TargetFileExtensions.Select(x => $"*.{x}"));
-                return $"{x.Name}|{extensionString}";
-            }).ToList();
-            var filterString = string.Join('|', filters);
-
-            return $"{filterString}|Other files|*.*";
-        }
-
-        static string PrepSupportedHashfileExtensions(IEnumerable<Algorithm> algorithms)
-        {
-            var algosString = string.Join('|', algorithms.Select(x => $"{x}|*.{x}"));
-            return $"Any file type|*.*|Hash|*.hash|{algosString}|Text files|*.txt";
         }
 
         struct HasherKey
