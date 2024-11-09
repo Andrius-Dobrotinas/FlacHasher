@@ -75,10 +75,10 @@ namespace Andy.Cmd.Parameter
         [TestCase("", "")]
         public void When__NoOtherParam_Has_TheSameKey__Must_Reject(string value1, string value2)
         {
-            var property1 = typeof(TestParams).GetProperty(nameof(TestParamsDifferentKeys.One));
-            var property2 = typeof(TestParams).GetProperty(nameof(TestParamsDifferentKeys.Two));
-            Set_ParameterValueResolver_Up<TestParams>(property1, value1);
-            Set_ParameterValueResolver_Up<TestParams>(property2, value2);
+            var property1 = typeof(TestParamsDifferentKeys).GetProperty(nameof(TestParamsDifferentKeys.One));
+            var property2 = typeof(TestParamsDifferentKeys).GetProperty(nameof(TestParamsDifferentKeys.Two));
+            Set_ParameterValueResolver_Up<TestParamsDifferentKeys>(property1, value1);
+            Set_ParameterValueResolver_Up<TestParamsDifferentKeys>(property2, value2);
 
             Assert.Throws<InvalidOperationException>(
                 () => target.GetParameters<TestParamsDifferentKeys>(fakeArgs.Object));
