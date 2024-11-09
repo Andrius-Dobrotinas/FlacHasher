@@ -6,7 +6,7 @@
         },
         "Hash-SingleFile-APE-profile": {
             "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.ape\" --profile-decoder=APE --format=\"{name} {hash}\""
+            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.ape\" --profile-decoder=ape --format=\"{name} {hash}\""
         },
         "Hash-MultipleFiles": {
             "commandName": "Project",
