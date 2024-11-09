@@ -17,9 +17,17 @@ namespace Andy.FlacHash.Application.Cmd
         public string Profile { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.DecoderProfile)]
-        [AllowEmpty]
-        [Optional]
+        [AllowEmpty] // To override what's in the settings file
+        [EitherOr("decoder", AllowNone = true)]
         public string DecoderProfile { get; set; }
+
+        /// <summary>
+        /// Purely as a placeholder for the one in <see cref="MainParameters"/>
+        /// for parameter validations: to prevent specifying both parameters
+        /// </summary>
+        [CmdLineParameter(CmdlineParameterNames.Decoder)]
+        [EitherOr("decoder", AllowNone = true)]
+        public string DecoderExe { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.HashingProfile)]
         [AllowEmpty]

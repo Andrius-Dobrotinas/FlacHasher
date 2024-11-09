@@ -21,6 +21,11 @@ namespace Andy.Cmd.Parameter
         /// </summary>
         public string GroupKey { get; set; }
 
+        /// <summary>
+        /// Determines whether the whole group is allowed to not have a value
+        /// </summary>
+        public bool AllowNone { get; set; }
+
         public EitherOrAttribute(string groupKey)
         {
             if (string.IsNullOrWhiteSpace(groupKey))

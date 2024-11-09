@@ -100,7 +100,8 @@ namespace Andy.Cmd.Parameter
                     throw new ParameterGroupException("Only one parameter is allowed to have a value", GetParameterNames(parameterGroup.Value));
 
                 if (nullValues.All(isNull => isNull == true))
-                    throw new ParameterGroupException("One of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
+                    if (!parameterGroup.Value.Any(prop => prop.GetCustomAttribute<EitherOrAttribute>().AllowNone))
+                        throw new ParameterGroupException("One of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
             }
         }
 
