@@ -41,8 +41,9 @@ namespace Andy.FlacHash.Application
                 if (string.IsNullOrEmpty(profileName))
                     return root;
 
-                var @overrides = GetValue(settingsDictionary, profileName, throwOnNotFound: false, caseInsensitive) 
-                    ?? throw new ConfigurationException($"Configuration profile \"{profileName}\" was not found");
+                var @overrides = TryGetValue(settingsDictionary, profileName, out bool sectionFound, caseInsensitive);
+                if (!sectionFound)
+                    throw new ConfigurationException($"Configuration profile \"{profileName}\" was not found");
 
                 // Override root value with those of the selected profile
                 Merge(root, overrides);
@@ -84,13 +85,14 @@ namespace Andy.FlacHash.Application
             else if (preferredValue != null)
                 return preferredValue;
             else
-                return GetValue(settings, configKey, throwOnNotFound: false, caseInsensitive)
+                return TryGetValue(settings, configKey, out bool _, caseInsensitive)
                     ?? defaultValue;
         }
 
         public static void MergeSectionValuesIn(IDictionary<string, string> destination, IDictionary<string, IDictionary<string, string>> wholeSettingsFileDictionary, string targetSectionName, bool caseInsensitive = false)
         {
-            var targetSection = GetValue(wholeSettingsFileDictionary, targetSectionName, throwOnNotFound: true, caseInsensitive);
+            var targetSection = TryGetValue(wholeSettingsFileDictionary, targetSectionName, out bool sectionFound, caseInsensitive);
+            if (!sectionFound) throw new ConfigurationException($"Configuration section not found: {targetSectionName}");
             Merge(destination, targetSection);
         }
 
@@ -103,38 +105,32 @@ namespace Andy.FlacHash.Application
                     target.Add(key, value);
         }
 
-        static TValue GetValueCaseInsensitively<TValue>(IDictionary<string, TValue> dictionary, string sectionName, bool throwOnNotFound)
+        static TValue TryGetValueCaseInsensitively<TValue>(IDictionary<string, TValue> dictionary, string sectionName, out bool containsSection)
         {
             var keys = dictionary.Keys.ToDictionary(x => x.ToLowerInvariant(), x => x);
             var keyLowercase = sectionName.ToLowerInvariant();
 
-            if (!keys.ContainsKey(keyLowercase))
-            {
-                if (throwOnNotFound)
-                    throw new ConfigurationException($"Configuration section not found: {sectionName}");
-                else
-                    return default;
-            }
+            containsSection = keys.ContainsKey(keyLowercase);
+            if (!containsSection)
+                return default;
 
             return dictionary[keys[keyLowercase]];
         }
 
-        static TValue GetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, bool throwOnNotFound = true)
+        static TValue TryGetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, out bool containsSection)
         {
-            if (!dictionary.ContainsKey(sectionName))
-                if (throwOnNotFound)
-                    throw new ConfigurationException($"Configuration section not found: {sectionName}");
-                else
-                    return default;
+            containsSection = dictionary.ContainsKey(sectionName);
+            if (!containsSection)
+                return default;
 
             return dictionary[sectionName];
         }
 
-        static TValue GetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, bool throwOnNotFound, bool caseInsensitive)
+        static TValue TryGetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, out bool containsSection, bool caseInsensitive)
         {
             return caseInsensitive
-                ? GetValueCaseInsensitively(dictionary, sectionName, throwOnNotFound)
-                : GetValue(dictionary, sectionName, throwOnNotFound);
+                ? TryGetValueCaseInsensitively(dictionary, sectionName, out containsSection)
+                : TryGetValue(dictionary, sectionName, out containsSection);
         }
     }
 }
