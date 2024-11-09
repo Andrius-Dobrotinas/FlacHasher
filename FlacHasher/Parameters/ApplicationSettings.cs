@@ -34,7 +34,8 @@ namespace Andy.FlacHash.Application
         public const string ProfileKey = "Profile";
         public const string DecoderProfileKey = "Profile.Decoder";
         public const string HashingProfileKey = "Profile.Hashing";
-        public const string DefaultDecoderSection = "Decoder.FLAC";
+        public const string DecoderSectionPrefix = "Decoder";
+        public const string DefaultDecoderSection = "FLAC";
         public const string DefaultHashingSection = "Hashing";
 
         public static class Defaults

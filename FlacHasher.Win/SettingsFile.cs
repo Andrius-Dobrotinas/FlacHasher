@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Application.Win
                 ? decoderProfilesRaw
                     .Select(profileSection =>
                     {
-                        var isDefaultFlacSection = profileSection.Key.Equals(ApplicationSettings.DefaultDecoderSection, StringComparison.InvariantCultureIgnoreCase);
+                        var isDefaultFlacSection = profileSection.Key.Equals($"{ApplicationSettings.DecoderSectionPrefix}.{ApplicationSettings.DefaultDecoderSection}", StringComparison.InvariantCultureIgnoreCase);
 
                         var profileRaw = isDefaultFlacSection
                             ? paramReader.GetParameters<DecoderProfileTempDefaultFlac>(profileSection.Value)
@@ -51,7 +51,7 @@ namespace Andy.FlacHash.Application.Win
 
                         return new DecoderProfile
                         {
-                            Name = profileSection.Key.Replace("Decoder.", "", StringComparison.InvariantCultureIgnoreCase),
+                            Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase),
                             Decoder = AudioDecoder.ResolveDecoderOrThrow(profileRaw.Decoder),
                             DecoderParameters = profileRaw.DecoderParameters,
                             TargetFileExtensions = profileRaw.TargetFileExtensions
