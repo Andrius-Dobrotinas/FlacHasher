@@ -89,7 +89,7 @@ namespace Andy.FlacHash.Application
             {
                 var value = caseInsensitive
                     ? GetValueCaseInsensitively(settings, configKey, throwOnNotFound: false)
-                    : GetSection(settings, configKey, throwOnNotFound: false);
+                    : GetValue(settings, configKey, throwOnNotFound: false);
                 
                 return value ?? defaultValue;
             }
@@ -100,7 +100,7 @@ namespace Andy.FlacHash.Application
         {
             var targetSection = caseInsensitive 
                 ? GetValueCaseInsensitively(wholeSettingsFileDictionary, targetSectionName, throwOnNotFound: true)
-                : GetSection(wholeSettingsFileDictionary, targetSectionName, throwOnNotFound: true);
+                : GetValue(wholeSettingsFileDictionary, targetSectionName, throwOnNotFound: true);
             Merge(destination, targetSection);
         }
 
@@ -129,7 +129,7 @@ namespace Andy.FlacHash.Application
             return dictionary[keys[keyLowercase]];
         }
 
-        static TValue GetSection<TValue>(IDictionary<string, TValue> dictionary, string sectionName, bool throwOnNotFound = true)
+        static TValue GetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, bool throwOnNotFound = true)
         {
             if (!dictionary.ContainsKey(sectionName))
                 if (throwOnNotFound)
