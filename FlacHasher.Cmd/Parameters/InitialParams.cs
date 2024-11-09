@@ -1,6 +1,8 @@
 ﻿using Andy.Cmd.Parameter;
+using Andy.FlacHash.Crypto;
 using System;
 using System.Collections.Generic;
+using static Andy.FlacHash.Application.ApplicationSettings;
 
 namespace Andy.FlacHash.Application.Cmd
 {
@@ -31,8 +33,12 @@ namespace Andy.FlacHash.Application.Cmd
 
         [CmdLineParameter(CmdlineParameterNames.HashingProfile)]
         [AllowEmpty]
-        [Optional]
+        [EitherOr("hashAlgorithm", AllowNone = true)]
         public string HashingProfile { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.HashAlgorithm)]
+        [EitherOr("hashAlgorithm", AllowNone = true)]
+        public Algorithm? HashAlgorithm { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
         [Optional]
