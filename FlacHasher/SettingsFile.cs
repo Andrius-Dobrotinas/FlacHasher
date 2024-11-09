@@ -70,11 +70,14 @@ namespace Andy.FlacHash.Application
             var decoderSectionName = ResolveConfigValue(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection, caseInsensitive: true);
             MergeSectionValuesIn(settings, settingsDictionary, $"{ApplicationSettings.DecoderSectionPrefix}.{decoderSectionName}", caseInsensitive: true);
 
-            var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection);
-            MergeSectionValuesIn(settings, settingsDictionary, hashingSectionName);
+            var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection, caseInsensitive: true);
+            MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.HashingSectionPrefix, hashingSectionName), caseInsensitive: true);
 
             return settings;
         }
+
+        public static string BuildSectionName(string prefix, string name)
+            => string.IsNullOrWhiteSpace(name) ? prefix : $"{prefix}.{name}";
 
         public static string ResolveConfigValue(IDictionary<string, string> settings, string configKey, string preferredValue, string defaultValue, bool caseInsensitive = false)
         {
