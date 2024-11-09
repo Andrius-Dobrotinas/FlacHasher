@@ -43,7 +43,7 @@ namespace Andy.FlacHash.Application.Win
                 ? decoderProfilesRaw
                     .Select(profileSection =>
                     {
-                        var isDefaultFlacSection = profileSection.Key.Equals($"{ApplicationSettings.DecoderSectionPrefix}.{ApplicationSettings.DefaultDecoderSection}", StringComparison.InvariantCultureIgnoreCase);
+                        var isDefaultFlacSection = profileSection.Key.Equals($"{ApplicationSettings.DecoderSectionPrefix}.FLAC", StringComparison.InvariantCultureIgnoreCase);
 
                         var profileRaw = isDefaultFlacSection
                             ? paramReader.GetParameters<DecoderProfileTempDefaultFlac>(profileSection.Value)
