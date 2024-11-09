@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Application
         /// If no <paramref name="profileName"/> is specified, uses a profile configured in the root entry of <paramref name="settingsDictionary"/>.
         /// If none is configured there, then simply returns the root settings node.
         /// </summary>
-        public static IDictionary<string, string> GetSettingsProfile(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null)
+        public static IDictionary<string, string> GetSettingsProfile(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null, bool caseInsensitive = false)
         {
             if (!settingsDictionary.Any())
                 return new Dictionary<string, string>();
@@ -41,10 +41,8 @@ namespace Andy.FlacHash.Application
                 if (string.IsNullOrEmpty(profileName))
                     return root;
 
-                if (!settingsDictionary.ContainsKey(profileName))
-                    throw new ConfigurationException($"Configuration profile \"{profileName}\" was not found");
-
-                var @overrides = settingsDictionary[profileName];
+                var @overrides = GetValue(settingsDictionary, profileName, throwOnNotFound: false, caseInsensitive) 
+                    ?? throw new ConfigurationException($"Configuration profile \"{profileName}\" was not found");
 
                 // Override root value with those of the selected profile
                 Merge(root, overrides);
@@ -65,7 +63,7 @@ namespace Andy.FlacHash.Application
             if (!settingsDictionary.Any())
                 return new Dictionary<string, string>();
 
-            var settings = GetSettingsProfile(settingsDictionary, profileName);
+            var settings = GetSettingsProfile(settingsDictionary, profileName, caseInsensitive: true);
 
             var decoderSectionName = ResolveConfigValue(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection, caseInsensitive: true);
             MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.DecoderSectionPrefix, decoderSectionName), caseInsensitive: true);
@@ -86,21 +84,13 @@ namespace Andy.FlacHash.Application
             else if (preferredValue != null)
                 return preferredValue;
             else
-            {
-                var value = caseInsensitive
-                    ? GetValueCaseInsensitively(settings, configKey, throwOnNotFound: false)
-                    : GetValue(settings, configKey, throwOnNotFound: false);
-                
-                return value ?? defaultValue;
-            }
-                
+                return GetValue(settings, configKey, throwOnNotFound: false, caseInsensitive)
+                    ?? defaultValue;
         }
 
         public static void MergeSectionValuesIn(IDictionary<string, string> destination, IDictionary<string, IDictionary<string, string>> wholeSettingsFileDictionary, string targetSectionName, bool caseInsensitive = false)
         {
-            var targetSection = caseInsensitive 
-                ? GetValueCaseInsensitively(wholeSettingsFileDictionary, targetSectionName, throwOnNotFound: true)
-                : GetValue(wholeSettingsFileDictionary, targetSectionName, throwOnNotFound: true);
+            var targetSection = GetValue(wholeSettingsFileDictionary, targetSectionName, throwOnNotFound: true, caseInsensitive);
             Merge(destination, targetSection);
         }
 
@@ -138,6 +128,13 @@ namespace Andy.FlacHash.Application
                     return default;
 
             return dictionary[sectionName];
+        }
+
+        static TValue GetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, bool throwOnNotFound, bool caseInsensitive)
+        {
+            return caseInsensitive
+                ? GetValueCaseInsensitively(dictionary, sectionName, throwOnNotFound)
+                : GetValue(dictionary, sectionName, throwOnNotFound);
         }
     }
 }

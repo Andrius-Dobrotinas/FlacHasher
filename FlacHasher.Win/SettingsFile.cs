@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Application.Win
             if (!wholeSettingsFileDictionary.Any())
                 throw new ConfigurationException("The Configuration file is empty");
 
-            var settings = Application.SettingsFile.GetSettingsProfile(wholeSettingsFileDictionary, profileName);
+            var settings = Application.SettingsFile.GetSettingsProfile(wholeSettingsFileDictionary, profileName, caseInsensitive: true);
             Application.SettingsFile.MergeSectionValuesIn(settings, wholeSettingsFileDictionary, Application.SettingsFile.BuildSectionName(ApplicationSettings.HashingSectionPrefix, ApplicationSettings.DefaultHashingSection));
 
             var decoderProfiles = wholeSettingsFileDictionary.Where(x => x.Key.StartsWith("Decoder", StringComparison.InvariantCultureIgnoreCase))
