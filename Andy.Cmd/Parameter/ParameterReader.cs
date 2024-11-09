@@ -96,10 +96,10 @@ namespace Andy.Cmd.Parameter
             {
                 var values = parameterGroup.Value.Select(x => x.GetValue(instance));
                 var nullValues = values.Select(x => x == null);
-                if (nullValues.Count(x => x == false) > 1)
+                if (nullValues.Count(isNull => !isNull) > 1)
                     throw new ParameterGroupException("Only one parameter is allowed to have a value", GetParameterNames(parameterGroup.Value));
 
-                if (nullValues.All(x => x == true))
+                if (nullValues.All(isNull => isNull == true))
                     throw new ParameterGroupException("One of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
             }
         }
