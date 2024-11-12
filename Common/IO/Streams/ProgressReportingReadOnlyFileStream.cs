@@ -38,6 +38,15 @@ namespace Andy.IO
 
             return byteCount;
         }
+        public override void CopyTo(Stream destination, int bufferSize)
+        {
+            base.CopyTo(destination, bufferSize);
+        }
+
+        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            return base.CopyToAsync(destination, bufferSize, cancellationToken);
+        }
 
         private void RaiseBytesReadEvent(int byteCount)
         {
