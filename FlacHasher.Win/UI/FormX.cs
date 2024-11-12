@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class FormX : Form
     {
-        const string errorSeparator = "==========================";
+        const string errorSeparator = ".......................";
         const int hashfileMaxSizeBytes = 512 * 1024;
 
         private readonly HasherFactory hasherFactory;
@@ -107,10 +107,7 @@ namespace Andy.FlacHash.Application.Win.UI
             menu_fileExtensions.Items.AddRange(exts);
             menu_fileExtensions.SelectedIndex = 0;
             
-
-            list_verification_results.View = View.Details;
-            list_verification_results.SmallImageList = imgList_verification;
-
+            
             // Initial values
             btn_go.Enabled = false;
 
@@ -121,9 +118,6 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 RefreshHashingFilelist();
             };
-
-            list_results.Resize += List_hashing_results_Resize;
-            list_verification_results.Resize += List_verification_results_Resize;
 
             // Triggers all kinds of handlers
             List_hashing_results_Resize(null, null);
@@ -237,6 +231,8 @@ namespace Andy.FlacHash.Application.Win.UI
             SetHashingFileExtensionMenuAvailability();
 
             RefreshHashingFilelist();
+
+            menu_fileExtensions.Focus();
         }
 
         void ChooseHashingInputFiles()
@@ -252,6 +248,8 @@ namespace Andy.FlacHash.Application.Win.UI
             SetHashingFileExtensionMenuAvailability();
 
             SetNewInputFiles(inputFiles);
+
+            menu_decoderProfiles.Focus();
         }
 
         void ChooseHashVerificationFile()
@@ -287,6 +285,8 @@ namespace Andy.FlacHash.Application.Win.UI
             SetMode(Mode.Verification);
 
             LoadFilesFromHashmap(fileHashMap);
+
+            menu_decoderProfiles.Focus();
         }
 
         void RefreshHashingFilelist()
@@ -559,8 +559,6 @@ namespace Andy.FlacHash.Application.Win.UI
                     File = result.File,
                     HashString = hashFormatter.GetString(result.Hash)
                 });
-
-            this.Text = result.File.Name;
         }
 
         private void ReportExecutionError(Exception exception, FileInfo file)
