@@ -75,13 +75,36 @@ namespace Andy.Cmd.Parameter
         [TestCase("", "")]
         public void When__NoOtherParam_Has_TheSameKey__Must_Reject(string value1, string value2)
         {
-            var property1 = typeof(TestParams).GetProperty(nameof(TestParamsDifferentKeys.One));
-            var property2 = typeof(TestParams).GetProperty(nameof(TestParamsDifferentKeys.Two));
-            Set_ParameterValueResolver_Up<TestParams>(property1, value1);
-            Set_ParameterValueResolver_Up<TestParams>(property2, value2);
+            var property1 = typeof(TestParamsDifferentKeys).GetProperty(nameof(TestParamsDifferentKeys.One));
+            var property2 = typeof(TestParamsDifferentKeys).GetProperty(nameof(TestParamsDifferentKeys.Two));
+            Set_ParameterValueResolver_Up<TestParamsDifferentKeys>(property1, value1);
+            Set_ParameterValueResolver_Up<TestParamsDifferentKeys>(property2, value2);
 
             Assert.Throws<InvalidOperationException>(
                 () => target.GetParameters<TestParamsDifferentKeys>(fakeArgs.Object));
+        }
+
+        [Test]
+        public void AllowNone__OnTheGroup__And_Both_Have_Values__Must_Reject()
+        {
+            var property1 = typeof(TestParams_AllowNone).GetProperty(nameof(TestParams_AllowNone.One));
+            var property2 = typeof(TestParams_AllowNone).GetProperty(nameof(TestParams_AllowNone.Two));
+            Set_ParameterValueResolver_Up<TestParams_AllowNone>(property1, "value");
+            Set_ParameterValueResolver_Up<TestParams_AllowNone>(property2, 100);
+
+            Assert.Throws<ParameterGroupException>(
+                () => target.GetParameters<TestParams_AllowNone>(fakeArgs.Object));
+        }
+
+        [Test]
+        public void AllowNone__OnTheGroup__And_Neither_Has_Value__Must_BeCool()
+        {
+            var property1 = typeof(TestParams_AllowNone).GetProperty(nameof(TestParams_AllowNone.One));
+            var property2 = typeof(TestParams_AllowNone).GetProperty(nameof(TestParams_AllowNone.Two));
+            Set_ParameterValueResolver_Up<TestParams_AllowNone>(property1, null);
+            Set_ParameterValueResolver_Up<TestParams_AllowNone>(property2, null);
+
+            target.GetParameters<TestParams_AllowNone>(fakeArgs.Object);
         }
 
         void Set_ParameterValueResolver_Up<TParams>(PropertyInfo property, object value)
@@ -127,6 +150,17 @@ namespace Andy.Cmd.Parameter
             [Parameter("arg2")]
             [EitherOr("key2")]
             public string[] Two { get; set; }
+        }
+
+        class TestParams_AllowNone
+        {
+            [Parameter("arg1")]
+            [EitherOr("key1", AllowNone = true)]
+            public string One { get; set; }
+
+            [Parameter("arg2")]
+            [EitherOr("key1")]
+            public int? Two { get; set; }
         }
     }
 }

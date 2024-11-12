@@ -4,6 +4,10 @@
             "commandName": "Project",
             "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --format=\"{name} {hash}\""
         },
+        "Hash-SingleFile-APE-profile": {
+            "commandName": "Project",
+            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.ape\" --profile-decoder=ape --format=\"{name} {hash}\""
+        },
         "Hash-MultipleFiles": {
             "commandName": "Project",
             "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
@@ -17,11 +21,11 @@
             "commandLineArgs": "--inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
         },
         "Hash-Directory-DecoderInPath": {
-          "commandName": "Project",
-          "commandLineArgs": "--inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"flac.exe\" --format=\"{name} {hash}\"",
-          "environmentVariables": {
-            "PATH": "c:\\;C:\\Program Files (x86)\\FLAC Frontend\\tools"
-          }
+            "commandName": "Project",
+            "commandLineArgs": "--inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"flac.exe\" --format=\"{name} {hash}\"",
+            "environmentVariables": {
+                "PATH": "c:\\;C:\\Program Files (x86)\\FLAC Frontend\\tools"
+            }
         },
         "Hash-FileAndDirectory": {
             "commandName": "Project",

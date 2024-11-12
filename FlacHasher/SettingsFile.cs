@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Application
         /// If no <paramref name="profileName"/> is specified, uses a profile configured in the root entry of <paramref name="settingsDictionary"/>.
         /// If none is configured there, then simply returns the root settings node.
         /// </summary>
-        public static IDictionary<string, string> GetSettingsProfile(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null)
+        public static IDictionary<string, string> GetSettingsProfile(IDictionary<string, IDictionary<string, string>> settingsDictionary, string profileName = null, bool caseInsensitive = false)
         {
             if (!settingsDictionary.Any())
                 return new Dictionary<string, string>();
@@ -41,10 +41,9 @@ namespace Andy.FlacHash.Application
                 if (string.IsNullOrEmpty(profileName))
                     return root;
 
-                if (!settingsDictionary.ContainsKey(profileName))
+                var @overrides = TryGetValue(settingsDictionary, profileName, out bool sectionFound, caseInsensitive);
+                if (!sectionFound)
                     throw new ConfigurationException($"Configuration profile \"{profileName}\" was not found");
-
-                var @overrides = settingsDictionary[profileName];
 
                 // Override root value with those of the selected profile
                 Merge(root, overrides);
@@ -65,36 +64,36 @@ namespace Andy.FlacHash.Application
             if (!settingsDictionary.Any())
                 return new Dictionary<string, string>();
 
-            var settings = GetSettingsProfile(settingsDictionary, profileName);
+            var settings = GetSettingsProfile(settingsDictionary, profileName, caseInsensitive: true);
 
-            var decoderSectionName = ResolveConfigValue(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection);
-            MergeSectionValuesIn(settings, settingsDictionary, decoderSectionName);
+            var decoderSectionName = ResolveConfigValue(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection, caseInsensitive: true);
+            MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.DecoderSectionPrefix, decoderSectionName), caseInsensitive: true);
 
-            var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection);
-            MergeSectionValuesIn(settings, settingsDictionary, hashingSectionName);
+            var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection, caseInsensitive: true);
+            MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.HashingSectionPrefix, hashingSectionName), caseInsensitive: true);
 
             return settings;
         }
 
-        public static string ResolveConfigValue(IDictionary<string, string> settings, string configKey, string preferredValue, string defaultValue)
+        public static string BuildSectionName(string prefix, string name)
+            => string.IsNullOrWhiteSpace(name) ? prefix : $"{prefix}.{name}";
+
+        public static string ResolveConfigValue(IDictionary<string, string> settings, string configKey, string preferredValue, string defaultValue, bool caseInsensitive = false)
         {
             if (preferredValue == "")
                 return defaultValue;
             else if (preferredValue != null)
                 return preferredValue;
             else
-                return settings.ContainsKey(configKey)
-                    ? settings[configKey]
-                    : defaultValue;
+                return TryGetValue(settings, configKey, out bool _, caseInsensitive)
+                    ?? defaultValue;
         }
 
-        public static void MergeSectionValuesIn(IDictionary<string, string> destination, IDictionary<string, IDictionary<string, string>> wholeSettingsFileDictionary, string targetSectionName)
+        public static void MergeSectionValuesIn(IDictionary<string, string> destination, IDictionary<string, IDictionary<string, string>> wholeSettingsFileDictionary, string targetSectionName, bool caseInsensitive = false)
         {
-            if (!wholeSettingsFileDictionary.ContainsKey(targetSectionName))
-                throw new ConfigurationException($"Configuration section not found: {targetSectionName}");
-
-            var decoderSection = wholeSettingsFileDictionary[targetSectionName];
-            Merge(destination, decoderSection);
+            var targetSection = TryGetValue(wholeSettingsFileDictionary, targetSectionName, out bool sectionFound, caseInsensitive);
+            if (!sectionFound) throw new ConfigurationException($"Configuration section not found: {targetSectionName}");
+            Merge(destination, targetSection);
         }
 
         static void Merge(IDictionary<string, string> target, IDictionary<string, string> overrides)
@@ -104,6 +103,34 @@ namespace Andy.FlacHash.Application
                     target[key] = value;
                 else
                     target.Add(key, value);
+        }
+
+        static TValue TryGetValueCaseInsensitively<TValue>(IDictionary<string, TValue> dictionary, string sectionName, out bool containsSection)
+        {
+            var keys = dictionary.Keys.ToDictionary(x => x.ToLowerInvariant(), x => x);
+            var keyLowercase = sectionName.ToLowerInvariant();
+
+            containsSection = keys.ContainsKey(keyLowercase);
+            if (!containsSection)
+                return default;
+
+            return dictionary[keys[keyLowercase]];
+        }
+
+        static TValue TryGetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, out bool containsSection)
+        {
+            containsSection = dictionary.ContainsKey(sectionName);
+            if (!containsSection)
+                return default;
+
+            return dictionary[sectionName];
+        }
+
+        static TValue TryGetValue<TValue>(IDictionary<string, TValue> dictionary, string sectionName, out bool containsSection, bool caseInsensitive)
+        {
+            return caseInsensitive
+                ? TryGetValueCaseInsensitively(dictionary, sectionName, out containsSection)
+                : TryGetValue(dictionary, sectionName, out containsSection);
         }
     }
 }
