@@ -271,6 +271,7 @@
             // 
             // list_verification_results
             // 
+            list_verification_results.AllowDrop = true;
             list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { col_results_verification_file, col_results_verification_isMatch });
             list_verification_results.Dock = System.Windows.Forms.DockStyle.Fill;
             list_verification_results.GridLines = true;
@@ -284,6 +285,8 @@
             list_verification_results.TabIndex = 11;
             list_verification_results.UseCompatibleStateImageBehavior = false;
             list_verification_results.View = System.Windows.Forms.View.Details;
+            list_verification_results.DragDrop += list_results_DragDrop;
+            list_verification_results.DragEnter += list_results_DragEnter;
             list_verification_results.Resize += List_verification_results_Resize;
             // 
             // col_results_verification_file

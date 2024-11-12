@@ -245,7 +245,7 @@ namespace Andy.FlacHash.Application.Win.UI
             if (selectedFiles == null) return;
 
             var inputFiles = selectedFiles.Select(x => new FileInfo(x)).ToArray();
-            
+
             SetSelectedInputFiles(inputFiles);
         }
 
@@ -266,8 +266,13 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var selectedFiles = GetFilesFromUser(openFileDialog_hashfile);
             if (selectedFiles == null) return;
-
+            
             var hashfile = new FileInfo(selectedFiles.First());
+            ChooseHashVerificationFile(hashfile);
+        }
+        void ChooseHashVerificationFile(FileInfo hashfile)
+        {
+            
             if (hashfile.Length > hashfileMaxSizeBytes && MessageBox.Show(
                         $"The selected hashfile (\"{hashfile.Name}\") is quite big ({hashfileMaxSizeBytes / 1024} kb), " +
                         $"which means it may contain some more serious (and unusable for this purposes) data. " +
@@ -338,6 +343,15 @@ namespace Andy.FlacHash.Application.Win.UI
                 menu_hashingAlgorithm.SelectedItem = matchingAlgo.Org;
             else
                 menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
+        }
+
+        bool ExtensionSaysHashfile(string fileExtensionWithDot)
+        {
+            var actualExtension = fileExtensionWithDot.Split('.').Skip(1).First().ToLowerInvariant();
+            return menu_hashingAlgorithm.Items.Cast<Algorithm>()
+                .Select(x => x.ToString().ToLowerInvariant())
+                .Concat(new[] { "hash", "txt" })
+                .Contains(actualExtension);
         }
 
         void SelectAppropriateDecoder()
@@ -690,7 +704,13 @@ namespace Andy.FlacHash.Application.Win.UI
             if (paths.Any(File.Exists))
             {
                 var files = paths.Where(File.Exists).Select(x => new FileInfo(x)).ToArray();
-                SetSelectedInputFiles(files);
+
+                // If there's a hashfile, treat it as a verification op. Don't care about the rest of the files
+                var first = files.First();
+                if (ExtensionSaysHashfile(first.Extension))
+                    ChooseHashVerificationFile(first);
+                else
+                    SetSelectedInputFiles(files);
             }
             else if (paths.Any(Directory.Exists))
             {
