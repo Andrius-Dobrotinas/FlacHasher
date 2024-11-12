@@ -222,10 +222,12 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void ChooseHashingDir()
         {
-            directory = dirBrowser.GetDirectory();
-            if (directory == null) return;
+            var selectedDir = dirBrowser.GetDirectory();
+            if (selectedDir == null) return;
 
-            ResetLog($"Current directory: {directory.FullName}");
+            directory = selectedDir;
+
+            ResetLog($"Current directory: {selectedDir.FullName}");
 
             SetMode(Mode.Hashing);
             SetHashingFileExtensionMenuAvailability();
