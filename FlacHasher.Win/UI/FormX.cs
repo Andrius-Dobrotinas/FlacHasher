@@ -81,13 +81,13 @@ namespace Andy.FlacHash.Application.Win.UI
             this.settings = settings;
 
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
-            
+
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
             fileReadEventSource.BytesRead += (bytesRead) =>
             {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
-            
+
             ResultListContextMenuSetup.WireUp(
                 list_results,
                 ctxMenu_results,
@@ -106,8 +106,8 @@ namespace Andy.FlacHash.Application.Win.UI
             var exts = decoderProfiles.Select(x => new FileExtensionsOption(x.Name, x.TargetFileExtensions)).ToArray();
             menu_fileExtensions.Items.AddRange(exts);
             menu_fileExtensions.SelectedIndex = 0;
-            
-            
+
+
             // Initial values
             btn_go.Enabled = false;
 
@@ -224,10 +224,12 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var selectedDir = dirBrowser.GetDirectory();
             if (selectedDir == null) return;
+        }
 
-            directory = selectedDir;
-
-            ResetLog($"Current directory: {selectedDir.FullName}");
+        private void ChooseHashingDir(DirectoryInfo selectedDirectory)
+        {
+            directory = selectedDirectory;
+            ResetLog($"Current directory: {directory.FullName}");
 
             SetMode(Mode.Hashing);
             SetHashingFileExtensionMenuAvailability();
@@ -243,6 +245,12 @@ namespace Andy.FlacHash.Application.Win.UI
             if (selectedFiles == null) return;
 
             var inputFiles = selectedFiles.Select(x => new FileInfo(x)).ToArray();
+            
+            SetSelectedInputFiles(inputFiles);
+        }
+
+        void SetSelectedInputFiles(FileInfo[] inputFiles)
+        {
             directory = null;
             ResetLog();
 
@@ -667,6 +675,28 @@ namespace Andy.FlacHash.Application.Win.UI
             if (result != DialogResult.OK) return null;
 
             return box.FileNames;
+        }
+
+        private void list_results_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.Link;
+        }
+
+        private void list_results_DragDrop(object sender, DragEventArgs e)
+        {
+            var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (paths.Any(File.Exists))
+            {
+                var files = paths.Where(File.Exists).Select(x => new FileInfo(x)).ToArray();
+                SetSelectedInputFiles(files);
+            }
+            else if (paths.Any(Directory.Exists))
+            {
+                var directory = new DirectoryInfo(paths.First());
+                ChooseHashingDir(directory);
+            }
         }
 
         struct HasherKey
