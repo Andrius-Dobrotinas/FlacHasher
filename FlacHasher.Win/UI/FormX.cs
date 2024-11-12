@@ -331,11 +331,11 @@ namespace Andy.FlacHash.Application.Win.UI
         void SetHashingAlgorigthm(string fileExtension)
         {
             var matchingAlgo = menu_hashingAlgorithm.Items.Cast<Algorithm>()
-                .Select(x => x.ToString())
+                .Select(x => new { Str = x.ToString(), Org = x })
                 .FirstOrDefault(
-                    x => x.Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
+                    x => x.Str.Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
             if (matchingAlgo != null)
-                menu_hashingAlgorithm.SelectedItem = matchingAlgo;
+                menu_hashingAlgorithm.SelectedItem = matchingAlgo.Org;
             else
                 menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
         }
