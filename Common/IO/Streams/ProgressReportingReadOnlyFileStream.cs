@@ -38,6 +38,25 @@ namespace Andy.IO
 
             return byteCount;
         }
+
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            var byteCount = await base.ReadAsync(buffer, offset, count, cancellationToken);
+            
+            RaiseBytesReadEvent(byteCount);
+
+            return byteCount;
+        }
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            var byteCount = await base.ReadAsync(buffer, cancellationToken);
+
+            RaiseBytesReadEvent(byteCount);
+
+            return byteCount;
+        }
+
         public override void CopyTo(Stream destination, int bufferSize)
         {
             base.CopyTo(destination, bufferSize);
