@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+	<TargetFramework>net8.0-windows</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>disable</Nullable>
     <IsPackable>false</IsPackable>
     <AssemblyName>FlacHasher.Win.Tests</AssemblyName>
     <RootNamespace>Andy.FlacHash.Application.Win</RootNamespace>
