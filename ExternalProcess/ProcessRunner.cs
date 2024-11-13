@@ -31,7 +31,7 @@ namespace Andy.ExternalProcess
             this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
         }
 
-        public Stream RunAndReadOutput(
+        public ProcessOutputStream RunAndReadOutput(
             FileInfo executableFile,
             IEnumerable<string> arguments,
             CancellationToken cancellation = default)

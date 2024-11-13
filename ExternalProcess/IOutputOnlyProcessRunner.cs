@@ -10,7 +10,7 @@ namespace Andy.ExternalProcess
         /// <summary>
         /// Runs the <paramref name="executableFile"/> and and returns the output as a real-time stream
         /// </summary>
-        Stream RunAndReadOutput(
+        ProcessOutputStream RunAndReadOutput(
             FileInfo executableFile,
             IEnumerable<string> arguments,
             CancellationToken cancellation = default);
