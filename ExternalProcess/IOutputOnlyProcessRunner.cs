@@ -8,7 +8,7 @@ namespace Andy.ExternalProcess
     public interface IOutputOnlyProcessRunner
     {
         /// <summary>
-        /// Runs the <paramref name="executableFile"/> and returns output once it finishes
+        /// Runs the <paramref name="executableFile"/> and and returns the output as a real-time stream
         /// </summary>
         Stream RunAndReadOutput(
             FileInfo executableFile,
