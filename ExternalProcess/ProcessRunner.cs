@@ -31,7 +31,7 @@ namespace Andy.ExternalProcess
             this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
         }
 
-        public Stream RunAndReadOutput(
+        public ProcessOutputStream RunAndReadOutput(
             FileInfo executableFile,
             IEnumerable<string> arguments,
             CancellationToken cancellation = default)
@@ -67,7 +67,7 @@ namespace Andy.ExternalProcess
             return GetOutputStream_WaitProcessExitInParallel(process, inputData, process.StartInfo.RedirectStandardError, cancellation);
         }
 
-        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
+        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IExternalProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
         {
             process.Start();
             Task.Delay(startWaitMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
@@ -103,7 +103,7 @@ namespace Andy.ExternalProcess
         /// Also, handles cancellation and time-out.
         /// At the end, disposes of <paramref name="process"/>
         /// </summary>
-        private void WaitForOutputRead_AndProcessExitCode(IProcess process, Task outputReadTask, Task<MemoryStream> stdErrorTask = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
+        private void WaitForOutputRead_AndProcessExitCode(IExternalProcess process, Task outputReadTask, Task<MemoryStream> stdErrorTask = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace Andy.ExternalProcess
             return processOutput;
         }
 
-        private static void ProcessExitCode(IProcess process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null, CancellationTokenSource errorReadCancellation = null)
+        private static void ProcessExitCode(IExternalProcess process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null, CancellationTokenSource errorReadCancellation = null)
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)

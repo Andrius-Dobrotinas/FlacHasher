@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Andy.ExternalProcess
 {
-    class ExternalProcessFake : IProcess
+    class ExternalProcessFake : IExternalProcess
     {
         TaskCompletionSource<bool> voluntaryExitCompletion;
         bool respondToExitRequest;
