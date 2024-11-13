@@ -81,13 +81,13 @@ namespace Andy.FlacHash.Application.Win.UI
             this.settings = settings;
 
             this.defaultAlgorithmIndex = Util.FindIndex(hashingAlgorithmOptions, x => x == settings.HashAlgorithm);
-            
+
             this.progressReporter = new FileSizeProgressBarAdapter(progressBar);
             fileReadEventSource.BytesRead += (bytesRead) =>
             {
                 this.Invoke(new Action(() => progressReporter.Increment(bytesRead)));
             };
-            
+
             ResultListContextMenuSetup.WireUp(
                 list_results,
                 ctxMenu_results,
@@ -106,8 +106,8 @@ namespace Andy.FlacHash.Application.Win.UI
             var exts = decoderProfiles.Select(x => new FileExtensionsOption(x.Name, x.TargetFileExtensions)).ToArray();
             menu_fileExtensions.Items.AddRange(exts);
             menu_fileExtensions.SelectedIndex = 0;
-            
-            
+
+
             // Initial values
             btn_go.Enabled = false;
 
@@ -222,9 +222,13 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void ChooseHashingDir()
         {
-            directory = dirBrowser.GetDirectory();
-            if (directory == null) return;
+            var selectedDir = dirBrowser.GetDirectory();
+            if (selectedDir == null) return;
+        }
 
+        private void ChooseHashingDir(DirectoryInfo selectedDirectory)
+        {
+            directory = selectedDirectory;
             ResetLog($"Current directory: {directory.FullName}");
 
             SetMode(Mode.Hashing);
@@ -241,6 +245,12 @@ namespace Andy.FlacHash.Application.Win.UI
             if (selectedFiles == null) return;
 
             var inputFiles = selectedFiles.Select(x => new FileInfo(x)).ToArray();
+
+            SetSelectedInputFiles(inputFiles);
+        }
+
+        void SetSelectedInputFiles(FileInfo[] inputFiles)
+        {
             directory = null;
             ResetLog();
 
@@ -256,8 +266,13 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var selectedFiles = GetFilesFromUser(openFileDialog_hashfile);
             if (selectedFiles == null) return;
-
+            
             var hashfile = new FileInfo(selectedFiles.First());
+            ChooseHashVerificationFile(hashfile);
+        }
+        void ChooseHashVerificationFile(FileInfo hashfile)
+        {
+            
             if (hashfile.Length > hashfileMaxSizeBytes && MessageBox.Show(
                         $"The selected hashfile (\"{hashfile.Name}\") is quite big ({hashfileMaxSizeBytes / 1024} kb), " +
                         $"which means it may contain some more serious (and unusable for this purposes) data. " +
@@ -321,13 +336,22 @@ namespace Andy.FlacHash.Application.Win.UI
         void SetHashingAlgorigthm(string fileExtension)
         {
             var matchingAlgo = menu_hashingAlgorithm.Items.Cast<Algorithm>()
-                .Select(x => x.ToString())
+                .Select(x => new { Str = x.ToString(), Org = x })
                 .FirstOrDefault(
-                    x => x.Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
+                    x => x.Str.Equals(fileExtension, StringComparison.InvariantCultureIgnoreCase));
             if (matchingAlgo != null)
-                menu_hashingAlgorithm.SelectedItem = matchingAlgo;
+                menu_hashingAlgorithm.SelectedItem = matchingAlgo.Org;
             else
                 menu_hashingAlgorithm.SelectedIndex = defaultAlgorithmIndex;
+        }
+
+        bool ExtensionSaysHashfile(string fileExtensionWithDot)
+        {
+            var actualExtension = fileExtensionWithDot.Split('.').Skip(1).First().ToLowerInvariant();
+            return menu_hashingAlgorithm.Items.Cast<Algorithm>()
+                .Select(x => x.ToString().ToLowerInvariant())
+                .Concat(new[] { "hash", "txt" })
+                .Contains(actualExtension);
         }
 
         void SelectAppropriateDecoder()
@@ -665,6 +689,34 @@ namespace Andy.FlacHash.Application.Win.UI
             if (result != DialogResult.OK) return null;
 
             return box.FileNames;
+        }
+
+        private void list_results_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.Link;
+        }
+
+        private void list_results_DragDrop(object sender, DragEventArgs e)
+        {
+            var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (paths.Any(File.Exists))
+            {
+                var files = paths.Where(File.Exists).Select(x => new FileInfo(x)).ToArray();
+
+                // If there's a hashfile, treat it as a verification op. Don't care about the rest of the files
+                var first = files.First();
+                if (ExtensionSaysHashfile(first.Extension))
+                    ChooseHashVerificationFile(first);
+                else
+                    SetSelectedInputFiles(files);
+            }
+            else if (paths.Any(Directory.Exists))
+            {
+                var directory = new DirectoryInfo(paths.First());
+                ChooseHashingDir(directory);
+            }
         }
 
         struct HasherKey
