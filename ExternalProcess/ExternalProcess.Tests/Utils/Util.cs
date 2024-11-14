@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andy.ExternalProcess
+namespace Andy
 {
     static class Util
     {

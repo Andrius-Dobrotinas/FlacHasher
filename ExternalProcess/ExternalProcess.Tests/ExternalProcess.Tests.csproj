@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExternalProcess\ExternalProcess.csproj" />
-    <ProjectReference Include="..\TestHelper\TestHelper.csproj" />
   </ItemGroup>
 
 </Project>
