@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExternalProcess\ExternalProcess.csproj" />
+    <ProjectReference Include="..\ExternalProcess\ExternalProcess\ExternalProcess.csproj" />
   </ItemGroup>
 
 </Project>

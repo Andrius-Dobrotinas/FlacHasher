@@ -51,10 +51,10 @@
             list_verification_results = new VerificationResultsList();
             col_results_verification_file = new System.Windows.Forms.ColumnHeader();
             col_results_verification_isMatch = new System.Windows.Forms.ColumnHeader();
+            imgList_verification = new System.Windows.Forms.ImageList(components);
             list_results = new FileHashResultList();
             columnHashResult_File = new System.Windows.Forms.ColumnHeader();
             columnHashResult_Hash = new System.Windows.Forms.ColumnHeader();
-            imgList_verification = new System.Windows.Forms.ImageList(components);
             tableLayoutPanel1.SuspendLayout();
             group_Left.SuspendLayout();
             groupVerification.SuspendLayout();
@@ -271,6 +271,7 @@
             // 
             // list_verification_results
             // 
+            list_verification_results.AllowDrop = true;
             list_verification_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { col_results_verification_file, col_results_verification_isMatch });
             list_verification_results.Dock = System.Windows.Forms.DockStyle.Fill;
             list_verification_results.GridLines = true;
@@ -284,6 +285,8 @@
             list_verification_results.TabIndex = 11;
             list_verification_results.UseCompatibleStateImageBehavior = false;
             list_verification_results.View = System.Windows.Forms.View.Details;
+            list_verification_results.DragDrop += list_results_DragDrop;
+            list_verification_results.DragEnter += list_results_DragEnter;
             list_verification_results.Resize += List_verification_results_Resize;
             // 
             // col_results_verification_file
@@ -295,8 +298,18 @@
             // 
             col_results_verification_isMatch.Text = "Matches";
             // 
+            // imgList_verification
+            // 
+            imgList_verification.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            imgList_verification.ImageStream = (System.Windows.Forms.ImageListStreamer)resources.GetObject("imgList_verification.ImageStream");
+            imgList_verification.TransparentColor = System.Drawing.Color.Transparent;
+            imgList_verification.Images.SetKeyName(0, "bad");
+            imgList_verification.Images.SetKeyName(1, "good");
+            imgList_verification.Images.SetKeyName(2, "error.png");
+            // 
             // list_results
             // 
+            list_results.AllowDrop = true;
             list_results.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHashResult_File, columnHashResult_Hash });
             list_results.Dock = System.Windows.Forms.DockStyle.Fill;
             list_results.FullRowSelect = true;
@@ -311,6 +324,8 @@
             list_results.UseCompatibleStateImageBehavior = false;
             list_results.View = System.Windows.Forms.View.Details;
             list_results.ItemSelectionChanged += List_results_ItemSelectionChanged;
+            list_results.DragDrop += list_results_DragDrop;
+            list_results.DragEnter += list_results_DragEnter;
             list_results.KeyDown += list_results_KeyDown;
             list_results.Resize += List_hashing_results_Resize;
             // 
@@ -321,15 +336,6 @@
             // columnHashResult_Hash
             // 
             columnHashResult_Hash.Text = "Hash";
-            // 
-            // imgList_verification
-            // 
-            imgList_verification.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            imgList_verification.ImageStream = (System.Windows.Forms.ImageListStreamer)resources.GetObject("imgList_verification.ImageStream");
-            imgList_verification.TransparentColor = System.Drawing.Color.Transparent;
-            imgList_verification.Images.SetKeyName(0, "bad");
-            imgList_verification.Images.SetKeyName(1, "good");
-            imgList_verification.Images.SetKeyName(2, "error.png");
             // 
             // FormX
             // 

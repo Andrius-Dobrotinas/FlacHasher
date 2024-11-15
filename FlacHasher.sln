@@ -35,9 +35,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestHelper", "TestHelper", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestHelper", "TestHelper\TestHelper.csproj", "{E921D57F-9D09-4500-ADE4-DF361B07BC75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalProcess.Tests", "ExternalProcess.Tests\ExternalProcess.Tests.csproj", "{D0F4F3E3-C38D-471B-B313-00E2A0D36FA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalProcess.Tests", "ExternalProcess\ExternalProcess.Tests\ExternalProcess.Tests.csproj", "{D0F4F3E3-C38D-471B-B313-00E2A0D36FA2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalProcess", "ExternalProcess\ExternalProcess.csproj", "{15F2238E-2760-467F-BE72-DAA7891B9A59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalProcess", "ExternalProcess\ExternalProcess\ExternalProcess.csproj", "{15F2238E-2760-467F-BE72-DAA7891B9A59}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmd.Tests", "Andy.Cmd.Tests\Cmd.Tests.csproj", "{95145436-8391-469E-A15F-384E9888C69F}"
 EndProject

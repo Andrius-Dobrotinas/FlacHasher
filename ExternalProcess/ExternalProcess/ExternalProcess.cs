@@ -9,7 +9,7 @@ namespace Andy.ExternalProcess
     /// An abstraction of <see cref="Process"/>.
     /// If Disposed of while still running, it doesn't actually exit and streams do not get killed - everything continues working as normal.
     /// </summary>
-    public interface IProcess : IDisposable
+    public interface IExternalProcess : IDisposable
     {
         bool Start();
         bool WaitForExit(int timeoutMs);
@@ -27,7 +27,7 @@ namespace Andy.ExternalProcess
         StreamReader StandardError { get; }
     }
 
-    public class ExternalProcess : Process, IProcess
+    public class ExternalProcess : Process, IExternalProcess
     {
 
     }
