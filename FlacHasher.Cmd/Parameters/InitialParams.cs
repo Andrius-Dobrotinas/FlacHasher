@@ -2,7 +2,6 @@
 using Andy.FlacHash.Crypto;
 using System;
 using System.Collections.Generic;
-using static Andy.FlacHash.Application.ApplicationSettings;
 
 namespace Andy.FlacHash.Application.Cmd
 {
@@ -20,7 +19,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         [CmdLineParameter(CmdlineParameterNames.DecoderProfile)]
         [AllowEmpty] // To override what's in the settings file
-        [EitherOr("decoder", AllowNone = true)]
+        [OptionalEitherOr("decoder")]
         public string DecoderProfile { get; set; }
 
         /// <summary>
@@ -28,16 +27,16 @@ namespace Andy.FlacHash.Application.Cmd
         /// for parameter validations: to prevent specifying both parameters
         /// </summary>
         [CmdLineParameter(CmdlineParameterNames.Decoder)]
-        [EitherOr("decoder", AllowNone = true)]
+        [OptionalEitherOr("decoder")]
         public string DecoderExe { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.HashingProfile)]
         [AllowEmpty]
-        [EitherOr("hashAlgorithm", AllowNone = true)]
+        [OptionalEitherOr("hashAlgorithm")]
         public string HashingProfile { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.HashAlgorithm)]
-        [EitherOr("hashAlgorithm", AllowNone = true)]
+        [OptionalEitherOr("hashAlgorithm")]
         public Algorithm? HashAlgorithm { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
