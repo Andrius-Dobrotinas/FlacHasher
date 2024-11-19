@@ -6,12 +6,20 @@ using static Andy.FlacHash.Application.Cmd.Verification;
 
 namespace Andy.FlacHash.Application.Cmd
 {
-    public class VerificationParameters : IHashfileParams
+    public class VerificationParameters : MainParameters, IVerificationParams
     {
         [CmdLineParameter(CmdlineParameterNames.HashFile)]
         [AtLeastOneOf("hashfile")]
-        [AtLeastOneOf("hashfileExtensions")]
         public string HashFile { get; set; }
+
+
+        [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
+        [AtLeastOneOf("hashfile")]
+        public override string InputDirectory { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.InputFiles)]
+        [EitherOr("input")]
+        public string[] InputFiles { get; set; }
 
         [IniEntry(nameof(HashfileExtensions))]
         [AtLeastOneOf("hashfileExtensions")]
@@ -21,10 +29,6 @@ namespace Andy.FlacHash.Application.Cmd
         [IniEntry(nameof(HashfileEntrySeparator))]
         [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
         public string HashfileEntrySeparator { get; set; }
-
-        [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
-        [AtLeastOneOf("hashfile")]
-        public string InputDirectory { get; set; }
 
         [CmdLineParameter("--ignore-extra")]
         [IniEntry(nameof(InputIgnoreExtraneous))]
