@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("hashfile.one", "x")]
         [TestCase("c:\\file\\my.hash.file", "flask")]
         [TestCase("hashfile.one", "ext")]
-        public void Hashfile_Specified_NoInputDirOrFiles_And_HashfileIs_PositionBased__Must__Search_For_InputFiles_In_Resolved_Hashfile_Directory(string hashfilePath, string targetFileExtension)
+        public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_PositionBased__Must__Search_For_InputFiles_In_Resolved_Hashfile_Directory(string hashfilePath, string targetFileExtension)
         {
             var @params = new Params
             {
@@ -59,7 +59,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         [TestCase("c:\\file\\01.flac")]
         [TestCase("c:\\file\\04.flac", "c:\\file\\06.flac")]
-        public void Hashfile_Specified_NoInputDirOrFiles_And_HashfileIs_PositionBased__Must__Return_LookedUpFiles(params string[] files)
+        public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_PositionBased__Must__Return_LookedUpFiles(params string[] files)
         {
             var @params = new Params
             {
@@ -87,7 +87,7 @@ namespace Andy.FlacHash.Application.Cmd
         }
 
         [TestCaseSource(nameof(GetCases_FileLookup1))]
-        public void Hashfile_Specified_NoInputDirOrFiles_And_HashfileIs_FilenameBased__Must__Return_AllFiles_DefinedInHashfile_With_BasePath_SameAsHashfile(string hashfilePath, string expectedBasePath, IDictionary<string, string> hashfileEntries)
+        public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_FilenameBased__Must__Return_AllFiles_DefinedInHashfile_With_BasePath_SameAsHashfile(string hashfilePath, string expectedBasePath, IDictionary<string, string> hashfileEntries)
         {
             var @params = new Params
             {
@@ -115,7 +115,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         [TestCase("c:\\hasheesh\\hash.hash", "c:\\d\\muzak", "1.flac", "2.flac")]
         [TestCase("c:\\d\\a.txt", "e:\\mp3\\flac", "four.flac", "2.flac", "five.flac")]
-        public void Hashfile_And_InputDir_Specified__Must__Search_For_InputFiles_In_TheSpecified_InputDirectory(string hashfilePath, string inputDirPath, params string[] filepaths)
+        public void Specified_Hashfile_And_InputDir__Must__Search_For_InputFiles_In_TheSpecified_InputDirectory(string hashfilePath, string inputDirPath, params string[] filepaths)
         {
             var @params = new Params
             {
@@ -157,7 +157,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         [TestCase("c:\\hasheesh\\hash.hash", "1.flac", "2.flac")]
         [TestCase("c:\\d\\a.txt", "four.flac", "2.flac", "five.flac")]
-        public void Hashfile_And_InputFiles_Specified__Must__Use_TheSuppliedInputFiles(string hashfilePath, params string[] filepaths)
+        public void Specified_Hashfile_And_InputFiles__Must__Use_TheSuppliedInputFiles(string hashfilePath, params string[] filepaths)
         {
             var @params = new Params
             {
@@ -186,7 +186,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         [TestCase("c:\\directory", "flac", "1.flac", "2.flac")]
         [TestCase("d:\\e\\m", "x", "four.flac", "2.flac", "five.flac")]
-        public void NoHashfile_And_OnlyInputDir_Specified__Must__Search_ForFiles_InTheDir(string dir, string targetFileExtension, params string[] filepaths)
+        public void Specified_NoHashfile_OnlyInputDir__Must__Search_ForFiles_InTheDir(string dir, string targetFileExtension, params string[] filepaths)
         {
             var expectedDirectoryPath = new DirectoryInfo(dir).FullName;
             var expectedFiles = filepaths.Select(x => new FileInfo(x));
