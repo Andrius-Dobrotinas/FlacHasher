@@ -11,9 +11,8 @@ namespace Andy.Cmd.Parameter
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class OptionalEitherOrAttribute : EitherOrAttribute
     {
-        public OptionalEitherOrAttribute(string groupKey) : base(groupKey)
+        public OptionalEitherOrAttribute(string groupKey) : base(groupKey, allowNoValue: true)
         {
-            AllowNone = true;
         }
     }
 }

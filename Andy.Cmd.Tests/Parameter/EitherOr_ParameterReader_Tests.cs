@@ -155,7 +155,7 @@ namespace Andy.Cmd.Parameter
         class TestParams_AllowNone
         {
             [Parameter("arg1")]
-            [EitherOr("key1", AllowNone = true)]
+            [EitherOr("key1", allowNoValue: true)]
             public string One { get; set; }
 
             [Parameter("arg2")]

@@ -19,18 +19,24 @@ namespace Andy.Cmd.Parameter
         /// Ties parameters to the "either/or" condition.
         /// All parameters with a given key are part of the condition.
         /// </summary>
-        public string GroupKey { get; set; }
+        public string GroupKey { get; }
 
         /// <summary>
         /// Determines whether the whole group is allowed to not have a value
         /// </summary>
-        public bool AllowNone { get; set; }
+        public bool AllowNone { get; }
 
         public EitherOrAttribute(string groupKey)
         {
             if (string.IsNullOrWhiteSpace(groupKey))
                 throw new ArgumentException("A non-empty value is required", nameof(groupKey));
             GroupKey = groupKey;
+        }
+
+        public EitherOrAttribute(string groupKey, bool allowNoValue)
+            : this(groupKey)
+        {
+            AllowNone = allowNoValue;
         }
     }
 }
