@@ -23,7 +23,7 @@ namespace Andy.FlacHash.Application.Cmd
         public string DecoderProfile { get; set; }
 
         /// <summary>
-        /// Purely as a placeholder for the one in <see cref="MainParameters"/>
+        /// Purely as a placeholder for the one in <see cref="MasterParameters"/>
         /// for parameter validations: to prevent specifying both parameters
         /// </summary>
         [CmdLineParameter(CmdlineParameterNames.Decoder)]

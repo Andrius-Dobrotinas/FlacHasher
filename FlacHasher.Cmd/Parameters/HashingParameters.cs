@@ -6,7 +6,7 @@ using Andy.Cmd.Parameter;
 
 namespace Andy.FlacHash.Application.Cmd
 {
-    public class HashingParameters : MainParameters
+    public class HashingParameters : MasterParameters
     {
         [CmdLineParameter(CmdlineParameterNames.OutputFormat, Order = 0)]
         [IniEntry(nameof(OutputFormat), Order = 1)]

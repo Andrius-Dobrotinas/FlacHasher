@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Application.Cmd
         {
             bool lowercaseParams = true;
             InitialParams initialCmdlineParams;
-            MainParameters settings;
+            MasterParameters settings;
             
             var parameterReader = ParameterReader.Build();
             try
