@@ -26,11 +26,6 @@ namespace Andy.FlacHash.Application.Cmd
         [RequiredWith(nameof(InputDirectory))]
         public string TargetFileExtension { get; set; }
 
-        [CmdLineParameter(CmdlineParameterNames.FailOnError, Order = 0)]
-        [IniEntry(nameof(FailOnError), Order = 1)]
-        [Optional]
-        public bool FailOnError { get; set; }
-
         [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]
         [IniEntry(nameof(PrintDecoderProgress), Order = 1)]
         [Optional(defaultValue: true)]

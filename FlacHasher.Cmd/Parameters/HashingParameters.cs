@@ -20,5 +20,11 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [EitherOr("input")]
         public override string InputDirectory { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.FailOnError, Order = 0)]
+        [IniEntry(nameof(FailOnError), Order = 1)]
+        [Optional]
+        public bool FailOnError { get; set; }
+
     }
 }
