@@ -15,10 +15,11 @@ namespace Andy.FlacHash.Application.Cmd
 
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [AtLeastOneOf("hashfile")]
+        [OptionalEitherOr("input")]
         public override string InputDirectory { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.InputFiles)]
-        [EitherOr("input")]
+        [OptionalEitherOr("input")]
         public string[] InputFiles { get; set; }
 
         [IniEntry(nameof(HashfileExtensions))]
