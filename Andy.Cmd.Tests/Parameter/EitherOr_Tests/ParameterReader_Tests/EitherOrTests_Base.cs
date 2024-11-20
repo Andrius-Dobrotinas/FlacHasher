@@ -65,7 +65,7 @@ namespace Andy.Cmd.Parameter.EitherOr_Tests.ParameterReader_Tests
             var property1 = typeof(TTestParamsDifferentKeys).GetProperty(nameof(TestParamsDifferentKeys.One));
             var property2 = typeof(TTestParamsDifferentKeys).GetProperty(nameof(TestParamsDifferentKeys.Two));
             Set_ParameterValueResolver_Up<TTestParamsDifferentKeys>(property1, value1);
-            Set_ParameterValueResolver_Up<TTestParamsDifferentKeys>(property2, value2);
+            Set_ParameterValueResolver_Up<TTestParamsDifferentKeys>(property2, new[] { value2 });
 
             Assert.Throws<InvalidOperationException>(
                 () => target.GetParameters<TTestParamsDifferentKeys>(fakeArgs.Object));
