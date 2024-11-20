@@ -89,6 +89,15 @@ namespace Andy.FlacHash.Application.Cmd
                 WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
                 return (int)ReturnValue.ArgumentNotProvided;
             }
+            catch (ParameterGroupException e)
+            {
+                var parameterMetadata = e.Parameters.Select(x => Help.GetParameterMetadata(x.DeclaringType, x));
+                var paramsString = string.Join(", ", parameterMetadata.Select(x => x.DisplayName));
+                WriteUserLine(e.Message);
+                WriteUserLine($"Relevant parameters: {paramsString}");
+                WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
+                return (int)ReturnValue.ArgumentError;
+            }
             catch (ParameterException e)
             {
                 WriteUserLine(e.Message);
