@@ -78,12 +78,13 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 var property = Help.GetParameterMetadata(e.ParameterProperty.DeclaringType, e.ParameterProperty);
                 var sb = new System.Text.StringBuilder();
-                sb.AppendLine($"Provide the following configuration: {property.DisplayName}. Provide value via:");
+                sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
 
                 var groupedBySourceType = property.Sources.GroupBy(x => x.Value, x => x.Key);
                 foreach (var p in groupedBySourceType.Select(x => new { SourceType = x.Key, ParamsString = string.Join(", ", x.Select(i => $"\"{i}\"")) }))
                     sb.AppendLine($"- {p.SourceType}: {p.ParamsString}");
 
+                WriteUserLine(e.Message);
                 WriteUserLine(sb.ToString());
                 WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
                 return (int)ReturnValue.ArgumentNotProvided;

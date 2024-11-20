@@ -14,7 +14,7 @@ namespace Andy.Cmd.Parameter
         {
         }
 
-        public ParameterMissingException(string message, PropertyInfo param) : base($"{message}. Configuration Key: {param.Name}")
+        public ParameterMissingException(string message, PropertyInfo param) : base(message)
         {
             ParameterProperty = param;
         }
