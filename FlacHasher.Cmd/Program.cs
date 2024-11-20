@@ -42,6 +42,24 @@ namespace Andy.FlacHash.Application.Cmd
                     return (int)ReturnValue.SettingsReadingFailure;
                 }
 
+                if (initialCmdlineParams.IsHelp)
+                {
+                    if (initialCmdlineParams.IsVerification)
+                    {
+                        PrintParameters<VerificationParameters>();
+                    }
+                    else
+                    {
+                        WriteUserLine("Hashing:");
+                        PrintParameters<VerificationParameters>();
+
+                        WriteUserLine("");
+                        WriteUserLine("Verification:");
+                        PrintParameters<VerificationParameters>();
+                    }
+                    return 0;
+                }
+
                 var paramTypes = initialCmdlineParams.IsVerification
                     ? new[] { typeof(VerificationParameters), typeof(InitialParams) }
                     : new[] { typeof(HashingParameters), typeof(InitialParams) };
@@ -69,11 +87,13 @@ namespace Andy.FlacHash.Application.Cmd
                 }
                 else
                 WriteUserLine(e.Message);
+                WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
                 return (int)ReturnValue.ArgumentNotProvided;
             }
             catch (ParameterException e)
             {
                 WriteUserLine(e.Message);
+                WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
                 return (int)ReturnValue.ArgumentError;
             }
 
@@ -147,6 +167,31 @@ namespace Andy.FlacHash.Application.Cmd
 
             WriteUserLine("Done!");
             return (int)ReturnValue.Success;
+        }
+
+        static void PrintParameters<T>()
+        {
+            var properties = Help.GetParameterMetadata<T>().ToArray();
+            foreach (var property in properties)
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.Append($"- {property.DisplayName}");
+                if (property.IsOptional)
+                    sb.Append(" (Optional)");
+
+                if (!string.IsNullOrEmpty(property.Description))
+                    sb.Append($": {property.Description}");
+                var sources = string.Join(", ", property.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
+                sb.Append($". Configured via: {sources}.");
+
+                if (property.RequiredWith != null)
+                {
+                    var requiredWith = properties.First(x => x.Property == property.RequiredWith);
+                    sb.Append($" Required with {requiredWith.DisplayName}");
+                }
+
+                WriteUserLine(sb.ToString());
+            }
         }
 
         static void WriteUserLine(string text)

@@ -42,5 +42,9 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
         [Optional]
         public bool IsVerification { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.ModeHelp)]
+        [Optional]
+        public bool IsHelp { get; set; }
     }
 }

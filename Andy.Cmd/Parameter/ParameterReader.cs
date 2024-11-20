@@ -142,7 +142,7 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        public static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
+        static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
         {
             var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWithAttribute>(false)))
                 .Where(x => x.attr.Any())
