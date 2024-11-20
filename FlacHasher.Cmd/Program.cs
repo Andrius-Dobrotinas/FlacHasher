@@ -57,6 +57,8 @@ namespace Andy.FlacHash.Application.Cmd
                         WriteUserLine("Verification:");
                         PrintParameters<VerificationParameters>();
                     }
+                    
+                    WriteUserLine($"Settings file: {settingsFileName}");
                     return 0;
                 }
 
