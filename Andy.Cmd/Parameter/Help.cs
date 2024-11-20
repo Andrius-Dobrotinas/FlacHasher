@@ -21,12 +21,18 @@ namespace Andy.Cmd.Parameter
 
             var reqWith = property.GetCustomAttribute<RequiredWithAttribute>();
 
+            var isTrulyOptional = optionalAttrs.Any(x => x.GetType() == typeof(OptionalAttribute));
+            var isConditional = optionalAttrs.Any(x => x.GetType() != typeof(OptionalAttribute));
             return new ParameterDescription
             {
                 Property = property,
                 DisplayName = descrAttr?.Name ?? property.Name,
                 Description = descrAttr?.Description,
-                IsOptional = optionalAttrs.Any(),
+                Optionality = !isTrulyOptional && !isConditional 
+                    ? OptionalityMode.Mandatory
+                    : isConditional
+                        ? OptionalityMode.Conditional
+                        : OptionalityMode.Optional,
                 Sources = attrs.OrderBy(x => x.Order).Select(paramAttr =>
                 {
                     var sourceDisplayName = paramAttr.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? paramAttr.GetType().Name;

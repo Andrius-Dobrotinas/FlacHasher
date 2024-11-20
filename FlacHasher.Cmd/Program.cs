@@ -190,8 +190,8 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 var sb = new System.Text.StringBuilder();
                 sb.Append($"- {property.DisplayName}");
-                if (property.IsOptional)
-                    sb.Append(" (Optional)");
+                if (property.Optionality != OptionalityMode.Mandatory)
+                    sb.Append($" ({property.Optionality})");
 
                 if (!string.IsNullOrEmpty(property.Description))
                     sb.Append($": {property.Description}");
