@@ -7,32 +7,39 @@ namespace Andy.Cmd.Parameter
 {
     public static class Help
     {
-        public static IEnumerable<ParameterDescription> GetParameterMetadata<Type>()
+        public static IEnumerable<ParameterDescription> GetAllParameterMetadata<Type>()
         {
             var allProperties = typeof(Type).GetProperties();
+            return allProperties.Select(property => GetParameterMetadata(property, allProperties));
+        }
 
-            foreach (var property in allProperties)
+        public static ParameterDescription GetParameterMetadata(PropertyInfo property, ICollection<PropertyInfo> allProperties)
+        {
+            var descrAttr = property.GetCustomAttribute<ParameterDescriptionAttribute>(false);
+            var attrs = property.GetCustomAttributes<ParameterAttribute>(false).ToArray();
+            var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false).ToArray();
+
+            var reqWith = property.GetCustomAttribute<RequiredWithAttribute>();
+
+            return new ParameterDescription
             {
-                var descrAttr = property.GetCustomAttribute<ParameterDescriptionAttribute>(false);
-                var attrs = property.GetCustomAttributes<ParameterAttribute>(false).ToArray();
-                var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false).ToArray();
-
-                var reqWith = property.GetCustomAttribute<RequiredWithAttribute>();
-
-                yield return new ParameterDescription
+                Property = property,
+                DisplayName = descrAttr?.Name ?? property.Name,
+                Description = descrAttr?.Description,
+                IsOptional = optionalAttrs.Any(),
+                Sources = attrs.OrderBy(x => x.Order).Select(paramAttr =>
                 {
-                    Property = property,
-                    DisplayName = descrAttr?.Name ?? property.Name,
-                    Description = descrAttr?.Description,
-                    IsOptional = optionalAttrs.Any(),
-                    Sources = attrs.OrderBy(x => x.Order).Select(paramAttr =>
-                    {
-                        var sourceDisplayName = paramAttr.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? paramAttr.GetType().Name;
-                        return new KeyValuePair<string, string>(paramAttr.Name, sourceDisplayName);
-                    }).ToArray(),
-                    RequiredWith = reqWith == null ? null : allProperties.FirstOrDefault(x => x.Name == reqWith.OtherPropertyName)
-                };
-            }
+                    var sourceDisplayName = paramAttr.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? paramAttr.GetType().Name;
+                    return new KeyValuePair<string, string>(paramAttr.Name, sourceDisplayName);
+                }).ToArray(),
+                RequiredWith = reqWith == null ? null : allProperties.FirstOrDefault(x => x.Name == reqWith.OtherPropertyName)
+            };
+        }
+
+        public static ParameterDescription GetParameterMetadata(Type paramsType, PropertyInfo property)
+        {
+            var allProperties = paramsType.GetProperties();
+            return GetParameterMetadata(property, allProperties);
         }
     }
 }

@@ -76,19 +76,15 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (ParameterMissingException e)
             {
-                var attrs = e.ParameterProperty.GetCustomAttributes<ParameterAttribute>(false).Cast<ParameterAttribute>().ToList();
-                var cmdlineAttr = attrs.FirstOrDefault(x => x is CmdLineParameterAttribute);
-                if (cmdlineAttr != null)
-                {
-                    WriteUserLine($"{e.Message}. Specify the following parameter: {cmdlineAttr.Name}");
-                }
-                else if (attrs.FirstOrDefault(x => x is IniEntryAttribute) != null)
-                {
-                    var iniAttr = attrs.FirstOrDefault(x => x is IniEntryAttribute);
-                    WriteUserLine($"{e.Message}. Specify the following item the settings file: {iniAttr}");
-                }
-                else
-                WriteUserLine(e.Message);
+                var property = Help.GetParameterMetadata(e.ParameterProperty.DeclaringType, e.ParameterProperty);
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine($"Provide the following configuration: {property.DisplayName}. Provide value via:");
+
+                var groupedBySourceType = property.Sources.GroupBy(x => x.Value, x => x.Key);
+                foreach (var p in groupedBySourceType.Select(x => new { SourceType = x.Key, ParamsString = string.Join(", ", x.Select(i => $"\"{i}\"")) }))
+                    sb.AppendLine($"- {p.SourceType}: {p.ParamsString}");
+
+                WriteUserLine(sb.ToString());
                 WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
                 return (int)ReturnValue.ArgumentNotProvided;
             }
@@ -173,7 +169,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintParameters<T>()
         {
-            var properties = Help.GetParameterMetadata<T>().ToArray();
+            var properties = Help.GetAllParameterMetadata<T>().ToArray();
             foreach (var property in properties)
             {
                 var sb = new System.Text.StringBuilder();
