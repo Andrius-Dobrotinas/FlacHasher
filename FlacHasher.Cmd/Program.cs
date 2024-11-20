@@ -29,6 +29,12 @@ namespace Andy.FlacHash.Application.Cmd
                 var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
                 initialCmdlineParams = parameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
 
+                if (initialCmdlineParams.IsHelp)
+                {
+                    PrintHelp(initialCmdlineParams.IsVerification);
+                    return 0;
+                }
+
                 IDictionary<string, string[]> settingsFileParams;
                 try
                 {
@@ -40,26 +46,6 @@ namespace Andy.FlacHash.Application.Cmd
                 {
                     WriteUserLine($"Failure reading a settings file. {e.Message}");
                     return (int)ReturnValue.SettingsReadingFailure;
-                }
-
-                if (initialCmdlineParams.IsHelp)
-                {
-                    if (initialCmdlineParams.IsVerification)
-                    {
-                        PrintParameters<VerificationParameters>();
-                    }
-                    else
-                    {
-                        WriteUserLine("Hashing:");
-                        PrintParameters<VerificationParameters>();
-
-                        WriteUserLine("");
-                        WriteUserLine("Verification:");
-                        PrintParameters<VerificationParameters>();
-                    }
-                    
-                    WriteUserLine($"Settings file: {settingsFileName}");
-                    return 0;
                 }
 
                 var paramTypes = initialCmdlineParams.IsVerification
@@ -175,6 +161,25 @@ namespace Andy.FlacHash.Application.Cmd
 
             WriteUserLine("Done!");
             return (int)ReturnValue.Success;
+        }
+
+        static void PrintHelp(bool isVerification)
+        {
+            if (isVerification)
+            {
+                PrintParameters<VerificationParameters>();
+            }
+            else
+            {
+                WriteUserLine("Hashing:");
+                PrintParameters<VerificationParameters>();
+
+                WriteUserLine("");
+                WriteUserLine("Verification:");
+                PrintParameters<VerificationParameters>();
+            }
+
+            WriteUserLine($"Settings file: {settingsFileName}");
         }
 
         static void PrintParameters<T>()
