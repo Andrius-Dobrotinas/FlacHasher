@@ -16,6 +16,7 @@ namespace Andy.FlacHash.Application.Cmd
     {
         const string settingsFileName = "settings.cfg";
         static bool printProcessProgress = false;
+        static string HelpMessage = $"For help, use \"{CmdlineParameterNames.ModeHelp}\" option";
 
         static int Main(string[] args)
         {
@@ -72,7 +73,7 @@ namespace Andy.FlacHash.Application.Cmd
 
                 WriteUserLine(e.Message);
                 WriteUserLine(sb.ToString());
-                WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
+                WriteUserLine(HelpMessage);
                 return (int)ReturnValue.ArgumentNotProvided;
             }
             catch (ParameterGroupException e)
@@ -81,13 +82,13 @@ namespace Andy.FlacHash.Application.Cmd
                 var paramsString = string.Join(", ", parameterMetadata.Select(x => x.DisplayName));
                 WriteUserLine(e.Message);
                 WriteUserLine($"Relevant parameters: {paramsString}");
-                WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
+                WriteUserLine(HelpMessage);
                 return (int)ReturnValue.ArgumentError;
             }
             catch (ParameterException e)
             {
                 WriteUserLine(e.Message);
-                WriteUserLine($"For help, use \"{CmdlineParameterNames.ModeHelp}\" option");
+                WriteUserLine(HelpMessage);
                 return (int)ReturnValue.ArgumentError;
             }
 
