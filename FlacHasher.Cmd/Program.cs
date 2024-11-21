@@ -185,7 +185,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintParameters<T>()
         {
-            var properties = Help.GetAllParameterMetadata<T>().ToArray();
+            var properties = Help.GetAllParameterMetadata<T>();
             foreach (var property in properties)
             {
                 var sb = new System.Text.StringBuilder();
