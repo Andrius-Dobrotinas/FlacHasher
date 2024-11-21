@@ -22,7 +22,7 @@ namespace Andy.Cmd.Parameter
             var attrs = property.GetCustomAttributes<ParameterAttribute>(false).ToArray();
             var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false).ToArray();
 
-            var reqWith = property.GetCustomAttribute<RequiredWithAttribute>();
+            var reqWith = property.GetCustomAttribute<RequiredWithAttribute>(false);
 
             var isTrulyOptional = optionalAttrs.Any(x => x.GetType() == typeof(OptionalAttribute));
             var isConditional = optionalAttrs.Any(x => x.GetType() != typeof(OptionalAttribute));
