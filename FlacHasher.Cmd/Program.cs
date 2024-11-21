@@ -192,7 +192,7 @@ namespace Andy.FlacHash.Application.Cmd
 
             foreach (var group in paramterGroups)
             {
-                sb.AppendLine($"\"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}:");
+                sb.AppendLine($"- \"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}:");
                 foreach (var item in group)
                 {
                     var propertyMetadata = properties[item];
