@@ -7,11 +7,13 @@ namespace Andy.Cmd.Parameter
 {
     public static class Help
     {
-        public static ParameterDescription[] GetAllParameterMetadata<TParams>()
+        public static Dictionary<PropertyInfo, ParameterDescription> GetAllParameterMetadata<TParams>()
         {
             var allProperties = typeof(TParams).GetProperties();
-            return allProperties.Select(property => GetParameterMetadata(property, allProperties))
-                .ToArray();
+            return allProperties
+                .ToDictionary(
+                    property => property,
+                    property => GetParameterMetadata(property, allProperties));
         }
 
         public static ParameterDescription GetParameterMetadata(PropertyInfo property, ICollection<PropertyInfo> allProperties)

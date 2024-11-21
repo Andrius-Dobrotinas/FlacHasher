@@ -189,24 +189,24 @@ namespace Andy.FlacHash.Application.Cmd
             var paramterGroups = Help.GetAllParameterGroups<T>();
 
             var sb = new System.Text.StringBuilder();
-            foreach (var property in properties)
+            foreach (var (property, metadata) in properties)
             {
-                sb.Append($"- {property.DisplayName}");
-                if (property.Optionality != OptionalityMode.Mandatory)
-                    sb.Append($" ({property.Optionality}, ");
+                sb.Append($"- {metadata.DisplayName}");
+                if (metadata.Optionality != OptionalityMode.Mandatory)
+                    sb.Append($" ({metadata.Optionality}, ");
                 else
                     sb.Append(" (");
                 
-                sb.Append($"Empty value allowed: {property.EmptyAllowed})");
+                sb.Append($"Empty value allowed: {metadata.EmptyAllowed})");
 
-                if (!string.IsNullOrEmpty(property.Description))
-                    sb.Append($": {property.Description}");
-                var sources = string.Join(", ", property.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
+                if (!string.IsNullOrEmpty(metadata.Description))
+                    sb.Append($": {metadata.Description}");
+                var sources = string.Join(", ", metadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
                 sb.Append($". Configured via: {sources}.");
 
-                if (property.RequiredWith != null)
+                if (metadata.RequiredWith != null)
                 {
-                    var requiredWith = properties.First(x => x.Property == property.RequiredWith);
+                    var requiredWith = properties[metadata.RequiredWith];
                     sb.Append($" Required with {requiredWith.DisplayName}");
                 }
 
@@ -222,7 +222,7 @@ namespace Andy.FlacHash.Application.Cmd
                 sb.AppendLine($"\"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}:");
                 foreach (var item in group)
                 {
-                    var propertyMetadata = properties.First(x => x.Property == item);
+                    var propertyMetadata = properties[item];
 
                     var sources = string.Join(", ", propertyMetadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
                     sb.AppendLine($"\t- {propertyMetadata.DisplayName}: {sources}");
