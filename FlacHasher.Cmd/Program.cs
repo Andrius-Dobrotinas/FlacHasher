@@ -191,7 +191,11 @@ namespace Andy.FlacHash.Application.Cmd
                 var sb = new System.Text.StringBuilder();
                 sb.Append($"- {property.DisplayName}");
                 if (property.Optionality != OptionalityMode.Mandatory)
-                    sb.Append($" ({property.Optionality})");
+                    sb.Append($" ({property.Optionality}, ");
+                else
+                    sb.Append(" (");
+                
+                sb.Append($"Empty value allowed: {property.EmptyAllowed})");
 
                 if (!string.IsNullOrEmpty(property.Description))
                     sb.Append($": {property.Description}");

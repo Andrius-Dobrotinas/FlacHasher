@@ -33,6 +33,7 @@ namespace Andy.Cmd.Parameter
                     : isConditional
                         ? OptionalityMode.Conditional
                         : OptionalityMode.Optional,
+                EmptyAllowed = property.GetCustomAttribute<RequiredWithAttribute>() != null,
                 Sources = attrs.OrderBy(x => x.Order).Select(paramAttr =>
                 {
                     var sourceDisplayName = paramAttr.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? paramAttr.GetType().Name;

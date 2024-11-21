@@ -19,6 +19,7 @@ namespace Andy.Cmd.Parameter
         public string Description { get; set; }
         public ICollection<KeyValuePair<string, string>> Sources { get; set; }
         public OptionalityMode Optionality { get; set; }
+        public bool EmptyAllowed { get; set; }
         public PropertyInfo RequiredWith { get; set; }
     }
 }
