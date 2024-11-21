@@ -7,9 +7,9 @@ namespace Andy.Cmd.Parameter
 {
     public enum OptionalityMode
     {
-        Optional = 0,
-        Mandatory = 1,
-        Conditional = 2
+        Mandatory = 0,
+        Conditional = 1,
+        Optional = 2
     }
 
     public class ParameterDescription

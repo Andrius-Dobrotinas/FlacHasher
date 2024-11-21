@@ -208,7 +208,7 @@ namespace Andy.FlacHash.Application.Cmd
 
             var doneProperties = paramterGroups.SelectMany(x => x).ToList();
             var unlistedProperties = properties.Where(x => !doneProperties.Contains(x.Key));
-            foreach (var (property, metadata) in unlistedProperties)
+            foreach (var (property, metadata) in unlistedProperties.OrderBy(x => x.Value.Optionality))
             {
                 sb.Append($"- {metadata.DisplayName}");
                 if (metadata.Optionality != OptionalityMode.Mandatory)
