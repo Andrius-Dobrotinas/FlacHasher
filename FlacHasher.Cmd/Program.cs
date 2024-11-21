@@ -186,9 +186,11 @@ namespace Andy.FlacHash.Application.Cmd
         static void PrintParameters<T>()
         {
             var properties = Help.GetAllParameterMetadata<T>();
+            var paramterGroups = Help.GetAllParameterGroups<T>();
+
+            var sb = new System.Text.StringBuilder();
             foreach (var property in properties)
             {
-                var sb = new System.Text.StringBuilder();
                 sb.Append($"- {property.DisplayName}");
                 if (property.Optionality != OptionalityMode.Mandatory)
                     sb.Append($" ({property.Optionality}, ");
@@ -209,7 +211,39 @@ namespace Andy.FlacHash.Application.Cmd
                 }
 
                 WriteUserLine(sb.ToString());
+                sb.Clear();
             }
+
+            WriteUserLine("");
+            WriteUserLine("Some of the parameters belong to the following groups");
+
+            foreach (var group in paramterGroups)
+            {
+                sb.AppendLine($"\"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}:");
+                foreach (var item in group)
+                {
+                    var propertyMetadata = properties.First(x => x.Property == item);
+
+                    var sources = string.Join(", ", propertyMetadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
+                    sb.AppendLine($"\t- {propertyMetadata.DisplayName}: {sources}");
+                }
+                WriteUserLine(sb.ToString());
+                sb.Clear();
+            }
+        }
+
+        static string GetGroupingDescription(Type type)
+        {
+            if (type == typeof(AtLeastOneOfAttribute))
+                return "At least one of the following must have a value";
+
+            if (type == typeof(EitherOrAttribute))
+                return "Strictly One of the following must have a value";
+
+            if (type == typeof(OptionalEitherOrAttribute))
+                return "Optional - no more than one of the following must have a value";
+
+            return "";
         }
 
         static void WriteUserLine(string text)

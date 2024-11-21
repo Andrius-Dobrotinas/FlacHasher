@@ -49,5 +49,18 @@ namespace Andy.Cmd.Parameter
             var allProperties = paramsType.GetProperties();
             return GetParameterMetadata(property, allProperties);
         }
+
+        public static IGrouping<(Type, string), PropertyInfo>[] GetAllParameterGroups<TParams>()
+        {
+            var allProperties = typeof(TParams).GetProperties();
+            var eitherOrGroups = allProperties.SelectMany(x => x.GetCustomAttributes<EitherOrAttribute>(false)
+                .Select(i => new { Type = i.GetType(), Group = i.GroupKey, Property = x }));
+
+            var atLeastOneGroups = allProperties.SelectMany(x => x.GetCustomAttributes<AtLeastOneOfAttribute>(false)
+                .Select(i => new { Type = i.GetType(), Group = i.GroupKey, Property = x }));
+
+            return eitherOrGroups.Concat(atLeastOneGroups).GroupBy(x => (x.Type, x.Group), x => x.Property)
+                .ToArray();
+        }
     }
 }
