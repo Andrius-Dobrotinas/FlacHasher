@@ -189,7 +189,26 @@ namespace Andy.FlacHash.Application.Cmd
             var paramterGroups = Help.GetAllParameterGroups<T>();
 
             var sb = new System.Text.StringBuilder();
-            foreach (var (property, metadata) in properties)
+
+            foreach (var group in paramterGroups)
+            {
+                sb.AppendLine($"\"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}:");
+                foreach (var item in group)
+                {
+                    var propertyMetadata = properties[item];
+
+                    var sources = string.Join(", ", propertyMetadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
+                    sb.AppendLine($"\t- {propertyMetadata.DisplayName}: {sources}");
+                }
+                WriteUserLine(sb.ToString());
+                sb.Clear();
+            }
+
+            WriteUserLine("");
+
+            var doneProperties = paramterGroups.SelectMany(x => x).ToList();
+            var unlistedProperties = properties.Where(x => !doneProperties.Contains(x.Key));
+            foreach (var (property, metadata) in unlistedProperties)
             {
                 sb.Append($"- {metadata.DisplayName}");
                 if (metadata.Optionality != OptionalityMode.Mandatory)
@@ -210,23 +229,6 @@ namespace Andy.FlacHash.Application.Cmd
                     sb.Append($" Required with {requiredWith.DisplayName}");
                 }
 
-                WriteUserLine(sb.ToString());
-                sb.Clear();
-            }
-
-            WriteUserLine("");
-            WriteUserLine("Some of the parameters belong to the following groups");
-
-            foreach (var group in paramterGroups)
-            {
-                sb.AppendLine($"\"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}:");
-                foreach (var item in group)
-                {
-                    var propertyMetadata = properties[item];
-
-                    var sources = string.Join(", ", propertyMetadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
-                    sb.AppendLine($"\t- {propertyMetadata.DisplayName}: {sources}");
-                }
                 WriteUserLine(sb.ToString());
                 sb.Clear();
             }
