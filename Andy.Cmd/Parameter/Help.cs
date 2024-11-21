@@ -65,5 +65,15 @@ namespace Andy.Cmd.Parameter
             return eitherOrGroups.Concat(atLeastOneGroups).GroupBy(x => (x.Type, x.Group), x => x.Property)
                 .ToArray();
         }
+
+        public static Dictionary<PropertyInfo, ParameterDescription[]> GetDependencyDictionary(Dictionary<PropertyInfo, ParameterDescription> properties)
+        {
+            var conditionallyRequired = properties.Where(x => x.Value.RequiredWith != null);
+            return conditionallyRequired
+                .SelectMany(
+                    x => x.Value.RequiredWith.Select(i => (i, x.Value)))
+                .GroupBy(x => x.Item1, x => x.Value)
+                .ToDictionary(x => x.Key, x => x.ToArray());
+        }
     }
 }

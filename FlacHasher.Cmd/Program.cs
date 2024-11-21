@@ -187,6 +187,7 @@ namespace Andy.FlacHash.Application.Cmd
         {
             var properties = Help.GetAllParameterMetadata<T>();
             var paramterGroups = Help.GetAllParameterGroups<T>();
+            var withDependencies = Help.GetDependencyDictionary(properties);
 
             var sb = new System.Text.StringBuilder();
 
@@ -225,11 +226,10 @@ namespace Andy.FlacHash.Application.Cmd
                 foreach (var src in metadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"))
                     sb.AppendLine($"\t{src}");
 
-                if (metadata.RequiredWith != null)
+                if (withDependencies.ContainsKey(property))
                 {
-                    var dependencyProperties = metadata.RequiredWith.Select(x => $"\"{properties[x].DisplayName}\"");
-                    var dependendyString = string.Join(", ", dependencyProperties);
-                    sb.AppendLine($"\tRequired with: {dependendyString}");
+                    var dependendyString = string.Join(", ", withDependencies[property].Select(x => $"\"{x.DisplayName}\""));
+                    sb.AppendLine($"\tRequires: {dependendyString}");
                 }
 
                 WriteUserLine(sb.ToString());
