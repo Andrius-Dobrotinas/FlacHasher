@@ -220,13 +220,15 @@ namespace Andy.FlacHash.Application.Cmd
 
                 if (!string.IsNullOrEmpty(metadata.Description))
                     sb.Append($": {metadata.Description}");
-                var sources = string.Join(", ", metadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
-                sb.Append($". Configured via: {sources}.");
+
+                sb.AppendLine($". Configured via:");
+                foreach (var src in metadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"))
+                    sb.AppendLine($"\t{src}");
 
                 if (metadata.RequiredWith != null)
                 {
                     var requiredWith = properties[metadata.RequiredWith];
-                    sb.Append($" Required with {requiredWith.DisplayName}");
+                    sb.AppendLine($"\tRequired with {requiredWith.DisplayName}");
                 }
 
                 WriteUserLine(sb.ToString());
