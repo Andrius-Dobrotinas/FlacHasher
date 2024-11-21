@@ -227,8 +227,9 @@ namespace Andy.FlacHash.Application.Cmd
 
                 if (metadata.RequiredWith != null)
                 {
-                    var requiredWith = properties[metadata.RequiredWith];
-                    sb.AppendLine($"\tRequired with {requiredWith.DisplayName}");
+                    var dependencyProperties = metadata.RequiredWith.Select(x => $"\"{properties[x].DisplayName}\"");
+                    var dependendyString = string.Join(", ", dependencyProperties);
+                    sb.AppendLine($"\tRequired with: {dependendyString}");
                 }
 
                 WriteUserLine(sb.ToString());

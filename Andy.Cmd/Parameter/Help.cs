@@ -22,10 +22,11 @@ namespace Andy.Cmd.Parameter
             var attrs = property.GetCustomAttributes<ParameterAttribute>(false).ToArray();
             var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false).ToArray();
 
-            var reqWith = property.GetCustomAttribute<RequiredWithAttribute>(false);
+            var reqWith = property.GetCustomAttributes<RequiredWithAttribute>(false);
+            var dependencyProperties = reqWith.Select(x => x.OtherPropertyName).ToArray();
 
-            var isTrulyOptional = optionalAttrs.Any(x => x.GetType() == typeof(OptionalAttribute));
-            var isConditional = optionalAttrs.Any(x => x.GetType() != typeof(OptionalAttribute));
+            var isTrulyOptional = optionalAttrs.Any(x => x.GetType() == typeof(OptionalAttribute)); // only "optional" comes with no strings attached
+            var isConditional = optionalAttrs.Any(x => x.GetType() != typeof(OptionalAttribute)); // derivatives of "optional", assume to be conditional
             return new ParameterDescription
             {
                 Property = property,
@@ -42,7 +43,7 @@ namespace Andy.Cmd.Parameter
                     var sourceDisplayName = paramAttr.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? paramAttr.GetType().Name;
                     return new KeyValuePair<string, string>(paramAttr.Name, sourceDisplayName);
                 }).ToArray(),
-                RequiredWith = reqWith == null ? null : allProperties.FirstOrDefault(x => x.Name == reqWith.OtherPropertyName)
+                RequiredWith = reqWith.Any() ? allProperties.Where(x => dependencyProperties.Contains(x.Name)).ToArray() : null
             };
         }
 
