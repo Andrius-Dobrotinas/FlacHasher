@@ -214,7 +214,7 @@ namespace Andy.FlacHash.Application.Cmd
                 sb.Append($"- {metadata.DisplayName}");
                 if (metadata.Optionality != OptionalityMode.Mandatory)
                 {
-                    sb.Append($" [{metadata.Optionality}, ");
+                    sb.Append($" [{metadata.Optionality}");
                     
                     var defaultValue = metadata.DefaultValue == null
                         ? null
@@ -223,7 +223,7 @@ namespace Andy.FlacHash.Application.Cmd
                             : $"\"{metadata.DefaultValue}\"";
 
                     if (defaultValue != null)
-                        sb.Append($"default value: {defaultValue}");
+                        sb.Append($", default value: {defaultValue}");
                     
                     sb.Append("]");
                 }
