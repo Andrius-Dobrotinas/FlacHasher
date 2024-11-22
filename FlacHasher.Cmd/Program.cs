@@ -193,14 +193,14 @@ namespace Andy.FlacHash.Application.Cmd
 
             foreach (var group in paramterGroups)
             {
-                sb.AppendLine($"- \"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}:");
-                foreach (var item in group)
-                {
-                    var propertyMetadata = properties[item];
+                sb.Append($"- \"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}: ");
+                sb.AppendLine(string.Join(", ", group.Select(item => $"{properties[item].DisplayName}")));
 
-                    var sources = string.Join(", ", propertyMetadata.Sources.Select(x => $"\"{x.Key}\" [{x.Value}]"));
-                    sb.AppendLine($"\t+ {propertyMetadata.DisplayName}: {sources}");
-                }
+                foreach (var property in group) {
+                    var propertyMetadata = properties[property];
+                    PrintParameterDetails(sb, property, propertyMetadata, withDependencies, false, 1);
+                };
+
                 WriteUserLine(sb.ToString());
                 sb.Clear();
             }
@@ -211,42 +211,67 @@ namespace Andy.FlacHash.Application.Cmd
             var unlistedProperties = properties.Where(x => !doneProperties.Contains(x.Key));
             foreach (var (property, metadata) in unlistedProperties.OrderBy(x => x.Value.Optionality))
             {
-                sb.Append($"- {metadata.DisplayName}");
-                if (metadata.Optionality != OptionalityMode.Mandatory)
+                PrintParameterDetails(sb, property, metadata, withDependencies, true, 0);
+            }
+        }
+
+        static void PrintParameterDetails(System.Text.StringBuilder sb, PropertyInfo property, ParameterMetadata metadata, Dictionary<PropertyInfo, ParameterMetadata[]> withDependencies, bool showOptionality, int baseIndentationLevel)
+        {
+            Indent(sb, baseIndentationLevel);
+            sb.Append($"- {metadata.DisplayName}");
+            if (metadata.Optionality != OptionalityMode.Mandatory)
+            {
+                var defaultValue = metadata.DefaultValue == null
+                    ? null
+                    : metadata.DefaultValue is Array
+                        ? "[ " + string.Join("; ", (metadata.DefaultValue as IList<string>).Select(x => $"\"{x}\"")) + " ]"
+                        : $"\"{metadata.DefaultValue}\"";
+
+                if (showOptionality)
                 {
                     sb.Append($" [{metadata.Optionality}");
-                    
-                    var defaultValue = metadata.DefaultValue == null
-                        ? null
-                        : metadata.DefaultValue is Array
-                            ? "[ " + string.Join("; ", (metadata.DefaultValue as IList<string>).Select(x => $"\"{x}\"")) + " ]"
-                            : $"\"{metadata.DefaultValue}\"";
 
                     if (defaultValue != null)
                         sb.Append($", default value: {defaultValue}");
-                    
-                    sb.Append("]");
+
+                    sb.Append("] ");
                 }
-                
-                if (metadata.EmptyAllowed)
-                    sb.Append($"[Empty value allowed]");
-
-                if (!string.IsNullOrEmpty(metadata.Description))
-                    sb.Append($": {metadata.Description}");
-
-                sb.AppendLine($". Configured via:");
-                foreach (var src in metadata.Sources.Select(x => $"{x.Key} [{x.Value}]"))
-                    sb.AppendLine($"\t+ {src}");
-
-                if (withDependencies.ContainsKey(property))
+                else
                 {
-                    var dependendyString = string.Join(", ", withDependencies[property].Select(x => $"\"{x.DisplayName}\""));
-                    sb.AppendLine($"\tRequires: {dependendyString}");
+                    if (defaultValue != null)
+                        sb.Append($" [default value: {defaultValue}] ");
                 }
-
-                WriteUserLine(sb.ToString());
-                sb.Clear();
             }
+
+            if (metadata.EmptyAllowed)
+                sb.Append($"[Empty value allowed]");
+
+            if (!string.IsNullOrEmpty(metadata.Description))
+                sb.Append($": {metadata.Description}");
+
+            sb.AppendLine($". Configured via:");
+            foreach (var src in metadata.Sources.Select(x => $"{x.Key} [{x.Value}]"))
+            {
+                Indent(sb, baseIndentationLevel + 1);
+                sb.AppendLine($"+ {src}");
+            }
+
+            if (withDependencies.ContainsKey(property))
+            {
+                var dependendyString = string.Join(", ", withDependencies[property].Select(x => $"\"{x.DisplayName}\""));
+
+                Indent(sb, baseIndentationLevel + 1);
+                sb.AppendLine($"Requires: {dependendyString}");
+            }
+
+            WriteUserLine(sb.ToString());
+            sb.Clear();
+        }
+
+        static void Indent(System.Text.StringBuilder sb, int level)
+        {
+            for (int i = 0; i < level; i++)
+                sb.Append("\t");
         }
 
         static string GetGroupingDescription(Type type)
