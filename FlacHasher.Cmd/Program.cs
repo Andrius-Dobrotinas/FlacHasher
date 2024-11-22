@@ -235,7 +235,7 @@ namespace Andy.FlacHash.Application.Cmd
                     sb.Append($": {metadata.Description}");
 
                 sb.AppendLine($". Configured via:");
-                foreach (var src in metadata.Sources.Select(x => $"\"{x.Key}\" [{x.Value}]"))
+                foreach (var src in metadata.Sources.Select(x => $"{x.Key} [{x.Value}]"))
                     sb.AppendLine($"\t+ {src}");
 
                 if (withDependencies.ContainsKey(property))
