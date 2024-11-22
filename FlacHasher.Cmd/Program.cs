@@ -191,6 +191,9 @@ namespace Andy.FlacHash.Application.Cmd
 
             var sb = new System.Text.StringBuilder();
 
+            if (paramterGroups.Any())
+                sb.AppendLine("=== Parameter groups ===");
+
             foreach (var group in paramterGroups)
             {
                 sb.Append($"- \"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}: ");
@@ -206,6 +209,9 @@ namespace Andy.FlacHash.Application.Cmd
             }
 
             WriteUserLine("");
+
+            if (paramterGroups.Any())
+                sb.AppendLine("=== Discrete parameters ===");
 
             var doneProperties = paramterGroups.SelectMany(x => x).ToList();
             var unlistedProperties = properties.Where(x => !doneProperties.Contains(x.Key));
