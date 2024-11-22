@@ -271,7 +271,7 @@ namespace Andy.FlacHash.Application.Cmd
         static void Indent(System.Text.StringBuilder sb, int level)
         {
             for (int i = 0; i < level; i++)
-                sb.Append("\t");
+                sb.Append("  ");
         }
 
         static string GetGroupingDescription(Type type)
