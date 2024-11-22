@@ -259,7 +259,7 @@ namespace Andy.FlacHash.Application.Cmd
             foreach (var src in metadata.Sources.Select(x => $"{x.Key} [{x.Value}]"))
             {
                 Indent(sb, baseIndentationLevel + 1);
-                sb.AppendLine($"+ {src}");
+                sb.AppendLine($"* {src}");
             }
 
             if (withDependencies.ContainsKey(property))
