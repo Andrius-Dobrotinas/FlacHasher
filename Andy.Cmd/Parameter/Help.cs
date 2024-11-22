@@ -7,7 +7,7 @@ namespace Andy.Cmd.Parameter
 {
     public static class Help
     {
-        public static Dictionary<PropertyInfo, ParameterDescription> GetAllParameterMetadata<TParams>()
+        public static Dictionary<PropertyInfo, ParameterMetadata> GetAllParameterMetadata<TParams>()
         {
             var allProperties = typeof(TParams).GetProperties();
             return allProperties
@@ -16,7 +16,7 @@ namespace Andy.Cmd.Parameter
                     property => GetParameterMetadata(property, allProperties));
         }
 
-        public static ParameterDescription GetParameterMetadata(PropertyInfo property, ICollection<PropertyInfo> allProperties)
+        public static ParameterMetadata GetParameterMetadata(PropertyInfo property, ICollection<PropertyInfo> allProperties)
         {
             var descrAttr = property.GetCustomAttribute<ParameterDescriptionAttribute>(false);
             var attrs = property.GetCustomAttributes<ParameterAttribute>(false).ToArray();
@@ -29,7 +29,7 @@ namespace Andy.Cmd.Parameter
             var isConditional = optionalAttrs.Any(x => x.GetType() != typeof(OptionalAttribute)); // derivatives of "optional", assume to be conditional
             var optionalWithDefaultValueAttr = optionalAttrs.FirstOrDefault(x => x.DefaultValue != null);
 
-            return new ParameterDescription
+            return new ParameterMetadata
             {
                 Property = property,
                 DisplayName = descrAttr?.Name ?? property.Name,
@@ -50,7 +50,7 @@ namespace Andy.Cmd.Parameter
             };
         }
 
-        public static ParameterDescription GetParameterMetadata(Type paramsType, PropertyInfo property)
+        public static ParameterMetadata GetParameterMetadata(Type paramsType, PropertyInfo property)
         {
             var allProperties = paramsType.GetProperties();
             return GetParameterMetadata(property, allProperties);
@@ -69,7 +69,7 @@ namespace Andy.Cmd.Parameter
                 .ToArray();
         }
 
-        public static Dictionary<PropertyInfo, ParameterDescription[]> GetDependencyDictionary(Dictionary<PropertyInfo, ParameterDescription> properties)
+        public static Dictionary<PropertyInfo, ParameterMetadata[]> GetDependencyDictionary(Dictionary<PropertyInfo, ParameterMetadata> properties)
         {
             var conditionallyRequired = properties.Where(x => x.Value.RequiredWith != null);
             return conditionallyRequired

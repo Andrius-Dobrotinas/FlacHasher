@@ -12,7 +12,7 @@ namespace Andy.Cmd.Parameter
         Optional = 2
     }
 
-    public class ParameterDescription
+    public class ParameterMetadata
     {
         public PropertyInfo Property { get; set; }
         public string DisplayName { get; set; }
