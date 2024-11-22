@@ -223,12 +223,13 @@ namespace Andy.FlacHash.Application.Cmd
                             : $"\"{metadata.DefaultValue}\"";
 
                     if (defaultValue != null)
-                        sb.Append($"default value: {defaultValue}, ");
+                        sb.Append($"default value: {defaultValue}");
+                    
+                    sb.Append("]");
                 }
-                else
-                    sb.Append(" [");
                 
-                sb.Append($"Empty value allowed: {metadata.EmptyAllowed}]");
+                if (metadata.EmptyAllowed)
+                    sb.Append($"[Empty value allowed]");
 
                 if (!string.IsNullOrEmpty(metadata.Description))
                     sb.Append($": {metadata.Description}");
