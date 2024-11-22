@@ -214,7 +214,7 @@ namespace Andy.FlacHash.Application.Cmd
                 sb.Append($"- {metadata.DisplayName}");
                 if (metadata.Optionality != OptionalityMode.Mandatory)
                 {
-                    sb.Append($" ({metadata.Optionality}, ");
+                    sb.Append($" [{metadata.Optionality}, ");
                     
                     var defaultValue = metadata.DefaultValue == null
                         ? null
@@ -226,9 +226,9 @@ namespace Andy.FlacHash.Application.Cmd
                         sb.Append($"default value: {defaultValue}, ");
                 }
                 else
-                    sb.Append(" (");
+                    sb.Append(" [");
                 
-                sb.Append($"Empty value allowed: {metadata.EmptyAllowed})");
+                sb.Append($"Empty value allowed: {metadata.EmptyAllowed}]");
 
                 if (!string.IsNullOrEmpty(metadata.Description))
                     sb.Append($": {metadata.Description}");
