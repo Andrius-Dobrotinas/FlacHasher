@@ -255,10 +255,13 @@ namespace Andy.FlacHash.Application.Cmd
             if (!string.IsNullOrEmpty(metadata.Description))
                 sb.Append($": {metadata.Description}");
 
-            sb.AppendLine($". Configured via:");
+            sb.AppendLine();
+            Indent(sb, baseIndentationLevel + 2);
+            sb.AppendLine($"Configured via:");
+
             foreach (var src in metadata.Sources.Select(x => $"{x.Key} [{x.Value}]"))
             {
-                Indent(sb, baseIndentationLevel + 1);
+                Indent(sb, baseIndentationLevel + 3);
                 sb.AppendLine($"* {src}");
             }
 
@@ -266,7 +269,7 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 var dependendyString = string.Join(", ", withDependencies[property].Select(x => $"\"{x.DisplayName}\""));
 
-                Indent(sb, baseIndentationLevel + 1);
+                Indent(sb, baseIndentationLevel + 2);
                 sb.AppendLine($"Requires: {dependendyString}");
             }
 
