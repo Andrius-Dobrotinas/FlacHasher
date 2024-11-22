@@ -27,6 +27,8 @@ namespace Andy.Cmd.Parameter
 
             var isTrulyOptional = optionalAttrs.Any(x => x.GetType() == typeof(OptionalAttribute)); // only "optional" comes with no strings attached
             var isConditional = optionalAttrs.Any(x => x.GetType() != typeof(OptionalAttribute)); // derivatives of "optional", assume to be conditional
+            var optionalWithDefaultValueAttr = optionalAttrs.FirstOrDefault(x => x.DefaultValue != null);
+
             return new ParameterDescription
             {
                 Property = property,
@@ -38,6 +40,7 @@ namespace Andy.Cmd.Parameter
                         ? OptionalityMode.Conditional
                         : OptionalityMode.Optional,
                 EmptyAllowed = property.GetCustomAttribute<RequiredWithAttribute>() != null,
+                DefaultValue = optionalWithDefaultValueAttr?.DefaultValue,
                 Sources = attrs.OrderBy(x => x.Order).Select(paramAttr =>
                 {
                     var sourceDisplayName = paramAttr.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? paramAttr.GetType().Name;

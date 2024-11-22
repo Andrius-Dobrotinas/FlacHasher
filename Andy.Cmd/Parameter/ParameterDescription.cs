@@ -20,6 +20,7 @@ namespace Andy.Cmd.Parameter
         public ICollection<KeyValuePair<string, string>> Sources { get; set; }
         public OptionalityMode Optionality { get; set; }
         public bool EmptyAllowed { get; set; }
+        public object DefaultValue { get; set; }
         public PropertyInfo[] RequiredWith { get; set; }
     }
 }
