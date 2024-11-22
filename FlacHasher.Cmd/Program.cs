@@ -63,7 +63,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (ParameterMissingException e)
             {
-                var property = Help.GetParameterMetadata(e.ParameterProperty.DeclaringType, e.ParameterProperty);
+                var property = Metadata.GetParameterMetadata(e.ParameterProperty.DeclaringType, e.ParameterProperty);
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
 
@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (ParameterGroupException e)
             {
-                var parameterMetadata = e.Parameters.Select(x => Help.GetParameterMetadata(x.DeclaringType, x));
+                var parameterMetadata = e.Parameters.Select(x => Metadata.GetParameterMetadata(x.DeclaringType, x));
                 var paramsString = string.Join(", ", parameterMetadata.Select(x => x.DisplayName));
                 WriteUserLine(e.Message);
                 WriteUserLine($"Relevant parameters: {paramsString}");
@@ -168,138 +168,21 @@ namespace Andy.FlacHash.Application.Cmd
         {
             if (isVerification)
             {
-                PrintParameters<VerificationParameters>();
+                Help.PrintParameters<VerificationParameters>(WriteUserLine);
             }
             else
             {
                 WriteUserLine("Hashing:");
-                PrintParameters<VerificationParameters>();
+                Help.PrintParameters<VerificationParameters>(WriteUserLine);
 
                 WriteUserLine("");
                 WriteUserLine("Verification:");
-                PrintParameters<VerificationParameters>();
+                Help.PrintParameters<VerificationParameters>(WriteUserLine);
             }
 
             WriteUserLine($"Settings file: {settingsFileName}");
         }
-
-        static void PrintParameters<T>()
-        {
-            var properties = Help.GetAllParameterMetadata<T>();
-            var paramterGroups = Help.GetAllParameterGroups<T>();
-            var withDependencies = Help.GetDependencyDictionary(properties);
-
-            var sb = new System.Text.StringBuilder();
-
-            if (paramterGroups.Any())
-                sb.AppendLine("=== Parameter groups ===");
-
-            foreach (var group in paramterGroups)
-            {
-                sb.Append($"- \"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}: ");
-                sb.AppendLine(string.Join(", ", group.Select(item => $"{properties[item].DisplayName}")));
-
-                foreach (var property in group) {
-                    var propertyMetadata = properties[property];
-                    PrintParameterDetails(sb, property, propertyMetadata, withDependencies, false, 1);
-                };
-
-                WriteUserLine(sb.ToString());
-                sb.Clear();
-            }
-
-            WriteUserLine("");
-
-            if (paramterGroups.Any())
-                sb.AppendLine("=== Discrete parameters ===");
-
-            var doneProperties = paramterGroups.SelectMany(x => x).ToList();
-            var unlistedProperties = properties.Where(x => !doneProperties.Contains(x.Key));
-            foreach (var (property, metadata) in unlistedProperties.OrderBy(x => x.Value.Optionality))
-            {
-                PrintParameterDetails(sb, property, metadata, withDependencies, true, 0);
-            }
-        }
-
-        static void PrintParameterDetails(System.Text.StringBuilder sb, PropertyInfo property, ParameterMetadata metadata, Dictionary<PropertyInfo, ParameterMetadata[]> withDependencies, bool showOptionality, int baseIndentationLevel)
-        {
-            Indent(sb, baseIndentationLevel);
-            sb.Append($"- {metadata.DisplayName}");
-            if (metadata.Optionality != OptionalityMode.Mandatory)
-            {
-                var defaultValue = metadata.DefaultValue == null
-                    ? null
-                    : metadata.DefaultValue is Array
-                        ? "[ " + string.Join("; ", (metadata.DefaultValue as IList<string>).Select(x => $"\"{x}\"")) + " ]"
-                        : $"\"{metadata.DefaultValue}\"";
-
-                if (showOptionality)
-                {
-                    sb.Append($" [{metadata.Optionality}");
-
-                    if (defaultValue != null)
-                        sb.Append($", default value: {defaultValue}");
-
-                    sb.Append("] ");
-                }
-                else
-                {
-                    if (defaultValue != null)
-                        sb.Append($" [default value: {defaultValue}] ");
-                }
-            }
-
-            if (metadata.EmptyAllowed)
-                sb.Append($"[Empty value allowed]");
-
-            if (!string.IsNullOrEmpty(metadata.Description))
-                sb.Append($": {metadata.Description}");
-
-            sb.AppendLine();
-            Indent(sb, baseIndentationLevel + 2);
-            sb.AppendLine($"Configured via:");
-
-            foreach (var srcGrp in metadata.Sources.GroupBy(x => x.Value))
-            {
-                    Indent(sb, baseIndentationLevel + 3);
-                    sb.Append($"* ");
-                    sb.Append(string.Join(", ", srcGrp.Select(x => x.Key)));
-
-                sb.AppendLine($" ({srcGrp.Key})");
-            }
-
-            if (withDependencies.ContainsKey(property))
-            {
-                var dependendyString = string.Join(", ", withDependencies[property].Select(x => $"\"{x.DisplayName}\""));
-
-                Indent(sb, baseIndentationLevel + 2);
-                sb.AppendLine($"Requires: {dependendyString}");
-            }
-
-            WriteUserLine(sb.ToString());
-            sb.Clear();
-        }
-
-        static void Indent(System.Text.StringBuilder sb, int level)
-        {
-            for (int i = 0; i < level; i++)
-                sb.Append("  ");
-        }
-
-        static string GetGroupingDescription(Type type)
-        {
-            if (type == typeof(AtLeastOneOfAttribute))
-                return "At least one of the following must have a value";
-
-            if (type == typeof(EitherOrAttribute))
-                return "Strictly One of the following must have a value";
-
-            if (type == typeof(OptionalEitherOrAttribute))
-                return "Optional - no more than one of the following must have a value";
-
-            return "";
-        }
-
+        
         static void WriteUserLine(string text)
         {
             if (printProcessProgress)

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Andy.Cmd.Parameter
 {
-    public static class Help
+    public static class Metadata
     {
         public static Dictionary<PropertyInfo, ParameterMetadata> GetAllParameterMetadata<TParams>()
         {
