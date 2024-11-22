@@ -259,10 +259,13 @@ namespace Andy.FlacHash.Application.Cmd
             Indent(sb, baseIndentationLevel + 2);
             sb.AppendLine($"Configured via:");
 
-            foreach (var src in metadata.Sources.Select(x => $"{x.Key} [{x.Value}]"))
+            foreach (var srcGrp in metadata.Sources.GroupBy(x => x.Value))
             {
-                Indent(sb, baseIndentationLevel + 3);
-                sb.AppendLine($"* {src}");
+                    Indent(sb, baseIndentationLevel + 3);
+                    sb.Append($"* ");
+                    sb.Append(string.Join(", ", srcGrp.Select(x => x.Key)));
+
+                sb.AppendLine($" ({srcGrp.Key})");
             }
 
             if (withDependencies.ContainsKey(property))
