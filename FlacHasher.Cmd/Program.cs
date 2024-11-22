@@ -199,7 +199,7 @@ namespace Andy.FlacHash.Application.Cmd
                     var propertyMetadata = properties[item];
 
                     var sources = string.Join(", ", propertyMetadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"));
-                    sb.AppendLine($"\t- {propertyMetadata.DisplayName}: {sources}");
+                    sb.AppendLine($"\t+ {propertyMetadata.DisplayName}: {sources}");
                 }
                 WriteUserLine(sb.ToString());
                 sb.Clear();
@@ -236,7 +236,7 @@ namespace Andy.FlacHash.Application.Cmd
 
                 sb.AppendLine($". Configured via:");
                 foreach (var src in metadata.Sources.Select(x => $"\"{x.Key}\" ({x.Value})"))
-                    sb.AppendLine($"\t{src}");
+                    sb.AppendLine($"\t+ {src}");
 
                 if (withDependencies.ContainsKey(property))
                 {
