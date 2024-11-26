@@ -9,6 +9,8 @@ namespace Andy.FlacHash.Application.Cmd
     public class VerificationParameters : MasterParameters, IVerificationParams
     {
         [CmdLineParameter(CmdlineParameterNames.HashFile)]
+        [CmdLineParameter("--sheesh")]
+        [IniEntry("ini")]
         [AtLeastOneOf("hashfile")]
         [ParameterDescription($"Path to the hashfile. If it's: \n" +
             $"a) a full path - target files get taken from the same directory as the hashfile, or from {nameof(InputDirectory)} (if specified); \n" +
@@ -28,6 +30,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         [IniEntry(nameof(HashfileExtensions))]
         [AtLeastOneOf("hashfileExtensions")]
+        //[AtLeastOneOf("hashfileExtensions")]
         [Optional(defaultValue: ApplicationSettings.Defaults.HashfileExtension)]
         [ParameterDescription($"For hashfile lookup when it's not explicitly specified (ie when specifying just the {nameof(InputDirectory)}")]
         public string[] HashfileExtensions { get; set; }
