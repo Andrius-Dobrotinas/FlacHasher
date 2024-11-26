@@ -224,6 +224,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var selectedDir = dirBrowser.GetDirectory();
             if (selectedDir == null) return;
+            ChooseHashingDir(selectedDir);
         }
 
         private void ChooseHashingDir(DirectoryInfo selectedDirectory)
