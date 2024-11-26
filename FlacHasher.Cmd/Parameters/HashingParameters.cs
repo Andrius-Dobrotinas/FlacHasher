@@ -19,7 +19,7 @@ namespace Andy.FlacHash.Application.Cmd
         [EitherOr("input")]
         public string[] InputFiles { get; set; }
 
-        [ParameterDescription("A directory that contains files to hash")]
+        [ParameterDescription($"A directory that contains files to hash. This has to be used in conjunction with {nameof(TargetFileExtension)}")]
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [EitherOr("input")]
         public override string InputDirectory { get; set; }
