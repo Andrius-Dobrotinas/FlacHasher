@@ -166,6 +166,8 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintHelp(bool isVerification)
         {
+            Help.PrintParameters<InitialParams>(WriteUserLine);
+
             if (isVerification)
             {
                 Help.PrintParameters<VerificationParameters>(WriteUserLine);
