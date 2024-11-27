@@ -126,6 +126,8 @@ namespace Andy.FlacHash.Application.Win.UI
 
             BuildHasherCached(); // needs mode and decoder+algorithm to be pre-set
             ResetStatusMessages();
+
+            LoadFormSettings();
         }
 
         bool listResults_selectionReversal = false;
@@ -267,13 +269,13 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var selectedFiles = GetFilesFromUser(openFileDialog_hashfile);
             if (selectedFiles == null) return;
-            
+
             var hashfile = new FileInfo(selectedFiles.First());
             ChooseHashVerificationFile(hashfile);
         }
         void ChooseHashVerificationFile(FileInfo hashfile)
         {
-            
+
             if (hashfile.Length > hashfileMaxSizeBytes && MessageBox.Show(
                         $"The selected hashfile (\"{hashfile.Name}\") is quite big ({hashfileMaxSizeBytes / 1024} kb), " +
                         $"which means it may contain some more serious (and unusable for this purposes) data. " +
@@ -718,6 +720,22 @@ namespace Andy.FlacHash.Application.Win.UI
                 var directory = new DirectoryInfo(paths.First());
                 ChooseHashingDir(directory);
             }
+        }
+
+        private void FormX_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Default.WindowHeight = this.Height;
+            Properties.Default.WindowWidth = this.Width;
+            Properties.Default.Save();
+        }
+
+        void LoadFormSettings()
+        {
+            if (Properties.Default.WindowHeight != 0 && Properties.Default.WindowWidth != 0)
+            {
+                this.Height = Properties.Default.WindowHeight;
+                this.Width = Properties.Default.WindowWidth;
+            }   
         }
 
         struct HasherKey
