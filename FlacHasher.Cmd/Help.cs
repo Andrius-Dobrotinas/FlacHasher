@@ -45,7 +45,7 @@ namespace Andy.FlacHash.Application.Cmd
         static void PrintParameterDetails(StringBuilder sb, PropertyInfo property, ParameterMetadata metadata, Dictionary<PropertyInfo, ParameterMetadata[]> withDependencies, bool showOptionality, int baseIndentationLevel, Action<string> writeUserLine)
         {
             Indent(sb, baseIndentationLevel);
-            sb.Append($"- {metadata.DisplayName}");
+            sb.Append($"- {metadata.DisplayName} ");
             if (metadata.Optionality != OptionalityMode.Mandatory)
             {
                 var defaultValue = metadata.DefaultValue == null

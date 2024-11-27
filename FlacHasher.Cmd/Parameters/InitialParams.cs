@@ -43,8 +43,12 @@ namespace Andy.FlacHash.Application.Cmd
         public Algorithm? HashAlgorithm { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
-        [Optional]
-        public bool IsVerification { get; set; }
+        [OptionalEitherOr("operation")]
+        public bool? IsVerification { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.ModeHash)]
+        [OptionalEitherOr("operation")]
+        public bool? IsHashing { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.ModeHelp)]
         [Optional]

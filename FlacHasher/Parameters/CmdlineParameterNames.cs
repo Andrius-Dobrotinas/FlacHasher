@@ -21,6 +21,7 @@
         public const string ProcessTimeoutSec = "--process-timeout";
         public const string FailOnError = "--fail-fast";
 
+        public const string ModeHash = "hash";
         public const string ModeVerify = "verify";
         public const string ModeHelp = "help";
         public const string HashFile = "--hash";

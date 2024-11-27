@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Application.Cmd
 
                 if (initialCmdlineParams.IsHelp)
                 {
-                    PrintHelp(initialCmdlineParams.IsVerification);
+                    PrintHelp(initialCmdlineParams.IsVerification ?? false);
                     return 0;
                 }
 
@@ -49,7 +49,7 @@ namespace Andy.FlacHash.Application.Cmd
                     return (int)ReturnValue.SettingsReadingFailure;
                 }
 
-                var paramTypes = initialCmdlineParams.IsVerification
+                var paramTypes = initialCmdlineParams.IsVerification ?? false
                     ? new[] { typeof(VerificationParameters), typeof(InitialParams) }
                     : new[] { typeof(HashingParameters), typeof(InitialParams) };
                 ParameterReader.ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, caseInsensitive: lowercaseParams);
@@ -57,7 +57,7 @@ namespace Andy.FlacHash.Application.Cmd
                 var allParams = argumentDictionary.Concat(settingsFileParams)
                     .ToDictionary(x => x.Key, x => x.Value);
 
-                settings = initialCmdlineParams.IsVerification
+                settings = initialCmdlineParams.IsVerification ?? false
                     ? parameterReader.GetParameters<VerificationParameters>(allParams, inLowercase: lowercaseParams)
                     : parameterReader.GetParameters<HashingParameters>(allParams, inLowercase: lowercaseParams);
             }
@@ -118,7 +118,7 @@ namespace Andy.FlacHash.Application.Cmd
                 FlacHash.Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
                 var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
-                if (initialCmdlineParams.IsVerification)
+                if (initialCmdlineParams.IsVerification ?? false)
                 {
                     Verification.Verify((VerificationParameters)settings, decoder, fileSearch, cancellation.Token);
                 }
