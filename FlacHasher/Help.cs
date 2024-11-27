@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Text;
 using Andy.Cmd.Parameter;
 
-namespace Andy.FlacHash.Application.Cmd
+namespace Andy.FlacHash.Application
 {
-    internal static class Help
+    public static class Help
     {
         public static void PrintParameters<T>(Action<string> writeUserLine)
         {

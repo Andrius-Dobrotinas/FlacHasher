@@ -161,9 +161,9 @@ namespace Andy.FlacHash.Application.Win.UI
         void ResetStatusMessages()
         {
             if (mode == Mode.Hashing)
-                ResetLog("Select a directory to hash some files!");
+                ResetLog("Select a directory to hash some files!", "Press F1 for help");
             else
-                ResetLog("Select a hashfile to verify files");
+                ResetLog("Select a hashfile to verify files", "Press F1 for help");
         }
 
         private async Task WithTryCatch(Func<Task> function)
@@ -267,13 +267,13 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var selectedFiles = GetFilesFromUser(openFileDialog_hashfile);
             if (selectedFiles == null) return;
-            
+
             var hashfile = new FileInfo(selectedFiles.First());
             ChooseHashVerificationFile(hashfile);
         }
         void ChooseHashVerificationFile(FileInfo hashfile)
         {
-            
+
             if (hashfile.Length > hashfileMaxSizeBytes && MessageBox.Show(
                         $"The selected hashfile (\"{hashfile.Name}\") is quite big ({hashfileMaxSizeBytes / 1024} kb), " +
                         $"which means it may contain some more serious (and unusable for this purposes) data. " +
@@ -718,6 +718,18 @@ namespace Andy.FlacHash.Application.Win.UI
                 var directory = new DirectoryInfo(paths.First());
                 ChooseHashingDir(directory);
             }
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.F1)
+            {
+                ResetLog();
+                Help.PrintParameters<Settings>(s => LogMessage(s));
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         struct HasherKey
