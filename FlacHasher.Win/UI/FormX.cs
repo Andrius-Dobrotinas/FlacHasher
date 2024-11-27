@@ -726,6 +726,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             Properties.Default.WindowHeight = this.Height;
             Properties.Default.WindowWidth = this.Width;
+            Properties.Default.WindowState = (int)this.WindowState;
             Properties.Default.Save();
         }
 
@@ -735,7 +736,9 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 this.Height = Properties.Default.WindowHeight;
                 this.Width = Properties.Default.WindowWidth;
-            }   
+            }
+
+            this.WindowState = (FormWindowState)Properties.Default.WindowState;
         }
 
         struct HasherKey
