@@ -175,7 +175,7 @@ namespace Andy.FlacHash.Application.Cmd
             else
             {
                 WriteUserLine("Hashing:");
-                Help.PrintParameters<VerificationParameters>(WriteUserLine);
+                Help.PrintParameters<HashingParameters>(WriteUserLine);
 
                 WriteUserLine("");
                 WriteUserLine("Verification:");

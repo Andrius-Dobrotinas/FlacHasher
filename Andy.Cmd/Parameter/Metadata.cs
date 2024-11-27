@@ -39,7 +39,7 @@ namespace Andy.Cmd.Parameter
                     : isConditional
                         ? OptionalityMode.Conditional
                         : OptionalityMode.Optional,
-                EmptyAllowed = property.GetCustomAttribute<RequiredWithAttribute>() != null,
+                EmptyAllowed = property.GetCustomAttribute<AllowEmptyAttribute>() != null,
                 DefaultValue = optionalWithDefaultValueAttr?.DefaultValue,
                 Sources = attrs.OrderBy(x => x.Order).Select(paramAttr =>
                 {
