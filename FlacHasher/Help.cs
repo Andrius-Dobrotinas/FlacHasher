@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Application
 
             writeUserLine("\nSettings file keys:\n");
 
-            var settingsFileKeys = properties.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute));
+            var settingsFileKeys = properties.Except(cmdlineParams).Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute));
             var importantSettingsFileKeys = settingsFileKeys.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
             foreach (var (property, metadata) in importantSettingsFileKeys.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
             {
