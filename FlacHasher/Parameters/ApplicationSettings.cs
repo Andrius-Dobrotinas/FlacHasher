@@ -34,7 +34,6 @@ namespace Andy.FlacHash.Application
         [IniEntry(nameof(FileLookupIncludeHidden), Order = 1)]
         [Optional(defaultValue: false)]
         [ParameterDescription("Whether to include hidden files when scanning a directory")]
-        [FrontAndCenterParam]
         public bool FileLookupIncludeHidden { get; set; }
 
         public const string ProfileKey = "Profile";
