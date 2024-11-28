@@ -113,7 +113,7 @@ namespace Andy.FlacHash.Application
                 return "At least one of the following must have a value";
 
             if (type == typeof(EitherOrAttribute))
-                return "Strictly One of the following must have a value";
+                return "One of the following must have a value";
 
             if (type == typeof(OptionalEitherOrAttribute))
                 return "Optional: no more than one of the following must have a value";
