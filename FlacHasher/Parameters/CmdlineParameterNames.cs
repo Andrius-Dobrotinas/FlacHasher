@@ -17,6 +17,7 @@
 
         public const string InputDirectory = "--inputDir";
         public const string FileExtension = "--file-extension";
+        public const string FileLookupIncludeHidden = "--include-hidden";
         public const string ProcessExitTimeoutMs = "--process-exit-timeout";
         public const string ProcessTimeoutSec = "--process-timeout";
         public const string FailOnError = "--fail-fast";

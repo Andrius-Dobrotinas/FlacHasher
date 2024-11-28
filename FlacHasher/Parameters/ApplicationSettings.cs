@@ -30,7 +30,8 @@ namespace Andy.FlacHash.Application
         [FrontAndCenterParam]
         public Algorithm HashAlgorithm { get; set; }
 
-        [IniEntry(nameof(FileLookupIncludeHidden))]
+        [CmdLineParameter(CmdlineParameterNames.FileLookupIncludeHidden, Order = 0)]
+        [IniEntry(nameof(FileLookupIncludeHidden), Order = 1)]
         [Optional(defaultValue: false)]
         [ParameterDescription("Whether to include hidden files when scanning a directory")]
         [FrontAndCenterParam]
