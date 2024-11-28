@@ -9,7 +9,7 @@ namespace Andy.FlacHash.Application.Cmd
     {
         [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
         [IniEntry("Decoder", Order = 1)]
-        [ParameterDescription("Path to the Audio decoder executable file; if just a file name is given (without a path), it gets looked up in paths configured in PATH environment variable. If not specified, the value is assumed to be \"flac.exe\"")]
+        [ParameterDescription($"Path to the Audio decoder executable file; if just a file name is given (without a path), it gets looked up in paths configured in PATH environment variable. If not specified, the value is assumed to be \"flac.exe\". When configuring this, makes sure to also configure {CmdlineParameterNames.DecoderParams}")]
         [FrontAndCenterParam]
         public string DecoderExe { get; set; }
 
