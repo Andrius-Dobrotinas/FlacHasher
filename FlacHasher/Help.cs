@@ -30,14 +30,29 @@ namespace Andy.FlacHash.Application
 
             writeUserLine("\nParameters:\n");
 
-            foreach (var (property, metadata) in properties.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
-            {
+
+            var cmdlineParams = properties.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute));
+            var importantCmdlineParams = cmdlineParams.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
+            foreach (var (property, metadata) in importantCmdlineParams.OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
                 PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, withDependencies, true, 1, writeUserLine);
-            }
+
+            writeUserLine("\nLess important parameters:\n");
+            foreach (var (property, metadata) in cmdlineParams.Except(importantCmdlineParams).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
+                PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, withDependencies, true, 1, writeUserLine);
 
             writeUserLine("\nSettings file keys:\n");
 
-            foreach (var (property, metadata) in properties.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
+            var settingsFileKeys = properties.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute));
+            var importantSettingsFileKeys = settingsFileKeys.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
+            foreach (var (property, metadata) in importantSettingsFileKeys.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
+            {
+                Indent(sb, 1);
+                sb.Append("* ");
+                PrintParameterDetails<IniEntryAttribute>(sb, property, metadata, withDependencies, true, 0, writeUserLine);
+            }
+
+            writeUserLine("\nLess important:\n");
+            foreach (var (property, metadata) in settingsFileKeys.Except(importantSettingsFileKeys).Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
             {
                 Indent(sb, 1);
                 sb.Append("* ");

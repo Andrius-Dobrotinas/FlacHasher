@@ -27,11 +27,13 @@ namespace Andy.FlacHash.Application
         [IniEntry(nameof(HashAlgorithm), Order = 1)]
         [Optional(defaultValue: Defaults.HashAlgorithm)]
         [ParameterDescription($"Available options: {nameof(Algorithm.MD5)}, {nameof(Algorithm.SHA1)}, {nameof(Algorithm.SHA256)}, {nameof(Algorithm.SHA512)}")]
+        [FrontAndCenterParam]
         public Algorithm HashAlgorithm { get; set; }
 
         [IniEntry(nameof(FileLookupIncludeHidden))]
         [Optional(defaultValue: false)]
         [ParameterDescription("Whether to include hidden files when scanning a directory")]
+        [FrontAndCenterParam]
         public bool FileLookupIncludeHidden { get; set; }
 
         public const string ProfileKey = "Profile";
