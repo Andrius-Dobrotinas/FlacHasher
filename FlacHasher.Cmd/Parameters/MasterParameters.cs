@@ -31,7 +31,6 @@ namespace Andy.FlacHash.Application.Cmd
 
         [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]
         [IniEntry(nameof(PrintDecoderProgress), Order = 1)]
-        [RequiredWith(nameof(InputDirectory))]
         [Optional(defaultValue: true)]
         [ParameterDescription("Tells whether the whole Audio Decoder informational output has to be redirected to the window or kept hidden for less noise")]
         public bool PrintDecoderProgress { get; set; }
