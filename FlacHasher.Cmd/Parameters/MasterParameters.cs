@@ -26,7 +26,7 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.FileExtension, Order = 0)]
         [IniEntry(nameof(TargetFileExtension), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
-        [ParameterDescription("Extension of file type that is accepted by the configured Audio decoder")]
+        [ParameterDescription("Extension of a file type that is accepted by the configured Audio decoder")]
         public string TargetFileExtension { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]
