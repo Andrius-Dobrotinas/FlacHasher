@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public class HashingParameters : MasterParameters
     {
-        [ParameterDescription($"A format which hash result is presented in. Use the following placeholders: {OutputFormatting.Placeholders.Hash}, {OutputFormatting.Placeholders.FileName}, {OutputFormatting.Placeholders.FilePath}")]
+        [ParameterDescription($"A format which a resulting hash is presented in. Use the following placeholders: {OutputFormatting.Placeholders.Hash}, {OutputFormatting.Placeholders.FileName}, {OutputFormatting.Placeholders.FilePath}")]
         [CmdLineParameter(CmdlineParameterNames.OutputFormat, Order = 0)]
         [IniEntry(nameof(OutputFormat), Order = 1)]
         [Optional]
