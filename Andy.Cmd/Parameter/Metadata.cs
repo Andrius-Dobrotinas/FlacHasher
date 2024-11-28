@@ -41,11 +41,7 @@ namespace Andy.Cmd.Parameter
                         : OptionalityMode.Optional,
                 EmptyAllowed = property.GetCustomAttribute<AllowEmptyAttribute>() != null,
                 DefaultValue = optionalWithDefaultValueAttr?.DefaultValue,
-                Sources = attrs.OrderBy(x => x.Order).Select(paramAttr =>
-                {
-                    var sourceDisplayName = paramAttr.GetType().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? paramAttr.GetType().Name;
-                    return new KeyValuePair<string, string>(paramAttr.Name, sourceDisplayName);
-                }).ToArray(),
+                Sources = attrs,
                 RequiredWith = reqWith.Any() ? allProperties.Where(x => dependencyProperties.Contains(x.Name)).ToArray() : null
             };
         }

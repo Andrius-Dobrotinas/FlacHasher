@@ -19,33 +19,40 @@ namespace Andy.FlacHash.Application
 
             foreach (var group in paramterGroups)
             {
+                Indent(sb, 1);
                 sb.Append($"- \"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}: ");
-                sb.AppendLine(string.Join(", ", group.Select(item => $"{properties[item].DisplayName}")));
-
-                foreach (var property in group)
-                {
-                    var propertyMetadata = properties[property];
-                    PrintParameterDetails(sb, property, propertyMetadata, withDependencies, false, 1, writeUserLine);
-                };
+                
+                sb.Append(string.Join(", ", group.Select(item => $"{properties[item].Sources.OrderBy(x => x.Order).First(x => x is CmdLineParameterAttribute).Name}")));
 
                 writeUserLine(sb.ToString());
                 sb.Clear();
             }
 
-            writeUserLine("");
+            writeUserLine("\nParameters:\n");
 
-            var doneProperties = paramterGroups.SelectMany(x => x).ToList();
-            var unlistedProperties = properties.Where(x => !doneProperties.Contains(x.Key));
-            foreach (var (property, metadata) in unlistedProperties.OrderBy(x => x.Value.Optionality))
+            foreach (var (property, metadata) in properties.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
             {
-                PrintParameterDetails(sb, property, metadata, withDependencies, true, 0, writeUserLine);
+                PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, withDependencies, true, 1, writeUserLine);
+            }
+
+            writeUserLine("\nSettings file keys:\n");
+
+            foreach (var (property, metadata) in properties.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
+            {
+                Indent(sb, 1);
+                sb.Append("* ");
+                PrintParameterDetails<IniEntryAttribute>(sb, property, metadata, withDependencies, true, 0, writeUserLine);
             }
         }
 
-        static void PrintParameterDetails(StringBuilder sb, PropertyInfo property, ParameterMetadata metadata, Dictionary<PropertyInfo, ParameterMetadata[]> withDependencies, bool showOptionality, int baseIndentationLevel, Action<string> writeUserLine)
+        static void PrintParameterDetails<TParam>(StringBuilder sb, PropertyInfo property, ParameterMetadata metadata, Dictionary<PropertyInfo, ParameterMetadata[]> withDependencies, bool showOptionality, int baseIndentationLevel, Action<string> writeUserLine)
+            where TParam : ParameterAttribute
         {
             Indent(sb, baseIndentationLevel);
-            sb.Append($"- {metadata.DisplayName} ");
+            var cmdParam = metadata.Sources.FirstOrDefault(x => x is TParam);
+            if (cmdParam == null) return;
+
+            sb.Append($"{cmdParam.Name} ");
             if (metadata.Optionality != OptionalityMode.Mandatory)
             {
                 var defaultValue = metadata.DefaultValue == null
@@ -56,7 +63,7 @@ namespace Andy.FlacHash.Application
 
                 if (showOptionality)
                 {
-                    sb.Append($" [{metadata.Optionality}");
+                    sb.Append($"[{metadata.Optionality}");
 
                     if (defaultValue != null)
                         sb.Append($", default value: {defaultValue}");
@@ -71,30 +78,24 @@ namespace Andy.FlacHash.Application
             }
 
             if (metadata.EmptyAllowed)
-                sb.Append($"[Empty value allowed]");
+                sb.Append($"[Empty value allowed] ");
 
             if (!string.IsNullOrEmpty(metadata.Description))
-                sb.Append($": {metadata.Description}");
+                sb.Append($"-- {metadata.Description}");
 
-            sb.AppendLine();
-            Indent(sb, baseIndentationLevel + 2);
-            sb.AppendLine($"Configured via:");
-
-            foreach (var srcGrp in metadata.Sources.GroupBy(x => x.Value))
+            if (typeof(TParam) != typeof(IniEntryAttribute))
             {
-                Indent(sb, baseIndentationLevel + 3);
-                sb.Append($"* ");
-                sb.Append(string.Join(", ", srcGrp.Select(x => x.Key)));
-
-                sb.AppendLine($" ({srcGrp.Key})");
+                var cfgFileKey = metadata.Sources.FirstOrDefault(x => x is IniEntryAttribute);
+                if (cfgFileKey != null)
+                    sb.Append($" | Settings file key: \"{cfgFileKey.Name}\"");
             }
 
             if (withDependencies.ContainsKey(property))
             {
-                var dependendyString = string.Join(", ", withDependencies[property].Select(x => $"\"{x.DisplayName}\""));
+                var dependendyString = string.Join(", ", withDependencies[property]
+                    .Select(x => $"\"{(x.Sources.FirstOrDefault(i => i is TParam) ?? x.Sources.First()).Name}\""));
 
-                Indent(sb, baseIndentationLevel + 2);
-                sb.AppendLine($"Requires: {dependendyString}");
+                sb.Append($" | Requires: {dependendyString}");
             }
 
             writeUserLine(sb.ToString());

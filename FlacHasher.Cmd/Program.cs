@@ -67,10 +67,6 @@ namespace Andy.FlacHash.Application.Cmd
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
 
-                var groupedBySourceType = property.Sources.GroupBy(x => x.Value, x => x.Key);
-                foreach (var p in groupedBySourceType.Select(x => new { SourceType = x.Key, ParamsString = string.Join(", ", x.Select(i => $"\"{i}\"")) }))
-                    sb.AppendLine($"- {p.SourceType}: {p.ParamsString}");
-
                 WriteUserLine(e.Message);
                 WriteUserLine(sb.ToString());
                 WriteUserLine(HelpMessage);
@@ -172,14 +168,18 @@ namespace Andy.FlacHash.Application.Cmd
             }
             else
             {
-                WriteUserLine("Hashing:");
+                WriteUserLine("=====================================================================");
+                WriteUserLine("Hashing:\n");
                 Help.PrintParameters<HashingParameters>(WriteUserLine);
 
                 WriteUserLine("");
-                WriteUserLine("Verification:");
+                WriteUserLine("=====================================================================");
+                WriteUserLine("Verification:\n");
                 Help.PrintParameters<VerificationParameters>(WriteUserLine);
             }
 
+            WriteUserLine($"");
+            WriteUserLine("=====================================================================");
             WriteUserLine($"Settings file: {settingsFileName}");
         }
         
