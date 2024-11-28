@@ -1,4 +1,5 @@
 ﻿using Andy.Cmd.Parameter;
+using Andy.FlacHash.Audio;
 using System;
 using System.Collections.Generic;
 
@@ -19,7 +20,7 @@ namespace Andy.FlacHash.Application.Cmd
         /// </summary>
         [IniEntry(nameof(DecoderParameters))]
         [Optional]
-        [ParameterDescription("An array of parameters to the Audio decoder exactly the way they are supposed to appear (with dashes and whatnot), separated by a semi-colon. If not specified, default FLAC parameters are used, but this HAS to be specified for other decoders")]
+        [ParameterDescription($"An array of parameters to the Audio decoder exactly the way they are supposed to appear (with dashes and whatnot), separated by a semi-colon. Filename placeholder: \"{DecoderParameter.FilePlaceholder}\". If not specified, default FLAC parameters are used, but this HAS to be specified for other decoders")]
         [FrontAndCenterParam]
         public string[] DecoderParameters { get; set; }
 
