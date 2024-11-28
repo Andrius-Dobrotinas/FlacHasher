@@ -162,24 +162,29 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintHelp(bool isVerification)
         {
+            foreach (var line in File.ReadAllLines("help.txt"))
+                WriteUserLine(line);
+
+            WriteUserLine("===========================================================\n");
+            WriteUserLine("=========================PARAMETERS========================\n");
+
             if (isVerification)
             {
                 Help.PrintParameters<VerificationParameters>(WriteUserLine);
             }
             else
             {
-                WriteUserLine("=====================================================================");
-                WriteUserLine("Hashing:\n");
+                WriteUserLine("HASHING:\n");
                 Help.PrintParameters<HashingParameters>(WriteUserLine);
 
                 WriteUserLine("");
-                WriteUserLine("=====================================================================");
-                WriteUserLine("Verification:\n");
+                WriteUserLine("===========================================================");
+                WriteUserLine("VERIFICATION:\n");
                 Help.PrintParameters<VerificationParameters>(WriteUserLine);
             }
 
             WriteUserLine($"");
-            WriteUserLine("=====================================================================");
+            WriteUserLine("===========================================================");
             WriteUserLine($"Settings file: {settingsFileName}");
         }
         

@@ -1,0 +1,42 @@
+This program hashes actual (uncompressed) audio content of a file without any of the metadata. It can also verify audio contents against existing hashes in order to determine whether it's the same audio data.
+
+Following commands are available:
+  hash (operation name is optional, it executes by default)
+  verify
+  help
+
+===========================================================
+Hashing:
+
+- One or more files can be hashed at a time. The hashes are written to stdout stream (whereas the rest of the info - to stderr), which means that they can be written to a file using standard output redirection commands.
+
+- To hash an audio file(s):
+  flachasher [--param=value]
+
+for example:
+    flachasher --input=c:\muzak\slts.flac --algorithm=md5
+    or
+    flachasher --input=c:\muzak\slts.flac --algorithm=md5 --decoder=flac
+    or
+    flachasher --input=c:\muzak\slts.flac --algorithm=md5 --decoder="c:\program files\flac\flac"
+
+The most important parts here are:
+    1) input files
+    2) audio decoder
+    3) hashing algorithm
+    4) output format
+
+By default, it uses FLAC decoder. To use any other decoder, it has to be configured manually. Refer to parameter reference.
+
+===========================================================
+Verification is a comparison of hashes of specified files against what's recorded in a file, referred to as "hashfile".
+A hashfile can either contain just the hashes (with no file names) or filenames & hashes.
+So input to "verify" command essential consists of:
+1) hashfile
+2) actual files
+
+Same decoder and hashing algorithm configuration applies as with hashing as files still have to be hashed here.
+
+===========================================================
+IMPORTANT: If a command-line parameter value has any spaces, put the whole value quotes.
+Many things can be configured via the settings file, in which case they don't have to be specified via the command-line parameters.
