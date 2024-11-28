@@ -27,7 +27,6 @@ namespace Andy.FlacHash.Application.Cmd
         public string[] InputFiles { get; set; }
 
         [IniEntry(nameof(HashfileExtensions))]
-        [AtLeastOneOf("hashfileExtensions")]
         [Optional(defaultValue: ApplicationSettings.Defaults.HashfileExtension)]
         [ParameterDescription($"For hashfile lookup when it's not explicitly specified (ie when specifying just the {nameof(InputDirectory)}")]
         public string[] HashfileExtensions { get; set; }
