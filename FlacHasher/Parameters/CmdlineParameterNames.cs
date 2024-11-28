@@ -7,6 +7,7 @@
         public const string HashingProfile = "--profile-hashing";
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
+        public const string DecoderParams = "--params";
         public const string DecoderPrintProgress = "--decoder-verbose";
         public const string HashAlgorithm = "--algorithm";
 

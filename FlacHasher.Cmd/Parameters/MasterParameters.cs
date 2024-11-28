@@ -18,7 +18,8 @@ namespace Andy.FlacHash.Application.Cmd
         /// (with dashes and whatnot).
         /// There are default parameters defined in the code
         /// </summary>
-        [IniEntry(nameof(DecoderParameters))]
+        [CmdLineParameter(CmdlineParameterNames.DecoderParams, Order = 0)]
+        [IniEntry(nameof(DecoderParameters), Order = 1)]
         [Optional]
         [ParameterDescription($"An array of parameters to the Audio decoder exactly the way they are supposed to appear (with dashes and whatnot), separated by a semi-colon. Filename placeholder: \"{DecoderParameter.FilePlaceholder}\". If not specified, default FLAC parameters are used, but this HAS to be specified for other decoders")]
         [FrontAndCenterParam]
