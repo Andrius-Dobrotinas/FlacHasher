@@ -20,7 +20,7 @@ namespace Andy.FlacHash.Application
             foreach (var group in paramterGroups)
             {
                 Indent(sb, 1);
-                sb.Append($"- \"{group.Key.Item2}\" -- {GetGroupingDescription(group.Key.Item1)}: ");
+                sb.Append($"- [{group.Key.Item2}] -- {GetGroupingDescription(group.Key.Item1)}: ");
                 
                 sb.Append(string.Join(", ", group.Select(item => $"{properties[item].Sources.OrderBy(x => x.Order).First(x => x is CmdLineParameterAttribute).Name}")));
 
