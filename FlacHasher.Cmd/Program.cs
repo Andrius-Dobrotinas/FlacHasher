@@ -165,7 +165,7 @@ namespace Andy.FlacHash.Application.Cmd
             foreach (var line in File.ReadAllLines("help.txt"))
                 WriteUserLine(line);
 
-            WriteUserLine("=========================PARAMETERS========================\n");
+            WriteUserLine("===========================================================");
 
             if (isVerification)
                 Help.PrintParameters<HashingParameters, VerificationParameters, MasterParameters>(WriteUserLine, printVerification: true);

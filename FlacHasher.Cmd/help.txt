@@ -2,7 +2,7 @@ This program hashes actual (uncompressed) audio content of a file without any of
 It also does verification: a comparison of hashes of specified files against what's recorded in a text file (here referred to as "hashfile").
 
 ===========================================================
-IMPORTANT!
+  IMPORTANT!
 It uses external 3rd party audio decoders that have to be obtained and installed by the user. It can be configured to decode any type of file as long as the decoder has an executable command-line interface and can accept input either via std-input or command-line parameters.
 By default, it tries to use FLAC decoder. To use any other decoder, it has to be configured manually -- see parameter/configuration reference.
 
@@ -13,7 +13,7 @@ The following commands are available:
   - help (for parameter/configuration reference)
 
 ===========================================================
-HASHING
+  HASHING
 
 - One or more files can be hashed at a time. The hashes are written to std-out stream (whereas the rest of the info - to std-error), which means that they can be written to a file using standard output redirection commands.
 
@@ -34,7 +34,7 @@ The most important parts here are:
   4) output format
 
 ===========================================================
-VERIFICATION
+  VERIFICATION
 
 A "hashfile" can either contain just the hashes (with no file names) or filenames with hashes.
 Input to "verify" command consists of:

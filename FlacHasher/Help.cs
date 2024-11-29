@@ -9,6 +9,8 @@ namespace Andy.FlacHash.Application
 {
     public static class Help
     {
+        const string HeadingIndentation = "   ";
+
         public static void PrintParameters<THashing, TVerification, TMaster>(Action<string> writeUserLine, bool printHashing = false, bool printVerification = false)
             where TMaster : class
             where THashing : TMaster
@@ -16,20 +18,20 @@ namespace Andy.FlacHash.Application
         {
             var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = GetPropertiesByParameterPurpose<TMaster>();
 
-            writeUserLine("================DECODER==PARAMETERS========================\n");
+            writeUserLine($"{HeadingIndentation}DECODER PARAMETERS\n");
             PrintParameters<TMaster>(writeUserLine, sharedDecoderProperties, sharedMiscProperties);
 
             if (printHashing)
             {
                 writeUserLine("\n===========================================================");
-                writeUserLine("================HASHING==PARAMETERS========================\n");
+                writeUserLine($"{HeadingIndentation}HASHING PARAMETERS\n");
                 PrintParameters<THashing>(writeUserLine, sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties);
             }
 
             if (printVerification)
             {
                 writeUserLine("\n===========================================================");
-                writeUserLine("===========VERIFICATION==PARAMETERS========================\n");
+                writeUserLine($"{HeadingIndentation}VERIFICATION PARAMETERS\n");
                 PrintParameters<TVerification>(writeUserLine, sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties);
             }
         }
@@ -83,7 +85,7 @@ namespace Andy.FlacHash.Application
             var otherOperationParams = allParams.Where(x => otherParameterProperties.Contains(x.Key, PropertyInfoComparer.Instance)).ToDictionary(x => x.Key, x => x.Value);
             if (otherOperationParams.Any())
             {
-                writeUserLine("\n== Misc configuration:");
+                writeUserLine($"\n{HeadingIndentation}Misc configuration:");
                 PrintParameters(writeUserLine, sb, otherOperationParams, dependencyMap);
             }
         }
@@ -99,7 +101,7 @@ namespace Andy.FlacHash.Application
             if (cmdlineParams_lessImportant.Any())
             {
                 if (importantCmdlineParams.Any())
-                    writeUserLine("\n== Less important:");
+                    writeUserLine($"\n{HeadingIndentation}Less important:");
 
                 foreach (var (property, metadata) in cmdlineParams_lessImportant.OrderBy(x => x.Value.Optionality))
                     PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, dependencyMap, true, 1, writeUserLine);
@@ -109,7 +111,7 @@ namespace Andy.FlacHash.Application
             if (!settingsFileKeys.Any())
                 return;
 
-            writeUserLine("\n== Settings file keys:");
+            writeUserLine($"\n{HeadingIndentation}Settings file keys:");
             var importantSettingsFileKeys = settingsFileKeys.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
             foreach (var (property, metadata) in importantSettingsFileKeys.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
             {
