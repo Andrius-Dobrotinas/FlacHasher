@@ -171,10 +171,6 @@ namespace Andy.FlacHash.Application.Cmd
                 Help.PrintParameters<HashingParameters, VerificationParameters, MasterParameters>(WriteUserLine, printVerification: true);
             else
                 Help.PrintParameters<HashingParameters, VerificationParameters, MasterParameters>(WriteUserLine, printHashing: true, printVerification: true);
-
-            WriteUserLine($"");
-            WriteUserLine("===========================================================");
-            WriteUserLine($"Settings file: {settingsFileName}");
         }
         
         static void WriteUserLine(string text)

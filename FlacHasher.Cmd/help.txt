@@ -50,3 +50,5 @@ Run "flachash help" for parameter/configuration reference
 ===========================================================
 IMPORTANT: If a command-line parameter value has any spaces, put the whole value in quotes.
 Many aspects can be configured via the settings file, in which case they don't have to be specified via the command-line parameters.
+
+Settings file: settings.cfg
