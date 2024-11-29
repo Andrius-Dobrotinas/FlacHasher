@@ -7,10 +7,13 @@ namespace Andy.Cmd.Parameter
 {
     public static class Metadata
     {
+        public static bool IsParameter(PropertyInfo property) => property.GetCustomAttributes<ParameterAttribute>().Any();
+
         public static Dictionary<PropertyInfo, ParameterMetadata> GetAllParameterMetadata<TParams>()
         {
             var allProperties = typeof(TParams).GetProperties();
             return allProperties
+                .Where(IsParameter)
                 .ToDictionary(
                     property => property,
                     property => GetParameterMetadata(property, allProperties));
@@ -48,13 +51,14 @@ namespace Andy.Cmd.Parameter
 
         public static ParameterMetadata GetParameterMetadata(Type paramsType, PropertyInfo property)
         {
-            var allProperties = paramsType.GetProperties();
+            var allProperties = paramsType.GetProperties().Where(IsParameter).ToArray();
             return GetParameterMetadata(property, allProperties);
         }
 
         public static IGrouping<(Type, string), PropertyInfo>[] GetAllParameterGroups<TParams>()
         {
-            var allProperties = typeof(TParams).GetProperties();
+            var allProperties = typeof(TParams).GetProperties().Where(IsParameter).ToArray();
+
             var eitherOrGroups = allProperties.SelectMany(x => x.GetCustomAttributes<EitherOrAttribute>(false)
                 .Select(i => new { Type = i.GetType(), Group = i.GroupKey, Property = x }));
 
