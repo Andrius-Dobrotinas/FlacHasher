@@ -11,8 +11,8 @@ namespace Andy.FlacHash.Application.Cmd
         [OperationParam]
         [CmdLineParameter(CmdlineParameterNames.HashFile)]
         [AtLeastOneOf("hashfile")]
-        [ParameterDescription($"Path to the hashfile. If it's: \n" +
-            $"a) a full path - target files get taken from the same directory as the hashfile, or from {nameof(InputDirectory)} (if specified); \n" +
+        [ParameterDescription($"Path to the hashfile. If it's: " +
+            $"a) a full path - target files get taken from the same directory as the hashfile, or from {nameof(InputDirectory)} (if specified); " +
             $"b) relative path (just the file name) - {nameof(InputDirectory)} has to be specified (if not, hashfile and target files get looked up in \"current\" directory)")]
         [FrontAndCenterParam]
         public string HashFile { get; set; }
