@@ -135,7 +135,7 @@ namespace Andy.FlacHash.Application
             var cmdParam = metadata.Sources.FirstOrDefault(x => x is TParam);
             if (cmdParam == null) return;
 
-            sb.Append($"{cmdParam.Name} ");
+            sb.Append($"{cmdParam.Name} ".PadRight(30));
             if (metadata.Optionality != OptionalityMode.Mandatory)
             {
                 var defaultValue = metadata.DefaultValue == null
@@ -164,7 +164,7 @@ namespace Andy.FlacHash.Application
                 sb.Append($"[Empty value allowed] ");
 
             if (!string.IsNullOrEmpty(metadata.Description))
-                sb.Append($"-- {metadata.Description}");
+                sb.Append($"{metadata.Description}");
 
             if (typeof(TParam) != typeof(IniEntryAttribute))
             {
