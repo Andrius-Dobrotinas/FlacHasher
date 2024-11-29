@@ -7,6 +7,7 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public abstract class MasterParameters : ApplicationSettings
     {
+        [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
         [IniEntry("Decoder", Order = 1)]
         [ParameterDescription($"Path to the Audio decoder executable file; if just a file name is given (without a path), it gets looked up in paths configured in PATH environment variable. If not specified, the value is assumed to be \"flac.exe\". When configuring this, makes sure to also configure {CmdlineParameterNames.DecoderParams}")]
@@ -18,6 +19,7 @@ namespace Andy.FlacHash.Application.Cmd
         /// (with dashes and whatnot).
         /// There are default parameters defined in the code
         /// </summary>
+        [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.DecoderParams, Order = 0)]
         [IniEntry(nameof(DecoderParameters), Order = 1)]
         [Optional]
@@ -27,6 +29,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         public abstract string InputDirectory { get; set; }
 
+        [OperationParam]
         [CmdLineParameter(CmdlineParameterNames.FileExtension, Order = 0)]
         [IniEntry(nameof(TargetFileExtension), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
@@ -34,6 +37,7 @@ namespace Andy.FlacHash.Application.Cmd
         [FrontAndCenterParam]
         public string TargetFileExtension { get; set; }
 
+        [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]
         [IniEntry(nameof(PrintDecoderProgress), Order = 1)]
         [Optional(defaultValue: true)]

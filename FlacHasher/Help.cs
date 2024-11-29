@@ -9,11 +9,57 @@ namespace Andy.FlacHash.Application
 {
     public static class Help
     {
-        public static void PrintParameters<T>(Action<string> writeUserLine)
+        public static void PrintParameters<THashing, TVerification, TMaster>(Action<string> writeUserLine, bool printHashing = false, bool printVerification = false)
+            where TMaster : class
+            where THashing : TMaster
+            where TVerification : TMaster
         {
-            var properties = Metadata.GetAllParameterMetadata<T>();
-            var paramterGroups = Metadata.GetAllParameterGroups<T>();
-            var withDependencies = Metadata.GetDependencyDictionary(properties);
+            var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = GetPropertiesByParameterPurpose<TMaster>();
+
+            writeUserLine("================DECODER==PARAMETERS========================\n");
+            PrintParameters<TMaster>(writeUserLine, sharedDecoderProperties, sharedMiscProperties);
+
+            if (printHashing)
+            {
+                writeUserLine("\n===========================================================");
+                writeUserLine("================HASHING==PARAMETERS========================\n");
+                PrintParameters<THashing>(writeUserLine, sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties);
+            }
+
+            if (printVerification)
+            {
+                writeUserLine("\n===========================================================");
+                writeUserLine("===========VERIFICATION==PARAMETERS========================\n");
+                PrintParameters<TVerification>(writeUserLine, sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties);
+            }
+        }
+
+        public static void PrintParameters<T>(
+            Action<string> writeUserLine,
+            ICollection<PropertyInfo> sharedDecoderProperties,
+            ICollection<PropertyInfo> sharedOpSpecificProperties,
+            ICollection<PropertyInfo> sharedMiscProperties)
+        {
+            var allProperties = typeof(T).GetProperties().Where(Metadata.IsParameter);
+
+            var sharedParamProperties = sharedDecoderProperties.Concat(sharedOpSpecificProperties).Concat(sharedMiscProperties);
+            var operationSpecificProperties = allProperties.Except(sharedParamProperties, PropertyInfoComparer.Instance).ToList();
+
+            var allOperationSpecificProperties = operationSpecificProperties.Concat(sharedOpSpecificProperties).ToList();
+            var allOperationSpecificProperties_Main = allOperationSpecificProperties.Where(x => x.GetCustomAttribute<OperationParamAttribute>() != null).ToList();
+            var allOperationSpecificProperties_Other = allOperationSpecificProperties.Except(allOperationSpecificProperties_Main).ToList();
+
+            PrintParameters<T>(writeUserLine, allOperationSpecificProperties_Main, allOperationSpecificProperties_Other);
+        }
+
+        public static void PrintParameters<T>(
+            Action<string> writeUserLine,
+            ICollection<PropertyInfo> mainParameterProperties,
+            ICollection<PropertyInfo> otherParameterProperties)
+        {
+            var allParams = Metadata.GetAllParameterMetadata<T>();
+            var paramterGroups = Metadata.GetAllParameterGroups([.. mainParameterProperties, .. otherParameterProperties]);
+            var dependencyMap = Metadata.GetDependencyDictionary(allParams);
 
             var sb = new StringBuilder();
 
@@ -22,41 +68,61 @@ namespace Andy.FlacHash.Application
                 Indent(sb, 1);
                 sb.Append($"- [{group.Key.Item2}] -- {GetGroupingDescription(group.Key.Item1)}: ");
                 
-                sb.Append(string.Join(", ", group.Select(item => $"{properties[item].Sources.OrderBy(x => x.Order).First(x => x is CmdLineParameterAttribute).Name}")));
+                sb.Append(string.Join(", ", group.Select(item => $"{allParams[item].Sources.OrderBy(x => x.Order).First(x => x is CmdLineParameterAttribute).Name}")));
 
                 writeUserLine(sb.ToString());
                 sb.Clear();
             }
 
-            writeUserLine("\nParameters:\n");
+            if (paramterGroups.Any())
+                writeUserLine("\n");
 
+            var mainOperationParams = allParams.Where(x => mainParameterProperties.Contains(x.Key, PropertyInfoComparer.Instance)).ToDictionary(x => x.Key, x => x.Value);
+            PrintParameters(writeUserLine, sb, mainOperationParams, dependencyMap);
 
-            var cmdlineParams = properties.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute));
+            var otherOperationParams = allParams.Where(x => otherParameterProperties.Contains(x.Key, PropertyInfoComparer.Instance)).ToDictionary(x => x.Key, x => x.Value);
+            if (otherOperationParams.Any())
+            {
+                writeUserLine("\n== Misc configuration:");
+                PrintParameters(writeUserLine, sb, otherOperationParams, dependencyMap);
+            }
+        }
+
+        static void PrintParameters(Action<string> writeUserLine, StringBuilder sb, Dictionary<PropertyInfo, ParameterMetadata> allParams, Dictionary<PropertyInfo, ParameterMetadata[]> dependencyMap)
+        {
+            var cmdlineParams = allParams.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute));
             var importantCmdlineParams = cmdlineParams.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
-            foreach (var (property, metadata) in importantCmdlineParams.OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
-                PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, withDependencies, true, 1, writeUserLine);
+            foreach (var (property, metadata) in importantCmdlineParams.OrderBy(x => x.Value.Optionality))
+                PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, dependencyMap, true, 1, writeUserLine);
 
-            writeUserLine("\nLess important parameters:\n");
-            foreach (var (property, metadata) in cmdlineParams.Except(importantCmdlineParams).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
-                PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, withDependencies, true, 1, writeUserLine);
+            var cmdlineParams_lessImportant = cmdlineParams.Except(importantCmdlineParams);
+            if (cmdlineParams_lessImportant.Any())
+            {
+                if (importantCmdlineParams.Any())
+                    writeUserLine("\n== Less important:");
 
-            writeUserLine("\nSettings file keys:\n");
+                foreach (var (property, metadata) in cmdlineParams_lessImportant.OrderBy(x => x.Value.Optionality))
+                    PrintParameterDetails<CmdLineParameterAttribute>(sb, property, metadata, dependencyMap, true, 1, writeUserLine);
+            }
 
-            var settingsFileKeys = properties.Except(cmdlineParams).Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute));
+            var settingsFileKeys = allParams.Except(cmdlineParams).Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute));
+            if (!settingsFileKeys.Any())
+                return;
+
+            writeUserLine("\n== Settings file keys:");
             var importantSettingsFileKeys = settingsFileKeys.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
             foreach (var (property, metadata) in importantSettingsFileKeys.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
             {
                 Indent(sb, 1);
                 sb.Append("* ");
-                PrintParameterDetails<IniEntryAttribute>(sb, property, metadata, withDependencies, true, 0, writeUserLine);
+                PrintParameterDetails<IniEntryAttribute>(sb, property, metadata, dependencyMap, true, 0, writeUserLine);
             }
 
-            writeUserLine("\nLess important:\n");
             foreach (var (property, metadata) in settingsFileKeys.Except(importantSettingsFileKeys).Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality))//.ThenBy(x => x.Value.DisplayName)
             {
                 Indent(sb, 1);
                 sb.Append("* ");
-                PrintParameterDetails<IniEntryAttribute>(sb, property, metadata, withDependencies, true, 0, writeUserLine);
+                PrintParameterDetails<IniEntryAttribute>(sb, property, metadata, dependencyMap, true, 0, writeUserLine);
             }
         }
 
@@ -135,6 +201,36 @@ namespace Andy.FlacHash.Application
                 return "Optional: no more than one of the following must have a value";
 
             return "";
+        }
+
+        static (ICollection<PropertyInfo> sharedDecoderProperties, ICollection<PropertyInfo> sharedOpSpecificProperties, ICollection<PropertyInfo> sharedMiscProperties) GetPropertiesByParameterPurpose<TParams>()
+        {
+            var sharedParamProperties = typeof(TParams).GetProperties().Where(Metadata.IsParameter);
+
+            var sharedDecoderProperties = sharedParamProperties.Where(x => x.GetCustomAttribute<DecoderParamAttribute>() != null).ToList();
+            var sharedOpSpecificProperties = sharedParamProperties.Except(sharedDecoderProperties).ToList();
+            var sharedMiscProperties = sharedParamProperties.Except(sharedDecoderProperties).Except(sharedOpSpecificProperties).ToList();
+
+            return (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties);
+        }
+
+        public class PropertyInfoComparer : IEqualityComparer<PropertyInfo>
+        {
+            public readonly static PropertyInfoComparer Instance = new PropertyInfoComparer();
+
+            public bool Equals(PropertyInfo x, PropertyInfo y)
+            {
+                if (x == y) return true;
+                if (x == null || y == null) return false;
+
+                return x.Name == y.Name && x.DeclaringType == y.DeclaringType;
+            }
+
+            public int GetHashCode(PropertyInfo obj)
+            {
+                return 0;
+                throw new NotImplementedException();
+            }
         }
     }
 }

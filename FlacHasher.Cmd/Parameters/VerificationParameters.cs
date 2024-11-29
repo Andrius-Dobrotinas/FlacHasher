@@ -8,6 +8,7 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public class VerificationParameters : MasterParameters, IVerificationParams
     {
+        [OperationParam]
         [CmdLineParameter(CmdlineParameterNames.HashFile)]
         [AtLeastOneOf("hashfile")]
         [ParameterDescription($"Path to the hashfile. If it's: \n" +
@@ -16,6 +17,7 @@ namespace Andy.FlacHash.Application.Cmd
         [FrontAndCenterParam]
         public string HashFile { get; set; }
 
+        [OperationParam]
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [AtLeastOneOf("hashfile")]
         [OptionalEitherOr("input")]
@@ -23,18 +25,21 @@ namespace Andy.FlacHash.Application.Cmd
         [FrontAndCenterParam]
         public override string InputDirectory { get; set; }
 
+        [OperationParam]
         [CmdLineParameter(CmdlineParameterNames.InputFiles)]
         [OptionalEitherOr("input")]
         [ParameterDescription("Files to verify when hashfile comes with no file names, for more specificity than throwing a whole directory at it")]
         [FrontAndCenterParam]
         public string[] InputFiles { get; set; }
 
+        [OperationParam]
         [IniEntry(nameof(HashfileExtensions))]
         [Optional(defaultValue: ApplicationSettings.Defaults.HashfileExtension)]
         [ParameterDescription($"For hashfile lookup when it's not explicitly specified (ie when specifying just the {nameof(InputDirectory)}")]
         [FrontAndCenterParam]
         public string[] HashfileExtensions { get; set; }
 
+        [OperationParam]
         [IniEntry(nameof(HashfileEntrySeparator))]
         [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
         [ParameterDescription($"A character sequence that separates File-name and Hash-value in a hashfile (given a hashfile contains file names)")]

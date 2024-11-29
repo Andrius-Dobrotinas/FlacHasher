@@ -724,8 +724,8 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             if (keyData == Keys.F1)
             {
-                ResetLog();
-                Help.PrintParameters<Settings>(s => LogMessage(s));
+                ResetLog("TODO");
+                //Help.PrintParameters<Settings>(s => LogMessage(s));
                 return true;
             }
 

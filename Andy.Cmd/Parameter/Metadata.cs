@@ -58,7 +58,11 @@ namespace Andy.Cmd.Parameter
         public static IGrouping<(Type, string), PropertyInfo>[] GetAllParameterGroups<TParams>()
         {
             var allProperties = typeof(TParams).GetProperties().Where(IsParameter).ToArray();
+            return GetAllParameterGroups(allProperties);
+        }
 
+        public static IGrouping<(Type, string), PropertyInfo>[] GetAllParameterGroups(ICollection<PropertyInfo> allProperties)
+        {
             var eitherOrGroups = allProperties.SelectMany(x => x.GetCustomAttributes<EitherOrAttribute>(false)
                 .Select(i => new { Type = i.GetType(), Group = i.GroupKey, Property = x }));
 

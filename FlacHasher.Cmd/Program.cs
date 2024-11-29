@@ -165,23 +165,12 @@ namespace Andy.FlacHash.Application.Cmd
             foreach (var line in File.ReadAllLines("help.txt"))
                 WriteUserLine(line);
 
-            WriteUserLine("===========================================================\n");
             WriteUserLine("=========================PARAMETERS========================\n");
 
             if (isVerification)
-            {
-                Help.PrintParameters<VerificationParameters>(WriteUserLine);
-            }
+                Help.PrintParameters<HashingParameters, VerificationParameters, MasterParameters>(WriteUserLine, printVerification: true);
             else
-            {
-                WriteUserLine("HASHING:\n");
-                Help.PrintParameters<HashingParameters>(WriteUserLine);
-
-                WriteUserLine("");
-                WriteUserLine("===========================================================");
-                WriteUserLine("VERIFICATION:\n");
-                Help.PrintParameters<VerificationParameters>(WriteUserLine);
-            }
+                Help.PrintParameters<HashingParameters, VerificationParameters, MasterParameters>(WriteUserLine, printHashing: true, printVerification: true);
 
             WriteUserLine($"");
             WriteUserLine("===========================================================");
