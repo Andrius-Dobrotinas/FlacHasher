@@ -30,6 +30,12 @@ namespace Andy.FlacHash.Application.Cmd
                 var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
                 initialCmdlineParams = parameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
 
+                if (!argumentDictionary.Any())
+                {
+                    WriteUserLine("Run \"flachash help\" for info on how to use this");
+                    return (int)ReturnValue.ArgumentNotProvided;
+                }
+
                 if (initialCmdlineParams.IsHelp)
                 {
                     PrintHelp(initialCmdlineParams.IsVerification ?? false);

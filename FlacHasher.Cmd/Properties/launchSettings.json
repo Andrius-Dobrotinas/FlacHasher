@@ -1,5 +1,13 @@
 {
     "profiles": {
+    "NoCommand": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    },
+    "Help": {
+      "commandName": "Project",
+      "commandLineArgs": "help"
+    },
         "Hash-Directory": {
             "commandName": "Project",
             "commandLineArgs": "--inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
