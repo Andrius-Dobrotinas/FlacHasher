@@ -4,7 +4,7 @@ It also does verification: a comparison of hashes of specified files against wha
 ===========================================================
   IMPORTANT!
 It uses external 3rd party audio decoders that have to be obtained and installed by the user. It can be configured to decode any type of file as long as the decoder has an executable command-line interface and can accept input either via std-input or command-line parameters.
-By default, it tries to use FLAC decoder. To use any other decoder, it has to be configured manually -- see parameter/configuration reference.
+By default, it tries to use FLAC decoder. To use any other decoder, it has to be configured manually -- see parameter/configuration reference below.
 
 ===========================================================
 The following commands are available:
@@ -12,40 +12,56 @@ The following commands are available:
   - verify
   - help (for parameter/configuration reference)
 
+Syntax:
+  flachasher [command] [--param=value]
+
+for example:
+  flachasher hash --input=c:\muzak\slts.flac --algorithm=md5
+
+Where value is "true"/"false", the value can be completely omitted to provide "true", eg:
+  flachash --fail-fast
+
+===========================================================
+  PARAMETER / CONFIGURATION INFO
+
+- Command-line parameter values with spaces: put the whole value in quotes, eg:
+    flachasher --input="c:\flac files\01 track.flac"
+
+- Many aspects can be configured via the settings file (where settings file key is provided), in which case they don't have to be specified via the command-line parameters.
+  Settings file: settings.cfg
+
+- Parameters that take arrays of values (eg input or decoder parameters) have to be separated by a semi-color (;), eg:
+    --input=track1.flac;track2.flac
+
+  Alternatively, multi-value command-line parameters can be repeated to provide multiple values, eg:
+    --input=track1.flac --input=track2.flac
+
+  The latter doesn't apply to the settings file.
+
 ===========================================================
   HASHING
 
-- One or more files can be hashed at a time. The hashes are written to std-out stream (whereas the rest of the info - to std-error), which means that they can be written to a file using standard output redirection commands.
+Resulting hashes get written to std-out stream (whereas the rest of the info - to std-error), which means that they can be written to a file using standard output redirection commands.
+Multiple files can be hashed at a time.
 
-- To hash an audio file(s):
-  flachasher [--param=value]
-
-for example:
-  flachasher --input=c:\muzak\slts.flac --algorithm=md5
-    or
-  flachasher --input=c:\muzak\slts.flac --algorithm=md5 --decoder=flac
-    or
-  flachasher --input=c:\muzak\slts.flac --algorithm=md5 --decoder="c:\program files\flac\flac"
-
-The most important parts here are:
+The most important inputs here are:
   1) input audio files
   2) audio decoder
   3) hashing algorithm
   4) output format
 
+Scroll down for a detailed list of parameters
+
 ===========================================================
   VERIFICATION
 
 A "hashfile" can either contain just the hashes (with no file names) or filenames with hashes.
-Input to "verify" command consists of:
+
+The most important inputs here are:
   1) hashfile
   2) actual audio files
   3) audio decoder
   4) hashing algorithm
   5) hashfile format
 
-===========================================================
-IMPORTANT: If a command-line parameter value has any spaces, put the whole value in quotes.
-Many aspects can be configured via the settings file, in which case they don't have to be specified via the command-line parameters.
-
-Settings file: settings.cfg
+Scroll down for a detailed list of parameters
