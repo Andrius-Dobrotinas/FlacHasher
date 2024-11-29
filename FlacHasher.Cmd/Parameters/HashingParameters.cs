@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Application.Cmd
         public string OutputFormat { get; set; }
 
         [OperationParam]
-        [ParameterDescription("A list of files to hash")]
+        [ParameterDescription("A list of files to hash. If filenames don't include paths, they get looked up in the \"current\" directory (which is the one this programs is being executed in)")]
         [CmdLineParameter(CmdlineParameterNames.InputFiles)]
         [EitherOr("input")]
         [FrontAndCenterParam]
