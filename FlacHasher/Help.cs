@@ -76,6 +76,11 @@ namespace Andy.FlacHash.Application
 
         static void PrintParameters(StringBuilder sb, Dictionary<PropertyInfo, ParameterMetadata> allParams, Dictionary<PropertyInfo, ParameterMetadata[]> dependencyMap)
         {
+            // Table heading
+            Indent(sb, 1);
+            sb.Append("[ Parameter | Settings file Key ]".PadRight(ParamterColumnLength));
+            sb.AppendLine("[ Description ]");
+
             var cmdlineParams = allParams.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute));
             var importantCmdlineParams = cmdlineParams.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
             foreach (var (property, metadata) in importantCmdlineParams.OrderBy(x => x.Value.Optionality))
@@ -117,6 +122,13 @@ namespace Andy.FlacHash.Application
             if (cmdParam == null) return;
             var str = $"{prefix}{cmdParam.Name} ";
 
+            if (typeof(TParam) != typeof(IniEntryAttribute))
+            {
+                var cfgFileKey = metadata.Sources.FirstOrDefault(x => x is IniEntryAttribute);
+                if (cfgFileKey != null)
+                    str = $"{str}| {cfgFileKey.Name}";
+            }
+
             sb.Append(str.PadRight(ParamterColumnLength));
 
             if (metadata.Optionality != OptionalityMode.Mandatory)
@@ -148,13 +160,6 @@ namespace Andy.FlacHash.Application
 
             if (!string.IsNullOrEmpty(metadata.Description))
                 sb.Append($"{metadata.Description}");
-
-            if (typeof(TParam) != typeof(IniEntryAttribute))
-            {
-                var cfgFileKey = metadata.Sources.FirstOrDefault(x => x is IniEntryAttribute);
-                if (cfgFileKey != null)
-                    sb.Append($" | Settings file key: \"{cfgFileKey.Name}\"");
-            }
 
             if (withDependencies.ContainsKey(property))
             {
