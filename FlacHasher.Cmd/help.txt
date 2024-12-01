@@ -46,11 +46,11 @@ Multiple files can be hashed at a time.
 
 The most important inputs here are:
   1) input audio files
-  2) audio decoder
+  2) audio decoder -- configuration explained in a dedicated section
   3) hashing algorithm
   4) output format
 
-Scroll down for a detailed list of parameters
+{HASHING_PARAMS}
 
 ===========================================================
   VERIFICATION
@@ -60,8 +60,13 @@ A "hashfile" can either contain just the hashes (with no file names) or filename
 The most important inputs here are:
   1) hashfile
   2) actual audio files
-  3) audio decoder
+  3) audio decoder -- configuration explained in a dedicated section
   4) hashing algorithm
   5) hashfile format
 
-Scroll down for a detailed list of parameters
+{VERIFICATION_PARAMS}
+
+===========================================================
+  AUDIO DECODER SET UP
+
+{DECODER_PARAMS}

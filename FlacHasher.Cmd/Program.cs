@@ -168,15 +168,31 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintHelp(bool isVerification)
         {
+            var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = Help.GetPropertiesByParameterPurpose<MasterParameters>();
+            var sharedParamProperties = sharedDecoderProperties.Concat(sharedMiscProperties).ToList();
+
             foreach (var line in File.ReadAllLines("help.txt"))
-                WriteUserLine(line);
-
-            WriteUserLine("===========================================================");
-
-            if (isVerification)
-                Help.PrintParameters<HashingParameters, VerificationParameters, MasterParameters>(WriteUserLine, printVerification: true);
-            else
-                Help.PrintParameters<HashingParameters, VerificationParameters, MasterParameters>(WriteUserLine, printHashing: true, printVerification: true);
+            {
+                if (line == "{HASHING_PARAMS}")
+                {
+                    var @paramsLine = Help.GetParameterString<HashingParameters>(sharedParamProperties);
+                    WriteUserLine(@paramsLine);
+                }
+                else if (line == "{VERIFICATION_PARAMS}")
+                {
+                    var @paramsLine = Help.GetParameterString<VerificationParameters>(sharedParamProperties);
+                    WriteUserLine(@paramsLine);
+                }
+                else if (line == "{DECODER_PARAMS}")
+                {
+                    var paramsLine = Help.GetParameterString<MasterParameters>(sharedDecoderProperties, sharedMiscProperties);
+                    WriteUserLine(paramsLine);
+                }
+                else
+                {
+                    WriteUserLine(line);
+                }
+            }
         }
         
         static void WriteUserLine(string text)
