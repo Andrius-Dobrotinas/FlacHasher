@@ -50,7 +50,7 @@ namespace Andy.FlacHash.Application
 
         public static class Defaults
         {
-            public const Algorithm HashAlgorithm = Algorithm.SHA256;
+            public const Algorithm HashAlgorithm = Algorithm.MD5;
             public const string HashfileExtension = "hash";
         }
     }
