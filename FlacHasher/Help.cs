@@ -78,7 +78,7 @@ namespace Andy.FlacHash.Application
         {
             // Table heading
             Indent(sb, 1);
-            sb.Append("[ Parameter | Settings file Key ]".PadRight(ParamterColumnLength));
+            sb.Append("[ --cmd-line Parameter | Settings file Key ]".PadRight(ParamterColumnLength));
             sb.AppendLine("[ Description ]");
 
             var cmdlineParams = allParams.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute));
@@ -99,7 +99,6 @@ namespace Andy.FlacHash.Application
             var settingsFileKeys = allParams.Except(cmdlineParams).Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute));
             if (settingsFileKeys.Any())
             {
-                sb.AppendLine($"{Environment.NewLine}{HeadingIndentation}Settings file keys:");
                 var importantSettingsFileKeys = settingsFileKeys.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
                 foreach (var (property, metadata) in importantSettingsFileKeys.Where(x => x.Value.Sources.Any(x => x is IniEntryAttribute)).OrderBy(x => x.Value.Optionality).ThenBy(x => x.Value.DisplayName))
                 {

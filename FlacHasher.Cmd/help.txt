@@ -24,11 +24,12 @@ Where value is "true"/"false", the value can be completely omitted to provide "t
 ===========================================================
   PARAMETER / CONFIGURATION INFO
 
+- Many aspects can also be configured via the settings file, which means they can be configured once. In such case, a value can be provided either way. A relevant settings file key will be listed right next to the command-line parameter, where available.
+
+  Settings file: settings.cfg
+
 - Command-line parameter values with spaces: put the whole value in quotes, eg:
     flachasher --input="c:\flac files\01 track.flac"
-
-- Many aspects can be configured via the settings file (where settings file key is provided), in which case they don't have to be specified via the command-line parameters.
-  Settings file: settings.cfg
 
 - Parameters that take arrays of values (eg input or decoder parameters) have to be separated by a semi-color (;), eg:
     --input=track1.flac;track2.flac
