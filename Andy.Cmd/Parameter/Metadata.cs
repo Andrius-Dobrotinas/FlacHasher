@@ -9,20 +9,21 @@ namespace Andy.Cmd.Parameter
     {
         public static bool IsParameter(PropertyInfo property) => property.GetCustomAttributes<ParameterAttribute>(false).Any();
 
-        public static Dictionary<PropertyInfo, ParameterMetadata> GetAllParameterMetadata<TParams>()
+        public static Dictionary<PropertyInfo, ParameterMetadata> GetAllParameterMetadata<TParams, TParamSource>()
+            where TParamSource : ParameterAttribute
         {
             var allProperties = typeof(TParams).GetProperties();
             return allProperties
                 .Where(IsParameter)
                 .ToDictionary(
                     property => property,
-                    property => GetParameterMetadata(property, allProperties));
+                    property => GetParameterMetadata<TParamSource>(property, allProperties));
         }
 
-        public static ParameterMetadata GetParameterMetadata(PropertyInfo property, ICollection<PropertyInfo> allProperties)
+        public static ParameterMetadata GetParameterMetadata<TParamSource>(PropertyInfo property, ICollection<PropertyInfo> allProperties)
+            where TParamSource : ParameterAttribute
         {
             var descrAttr = property.GetCustomAttribute<ParameterDescriptionAttribute>(false);
-            var attrs = property.GetCustomAttributes<ParameterAttribute>(false).ToArray();
             var optionalAttrs = property.GetCustomAttributes<OptionalAttribute>(false).ToArray();
 
             var reqWith = property.GetCustomAttributes<RequiredWithAttribute>(false);
@@ -44,15 +45,16 @@ namespace Andy.Cmd.Parameter
                         : OptionalityMode.Optional,
                 EmptyAllowed = property.GetCustomAttribute<AllowEmptyAttribute>() != null,
                 DefaultValue = optionalWithDefaultValueAttr?.DefaultValue,
-                Sources = attrs,
+                Sources = property.GetCustomAttributes<ParameterAttribute>(false).Where(source => source is TParamSource).ToList(),
                 RequiredWith = reqWith.Any() ? allProperties.Where(x => dependencyProperties.Contains(x.Name)).ToArray() : null
             };
         }
 
-        public static ParameterMetadata GetParameterMetadata(Type paramsType, PropertyInfo property)
+        public static ParameterMetadata GetParameterMetadata<TParamSource>(Type paramsType, PropertyInfo property)
+            where TParamSource : ParameterAttribute
         {
             var allProperties = paramsType.GetProperties().Where(IsParameter).ToArray();
-            return GetParameterMetadata(property, allProperties);
+            return GetParameterMetadata<TParamSource>(property, allProperties);
         }
 
         public static IGrouping<(Type, string), PropertyInfo>[] GetAllParameterGroups<TParams>()

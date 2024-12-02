@@ -69,7 +69,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (ParameterMissingException e)
             {
-                var property = Metadata.GetParameterMetadata(e.ParameterProperty.DeclaringType, e.ParameterProperty);
+                var property = Metadata.GetParameterMetadata<ParameterAttribute>(e.ParameterProperty.DeclaringType, e.ParameterProperty);
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
 
@@ -80,7 +80,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (ParameterGroupException e)
             {
-                var parameterMetadata = e.Parameters.Select(x => Metadata.GetParameterMetadata(x.DeclaringType, x));
+                var parameterMetadata = e.Parameters.Select(x => Metadata.GetParameterMetadata<ParameterAttribute>(x.DeclaringType, x));
                 var paramsString = string.Join(", ", parameterMetadata.Select(x => x.DisplayName));
                 WriteUserLine(e.Message);
                 WriteUserLine($"Relevant parameters: {paramsString}");
@@ -177,17 +177,17 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 if (line == "{HASHING_PARAMS}")
                 {
-                    var @paramsLine = Help.GetParameterString<HashingParameters>(sharedParamProperties);
+                    var @paramsLine = Help.GetParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties);
                     WriteUserLine(@paramsLine);
                 }
                 else if (line == "{VERIFICATION_PARAMS}")
                 {
-                    var @paramsLine = Help.GetParameterString<VerificationParameters>(sharedParamProperties);
+                    var @paramsLine = Help.GetParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties);
                     WriteUserLine(@paramsLine);
                 }
                 else if (line == "{DECODER_PARAMS}")
                 {
-                    var paramsLine = Help.GetParameterString<MasterParameters>(sharedDecoderProperties, sharedMiscProperties);
+                    var paramsLine = Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties);
                     WriteUserLine(paramsLine);
                 }
                 else

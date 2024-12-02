@@ -12,8 +12,8 @@ namespace Andy.FlacHash.Application
         public const int ParamterColumnLength = 50;
         public const string HeadingIndentation = "  ";
 
-        public static string GetParameterString<T>(
-            ICollection<PropertyInfo> propertiesToExclude)
+        public static string GetParameterString<T, TParamSource>(ICollection<PropertyInfo> propertiesToExclude)
+            where TParamSource : ParameterAttribute
         {
             var builder = new StringBuilder();
 
@@ -24,26 +24,28 @@ namespace Andy.FlacHash.Application
             var allOperationSpecificProperties_Main = allOperationSpecificProperties.Where(x => x.GetCustomAttribute<OperationParamAttribute>() != null).ToList();
             var allOperationSpecificProperties_Other = allOperationSpecificProperties.Except(allOperationSpecificProperties_Main).ToList();
 
-            PrintParameters<T>(builder, allOperationSpecificProperties_Main, allOperationSpecificProperties_Other);
+            PrintParameters<T, TParamSource>(builder, allOperationSpecificProperties_Main, allOperationSpecificProperties_Other);
 
             return builder.ToString();
         }
 
-        public static string GetParameterString<TMaster>(ICollection<PropertyInfo> mainParameterProperties, ICollection<PropertyInfo> otherParameterProperties)
+        public static string GetParameterString<TMaster, TParamSource>(ICollection<PropertyInfo> mainParameterProperties, ICollection<PropertyInfo> otherParameterProperties)
+            where TParamSource : ParameterAttribute
         {
             var sb = new StringBuilder();
 
-            PrintParameters<TMaster>(sb, mainParameterProperties, otherParameterProperties);
+            PrintParameters<TMaster, TParamSource>(sb, mainParameterProperties, otherParameterProperties);
 
             return sb.ToString();
         }
 
-        public static void PrintParameters<T>(
+        public static void PrintParameters<T, TParamSource>(
             StringBuilder builder,
             ICollection<PropertyInfo> mainParameterProperties,
             ICollection<PropertyInfo> otherParameterProperties)
+            where TParamSource : ParameterAttribute
         {
-            var allParams = Metadata.GetAllParameterMetadata<T>();
+            var allParams = Metadata.GetAllParameterMetadata<T, TParamSource>();
             var paramterGroups = Metadata.GetAllParameterGroups([.. mainParameterProperties, .. otherParameterProperties]);
             var dependencyMap = Metadata.GetDependencyDictionary(allParams);
 
