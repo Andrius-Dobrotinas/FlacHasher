@@ -218,5 +218,28 @@ namespace Andy.FlacHash.Application
                 return 0;
             }
         }
+
+        public static string[] GetHelpText(Assembly assembly, string resourceName)
+        {
+            var helpResourceName = assembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith(resourceName));
+
+            if (helpResourceName == null)
+                throw new Exception("Can't find help info!");
+
+            using (var stream = assembly.GetManifestResourceStream(helpResourceName))
+            {
+                return ReadLines(stream).ToArray();
+            }
+        }
+
+        static IEnumerable<string> ReadLines(Stream source)
+        {
+            using (StreamReader reader = new StreamReader(source))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    yield return line;
+            }
+        }
     }
 }

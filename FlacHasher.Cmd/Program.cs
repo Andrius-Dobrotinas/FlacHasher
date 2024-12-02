@@ -168,10 +168,12 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintHelp(bool isVerification)
         {
+            var lines = Help.GetHelpText(Assembly.GetExecutingAssembly(), "help.txt");
+
             var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = Help.GetPropertiesByParameterPurpose<MasterParameters>();
             var sharedParamProperties = sharedDecoderProperties.Concat(sharedMiscProperties).ToList();
 
-            foreach (var line in File.ReadAllLines("help.txt"))
+            foreach (var line in lines)
             {
                 if (line == "{HASHING_PARAMS}")
                 {

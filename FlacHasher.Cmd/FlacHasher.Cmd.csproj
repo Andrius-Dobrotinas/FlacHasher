@@ -11,6 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="help.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
   </ItemGroup>
 
@@ -23,9 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="help.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="settings.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
