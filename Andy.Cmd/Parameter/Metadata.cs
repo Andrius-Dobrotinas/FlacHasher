@@ -7,7 +7,7 @@ namespace Andy.Cmd.Parameter
 {
     public static class Metadata
     {
-        public static bool IsParameter(PropertyInfo property) => property.GetCustomAttributes<ParameterAttribute>().Any();
+        public static bool IsParameter(PropertyInfo property) => property.GetCustomAttributes<ParameterAttribute>(false).Any();
 
         public static Dictionary<PropertyInfo, ParameterMetadata> GetAllParameterMetadata<TParams>()
         {
