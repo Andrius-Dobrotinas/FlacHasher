@@ -9,7 +9,7 @@ namespace Andy.FlacHash.Application.Cmd
     public class HashingParameters : MasterParameters
     {
         [OperationParam]
-        [ParameterDescription($"A format which a resulting hash is presented in. When a format is not specified, it outputs the actual hash bytes. Use the following placeholders: {OutputFormatting.Placeholders.Hash}, {OutputFormatting.Placeholders.FileName}, {OutputFormatting.Placeholders.FilePath}")]
+        [ParameterDescription($"If not specified, it outputs the actual hash bytes. Otherwise, the following data can be put into the output string: {OutputFormatting.Placeholders.Hash}, {OutputFormatting.Placeholders.FileName}, {OutputFormatting.Placeholders.FilePath}")]
         [CmdLineParameter(CmdlineParameterNames.OutputFormat, Order = 0)]
         [IniEntry(nameof(OutputFormat), Order = 1)]
         [Optional]
@@ -24,13 +24,13 @@ namespace Andy.FlacHash.Application.Cmd
         public string[] InputFiles { get; set; }
 
         [OperationParam]
-        [ParameterDescription($"A directory that contains files to hash. This has to be used in conjunction with {nameof(TargetFileExtension)}")]
+        [ParameterDescription($"A directory that contains files to hash. They get looked up based on {CmdlineParameterNames.FileExtension}")]
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [EitherOr("input")]
         [FrontAndCenterParam]
         public override string InputDirectory { get; set; }
 
-        [ParameterDescription("Tells whether to continue processing files after failing to process one file")]
+        [ParameterDescription("Whether to process the rest of the files in a batch if there's a problem processing one")]
         [CmdLineParameter(CmdlineParameterNames.FailOnError, Order = 0)]
         [IniEntry(nameof(FailOnError), Order = 1)]
         [Optional]

@@ -56,6 +56,7 @@ The most important inputs here are:
   VERIFICATION
 
 A "hashfile" can either contain just the hashes (with no file names) or filenames with hashes.
+If a hashfile contains file names, then HashfileEntrySeparator must be configured.
 
 The most important inputs here are:
   1) hashfile
@@ -64,9 +65,23 @@ The most important inputs here are:
   4) hashing algorithm
   5) hashfile format
 
+Input -- Hashfile has to be either/or:
+a) a full path to the file - then target files get taken from the same directory as the hashfile, or from Input Directory specified separately;
+b) relative path (just the file name) - then Input Directory has to be specified (otherwise, hashfile and target files get looked up in "current" directory).
+
+If Hashfile is not explicitly specified, it gets looked up in the Input Directory using HashfileExtensions
+
+Input - Target file names get taken from the hashfile and are looked up in:
+a) Hashfile directory, if hashfile paramter is a full path
+b) Input Directory, if specified -- based on TargetFileExtension
+c) Input Files, if specified
+
 {VERIFICATION_PARAMS}
 
 ===========================================================
   AUDIO DECODER SET UP
+
+The program needs to know the path to the Audio Decoder executable file. It can be a full path or just a file name, in which case it gets looked up in paths configured in PATH environment variable.
+If not specified, the value is assumed to be "flac.exe", in which case it uses default decoder parameters (unless explicitly defined).
 
 {DECODER_PARAMS}
