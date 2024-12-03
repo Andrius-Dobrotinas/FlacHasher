@@ -72,6 +72,7 @@ namespace Andy.FlacHash.Application.Cmd
                 var property = Metadata.GetParameterMetadata<ParameterAttribute>(e.ParameterProperty.DeclaringType, e.ParameterProperty);
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
+                sb.AppendLine(string.Join(", ", property.Sources.Select(x => $"{x.Name}")));
 
                 WriteUserLine(e.Message);
                 WriteUserLine(sb.ToString());
