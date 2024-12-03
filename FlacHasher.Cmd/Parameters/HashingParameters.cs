@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Application.Cmd
         public string[] InputFiles { get; set; }
 
         [OperationParam]
-        [ParameterDescription($"A directory that contains files to hash. They get looked up based on {CmdlineParameterNames.FileExtension}")]
+        [ParameterDescription($"A directory that contains files to hash. They get looked up based on {CmdlineParameterNames.FileExtensions}")]
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [EitherOr("input")]
         [FrontAndCenterParam]

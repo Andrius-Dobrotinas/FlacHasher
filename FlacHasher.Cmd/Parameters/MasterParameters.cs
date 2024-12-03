@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Application.Cmd
         public abstract string InputDirectory { get; set; }
 
         [OperationParam]
-        [CmdLineParameter(CmdlineParameterNames.FileExtension, Order = 0)]
+        [CmdLineParameter(CmdlineParameterNames.FileExtensions, Order = 0)]
         [IniEntry(nameof(TargetFileExtensions), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
         [ParameterDescription("File types that are accepted by the configured Audio decoder (semi-colon-separated)")]
