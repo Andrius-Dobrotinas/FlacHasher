@@ -46,7 +46,7 @@ namespace Andy.FlacHash.Application.Win
 
             builder.AppendLine();
             builder.AppendLine("===========================================================");
-            builder.AppendLine($"Configuration file: {Program.settingsFileName}");
+            builder.AppendLine($"Settings file: {Program.settingsFileName}");
 
 
             return builder;
