@@ -724,6 +724,11 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void FormX_FormClosing(object sender, FormClosingEventArgs e)
         {
+            SaveFormSettings();
+        }
+
+        void SaveFormSettings()
+        {
             Properties.Default.WindowHeight = this.Height;
             Properties.Default.WindowWidth = this.Width;
             Properties.Default.WindowState = (int)this.WindowState;
