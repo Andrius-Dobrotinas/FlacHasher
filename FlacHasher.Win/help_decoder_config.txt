@@ -1,8 +1,3 @@
-Multiple Audio decoder configurations can be stored as profiles. For that, a decoder section must be named [Decoder.YourName] -- eg, [Decoder.FLAC]. Default decoder can be stored as simply [Decoder].
-A go-to profile can be specified in "Profile.Decoder".
-
-Each profile must have the following values configured:
-
 {DECODER_PROFILE_CONFIG}
 
 The following configuration is global (not profile-specific):

@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.FileExtension, Order = 0)]
         [IniEntry(nameof(TargetFileExtension), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
-        [ParameterDescription("File type that is accepted by the configured Audio decoder")]
+        [ParameterDescription("For file lookup when specifying an input Directory. This can be stored with each Audio Decoder profile")]
         [FrontAndCenterParam]
         public string TargetFileExtension { get; set; }
 
