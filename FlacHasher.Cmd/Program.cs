@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 
 namespace Andy.FlacHash.Application.Cmd
@@ -174,36 +175,18 @@ namespace Andy.FlacHash.Application.Cmd
             var helpHashfileText = Help.GetHashfileHelpText();
             var helpCmdText = Help.GetTextResource(Assembly.GetExecutingAssembly(), "help.txt");
 
-            helpText = helpText.Replace(Help.Placeholder.ApplicationSpecific, helpCmdText);
-            helpText = helpText.Replace(Help.Placeholder.HashfileDescription, helpHashfileText);
-
-            var linesHelp = helpText.Split(Environment.NewLine).ToArray();
+            var sb = new StringBuilder(helpText);
+            sb.Replace(Help.Placeholder.ApplicationSpecific, helpCmdText);
+            sb.Replace(Help.Placeholder.HashfileDescription, helpHashfileText);
 
             var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = Help.GetPropertiesByParameterPurpose<MasterParameters>();
             var sharedParamProperties = sharedDecoderProperties.Concat(sharedMiscProperties).ToList();
 
-            foreach (var line in linesHelp)
-            {
-                if (line == "{HASHING_PARAMS}")
-                {
-                    var @paramsLine = Help.GetOperationAndMiscParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties);
-                    WriteUserLine(@paramsLine);
-                }
-                else if (line == "{VERIFICATION_PARAMS}")
-                {
-                    var @paramsLine = Help.GetOperationAndMiscParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties);
-                    WriteUserLine(@paramsLine);
-                }
-                else if (line == "{DECODER_PARAMS}")
-                {
-                    var paramsLine = Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties);
-                    WriteUserLine(paramsLine);
-                }
-                else
-                {
-                    WriteUserLine(line);
-                }
-            }
+            sb.Replace("{HASHING_PARAMS}", Help.GetOperationAndMiscParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties));
+            sb.Replace("{VERIFICATION_PARAMS}", Help.GetOperationAndMiscParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties));
+            sb.Replace(Help.Placeholder.DecoderParams, Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties));
+
+            WriteUserLine(sb.ToString());
         }
         
         static void WriteUserLine(string text)
