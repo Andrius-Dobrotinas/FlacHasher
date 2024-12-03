@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Application
         [CmdLineParameter(CmdlineParameterNames.ProcessTimeoutSec, Order = 0)]
         [IniEntry(nameof(ProcessTimeoutSec), Order = 1)]
         [Optional(defaultValue: 180)]
-        [ParameterDescription("The maximum amount of time (in seconds) an Audio decoder is allowed to take to decode a file. This is useful for situations where something goes wrong and the decoder stops responding and needs to be murdered")]
+        [ParameterDescription("The maximum amount of time (in seconds) an Audio decoder is allowed to take to decode a file. This is useful for situations where something goes wrong and the decoder stops responding and needs to be murdered. No timeout: -1")]
         public int ProcessTimeoutSec { get; set; }
 
         [DecoderParam]
