@@ -23,6 +23,7 @@ namespace Andy.FlacHash.Application.Win
 
         [IniEntry(nameof(FailOnError))]
         [Optional]
+        [ParameterDescription("Whether to keep going when there's a problem processing one file in a batch")]
         public bool FailOnError { get; set; }
 
         [IniEntry(nameof(OutputFormat))]
