@@ -44,6 +44,11 @@ namespace Andy.FlacHash.Application.Win
             builder.AppendLine();
             Help.PrintParameters<Settings, IniEntryAttribute>(builder, opSpecificProperties, miscProperties);
 
+            builder.AppendLine();
+            builder.AppendLine("===========================================================");
+            builder.AppendLine($"Configuration file: {Program.settingsFileName}");
+
+
             return builder;
         }
     }
