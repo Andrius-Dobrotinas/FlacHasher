@@ -12,7 +12,7 @@ namespace Andy.FlacHash.Application.Win
 {
     static class Program
     {
-        public const string settingsFileName = "settings.w.cfg";
+        public const string settingsFileName = "settings.w.ini";
 
         [STAThread]
         static void Main()

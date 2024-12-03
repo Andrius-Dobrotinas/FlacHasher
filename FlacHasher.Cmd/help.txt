@@ -17,7 +17,7 @@ Where value is "true"/"false", the value can be completely omitted to provide "t
 
 - Many aspects can also be configured via the settings file, which means they can be configured once. In such case, a value can be provided either way. A relevant settings file key will be listed right next to the command-line parameter, where available.
 
-  Settings file: settings.cfg
+  Settings file: settings.ini
 
 - Command-line parameter values with spaces: put the whole value in quotes, eg:
     flachasher --input="c:\flac files\01 track.flac"

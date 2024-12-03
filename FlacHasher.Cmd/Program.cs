@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public class Program
     {
-        const string settingsFileName = "settings.cfg";
+        const string settingsFileName = "settings.ini";
         static bool printProcessProgress = false;
         static string HelpMessage = $"For info on how to use this, run \"{CmdlineParameterNames.ModeHelp}\" command";
 
