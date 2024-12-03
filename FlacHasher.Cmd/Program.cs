@@ -168,21 +168,28 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintHelp(bool isVerification)
         {
-            var lines = Help.GetHelpText(Assembly.GetExecutingAssembly(), "help.txt");
+            var helpText = Help.GetHelpText();
+            var helpHashfileText = Help.GetHashfileHelpText();
+            var helpCmdText = Help.GetTextResource(Assembly.GetExecutingAssembly(), "help.txt");
+
+            helpText = helpText.Replace(Help.Placeholder.ApplicationSpecific, helpCmdText);
+            helpText = helpText.Replace(Help.Placeholder.HashfileDescription, helpHashfileText);
+
+            var linesHelp = helpText.Split(Environment.NewLine).ToArray();
 
             var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = Help.GetPropertiesByParameterPurpose<MasterParameters>();
             var sharedParamProperties = sharedDecoderProperties.Concat(sharedMiscProperties).ToList();
 
-            foreach (var line in lines)
+            foreach (var line in linesHelp)
             {
                 if (line == "{HASHING_PARAMS}")
                 {
-                    var @paramsLine = Help.GetParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties);
+                    var @paramsLine = Help.GetOperationAndMiscParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties);
                     WriteUserLine(@paramsLine);
                 }
                 else if (line == "{VERIFICATION_PARAMS}")
                 {
-                    var @paramsLine = Help.GetParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties);
+                    var @paramsLine = Help.GetOperationAndMiscParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties);
                     WriteUserLine(@paramsLine);
                 }
                 else if (line == "{DECODER_PARAMS}")

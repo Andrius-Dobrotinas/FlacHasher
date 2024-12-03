@@ -1,0 +1,6 @@
+Write a description here
+
+===========================================================
+  VERIFICATION
+
+{HASHFILE_DESCRIPTION}

@@ -607,6 +607,12 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
+        void WriteLine(string message)
+        {
+            txtStatus.AppendText(message);
+            txtStatus.AppendText(Environment.NewLine);
+        }
+
         void ResetLog(params string[] message)
         {
             txtStatus.Text = null;
@@ -724,8 +730,46 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             if (keyData == Keys.F1)
             {
-                ResetLog("TODO");
-                //Help.PrintParameters<Settings, Andy.FlacHash.Application.ApplicationSettings>(s => LogMessage(s));
+                ResetLog();
+
+                var helpText = Help.GetHelpText();
+                var helpHashfileText = Help.GetHashfileHelpText();
+                var helpApplicationSpecific = Help.GetTextResource(System.Reflection.Assembly.GetExecutingAssembly(), "help.txt");
+                
+                var builder = new System.Text.StringBuilder(helpText);
+                var builderApplicationSpecific = new System.Text.StringBuilder(helpApplicationSpecific);
+
+                builderApplicationSpecific.Replace(Help.Placeholder.HashfileDescription, helpHashfileText);
+                builder.Replace(Help.Placeholder.ApplicationSpecific, builderApplicationSpecific.ToString());
+
+                // Decoder profile params
+                var decoderParamsBuilder = new System.Text.StringBuilder();
+                decoderParamsBuilder.AppendLine("Decoder profile:");
+                decoderParamsBuilder.AppendLine();
+                var decoderProfileProperties = typeof(SettingsFile.DecoderProfileTemp).GetProperties().Where(Andy.Cmd.Parameter.Metadata.IsParameter);
+                var cmdlineProperties = typeof(Cmd.MasterParameters).GetProperties().Where(Andy.Cmd.Parameter.Metadata.IsParameter)
+                    .Where(x => decoderProfileProperties.Contains(x, Application.Help.PropertyInfoNameComparer.Instance))
+                    .ToList();
+                Help.PrintParameters<Cmd.MasterParameters, IniEntryAttribute>(decoderParamsBuilder, cmdlineProperties, Array.Empty<System.Reflection.PropertyInfo>());
+                decoderParamsBuilder.AppendLine();
+
+                // Decoder shared stuff
+                decoderParamsBuilder.AppendLine("Shared decoder settings:");
+                decoderParamsBuilder.AppendLine();
+
+                var (decoderProperties, opSpecificProperties, miscProperties) = Help.GetPropertiesByParameterPurpose<Settings>();
+                var decoderParamsLine = Help.GetParameterString<Settings, IniEntryAttribute>(decoderProperties, Array.Empty<System.Reflection.PropertyInfo>());
+                decoderParamsBuilder.AppendLine(decoderParamsLine);
+
+                builder.Replace(Help.Placeholder.DecoderParams, decoderParamsBuilder.ToString());
+
+
+                builder.AppendLine("===========================================================");
+                builder.AppendLine($"{Help.Indentation}OTHER SETTINGS");
+                builder.AppendLine();
+                Help.PrintParameters<Settings, IniEntryAttribute>(builder, opSpecificProperties, miscProperties);
+                WriteLine(builder.ToString());
+
                 return true;
             }
 

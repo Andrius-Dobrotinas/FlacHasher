@@ -10,9 +10,17 @@ namespace Andy.FlacHash.Application
     public static class Help
     {
         public const int ParamterColumnLength = 50;
-        public const string HeadingIndentation = "  ";
+        public const string Indentation = "  ";
+        public const string HeadingIndentation = Indentation;
 
-        public static string GetParameterString<T, TParamSource>(ICollection<PropertyInfo> propertiesToExclude)
+        public static class Placeholder
+        {
+            public const string ApplicationSpecific = "{APPLICATION_SPECIFIC}";
+            public const string HashfileDescription = "{HASHFILE_DESCRIPTION}";
+            public const string DecoderParams = "{DECODER_PARAMS}";
+        }
+
+        public static string GetOperationAndMiscParameterString<T, TParamSource>(IEnumerable<PropertyInfo> propertiesToExclude)
             where TParamSource : ParameterAttribute
         {
             var builder = new StringBuilder();
@@ -45,9 +53,9 @@ namespace Andy.FlacHash.Application
             ICollection<PropertyInfo> otherParameterProperties)
             where TParamSource : ParameterAttribute
         {
-            var allParams = Metadata.GetAllParameterMetadata<T, TParamSource>();
+            var allParamMetadata = Metadata.GetAllParameterMetadata<T, TParamSource>();
             var paramterGroups = Metadata.GetAllParameterGroups([.. mainParameterProperties, .. otherParameterProperties]);
-            var dependencyMap = Metadata.GetDependencyDictionary(allParams);
+            var dependencyMap = Metadata.GetDependencyDictionary(allParamMetadata);
 
             var groupStringBuilder = new StringBuilder();
 
@@ -56,7 +64,7 @@ namespace Andy.FlacHash.Application
                 Indent(groupStringBuilder, 1);
                 groupStringBuilder.Append($"- [{group.Key.Item2}] -- {GetGroupingDescription(group.Key.Item1)}: ");
                 
-                groupStringBuilder.AppendLine(string.Join(", ", group.Select(item => $"{allParams[item].Sources.OrderBy(x => x.Order).First(x => x is CmdLineParameterAttribute).Name}")));
+                groupStringBuilder.AppendLine(string.Join(", ", group.Select(item => $"{allParamMetadata[item].Sources.OrderBy(x => x.Order).First(x => x is CmdLineParameterAttribute).Name}")));
 
                 builder.Append(groupStringBuilder.ToString());
                 groupStringBuilder.Clear();
@@ -65,23 +73,26 @@ namespace Andy.FlacHash.Application
             if (paramterGroups.Any())
                 builder.Append(Environment.NewLine);
 
-            var mainOperationParams = allParams.Where(x => mainParameterProperties.Contains(x.Key, PropertyInfoComparer.Instance)).ToDictionary(x => x.Key, x => x.Value);
-            PrintParameters(builder, mainOperationParams, dependencyMap);
+            var mainOperationParams = allParamMetadata.Where(x => mainParameterProperties.Contains(x.Key, PropertyInfoComparer.Instance)).ToDictionary(x => x.Key, x => x.Value);
+            PrintParameters(builder, mainOperationParams, dependencyMap, typeof(TParamSource) != typeof(IniEntryAttribute)); // A Dirty workaround
 
-            var otherOperationParams = allParams.Where(x => otherParameterProperties.Contains(x.Key, PropertyInfoComparer.Instance)).ToDictionary(x => x.Key, x => x.Value);
+            var otherOperationParams = allParamMetadata.Where(x => otherParameterProperties.Contains(x.Key, PropertyInfoComparer.Instance)).ToDictionary(x => x.Key, x => x.Value);
             if (otherOperationParams.Any())
             {
                 builder.AppendLine($"{Environment.NewLine}{HeadingIndentation}Misc configuration:");
-                PrintParameters(builder, otherOperationParams, dependencyMap);
+                PrintParameters(builder, otherOperationParams, dependencyMap, typeof(TParamSource) != typeof(IniEntryAttribute)); // A Dirty workaround
             }
         }
 
-        static void PrintParameters(StringBuilder sb, Dictionary<PropertyInfo, ParameterMetadata> allParams, Dictionary<PropertyInfo, ParameterMetadata[]> dependencyMap)
+        static void PrintParameters(StringBuilder sb, Dictionary<PropertyInfo, ParameterMetadata> allParams, Dictionary<PropertyInfo, ParameterMetadata[]> dependencyMap, bool showParamHeading = true)
         {
             // Table heading
-            Indent(sb, 1);
-            sb.Append("[ --cmd-line Parameter | Settings file Key ]".PadRight(ParamterColumnLength));
-            sb.AppendLine("[ Description ]");
+            if (showParamHeading)
+            {
+                Indent(sb, 1);
+                sb.Append("[ --cmd-line Parameter | Settings file Key ]".PadRight(ParamterColumnLength)); // TODO: ignore this line on winforms?
+                sb.AppendLine("[ Description ]");
+            }
 
             var cmdlineParams = allParams.Where(x => x.Value.Sources.Any(x => x is CmdLineParameterAttribute));
             var importantCmdlineParams = cmdlineParams.Where(x => x.Key.GetCustomAttribute<FrontAndCenterParamAttribute>() != null).ToList();
@@ -175,7 +186,7 @@ namespace Andy.FlacHash.Application
         static void Indent(StringBuilder sb, int level)
         {
             for (int i = 0; i < level; i++)
-                sb.Append("  ");
+                sb.Append(Indentation);
         }
 
         static string GetGroupingDescription(Type type)
@@ -192,15 +203,15 @@ namespace Andy.FlacHash.Application
             return "";
         }
 
-        public static (ICollection<PropertyInfo> sharedDecoderProperties, ICollection<PropertyInfo> sharedOpSpecificProperties, ICollection<PropertyInfo> sharedMiscProperties) GetPropertiesByParameterPurpose<TParams>()
+        public static (ICollection<PropertyInfo> decoderProperties, ICollection<PropertyInfo> opSpecificProperties, ICollection<PropertyInfo> miscProperties) GetPropertiesByParameterPurpose<TParams>()
         {
             var sharedParamProperties = typeof(TParams).GetProperties().Where(Metadata.IsParameter);
 
-            var sharedDecoderProperties = sharedParamProperties.Where(x => x.GetCustomAttribute<DecoderParamAttribute>() != null).ToList();
-            var sharedOpSpecificProperties = sharedParamProperties.Except(sharedDecoderProperties).ToList();
-            var sharedMiscProperties = sharedParamProperties.Except(sharedDecoderProperties).Except(sharedOpSpecificProperties).ToList();
+            var decoderProperties = sharedParamProperties.Where(x => x.GetCustomAttribute<DecoderParamAttribute>() != null).ToList();
+            var opSpecificProperties = sharedParamProperties.Except(decoderProperties).ToList();
+            var miscProperties = sharedParamProperties.Except(decoderProperties).Except(opSpecificProperties).ToList();
 
-            return (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties);
+            return (decoderProperties, opSpecificProperties, miscProperties);
         }
 
         public class PropertyInfoComparer : IEqualityComparer<PropertyInfo>
@@ -221,7 +232,25 @@ namespace Andy.FlacHash.Application
             }
         }
 
-        public static string[] GetHelpText(Assembly assembly, string resourceName)
+        public class PropertyInfoNameComparer : IEqualityComparer<PropertyInfo>
+        {
+            public readonly static PropertyInfoNameComparer Instance = new PropertyInfoNameComparer();
+
+            public bool Equals(PropertyInfo x, PropertyInfo y)
+            {
+                if (x == y) return true;
+                if (x == null || y == null) return false;
+
+                return x.Name == y.Name;
+            }
+
+            public int GetHashCode(PropertyInfo obj)
+            {
+                return 0;
+            }
+        }
+
+        public static string GetTextResource(Assembly assembly, string resourceName)
         {
             var helpResourceName = assembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith(resourceName));
 
@@ -230,17 +259,29 @@ namespace Andy.FlacHash.Application
 
             using (var stream = assembly.GetManifestResourceStream(helpResourceName))
             {
-                return ReadLines(stream).ToArray();
+                return ReadWhole(stream);
             }
         }
 
-        static IEnumerable<string> ReadLines(Stream source)
+        public static string GetHelpText()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+
+            return GetTextResource(assembly, "help.txt");
+        }
+
+        public static string GetHashfileHelpText()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+
+            return GetTextResource(assembly, "help_hashfile.txt");
+        }
+
+        static string ReadWhole(Stream source)
         {
             using (StreamReader reader = new StreamReader(source))
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    yield return line;
+                return reader.ReadToEnd();
             }
         }
     }

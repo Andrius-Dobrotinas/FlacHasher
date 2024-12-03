@@ -1,0 +1,19 @@
+This program hashes actual (uncompressed) audio content of a file without any of the metadata. It produces the same result for the same audio data regardless of metadata tags, compression level and even format/codec (provided it's lossless). This allows fingerprinting of actual audio data without having to "freeze" metadata tags after and comparison of two files on pure audio data level.
+It also does verification: a comparison of hashes of specified files against what's recorded in a text file (here referred to as "hashfile").
+
+===========================================================
+  IMPORTANT!
+It uses external 3rd party audio decoders that have to be obtained and installed by the user. It can be configured to decode any type of file as long as the decoder has an executable command-line interface and can accept input either via std-input or command-line parameters.
+By default, it tries to use FLAC decoder. To use any other decoder, it has to be configured manually -- see parameter/configuration reference below.
+
+===========================================================
+{APPLICATION_SPECIFIC}
+
+===========================================================
+  AUDIO DECODER SET UP
+
+The program needs to know the path to the Audio Decoder executable file. It can be a full path or just a file name, in which case it gets looked up in paths configured in PATH environment variable.
+If not specified, the value is assumed to be "flac.exe", in which case it uses default decoder parameters (unless explicitly defined).
+
+{DECODER_PARAMS}
+===========================================================
