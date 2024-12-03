@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Application.Cmd
     {
         const string settingsFileName = "settings.cfg";
         static bool printProcessProgress = false;
-        static string HelpMessage = $"For help, use \"{CmdlineParameterNames.ModeHelp}\" option";
+        static string HelpMessage = $"For info on how to use this, run \"{CmdlineParameterNames.ModeHelp}\" command";
 
         static int Main(string[] args)
         {
@@ -32,7 +32,7 @@ namespace Andy.FlacHash.Application.Cmd
 
                 if (!argumentDictionary.Any())
                 {
-                    WriteUserLine("Run \"flachash help\" for info on how to use this");
+                    WriteUserLine(HelpMessage);
                     return (int)ReturnValue.ArgumentNotProvided;
                 }
 
