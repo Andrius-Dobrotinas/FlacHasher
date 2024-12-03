@@ -83,7 +83,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             else if (settings.InputDirectory != null)
             {
-                var fileExtension = settings.TargetFileExtension;
+                var fileExtension = settings.TargetFileExtensions;
                 if (fileExtension == null)
                     throw new ConfigurationException("Target file extension must be specified when scanning a directory");
 

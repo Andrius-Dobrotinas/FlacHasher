@@ -31,11 +31,11 @@ namespace Andy.FlacHash.Application.Cmd
 
         [OperationParam]
         [CmdLineParameter(CmdlineParameterNames.FileExtension, Order = 0)]
-        [IniEntry(nameof(TargetFileExtension), Order = 1)]
+        [IniEntry(nameof(TargetFileExtensions), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
-        [ParameterDescription("File type that is accepted by the configured Audio decoder")]
+        [ParameterDescription("File types that are accepted by the configured Audio decoder (semi-colon-separated)")]
         [FrontAndCenterParam]
-        public string TargetFileExtension { get; set; }
+        public string[] TargetFileExtensions { get; set; }
 
         [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]
