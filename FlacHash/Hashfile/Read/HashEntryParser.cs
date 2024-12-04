@@ -22,6 +22,8 @@ namespace Andy.FlacHash.Hashfile.Read
             if (separator == "\r" || separator == "\n" || separator == "\r\n")
                 throw new ArgumentException(nameof(separator), "A separator cannot be a New-line value");
 
+            // Captures Key and Value from a string separated by a separator-char-sequence, ignoring said sequence if it's between quotes (thus treating it as part of the segment's value).
+            // In other words, either segment may be wrapped in quotes, what's between quotes gets treated as part of a value, not as a value-separator.
             this.regex = new Regex($@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$", RegexOptions.ExplicitCapture);
         }
 
@@ -31,6 +33,8 @@ namespace Andy.FlacHash.Hashfile.Read
         /// and returns the 1st segment as Key and the 2nd one as as Value.
         /// If the separator char/sequence is found more than once, it treats the last instance as a separator --
         /// therefore, it's safe for the first segment to have a separator char/sequence as a legitimate part of its value.
+        /// 
+        /// Segments wrapped in quotes can safely contain separator chars, which then get treated as part of the value.
         /// </summary>
         public KeyValuePair<string, string> Parse(string line)
         {
