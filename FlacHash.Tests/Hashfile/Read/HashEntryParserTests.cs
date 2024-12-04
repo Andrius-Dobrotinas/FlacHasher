@@ -186,7 +186,7 @@ namespace Andy.FlacHash.Hashfile.Read
         {
             var target = new HashEntryParser(":");
 
-            Assert.Throws<ArgumentException>(
+            Assert.Throws<Exception>(
                 () => target.Parse(line));
         }
 
@@ -236,7 +236,7 @@ namespace Andy.FlacHash.Hashfile.Read
         {
             var target = new HashEntryParser(separator);
 
-            Assert.Throws<ArgumentException>(
+            Assert.Throws<Exception>(
                 () => target.Parse(line));
         }
 

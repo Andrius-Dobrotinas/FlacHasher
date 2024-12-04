@@ -42,8 +42,8 @@ namespace Andy.FlacHash.Hashfile.Read
         public KeyValuePair<string, string> Parse(string line)
         {
             if (line == null) throw new ArgumentNullException(nameof(line));
-            if (string.IsNullOrWhiteSpace(line)) throw new ArgumentException("An empty string is unacceptable!", nameof(line));
-            if (string.IsNullOrWhiteSpace(line.Trim('\"'))) throw new ArgumentException("An empty string wrapped in quotes is unacceptable!", nameof(line));
+            if (string.IsNullOrWhiteSpace(line)) throw new Exception("An empty string is unacceptable!");
+            if (string.IsNullOrWhiteSpace(line.Trim('\"'))) throw new Exception("An empty string wrapped in quotes is unacceptable!");
 
             var reasult = this.regex.Match(line);
 
@@ -59,7 +59,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var value = TrimAndReplaceEmptyWithNull(segment2);
 
             if (key == null && value == null)
-                throw new ArgumentException("An empty string that only contains separator chars is unacceptable!", nameof(line));
+                throw new Exception("An empty string that only contains separator chars is unacceptable!");
 
             return new KeyValuePair<string, string>(key, value);
         }
