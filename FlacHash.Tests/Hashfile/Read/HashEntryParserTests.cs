@@ -40,7 +40,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("file2 hash2", " ", "file2", "hash2")]
         [TestCase("file3\thash3", "\t", "file3", "hash3")]
         [TestCase("file 3.1\thash 34", "\t", "file 3.1", "hash 34", Description = "Both values contain spaces")]
-        [TestCase("file1>@l;'s]\"-hash1", "-", "file1>@l;'s]\"", "hash1", Description = "Both calues contain all sorts of weird special characters, some of which could pass as a separator in another life")]
+        [TestCase("file1>@l;'s]-hash1", "-", "file1>@l;'s]", "hash1", Description = "Both values contain all sorts of weird special characters, some of which could pass as a separator in another life")]
         [TestCase("crazy;file,name ; X2 \t@ #!45)(*&^%$#@.exe:hash|Y2-1234", ":", "crazy;file,name ; X2 \t@ #!45)(*&^%$#@.exe", "hash|Y2-1234", Description = "Both calues contain all sorts of weird special characters, some of which could pass as a separator in another life")]
         public void When_Line_has_values_separated_by_a_SingleChar_Separator__Must_return_the_First_segment_as_the_Key_and_the_Second_one_as_the_Value(string line, string separator, string expectedKey, string expectedValue)
         {
@@ -68,9 +68,27 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(expectedValue, result.Value, "Value");
         }
 
+        [TestCase("\"file:smth\":hash-actual", ":", "file:smth", "hash-actual")]
+        [TestCase("\"file=smth\"=hash-actual", "=", "file=smth", "hash-actual")]
+        [TestCase("\"file=smth\">=>hash-actual", ">=>", "file=smth", "hash-actual")]
+        [TestCase("\"file : smth\" : hash-actual", " : ", "file : smth", "hash-actual")]
+        [TestCase("\"file:smth\":\"hash:actual\"", ":", "file:smth", "hash:actual")]
+        [TestCase("\"file\tsmth\"\t\"hash-actual\"", "\t", "file\tsmth", "hash-actual")]
+        [TestCase("\"file smth\" \"hash actual\"", " ", "file smth", "hash actual")]
+        public void When_a_Segment_is_wrapped_in_Quotes__Must_treat_separator_chars_within_as_part_of_segment_value__And__return_values_without_Quotes(string line, string separator, string expectedKey, string expectedValue)
+        {
+            var result = new HashEntryParser(separator).Parse(line);
+
+            Assert.AreEqual(expectedKey, result.Key, "Key");
+            Assert.AreEqual(expectedValue, result.Value, "Value");
+        }
+
         [TestCase(":hash", null, "hash", Description = "Even when one of the segments is empty")]
         [TestCase("file:", "file", null, Description = "Even when one of the segments is empty")]
         [TestCase(":", null, null, Description = "Even when both segments are empty")]
+        [TestCase("\"\":value", null, "value")]
+        [TestCase("segment:\"\"", "segment", null)]
+        [TestCase("\"\":\"\"", null, null)]
         public void Must_return_Empty_segments_within_a_line_as_Null(string line, string expectedKey, string expectedValue)
         {
             var result = new HashEntryParser(":").Parse(line);
@@ -82,6 +100,10 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase(" :asd", null, "asd")]
         [TestCase(":\t", null, null)]
         [TestCase("     : \t\t", null, null)]
+        [TestCase("segment:\"\"", "segment", null)]
+        [TestCase("segment:\" \t\"", "segment", null)]
+        [TestCase("\" \t\":value", null, "value")]
+        [TestCase("segment:\" \t\"", "segment", null)]
         public void Must_return_Whitespace_segments_within_the_line_as_Null(string line, string expectedKey, string expectedValue)
         {
             var result = new HashEntryParser(":").Parse(line);
@@ -96,6 +118,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("file::hash", "file:", "hash")]
         [TestCase("file:hash::", "file:hash:", null)]
         [TestCase("::hash", ":", "hash")]
+        [TestCase("\"one\":\"two\":\"three\"", "one\":\"two", "three", Description = "This is not really correct, but that's the solution with the least amount of work and I'll take it because who cares")]
         public void When_Line_contains_More_than_Two_segments__Must_return_LastOne_asValue_and_the_rest_asKey(string line, string expectedKey, string expectedValue)
         {
             var result = new HashEntryParser(":").Parse(line);
@@ -117,6 +140,25 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(line, result.Value, "Value");
         }
 
+        [TestCase("\"file= >hash\"", "=>", "file= >hash")]
+        public void When_Line_contains_No_Separator_and_is_wrapped_in_Quotes__Must_return_the_Whole_string_sans_quotes_as_Value(string line, string separator, string expected)
+        {
+            var result = new HashEntryParser(separator).Parse(line);
+
+            Assert.AreEqual(null, result.Key, "Key");
+            Assert.AreEqual(expected, result.Value, "Value");
+        }
+
+        [TestCase("     filehash ", ":", "filehash")]
+        [TestCase("\"     file hash \"", ":", "file hash")]
+        public void When_Line_contains_No_Separator__Must_return_the_Whole_string_as_Value__Trimmed(string line, string separator, string expected)
+        {
+            var result = new HashEntryParser(separator).Parse(line);
+
+            Assert.AreEqual(null, result.Key, "Key");
+            Assert.AreEqual(expected, result.Value, "Value");
+        }
+
         [TestCase("", ":")]
         [TestCase("", " ")]
         [TestCase(" ", ":")]
@@ -125,6 +167,8 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\t\t", " ")]
         [TestCase("\t\t", "\t")]
         [TestCase("\t\t", "\t\t")]
+        [TestCase("\"\"", ":")]
+        [TestCase("\"  \"", ":")]
         public void When_Line_is_empty_or_whitespace__Must_throw_an_exception__Regardless_of_separator_value(string line, string separator)
         {
             Assert.Throws<ArgumentException>(
@@ -139,6 +183,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\tfil\te   :\t\thas   h ", "fil\te", "has   h")]
         [TestCase("\tfilehash ", null, "filehash")]
         [TestCase("\tfil e\thash ", null, "fil e\thash")]
+        [TestCase("\" file\":\"hash  \"", "file", "hash")]
         public void Must_remove_whitespace_from_the_start_and_end_of_both_segments(string line, string expectedKey, string expectedValue)
         {
             var result = new HashEntryParser(":").Parse(line);

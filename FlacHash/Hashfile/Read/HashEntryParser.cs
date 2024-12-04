@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Andy.FlacHash.Hashfile.Read
 {
@@ -10,7 +11,7 @@ namespace Andy.FlacHash.Hashfile.Read
 
     public class HashEntryParser : IHashEntryParser
     {
-        private readonly string separator;
+        private readonly string pattern;
 
         /// <param name="separator">Any separator goes, except for empty value and new-line characters</param>
         public HashEntryParser(string separator)
@@ -21,7 +22,7 @@ namespace Andy.FlacHash.Hashfile.Read
             if (separator == "\r" || separator == "\n" || separator == "\r\n")
                 throw new ArgumentException(nameof(separator), "A separator cannot be a New-line value");
 
-            this.separator = separator;
+            this.pattern = $@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$";
         }
 
         /// <summary>
@@ -35,17 +36,17 @@ namespace Andy.FlacHash.Hashfile.Read
         {
             if (line == null) throw new ArgumentNullException(nameof(line));
             if (string.IsNullOrWhiteSpace(line)) throw new ArgumentException("An empty string is unacceptable!", nameof(line));
+            if (string.IsNullOrWhiteSpace(line.Trim('\"'))) throw new ArgumentException("An empty string wrapped in quotes is unacceptable!", nameof(line));
 
-            var separatorIndex = line.LastIndexOf(separator);
+            var reasult = Regex.Match(line, pattern);
 
-            if (separatorIndex == -1)
-                // Return the whole line as value
+            if (!reasult.Success)
                 return new KeyValuePair<string, string>(
                     null,
                     TrimAndReplaceEmptyWithNull(line));
 
-            var segment1 = line.Substring(0, separatorIndex);
-            var segment2 = line.Substring(separatorIndex + separator.Length);
+            var segment1 = reasult.Groups["key"].Value;
+            var segment2 = reasult.Groups["value"].Value;
 
             return new KeyValuePair<string, string>(
                     TrimAndReplaceEmptyWithNull(segment1),
@@ -54,10 +55,9 @@ namespace Andy.FlacHash.Hashfile.Read
 
         private string TrimAndReplaceEmptyWithNull(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
-            else
-                return value.Trim();
+            var trimmed = value?.Trim()?.Trim('\"').Trim();
+
+            return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
         }
     }
 }
