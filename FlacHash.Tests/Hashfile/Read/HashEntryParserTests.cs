@@ -234,8 +234,10 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\"  \"", ":")]
         public void When_Line_is_empty_or_whitespace__Must_throw_an_exception__Regardless_of_separator_value(string line, string separator)
         {
+            var target = new HashEntryParser(separator);
+
             Assert.Throws<ArgumentException>(
-                () => new HashEntryParser(separator).Parse(line));
+                () => target.Parse(line));
         }
 
         [TestCase(" file:hash", "file", "hash")]
