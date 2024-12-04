@@ -19,7 +19,7 @@ namespace Andy.FlacHash.Hashfile.Read
             if (string.IsNullOrEmpty(separator))
                 throw new ArgumentNullException(nameof(separator), "A separator cannot be an empty value");
 
-            if (separator == "\r" || separator == "\n" || separator == "\r\n")
+            if (separator.Contains("\r") || separator.Contains("\n") || separator.Contains("\r\n"))
                 throw new ArgumentException(nameof(separator), "A separator cannot be a New-line value");
 
             if (separator.Contains("\"") || separator.Contains("'"))

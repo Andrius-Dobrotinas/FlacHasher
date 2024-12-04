@@ -18,6 +18,17 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\r")]
         [TestCase("\n")]
         [TestCase("\r\n")]
+        [TestCase(" \r")]
+        [TestCase(" \n")]
+        [TestCase(" \r\n")]
+        [TestCase("\r \n")]
+        [TestCase("\r ")]
+        [TestCase("\n ")]
+        [TestCase("\r\n ")]
+        [TestCase("=\r=")]
+        [TestCase("=\n=")]
+        [TestCase("=\r\n=")]
+        [TestCase("=\r=\n=")]
         public void Constructor__Must_reject_Newline_as_Separator_values(string separator)
         {
             Assert.Throws<ArgumentException>(
