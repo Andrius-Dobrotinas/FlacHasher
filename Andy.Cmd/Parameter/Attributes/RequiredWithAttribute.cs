@@ -8,7 +8,7 @@ namespace Andy.Cmd.Parameter
         /// <summary>
         /// When this property has a value, the target property has to have one too
         /// </summary>
-        public string OtherPropertyName { get; set; }
+        public string OtherPropertyName { get; }
 
         public RequiredWithAttribute(string otherPropertyName)
         {

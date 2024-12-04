@@ -34,8 +34,8 @@ namespace Andy.Cmd.Parameter
             EnsureParameterNameUniqueness(properties, inLowercase);
 
             // Validate attribute use before reading the values because this is configured before compile-time
-            var eitherOrPropertyGroups = GetEitherOrPropertyGroups<TParam>();
-
+            var (eitherOrOptionalPropertyGroups, eitherOrPropertyGroups) = GetEitherOrPropertyGroups<TParam>();
+            
             var @params = new TParam();
             foreach (var property in properties)
             {
@@ -46,6 +46,7 @@ namespace Andy.Cmd.Parameter
 
             // Either-Or Continued
             Check_EitherOr_Parameters(@params, eitherOrPropertyGroups);
+            Check_EitherOr_Parameters(@params, eitherOrOptionalPropertyGroups, allowNone: true);
 
             Check_AtLeastOneOf_Params(@params);
 
@@ -67,11 +68,19 @@ namespace Andy.Cmd.Parameter
         /// Gathers <see cref="EitherOrAttribute"/> properties, grouped by their <see cref="EitherOrAttribute.GroupKey"/>.
         /// Carries out necessary attribute use validations
         /// </summary>
-        static Dictionary<string, PropertyInfo[]> GetEitherOrPropertyGroups<TParams>()
+        static (Dictionary<string, PropertyInfo[]> optional, Dictionary<string, PropertyInfo[]> hard) GetEitherOrPropertyGroups<TParams>()
         {
             var properties = typeof(TParams).GetProperties();
 
-            var eitherOrProperties = properties.Select(property => new { property, attr = property.GetCustomAttribute<EitherOrAttribute>(false) })
+            var eitherOrOptionalProperties = properties.Select(property => new { property, attr = property.GetCustomAttribute<OptionalEitherOrAttribute>(false) })
+                .Where(x => x.attr != null)
+                .ToList();
+
+            var eitherOrOptionalPropertyGroups = eitherOrOptionalProperties
+               .GroupBy(x => x.attr.GroupKey, x => x.property)
+               .ToDictionary(x => x.Key, x => x.ToArray());
+
+            var eitherOrProperties = properties.Select(property => new { property, attr = property.GetCustomAttributes<EitherOrAttribute>(false).Where(x => !(x is OptionalEitherOrAttribute)).FirstOrDefault() })
                 .Where(x => x.attr != null)
                 .ToList();
 
@@ -79,7 +88,7 @@ namespace Andy.Cmd.Parameter
                .GroupBy(x => x.attr.GroupKey, x => x.property)
                .ToDictionary(x => x.Key, x => x.ToArray());
 
-            if (eitherOrPropertyGroups.Any(group => group.Value.Length == 1))
+            if (eitherOrOptionalPropertyGroups.Any(group => group.Value.Length == 1))
             {
                 var propertyRepresentations = eitherOrPropertyGroups
                     .Where(group => group.Value.Length == 1)
@@ -87,21 +96,28 @@ namespace Andy.Cmd.Parameter
                 throw new InvalidOperationException($"The following properties don't have any counterparts marked with the same {nameof(EitherOrAttribute)} key: {string.Join(',', propertyRepresentations)}");
             }
 
-            return eitherOrPropertyGroups;
+            if (eitherOrPropertyGroups.Any(group => group.Value.Length == 1))
+            {
+                var propertyRepresentations = eitherOrPropertyGroups
+                    .Where(group => group.Value.Length == 1)
+                    .Select(x => $"{x.Value.First().Name} (key: \"{x.Key}\")");
+                throw new InvalidOperationException($"The following properties don't have any counterparts marked with the same {nameof(OptionalEitherOrAttribute)} key: {string.Join(',', propertyRepresentations)}");
+            }
+
+            return (eitherOrOptionalPropertyGroups, eitherOrPropertyGroups);
         }
 
-        static void Check_EitherOr_Parameters<TParams>(TParams instance, IDictionary<string, PropertyInfo[]> eitherOrPropertyGroups)
+        static void Check_EitherOr_Parameters<TParams>(TParams instance, IDictionary<string, PropertyInfo[]> eitherOrPropertyGroups, bool allowNone = false)
         {
             foreach (var parameterGroup in eitherOrPropertyGroups)
             {
                 var values = parameterGroup.Value.Select(x => x.GetValue(instance));
                 var nullValues = values.Select(x => x == null);
                 if (nullValues.Count(isNull => !isNull) > 1)
-                    throw new ParameterGroupException("Only one parameter is allowed to have a value", GetParameterNames(parameterGroup.Value));
+                    throw new ParameterGroupException("Only one parameter belong to the following group is allowed to have a value", parameterGroup.Key, parameterGroup.Value);
 
-                if (nullValues.All(isNull => isNull == true))
-                    if (!parameterGroup.Value.Any(prop => prop.GetCustomAttribute<EitherOrAttribute>().AllowNone))
-                        throw new ParameterGroupException("One of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
+                if (nullValues.All(isNull => isNull == true) && !allowNone)
+                    throw new ParameterGroupException("One of the parameters belonging to the following group must have a value", parameterGroup.Key, parameterGroup.Value);
             }
         }
 
@@ -138,11 +154,11 @@ namespace Andy.Cmd.Parameter
                 var nullValues = values.Select(x => x == null);
 
                 if (nullValues.All(x => x == true))
-                    throw new ParameterGroupException("At least one of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
+                    throw new ParameterGroupException("At least one of the parameters belonging to the following group must have a value", parameterGroup.Key, parameterGroup.Value);
             }
         }
 
-        public static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
+        static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
         {
             var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWithAttribute>(false)))
                 .Where(x => x.attr.Any())

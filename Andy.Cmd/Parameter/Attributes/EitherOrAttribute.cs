@@ -19,12 +19,7 @@ namespace Andy.Cmd.Parameter
         /// Ties parameters to the "either/or" condition.
         /// All parameters with a given key are part of the condition.
         /// </summary>
-        public string GroupKey { get; set; }
-
-        /// <summary>
-        /// Determines whether the whole group is allowed to not have a value
-        /// </summary>
-        public bool AllowNone { get; set; }
+        public string GroupKey { get; }
 
         public EitherOrAttribute(string groupKey)
         {
