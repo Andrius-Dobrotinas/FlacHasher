@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Hashfile.Read
             if (separator == "\r" || separator == "\n" || separator == "\r\n")
                 throw new ArgumentException(nameof(separator), "A separator cannot be a New-line value");
 
-            this.regex = new Regex($@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$");
+            this.regex = new Regex($@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$", RegexOptions.ExplicitCapture);
         }
 
         /// <summary>
