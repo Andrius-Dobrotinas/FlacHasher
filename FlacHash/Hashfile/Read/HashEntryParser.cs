@@ -11,7 +11,7 @@ namespace Andy.FlacHash.Hashfile.Read
 
     public class HashEntryParser : IHashEntryParser
     {
-        private readonly string pattern;
+        private readonly Regex regex;
 
         /// <param name="separator">Any separator goes, except for empty value and new-line characters</param>
         public HashEntryParser(string separator)
@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Hashfile.Read
             if (separator == "\r" || separator == "\n" || separator == "\r\n")
                 throw new ArgumentException(nameof(separator), "A separator cannot be a New-line value");
 
-            this.pattern = $@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$";
+            this.regex = new Regex($@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$");
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Andy.FlacHash.Hashfile.Read
             if (string.IsNullOrWhiteSpace(line)) throw new ArgumentException("An empty string is unacceptable!", nameof(line));
             if (string.IsNullOrWhiteSpace(line.Trim('\"'))) throw new ArgumentException("An empty string wrapped in quotes is unacceptable!", nameof(line));
 
-            var reasult = Regex.Match(line, pattern);
+            var reasult = this.regex.Match(line);
 
             if (!reasult.Success)
                 return new KeyValuePair<string, string>(
