@@ -26,16 +26,16 @@ namespace Andy.FlacHash.Hashfile.Read
                 throw new ArgumentException(nameof(separator), "A separator cannot contain quotes");
 
             // Captures Key and Value from a string separated by a separator-char-sequence, ignoring said sequence if it's between quotes (thus treating it as part of the segment's value).
-            // In other words, either segment may be wrapped in quotes, what's between quotes gets treated as part of a value, not as a value-separator.
-            this.regex = new Regex($@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$", RegexOptions.ExplicitCapture);
+            // In other words, either segment may be wrapped in quotes, and what's between quotes gets treated as part of a value, not as a value-separator.
+            // The 2nd separator at the end is to make it ignore extra segments when there's more than one separator.
+            this.regex = new Regex($@"^(?<key>""[^""]*""|[^""]*?)\s*{Regex.Escape(separator)}\s*(?<value>""[^""]*""|[^""]*?)($|{Regex.Escape(separator)})", RegexOptions.ExplicitCapture);
         }
 
         /// <summary>
         /// If no segment separator char/sequence is found in the <paramref name="line"/>, it returns the whole line as Value and null for Key.
         /// If a segment separator char/sequence is present in the <paramref name="line"/>, it splits the the line into two segments
         /// and returns the 1st segment as Key and the 2nd one as as Value.
-        /// If the separator char/sequence is found more than once, it treats the last instance as a separator --
-        /// therefore, it's safe for the first segment to have a separator char/sequence as a legitimate part of its value.
+        /// If the separator char/sequence is found more than once, it returns first two segments omitting the rest.
         /// 
         /// Segments wrapped in quotes can safely contain separator chars, which then get treated as part of the value.
         /// </summary>
@@ -55,9 +55,13 @@ namespace Andy.FlacHash.Hashfile.Read
             var segment1 = reasult.Groups["key"].Value;
             var segment2 = reasult.Groups["value"].Value;
 
-            return new KeyValuePair<string, string>(
-                    TrimAndReplaceEmptyWithNull(segment1),
-                    TrimAndReplaceEmptyWithNull(segment2));
+            var key = TrimAndReplaceEmptyWithNull(segment1);
+            var value = TrimAndReplaceEmptyWithNull(segment2);
+
+            if (key == null && value == null)
+                throw new ArgumentException("An empty string that only contains separator chars is unacceptable!", nameof(line));
+
+            return new KeyValuePair<string, string>(key, value);
         }
 
         private string TrimAndReplaceEmptyWithNull(string value)

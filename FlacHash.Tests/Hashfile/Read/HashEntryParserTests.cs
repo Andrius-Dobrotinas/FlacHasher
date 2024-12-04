@@ -131,10 +131,8 @@ namespace Andy.FlacHash.Hashfile.Read
 
         [TestCase(":hash", null, "hash", Description = "Even when one of the segments is empty")]
         [TestCase("file:", "file", null, Description = "Even when one of the segments is empty")]
-        [TestCase(":", null, null, Description = "Even when both segments are empty")]
         [TestCase("\"\":value", null, "value")]
         [TestCase("segment:\"\"", "segment", null)]
-        [TestCase("\"\":\"\"", null, null)]
         public void Must_return_Empty_segments_within_a_line_as_Null(string line, string expectedKey, string expectedValue)
         {
             var result = new HashEntryParser(":").Parse(line);
@@ -144,8 +142,6 @@ namespace Andy.FlacHash.Hashfile.Read
         }
 
         [TestCase(" :asd", null, "asd")]
-        [TestCase(":\t", null, null)]
-        [TestCase("     : \t\t", null, null)]
         [TestCase("segment:\"\"", "segment", null)]
         [TestCase("segment:\" \t\"", "segment", null)]
         [TestCase("\" \t\":value", null, "value")]
@@ -158,19 +154,40 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(expectedValue, result.Value, "Value");
         }
 
-        [TestCase("file:hash:", "file:hash", null)]
-        [TestCase("file:two:hash", "file:two", "hash")]
-        [TestCase(":file:hash:", ":file:hash", null)]
-        [TestCase("file::hash", "file:", "hash")]
-        [TestCase("file:hash::", "file:hash:", null)]
-        [TestCase("::hash", ":", "hash")]
-        [TestCase("\"one\":\"two\":\"three\"", "one\":\"two", "three", Description = "This is not really correct, but that's the solution with the least amount of work and I'll take it because who cares")]
-        public void When_Line_contains_More_than_Two_segments__Must_return_LastOne_asValue_and_the_rest_asKey(string line, string expectedKey, string expectedValue)
+        [TestCase("file:hash:", "file", "hash")]
+        [TestCase("file:two:hash", "file", "two")]
+        [TestCase(":file:hash:", null, "file")]
+        [TestCase("file::hash", "file", null)]
+        [TestCase("file:hash::", "file", "hash")]
+        [TestCase("\"one\":\"two\":\"three\"", "one", "two")]
+        [TestCase("\"ichi\":\"ni\":", "ichi", "ni")]
+        [TestCase("\"ein\":\"zwei\":\"\"", "ein", "zwei")]
+        [TestCase("\"one\":\"two\":\"three\":\"four\"", "one", "two")]
+        public void When_Line_contains_More_than_Two_segments__Must_return_FirstTwo_as_Key_and_Value__Dropping_the_rest(string line, string expectedKey, string expectedValue)
         {
             var result = new HashEntryParser(":").Parse(line);
 
             Assert.AreEqual(expectedKey, result.Key, "Key");
             Assert.AreEqual(expectedValue, result.Value, "Value");
+        }
+
+        [TestCase(":")]
+        [TestCase("::")]
+        [TestCase(": :")]
+        [TestCase(":::")]
+        [TestCase(": : :")]
+        [TestCase(":\t")]
+        [TestCase("     : \t\t")]
+        [TestCase("\"\":\"\"")]
+        [TestCase("\"   \":\"\"")]
+        [TestCase("\"\t\":\"\"")]
+        [TestCase("\"\t\" :\"\"")]
+        public void When_Line_contains_Just_separators_and_optionally_whitespace__Must_throw_an_exception(string line)
+        {
+            var target = new HashEntryParser(":");
+
+            Assert.Throws<ArgumentException>(
+                () => target.Parse(line));
         }
 
         [TestCase("filehash", ":")]
