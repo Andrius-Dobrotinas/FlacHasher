@@ -22,6 +22,9 @@ namespace Andy.FlacHash.Hashfile.Read
             if (separator == "\r" || separator == "\n" || separator == "\r\n")
                 throw new ArgumentException(nameof(separator), "A separator cannot be a New-line value");
 
+            if (separator.Contains("\"") || separator.Contains("'"))
+                throw new ArgumentException(nameof(separator), "A separator cannot contain quotes");
+
             // Captures Key and Value from a string separated by a separator-char-sequence, ignoring said sequence if it's between quotes (thus treating it as part of the segment's value).
             // In other words, either segment may be wrapped in quotes, what's between quotes gets treated as part of a value, not as a value-separator.
             this.regex = new Regex($@"^(?<key>(""[^""]*""|[^""]*)+)\s*{Regex.Escape(separator)}\s*(?<value>(""[^""]*""|[^""]*)+)$", RegexOptions.ExplicitCapture);

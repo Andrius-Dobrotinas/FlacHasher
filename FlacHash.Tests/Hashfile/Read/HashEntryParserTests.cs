@@ -18,7 +18,29 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\r")]
         [TestCase("\n")]
         [TestCase("\r\n")]
-        public void Constructor__Must_reject_Newline_Separator_values(string separator)
+        public void Constructor__Must_reject_Newline_as_Separator_values(string separator)
+        {
+            Assert.Throws<ArgumentException>(
+                () => new HashEntryParser(separator));
+        }
+
+        [TestCase("\"")]
+        [TestCase("\"\"")]
+        [TestCase("\"=\"")]
+        [TestCase("\"=")]
+        [TestCase("=\"")]
+        [TestCase(" \" ")]
+        [TestCase(" \" ")]
+        [TestCase(" \"")]
+        [TestCase("'")]
+        [TestCase("''")]
+        [TestCase("'='")]
+        [TestCase("'=")]
+        [TestCase("='")]
+        [TestCase(" ' ")]
+        [TestCase(" '")]
+        [TestCase("' ")]
+        public void Constructor__Must_reject_All_types_of_Quotes_as_Separator_values(string separator)
         {
             Assert.Throws<ArgumentException>(
                 () => new HashEntryParser(separator));
