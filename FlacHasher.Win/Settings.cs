@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Application.Win
 
         [IniEntry(nameof(HashfileEntrySeparator))]
         [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
-        [ParameterDescription("A character sequence that separates File-name and Hash-value in a hashfile (given a hashfile contains file names)")]
+        [ParameterDescription("A character sequence that separates File-name and Hash-value in a hashfile (given a hashfile contains file names). Put filename in quotes when it contains this separator character sequence")]
         public string HashfileEntrySeparator { get; set; }
 
         [IniEntry(nameof(ShowProcessWindowWithOutput))]
