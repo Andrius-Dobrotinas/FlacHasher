@@ -68,7 +68,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var value = TrimAndReplaceEmptyWithNull(segment2);
 
             if (key == null && value == null)
-                throw new Exception("An empty string that only contains separator chars is unacceptable!");
+                throw new Exception("The input didn't match the expected pattern!");
 
             return new KeyValuePair<string, string>(key, value);
         }
