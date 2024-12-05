@@ -25,9 +25,18 @@ namespace Andy.FlacHash.Hashfile.Read
             if (separator.Contains("\"") || separator.Contains("'"))
                 throw new ArgumentException(nameof(separator), "A separator cannot contain quotes");
 
-            // Captures Key and Value from a string separated by a separator-char-sequence, ignoring said sequence if it's between quotes (thus treating it as part of the segment's value).
-            // In other words, either segment may be wrapped in quotes, and what's between quotes gets treated as part of a value, not as a value-separator.
+            // Captures Key and Value from a string separated by a separator-char-sequence, ignoring such sequence if it's between quotes (thus treating it as part of the segment's value).
+            // In other words, either segment may be wrapped in quotes, and what's between quotes, gets treated as part of the segment's value, not as a value-separator.
             // The 2nd separator at the end is to make it ignore extra segments when there's more than one separator.
+
+            /* Detailed explanation of the expression:
+             * (?<key>""[^""]*""|[^""]*?) -- a group named "key" that either a or (|) b:
+             * a) starts with ", is followed by any amount of chars (0 to inf) that are NOT " (the [^"] part), then followed by "
+             * b) 0-inf amount of chars that are NOT " ([^"]*) -- < THAT doesn't have to be or be max 1 time group/segment (?) -- zero idea why this is actually needed or why it doesn't work with "zero or int times".
+             * I think this means that forces the group to BE when there are no chars in it. It's not a problem for the quoted part because quotes alone amount to something.
+             * 
+             * ($|\{separator}) -- either end of string or a separator -- value ends at the end of the string or at another separator
+             */
             this.regex = new Regex($@"^(?<key>""[^""]*""|[^""]*?)\s*{Regex.Escape(separator)}\s*(?<value>""[^""]*""|[^""]*?)($|{Regex.Escape(separator)})", RegexOptions.ExplicitCapture);
         }
 
