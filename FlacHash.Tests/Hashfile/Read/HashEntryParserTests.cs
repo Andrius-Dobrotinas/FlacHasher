@@ -121,7 +121,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("file?hash", "?", "file", "hash")]
         [TestCase("file|hash", "|", "file", "hash")]
         [TestCase("file>hash", ">", "file", "hash")]
-        public void Must_split_into_segments_correctly_even_when_using_RegEx_characters_as_separators(string line, string separator, string expectedKey, string expectedValue)
+        public void When__separator_is_a_RegEx_char__Must_split_into_segments_correctly(string line, string separator, string expectedKey, string expectedValue)
         {
             var result = new HashEntryParser(separator).Parse(line);
 
