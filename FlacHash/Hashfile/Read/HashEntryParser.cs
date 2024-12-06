@@ -13,7 +13,8 @@ namespace Andy.FlacHash.Hashfile.Read
     {
         private readonly Regex regex;
 
-        /// <param name="separator">Any separator goes, except for empty value and new-line characters</param>
+        /// <param name="separator">Any separator goes, including whitespace, except for quotes and new-line characters.
+        /// If separator is whitespace, regardless of the specific value, it covers all possible whitespace -- doesn't matter whether it's a single space or a tab</param>
         public HashEntryParser(string separator)
         {
             if (string.IsNullOrEmpty(separator))
@@ -37,7 +38,9 @@ namespace Andy.FlacHash.Hashfile.Read
              * 
              * ($|\{separator}) -- either end of string or a separator -- value ends at the end of the string or at another separator
              */
-            this.regex = new Regex($@"^(?<key>""[^""]*""|[^""]*?)\s*{Regex.Escape(separator)}\s*(?<value>""[^""]*""|[^""]*?)($|{Regex.Escape(separator)})", RegexOptions.ExplicitCapture);
+            this.regex = separator != null && string.IsNullOrWhiteSpace(separator)
+                ? new Regex($@"^(?<key>""[^""]*""|[^""\s]*?)\s+(?<value>""[^""]*""|[^""\s]*?)(?:\s+.*)?$", RegexOptions.ExplicitCapture) // |s+
+                : new Regex($@"^(?<key>""[^""]*""|[^""]*?)\s*{Regex.Escape(separator)}\s*(?<value>""[^""]*""|[^""]*?)($|{Regex.Escape(separator)})", RegexOptions.ExplicitCapture);
         }
 
         /// <summary>

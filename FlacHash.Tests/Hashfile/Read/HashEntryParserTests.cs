@@ -193,8 +193,6 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("filehash", ":")]
         [TestCase("file hash", ":")]
         [TestCase("file hash", "\t")]
-        [TestCase("filehash", " ")]
-        [TestCase("file hash", "  ")]
         [TestCase("file= >hash", "=>")]
         public void When_Line_contains_No_Separator__Must_return_the_Whole_string_as_Value(string line, string separator)
         {
