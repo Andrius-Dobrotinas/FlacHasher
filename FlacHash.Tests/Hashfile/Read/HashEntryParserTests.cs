@@ -258,5 +258,102 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(expectedKey, result.Key, "Key");
             Assert.AreEqual(expectedValue, result.Value, "Value");
         }
+
+        [TestCaseSource(nameof(GetCases_Whitespaces))]
+        public void When__Line_Starts_with_Whitespace__Must_ignore_the_whitespace(string whitespace, bool keyQuoted, bool valueQuoted)
+        {
+            var key = "ichi";
+            var value = "ni";
+            var keyValue = keyQuoted ? @$"""{key}""" : key;
+            var valueValue = valueQuoted ? @$"""{value}""" : value;
+
+            var line = $"{whitespace}{keyValue}:{valueValue}";
+
+            var result = new HashEntryParser(":").Parse(line);
+
+            Assert.AreEqual(key, result.Key, "Key");
+            Assert.AreEqual(value, result.Value, "Value");
+        }
+
+        [TestCaseSource(nameof(GetCases_Whitespaces))]
+        public void When__Line_Ends_with_Whitespace__Must_ignore_the_whitespace(string whitespace, bool keyQuoted, bool valueQuoted)
+        {
+            var key = keyQuoted ? @"""ichi""" : "ichi";
+            var value = valueQuoted ? @"""ni""" : "ni";
+            var line = $"{key}:{value}{whitespace}";
+            var result = new HashEntryParser(":").Parse(line);
+
+            Assert.AreEqual("ichi", result.Key, "Key");
+            Assert.AreEqual("ni", result.Value, "Value");
+        }
+
+        [TestCaseSource(nameof(GetCases_Whitespaces))]
+        public void When__Line_Starts_and_Ends_with_Whitespace__Must_ignore_the_whitespace(string whitespace, bool keyQuoted, bool valueQuoted)
+        {
+            var key = "ichi";
+            var value = "ni";
+            var keyValue = keyQuoted ? @$"""{key}""" : key;
+            var valueValue = valueQuoted ? @$"""{value}""" : value;
+            var line = $"{whitespace}{keyValue}:{valueValue}{whitespace}";
+
+            var result = new HashEntryParser(":").Parse(line);
+
+            Assert.AreEqual(key, result.Key, "Key");
+            Assert.AreEqual(value, result.Value, "Value");
+        }
+
+        [TestCaseSource(nameof(GetCases_Whitespaces))]
+        public void When__Line_Starts_and_Ends_with_Whitespace_and_has_it_between_segments_and_separator__Must_ignore_the_whitespace(string whitespace, bool keyQuoted, bool valueQuoted)
+        {
+            var key = "ichi";
+            var value = "ni";
+            var keyValue = keyQuoted ? @$"""{key}""" : key;
+            var valueValue = valueQuoted ? @$"""{value}""" : value;
+
+            var line = $"{whitespace}{keyValue}{whitespace}:{whitespace}{valueValue}{whitespace}";
+            var result = new HashEntryParser(":").Parse(line);
+
+            Assert.AreEqual(key, result.Key, "Key");
+            Assert.AreEqual(value, result.Value, "Value");
+        }
+
+        [TestCaseSource(nameof(GetCases_Whitespaces))]
+        public void When_Line_has_Whitespace_between_segments_and_separator__Must_ignore_the_whitespace(string whitespace, bool keyQuoted, bool valueQuoted)
+        {
+            var key = "ichi";
+            var value = "ni";
+            var keyValue = keyQuoted ? @$"""{key}""" : key;
+            var valueValue = valueQuoted ? @$"""{value}""" : value;
+
+            var line = $"{keyValue}{whitespace}:{whitespace}{valueValue}";
+            var result = new HashEntryParser(":").Parse(line);
+
+            Assert.AreEqual(key, result.Key, "Key");
+            Assert.AreEqual(value, result.Value, "Value");
+        }
+
+        static IEnumerable<TestCaseData> GetCases_Whitespaces()
+        {
+            yield return new TestCaseData(" ", false, false);
+            yield return new TestCaseData(" ", true, false);
+            yield return new TestCaseData(" ", true, true);
+            yield return new TestCaseData(" ", false, true);
+            yield return new TestCaseData("  ", false, false);
+            yield return new TestCaseData("  ", true, false);
+            yield return new TestCaseData("  ", true, true);
+            yield return new TestCaseData("  ", false, true);
+            yield return new TestCaseData("\t", false, false);
+            yield return new TestCaseData("\t", true, false);
+            yield return new TestCaseData("\t", true, true);
+            yield return new TestCaseData("\t", false, true);
+            yield return new TestCaseData(" \t", false, false);
+            yield return new TestCaseData(" \t", true, false);
+            yield return new TestCaseData(" \t", true, true);
+            yield return new TestCaseData(" \t", false, true);
+            yield return new TestCaseData(" \t ", false, false);
+            yield return new TestCaseData(" \t ", true, false);
+            yield return new TestCaseData(" \t ", true, true);
+            yield return new TestCaseData(" \t ", false, true);
+        }
     }
 }

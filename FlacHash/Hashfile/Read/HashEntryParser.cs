@@ -54,7 +54,7 @@ namespace Andy.FlacHash.Hashfile.Read
             if (string.IsNullOrWhiteSpace(line)) throw new Exception("An empty string is unacceptable!");
             if (string.IsNullOrWhiteSpace(line.Trim('\"'))) throw new Exception("An empty string wrapped in quotes is unacceptable!");
 
-            var reasult = this.regex.Match(line);
+            var reasult = this.regex.Match(line.Trim());
 
             if (!reasult.Success)
                 return new KeyValuePair<string, string>(
