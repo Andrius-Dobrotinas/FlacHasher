@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+	<TargetFramework>net8.0-windows</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>Andy.FlacHash.Application.Win</RootNamespace>
 	<AssemblyName>FlacHasherUI</AssemblyName>
