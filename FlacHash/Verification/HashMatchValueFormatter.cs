@@ -6,9 +6,11 @@ namespace Andy.FlacHash.Verification
 {
     public static class HashMatchValueFormatter
     {
+        private static readonly Regex regex = new Regex(@"([a-z])([A-Z])");
+
         public static string GetString(HashMatch value)
         {
-            return Regex.Replace(value.ToString(), @"([a-z])([A-Z])", "$1 $2");
+            return regex.Replace(value.ToString(), "$1 $2");
         }
     }
 }
