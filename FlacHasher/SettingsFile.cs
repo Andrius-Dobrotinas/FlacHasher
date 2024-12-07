@@ -67,7 +67,7 @@ namespace Andy.FlacHash.Application
             var settings = GetSettingsProfile(settingsDictionary, profileName, caseInsensitive: true);
 
             var decoderSectionName = ResolveConfigValue(settings, ApplicationSettings.DecoderProfileKey, decoderProfileName, ApplicationSettings.DefaultDecoderSection, caseInsensitive: true);
-            MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.DecoderSectionPrefix, decoderSectionName), caseInsensitive: true);
+            MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.DecoderSectionPrefix, decoderSectionName), caseInsensitive: true, isMandatory: false);
 
             var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection, caseInsensitive: true);
             MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.HashingSectionPrefix, hashingSectionName), caseInsensitive: true, isMandatory: false);
