@@ -47,14 +47,13 @@ namespace Andy.FlacHash.Application.Cmd
 
             WriteStdErrLine();
             WriteStdErrLine();
-            WriteStdErrLine("======== Results =========");
-            WriteStdErrLine("File\t=>\tIsMatch");
+            WriteStdErrLine("RESULTS".PadLeft(25));
+            WriteStdErrLine();
+            WriteStdErrLine($"{"==================== File ".PadRight(50, '=')}|= Hash Match ==");
             foreach (var result in results)
             {
-                WriteStdErrLine($"{result.Key.Name} => {result.Value}");
+                WriteStdErrLine($"{result.Key.Name.PadRight(50, '.')}|  {HashMatchValueFormatter.GetString(result.Value)}");
             }
-
-            WriteStdErrLine("======== The End =========");
         }
 
         private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultiFileHasher hasher, IVerificationParams parameters, CancellationToken cancellation)
@@ -76,8 +75,10 @@ namespace Andy.FlacHash.Application.Cmd
                 if (hashingResult.Exception == null)
                 {
                     var isMatch = hashVerifier.DoesMatch(fileHashes, hashingResult.File, hashingResult.Hash);
-                    Console.WriteLine($"{hashingResult.File.Name} => {isMatch}");
-                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False));
+                    var result = isMatch ? HashMatch.Match : HashMatch.NoMatch;
+
+                    Console.WriteLine($"{hashingResult.File.Name} => {HashMatchValueFormatter.GetString(result)}");
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, result));
                 }
                 else
                 {

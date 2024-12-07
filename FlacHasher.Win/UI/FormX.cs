@@ -462,7 +462,7 @@ namespace Andy.FlacHash.Application.Win.UI
                     {
                         var isMatch = hashVerifier.DoesMatch(expectedHashes, hashingResult.File, hashingResult.Hash);
 
-                        list_verification_results.SetData(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False);
+                        list_verification_results.SetData(hashingResult.File, isMatch ? HashMatch.Match : HashMatch.NoMatch);
                     }
                     else
                     {
