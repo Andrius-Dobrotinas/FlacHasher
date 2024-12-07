@@ -47,14 +47,13 @@ namespace Andy.FlacHash.Application.Cmd
 
             WriteStdErrLine();
             WriteStdErrLine();
-            WriteStdErrLine("======== Results =========");
-            WriteStdErrLine("File\t=>\tIsMatch");
+            WriteStdErrLine("RESULTS".PadLeft(25));
+            WriteStdErrLine();
+            WriteStdErrLine($"{"==================== File ".PadRight(50, '=')}|= Hash Match ==");
             foreach (var result in results)
             {
-                WriteStdErrLine($"{result.Key.Name} => {result.Value}");
+                WriteStdErrLine($"{result.Key.Name.PadRight(50, '.')}|  {result.Value.ToString()}");
             }
-
-            WriteStdErrLine("======== The End =========");
         }
 
         private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultiFileHasher hasher, IVerificationParams parameters, CancellationToken cancellation)
