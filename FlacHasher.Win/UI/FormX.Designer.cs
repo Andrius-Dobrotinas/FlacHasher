@@ -296,7 +296,7 @@
             // 
             // col_results_verification_isMatch
             // 
-            col_results_verification_isMatch.Text = "Matches";
+            col_results_verification_isMatch.Text = "Hash Match";
             // 
             // imgList_verification
             // 
