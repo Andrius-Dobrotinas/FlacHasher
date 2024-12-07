@@ -40,7 +40,7 @@ namespace Andy.FlacHash.Application.Cmd
         [OperationParam]
         [IniEntry(nameof(HashfileEntrySeparator))]
         [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
-        [ParameterDescription("A character sequence that separates File-name and Hash-value in a hashfile (given a hashfile contains file names). Put filename in quotes when it contains this separator character sequence")]
+        [ParameterDescription("A character sequence that separates File-name and Hash-value in a hashfile. Not need when hashfile doesn't contain file names. To specify a Space char via the command line, put the value in quotes (\" \"). Don't use quotes when configuring via the settings file")]
         [FrontAndCenterParam]
         public string HashfileEntrySeparator { get; set; }
 
