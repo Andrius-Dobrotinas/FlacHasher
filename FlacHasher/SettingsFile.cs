@@ -70,7 +70,7 @@ namespace Andy.FlacHash.Application
             MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.DecoderSectionPrefix, decoderSectionName), caseInsensitive: true);
 
             var hashingSectionName = ResolveConfigValue(settings, ApplicationSettings.HashingProfileKey, hashingProfileName, ApplicationSettings.DefaultHashingSection, caseInsensitive: true);
-            MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.HashingSectionPrefix, hashingSectionName), caseInsensitive: true);
+            MergeSectionValuesIn(settings, settingsDictionary, BuildSectionName(ApplicationSettings.HashingSectionPrefix, hashingSectionName), caseInsensitive: true, isMandatory: false);
 
             return settings;
         }
@@ -89,10 +89,14 @@ namespace Andy.FlacHash.Application
                     ?? defaultValue;
         }
 
-        public static void MergeSectionValuesIn(IDictionary<string, string> destination, IDictionary<string, IDictionary<string, string>> wholeSettingsFileDictionary, string targetSectionName, bool caseInsensitive = false)
+        public static void MergeSectionValuesIn(IDictionary<string, string> destination, IDictionary<string, IDictionary<string, string>> wholeSettingsFileDictionary, string targetSectionName, bool caseInsensitive = false, bool isMandatory = true)
         {
             var targetSection = TryGetValue(wholeSettingsFileDictionary, targetSectionName, out bool sectionFound, caseInsensitive);
-            if (!sectionFound) throw new ConfigurationException($"Configuration section not found: {targetSectionName}");
+            if (!sectionFound)
+                if (isMandatory)
+                    throw new ConfigurationException($"Configuration section not found: {targetSectionName}");
+                else
+                    return;
             Merge(destination, targetSection);
         }
 
