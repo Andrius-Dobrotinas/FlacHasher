@@ -52,7 +52,7 @@ namespace Andy.FlacHash.Application.Cmd
             WriteStdErrLine($"{"==================== File ".PadRight(50, '=')}|= Hash Match ==");
             foreach (var result in results)
             {
-                WriteStdErrLine($"{result.Key.Name.PadRight(50, '.')}|  {result.Value.ToString()}");
+                WriteStdErrLine($"{result.Key.Name.PadRight(50, '.')}|  {HashMatchValueFormatter.GetString(result.Value)}");
             }
         }
 
@@ -75,8 +75,10 @@ namespace Andy.FlacHash.Application.Cmd
                 if (hashingResult.Exception == null)
                 {
                     var isMatch = hashVerifier.DoesMatch(fileHashes, hashingResult.File, hashingResult.Hash);
-                    Console.WriteLine($"{hashingResult.File.Name} => {isMatch}");
-                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False));
+                    var result = isMatch ? HashMatch.Match : HashMatch.NoMatch;
+
+                    Console.WriteLine($"{hashingResult.File.Name} => {HashMatchValueFormatter.GetString(result)}");
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, result));
                 }
                 else
                 {
