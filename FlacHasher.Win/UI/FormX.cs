@@ -123,13 +123,13 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void FormX_Load(object sender, EventArgs e)
         {
+            LoadFormSettings();
+
             // Triggers all kinds of handlers
             List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
             ResetStatusMessages();
-
-            LoadFormSettings();
 
             // mode and decoder+algorithm have to be pre-set
             WithTryCatch(BuildHasherCached);
