@@ -118,14 +118,18 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 RefreshHashingFilelist();
             };
+        }
 
+        private void FormX_Load(object sender, EventArgs e)
+        {
             // Triggers all kinds of handlers
             List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
-
-            BuildHasherCached(); // needs mode and decoder+algorithm to be pre-set
             ResetStatusMessages();
+
+            // mode and decoder+algorithm have to be pre-set
+            WithTryCatch(BuildHasherCached);
         }
 
         bool listResults_selectionReversal = false;
