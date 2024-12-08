@@ -114,10 +114,10 @@ namespace Andy.Cmd.Parameter
                 var values = parameterGroup.Value.Select(x => x.GetValue(instance));
                 var nullValues = values.Select(x => x == null);
                 if (nullValues.Count(isNull => !isNull) > 1)
-                    throw new ParameterGroupException("Only one parameter is allowed to have a value", GetParameterNames(parameterGroup.Value));
+                    throw new ParameterGroupException("Only one parameter belong to the following group is allowed to have a value", parameterGroup.Key, parameterGroup.Value);
 
                 if (nullValues.All(isNull => isNull == true) && !allowNone)
-                        throw new ParameterGroupException("One of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
+                    throw new ParameterGroupException("One of the parameters belonging to the following group must have a value", parameterGroup.Key, parameterGroup.Value);
             }
         }
 
@@ -154,11 +154,11 @@ namespace Andy.Cmd.Parameter
                 var nullValues = values.Select(x => x == null);
 
                 if (nullValues.All(x => x == true))
-                    throw new ParameterGroupException("At least one of the following parameters must have a value", GetParameterNames(parameterGroup.Value));
+                    throw new ParameterGroupException("At least one of the parameters belonging to the following group must have a value", parameterGroup.Key, parameterGroup.Value);
             }
         }
 
-        public static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
+        static void CheckConditionallyRequiredOnes<TParams>(TParams instance, IEnumerable<PropertyInfo> allProperties)
         {
             var propertiesOfInterest = allProperties.Select(x => (property: x, attr: x.GetCustomAttributes<RequiredWithAttribute>(false)))
                 .Where(x => x.attr.Any())

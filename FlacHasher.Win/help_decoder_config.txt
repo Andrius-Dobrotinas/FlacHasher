@@ -1,0 +1,5 @@
+{DECODER_PROFILE_CONFIG}
+
+The following configuration is global (not profile-specific):
+
+{DECODER_CONFIG}

@@ -1,0 +1,8 @@
+Write a description here
+
+===========================================================
+  VERIFICATION
+
+{HASHFILE_DESCRIPTION}
+
+Refer to the configuration section for more info on what needs to be configured for this to work

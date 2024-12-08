@@ -8,14 +8,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 
 namespace Andy.FlacHash.Application.Cmd
 {
     public class Program
     {
-        const string settingsFileName = "settings.cfg";
+        const string settingsFileName = "settings.ini";
         static bool printProcessProgress = false;
+        static string HelpMessage = $"For info on how to use this, run \"{CmdlineParameterNames.ModeHelp}\" command";
 
         static int Main(string[] args)
         {
@@ -28,6 +30,18 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 var argumentDictionary = ArgumentSplitter.GetArguments(args, paramNamesToLowercase: lowercaseParams);
                 initialCmdlineParams = parameterReader.GetParameters<InitialParams>(argumentDictionary, inLowercase: lowercaseParams);
+
+                if (!argumentDictionary.Any())
+                {
+                    WriteUserLine(HelpMessage);
+                    return (int)ReturnValue.ArgumentNotProvided;
+                }
+
+                if (initialCmdlineParams.IsHelp)
+                {
+                    PrintHelp(initialCmdlineParams.IsVerification ?? false);
+                    return 0;
+                }
 
                 IDictionary<string, string[]> settingsFileParams;
                 try
@@ -42,7 +56,7 @@ namespace Andy.FlacHash.Application.Cmd
                     return (int)ReturnValue.SettingsReadingFailure;
                 }
 
-                var paramTypes = initialCmdlineParams.IsVerification
+                var paramTypes = initialCmdlineParams.IsVerification ?? false
                     ? new[] { typeof(VerificationParameters), typeof(InitialParams) }
                     : new[] { typeof(HashingParameters), typeof(InitialParams) };
                 ParameterReader.ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, caseInsensitive: lowercaseParams);
@@ -50,30 +64,36 @@ namespace Andy.FlacHash.Application.Cmd
                 var allParams = argumentDictionary.Concat(settingsFileParams)
                     .ToDictionary(x => x.Key, x => x.Value);
 
-                settings = initialCmdlineParams.IsVerification
+                settings = initialCmdlineParams.IsVerification ?? false
                     ? parameterReader.GetParameters<VerificationParameters>(allParams, inLowercase: lowercaseParams)
                     : parameterReader.GetParameters<HashingParameters>(allParams, inLowercase: lowercaseParams);
             }
             catch (ParameterMissingException e)
             {
-                var attrs = e.ParameterProperty.GetCustomAttributes<ParameterAttribute>(false).Cast<ParameterAttribute>().ToList();
-                var cmdlineAttr = attrs.FirstOrDefault(x => x is CmdLineParameterAttribute);
-                if (cmdlineAttr != null)
-                {
-                    WriteUserLine($"{e.Message}. Specify the following parameter: {cmdlineAttr.Name}");
-                }
-                else if (attrs.FirstOrDefault(x => x is IniEntryAttribute) != null)
-                {
-                    var iniAttr = attrs.FirstOrDefault(x => x is IniEntryAttribute);
-                    WriteUserLine($"{e.Message}. Specify the following item the settings file: {iniAttr}");
-                }
-                else
-                WriteUserLine(e.Message);
+                var property = Metadata.GetParameterMetadata<ParameterAttribute>(e.ParameterProperty.DeclaringType, e.ParameterProperty);
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine(e.Message);
+                sb.AppendLine();
+                sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
+                sb.AppendLine(string.Join(", ", property.Sources.Select(x => $"{x.Name}")));
+                sb.AppendLine();
+                sb.AppendLine(HelpMessage);
+                WriteUserLine(sb.ToString());
                 return (int)ReturnValue.ArgumentNotProvided;
+            }
+            catch (ParameterGroupException e)
+            {
+                var parameterMetadata = e.Parameters.Select(x => Metadata.GetParameterMetadata<ParameterAttribute>(x.DeclaringType, x));
+                var paramsString = string.Join(", ", parameterMetadata.Select(x => x.DisplayName));
+                WriteUserLine(e.Message);
+                WriteUserLine($"Relevant parameters: {paramsString}");
+                WriteUserLine(HelpMessage);
+                return (int)ReturnValue.ArgumentError;
             }
             catch (ParameterException e)
             {
                 WriteUserLine(e.Message);
+                WriteUserLine(HelpMessage);
                 return (int)ReturnValue.ArgumentError;
             }
 
@@ -103,7 +123,7 @@ namespace Andy.FlacHash.Application.Cmd
                 FlacHash.Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
                 var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
-                if (initialCmdlineParams.IsVerification)
+                if (initialCmdlineParams.IsVerification ?? false)
                 {
                     Verification.Verify((VerificationParameters)settings, decoder, fileSearch, cancellation.Token);
                 }
@@ -149,6 +169,26 @@ namespace Andy.FlacHash.Application.Cmd
             return (int)ReturnValue.Success;
         }
 
+        static void PrintHelp(bool isVerification)
+        {
+            var helpText = Help.GetHelpText();
+            var helpHashfileText = Help.GetHashfileHelpText();
+            var helpCmdText = Help.GetTextResource(Assembly.GetExecutingAssembly(), "help.txt");
+
+            var sb = new StringBuilder(helpText);
+            sb.Replace(Help.Placeholder.ApplicationSpecific, helpCmdText);
+            sb.Replace(Help.Placeholder.HashfileDescription, helpHashfileText);
+
+            var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = Help.GetPropertiesByParameterPurpose<MasterParameters>();
+            var sharedParamProperties = sharedDecoderProperties.Concat(sharedMiscProperties).ToList();
+
+            sb.Replace("{HASHING_PARAMS}", Help.GetOperationAndMiscParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties));
+            sb.Replace("{VERIFICATION_PARAMS}", Help.GetOperationAndMiscParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties));
+            sb.Replace(Help.Placeholder.DecoderParams, Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties));
+
+            WriteUserLine(sb.ToString());
+        }
+        
         static void WriteUserLine(string text)
         {
             if (printProcessProgress)
