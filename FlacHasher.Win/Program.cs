@@ -59,7 +59,9 @@ namespace Andy.FlacHash.Application.Win
                 var hasherFactory = new HasherFactory(processRunner, fileReadProgressReporter, settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();
 
-                System.Windows.Forms.Application.Run(
+                try
+                {
+                    System.Windows.Forms.Application.Run(
                     new UI.FormX(
                         hasherFactory,
                         new UI.InteractiveTextFileWriter(saveHashesToFileDialog),
@@ -76,6 +78,11 @@ namespace Andy.FlacHash.Application.Win
                         settings,
                         openFileDialog_hashfile,
                         openFileDialog_inputFiles));
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show($"Things have gone south!\n\n{e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

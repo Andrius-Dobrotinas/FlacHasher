@@ -346,6 +346,7 @@
             Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             Name = "FormX";
             Text = "FormX";
+            Load += FormX_Load;
             tableLayoutPanel1.ResumeLayout(false);
             group_Left.ResumeLayout(false);
             groupVerification.ResumeLayout(false);
