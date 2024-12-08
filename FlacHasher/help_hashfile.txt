@@ -1,2 +1,11 @@
 A "hashfile" can either contain just the hashes (with no file names) or filenames with hashes.
 If a hashfile contains file names, then HashfileEntrySeparator must be configured.
+
+Any character sequence can be used as a separator between filename-hash, except for quote and new-line chars. However, if filename and/or hash value contains said separator char sequence, then these values must be presented in quotes. For example:
+  "file 1.flac" 34579878657567543 -- separator is Space char (" ") and filename contains a space, therefore filename must be in quotes
+  "file-1.flac"-34579878657567543 -- separator is a dash and filename contains a dash, therefore filename must be in quotes
+There's no harm in always putting filename in quotes.
+
+A single space char " " for separator means any amount of space and tab chars are treated as separator. For example, both of these work when separator is a single space " ":
+  file1.flac 34579878657567543
+  "file1 1.flac"	34579878657567543
