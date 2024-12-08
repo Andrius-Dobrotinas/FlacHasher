@@ -30,12 +30,12 @@ namespace Andy.FlacHash.Application.Cmd
         public abstract string InputDirectory { get; set; }
 
         [OperationParam]
-        [CmdLineParameter(CmdlineParameterNames.FileExtension, Order = 0)]
-        [IniEntry(nameof(TargetFileExtension), Order = 1)]
+        [CmdLineParameter(CmdlineParameterNames.FileExtensions, Order = 0)]
+        [IniEntry(nameof(TargetFileExtensions), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
-        [ParameterDescription("For file lookup when specifying an input Directory. This can be stored with each Audio Decoder profile")]
+        [ParameterDescription("File types that are accepted by the configured Audio decoder (semi-colon-separated). Only for file lookup when specifying an input Directory. This can be stored with each Audio Decoder profile")]
         [FrontAndCenterParam]
-        public string TargetFileExtension { get; set; }
+        public string[] TargetFileExtensions { get; set; }
 
         [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]

@@ -147,7 +147,7 @@ namespace Andy.FlacHash.Application.Cmd
             if (parameters.HashFile != null)
             {
                 if (parameters.InputDirectory != null)
-                    return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), parameters.TargetFileExtension);
+                    return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), parameters.TargetFileExtensions);
                 else if (parameters.InputFiles != null)
                     return parameters.InputFiles.Select(x => new FileInfo(x));
                 else // hashfile only
@@ -155,7 +155,7 @@ namespace Andy.FlacHash.Application.Cmd
                     var baseDirPath = resolvedHashfile.Directory.FullName;
 
                     if (fileHashMap.IsPositionBased)
-                        return fileSearch.FindFiles(new DirectoryInfo(baseDirPath), parameters.TargetFileExtension);
+                        return fileSearch.FindFiles(new DirectoryInfo(baseDirPath), parameters.TargetFileExtensions);
                     else
                     {
                         return fileHashMap.Hashes
@@ -167,7 +167,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             // hashfile was null
             else if (parameters.InputDirectory != null)
-                return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), parameters.TargetFileExtension);
+                return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), parameters.TargetFileExtensions);
             else
                 throw new ConfigurationException("Bad input files parameter combination");
         }
