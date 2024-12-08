@@ -31,6 +31,15 @@ Where value is "true"/"false", the value can be completely omitted to provide "t
   The latter doesn't apply to the settings file.
 
 ===========================================================
+  CONFIGURATION PROFILES
+
+- Decoder profile can be chosen via --profile-decoder | Profile.Decoder
+- Hashing profile can be chosen via --profile-hashing | Profile.Hashing
+
+- To create overall configuration profiles, place relevant configuration keys in [YourProfile] section.
+- A profile can be chosen via --profile | Profile
+
+===========================================================
   HASHING
 
 Resulting hashes get written to std-out stream (whereas the rest of the info - to std-error), which means that they can be written to a file using standard output redirection commands.
@@ -56,16 +65,18 @@ The most important inputs here are:
   4) hashing algorithm
   5) hashfile format
 
-Input -- Hashfile has to be either/or:
+- Hashfile has to be either/or:
 a) a full path to the file - then target files get taken from the same directory as the hashfile, or from Input Directory specified separately;
 b) relative path (just the file name) - then Input Directory has to be specified (otherwise, hashfile and target files get looked up in "current" directory).
 
 If a Hashfile is not explicitly specified, it gets looked up in the Input Directory using HashfileExtensions.
 
-Input - Target file names get taken from the hashfile and are looked up in:
+- Target file names get taken from the hashfile and are looked up in:
 a) Hashfile directory, if hashfile paramter is a full path
 b) Input Directory, if specified -- based on TargetFileExtension
 c) Input Files, if specified
 
 
 {VERIFICATION_PARAMS}
+
+- Hashing algorithm and hashfile extension maps can be stored as profiles, named [Hashing.Name], eg [Hashing.MD5].
