@@ -2,6 +2,7 @@
 using Andy.FlacHash.Audio;
 using Andy.FlacHash.Crypto;
 using Andy.FlacHash.Hashing;
+using Andy.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,18 @@ namespace Andy.FlacHash.Application.Cmd
     static class Hashing
     {
         const char newlineChar = '\n';
+
+        public static void ComputeHashes(IAudioFileDecoder audioFileDecoder, HashingParameters @params, bool printProcessProgress, IFileSearch fileSearch, CancellationToken cancellation)
+        {
+            IList<FileInfo> inputFiles = GetInputFiles(@params, fileSearch);
+            if (inputFiles == null)
+                throw new InputFileMissingException("No input files or directory has been specified");
+
+            if (!inputFiles.Any())
+                throw new InputFileMissingException("No files provided/found");
+
+            Hashing.ComputeHashes(inputFiles, @params.OutputFormat, audioFileDecoder, !@params.FailOnError, printProcessProgress, @params.HashAlgorithm, cancellation);
+        }
 
         public static void ComputeHashes(IList<FileInfo> inputFiles, string outputFomat, IAudioFileDecoder audioFileDecoder, bool continueOnError, bool printProcessProgress, Algorithm hashAlgorithm, CancellationToken cancellation)
         {
@@ -58,6 +71,26 @@ namespace Andy.FlacHash.Application.Cmd
                 }
                 WriteStdErrLine("======== The End =========");
             }
+        }
+
+        public static IList<FileInfo> GetInputFiles(HashingParameters settings, IFileSearch fileSearch)
+        {
+            if (settings.InputFiles != null)
+            {
+                return settings.InputFiles
+                    .Select(path => new FileInfo(path))
+                    .ToArray();
+            }
+            else if (settings.InputDirectory != null)
+            {
+                var fileExtension = settings.TargetFileExtension;
+                if (fileExtension == null)
+                    throw new ConfigurationException("Target file extension must be specified when scanning a directory");
+
+                return fileSearch.FindFiles(new DirectoryInfo(settings.InputDirectory), fileExtension)
+                    .ToList();
+            }
+            return null;
         }
 
         /// <summary>

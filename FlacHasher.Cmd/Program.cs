@@ -2,7 +2,6 @@
 using Andy.Cmd.Parameter;
 using Andy.ExternalProcess;
 using Andy.FlacHash.Application.Audio;
-using Andy.FlacHash.Crypto;
 using Andy.IO;
 using System;
 using System.Collections.Generic;
@@ -22,8 +21,7 @@ namespace Andy.FlacHash.Application.Cmd
         {
             bool lowercaseParams = true;
             InitialParams initialCmdlineParams;
-            MainParameters settings;
-            VerificationParameters verificationSettings;
+            MasterParameters settings;
             
             var parameterReader = ParameterReader.Build();
             try
@@ -45,17 +43,16 @@ namespace Andy.FlacHash.Application.Cmd
                 }
 
                 var paramTypes = initialCmdlineParams.IsVerification
-                    ? new[] { typeof(MainParameters), typeof(VerificationParameters), typeof(InitialParams) }
-                    : new[] { typeof(MainParameters), typeof(InitialParams) };
+                    ? new[] { typeof(VerificationParameters), typeof(InitialParams) }
+                    : new[] { typeof(HashingParameters), typeof(InitialParams) };
                 ParameterReader.ThrowOnUnexpectedArguments<CmdLineParameterAttribute>(argumentDictionary.Keys, paramTypes, caseInsensitive: lowercaseParams);
 
                 var allParams = argumentDictionary.Concat(settingsFileParams)
                     .ToDictionary(x => x.Key, x => x.Value);
 
-                settings = parameterReader.GetParameters<MainParameters>(allParams, inLowercase: lowercaseParams);
-                verificationSettings = initialCmdlineParams.IsVerification
+                settings = initialCmdlineParams.IsVerification
                     ? parameterReader.GetParameters<VerificationParameters>(allParams, inLowercase: lowercaseParams)
-                    : null;
+                    : parameterReader.GetParameters<HashingParameters>(allParams, inLowercase: lowercaseParams);
             }
             catch (ParameterMissingException e)
             {
@@ -93,14 +90,8 @@ namespace Andy.FlacHash.Application.Cmd
                 };
 
                 FileInfo decoderFile = AudioDecoder.ResolveDecoderOrThrow(settings.DecoderExe);
-                var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
-                IList<FileInfo> inputFiles = Functions.GetInputFiles(settings, fileSearch);
-                if (!inputFiles.Any())
-                    throw new InputFileMissingException("No files provided/found");
 
-                Algorithm hashAlgorithm = settings.HashAlgorithm;
-                bool continueOnError = !settings.FailOnError;
-                WriteUserLine($"Hash algorithm: {hashAlgorithm}");
+                WriteUserLine($"Hash algorithm: {settings.HashAlgorithm}");
 
                 var processRunner = new ExternalProcess.ProcessRunner(
                     timeoutSec: settings.ProcessTimeoutSec,
@@ -110,14 +101,15 @@ namespace Andy.FlacHash.Application.Cmd
 
                 var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderFile);
                 FlacHash.Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
+                var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
 
                 if (initialCmdlineParams.IsVerification)
                 {
-                    Verification.Verify(inputFiles, verificationSettings, decoder, hashAlgorithm, fileSearch, cancellation.Token);
+                    Verification.Verify((VerificationParameters)settings, decoder, fileSearch, cancellation.Token);
                 }
                 else
                 {
-                    Hashing.ComputeHashes(inputFiles, settings.OutputFormat, decoder, continueOnError, printProcessProgress, hashAlgorithm, cancellation.Token);
+                    Hashing.ComputeHashes(decoder, (HashingParameters)settings, printProcessProgress, fileSearch, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)
