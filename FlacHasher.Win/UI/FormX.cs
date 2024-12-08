@@ -183,15 +183,17 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
-        private void WithTryCatch(Action function)
+        private bool WithTryCatch(Action function)
         {
             try
             {
                 function();
+                return true;
             }
             catch (Exception ex)
             {
                 ShowFatalError(ex);
+                return false;
             }
         }
 
@@ -410,7 +412,8 @@ namespace Andy.FlacHash.Application.Win.UI
         private async void Btn_Go_Click(object sender, EventArgs e)
         {
             if (hasherService == null)
-                BuildHasherOrThrow();
+                if (WithTryCatch(BuildHasherOrThrow) == false)
+                    return;
             await WithTryCatch_Operation(Go);
         }
 
