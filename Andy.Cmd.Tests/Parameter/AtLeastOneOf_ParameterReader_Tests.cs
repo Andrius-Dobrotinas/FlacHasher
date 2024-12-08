@@ -30,8 +30,8 @@ namespace Andy.Cmd.Parameter
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.One));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, value1);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value2);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, value1);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value2);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParams>(fakeArgs.Object));
@@ -43,8 +43,8 @@ namespace Andy.Cmd.Parameter
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.One));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, value1);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value2);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, value1);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value2);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParams>(fakeArgs.Object));
@@ -55,8 +55,8 @@ namespace Andy.Cmd.Parameter
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.One));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Two));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
 
             Assert.Throws<ParameterGroupException>(
                 () => target.GetParameters<TestParams>(fakeArgs.Object));

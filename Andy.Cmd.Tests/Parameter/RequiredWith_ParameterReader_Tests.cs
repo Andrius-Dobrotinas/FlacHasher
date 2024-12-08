@@ -26,7 +26,7 @@ namespace Andy.Cmd.Parameter
         public void MasterProperty_HasValue__And_Target_NoValue__Must_Reject(string value)
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, value);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, value);
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(
                 () => target.GetParameters<TestParams>(fakeArgs.Object));
@@ -41,8 +41,8 @@ namespace Andy.Cmd.Parameter
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, masterValue);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, dependencyValue);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, masterValue);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, dependencyValue);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParams>(fakeArgs.Object));
@@ -53,8 +53,8 @@ namespace Andy.Cmd.Parameter
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, null);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParams>(fakeArgs.Object));
@@ -67,8 +67,8 @@ namespace Andy.Cmd.Parameter
         {
             var property1 = typeof(TestParams).GetProperty(nameof(TestParams.Master));
             var property2 = typeof(TestParams).GetProperty(nameof(TestParams.Dependency));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property1, null);
+            Util.Set_ParameterValueResolver_Up<TestParams>(resolver, property2, value);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParams>(fakeArgs.Object));
@@ -85,9 +85,9 @@ namespace Andy.Cmd.Parameter
             var masterProperty = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Master));
             var property1 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency1));
             var property2 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency2));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, masterProperty, master);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property1, dependency1);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property2, dependency2);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, masterProperty, master);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property1, dependency1);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property2, dependency2);
 
             Assert.DoesNotThrow(() =>
                 target.GetParameters<TestParamsTwoDependencies>(fakeArgs.Object));
@@ -100,9 +100,9 @@ namespace Andy.Cmd.Parameter
             var masterProperty = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Master));
             var property1 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency1));
             var property2 = typeof(TestParamsTwoDependencies).GetProperty(nameof(TestParamsTwoDependencies.Dependency2));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, masterProperty, master);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property1, dependency1);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property2, dependency2);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, masterProperty, master);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property1, dependency1);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoDependencies>(resolver, property2, dependency2);
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(
                 () => target.GetParameters<TestParamsTwoDependencies>(fakeArgs.Object));
@@ -116,8 +116,8 @@ namespace Andy.Cmd.Parameter
         {
             var masterProperty1 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master1));
             var masterProperty2 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master2));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty1, master1);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty2, master2);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty1, master1);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty2, master2);
 
             var exception = Assert.Throws<ParameterDependencyUnmetException>(
                 () => target.GetParameters<TestParamsTwoMaster>(fakeArgs.Object));
@@ -133,9 +133,9 @@ namespace Andy.Cmd.Parameter
             var masterProperty1 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master1));
             var masterProperty2 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Master2));
             var property3 = typeof(TestParamsTwoMaster).GetProperty(nameof(TestParamsTwoMaster.Dependency));
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty1, master1);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty2, master2);
-            EitherOr_ParameterReader_Tests.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, property3, dependency);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty1, master1);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, masterProperty2, master2);
+            Util.Set_ParameterValueResolver_Up<TestParamsTwoMaster>(resolver, property3, dependency);
 
             Assert.DoesNotThrow(() => target.GetParameters<TestParamsTwoMaster>(fakeArgs.Object));
         }

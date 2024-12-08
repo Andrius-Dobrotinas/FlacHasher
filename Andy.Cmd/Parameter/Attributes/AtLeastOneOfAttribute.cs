@@ -19,7 +19,7 @@ namespace Andy.Cmd.Parameter
         /// Ties parameters to the condition.
         /// All parameters with a given key are part of the condition.
         /// </summary>
-        public string GroupKey { get; set; }
+        public string GroupKey { get; }
 
         public AtLeastOneOfAttribute(string groupKey)
         {
