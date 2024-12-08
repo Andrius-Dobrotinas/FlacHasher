@@ -123,6 +123,8 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void FormX_Load(object sender, EventArgs e)
         {
+            LoadFormSettings();
+
             // Triggers all kinds of handlers
             List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
@@ -740,6 +742,30 @@ namespace Andy.FlacHash.Application.Win.UI
                 var directory = new DirectoryInfo(paths.First());
                 ChooseHashingDir(directory);
             }
+        }
+
+        private void FormX_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveFormSettings();
+        }
+
+        void SaveFormSettings()
+        {
+            Properties.Default.WindowHeight = this.Height;
+            Properties.Default.WindowWidth = this.Width;
+            Properties.Default.WindowState = (int)this.WindowState;
+            Properties.Default.Save();
+        }
+
+        void LoadFormSettings()
+        {
+            if (Properties.Default.WindowHeight != 0 && Properties.Default.WindowWidth != 0)
+            {
+                this.Height = Properties.Default.WindowHeight;
+                this.Width = Properties.Default.WindowWidth;
+            }
+
+            this.WindowState = (FormWindowState)Properties.Default.WindowState;
         }
 
         struct HasherKey
