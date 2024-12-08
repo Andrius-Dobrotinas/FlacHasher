@@ -19,6 +19,7 @@ namespace Andy.FlacHash.Application.Win.UI
     public partial class FormX : Form
     {
         const string errorSeparator = ".......................";
+        const string messageF1 = "Press F1 for help";
         const int hashfileMaxSizeBytes = 512 * 1024;
 
         private readonly HasherFactory hasherFactory;
@@ -166,9 +167,9 @@ namespace Andy.FlacHash.Application.Win.UI
         void ResetStatusMessages()
         {
             if (mode == Mode.Hashing)
-                ResetLog("Select a directory to hash some files!", "Press F1 for help");
+                ResetLog("Select a directory to hash some files!", messageF1);
             else
-                ResetLog("Select a hashfile to verify files", "Press F1 for help");
+                ResetLog("Select a hashfile to verify files", messageF1);
         }
 
         private async Task WithTryCatch_Operation(Func<Task> function)
@@ -639,6 +640,9 @@ namespace Andy.FlacHash.Application.Win.UI
         void ShowFatalError(Exception e)
         {
             ResetLog(e.Message);
+            if (e is ConfigurationException)
+                LogMessage(messageF1);
+
             MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
