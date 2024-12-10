@@ -28,7 +28,7 @@ namespace Andy.FlacHash.Application.Cmd
                 HashFile = "c:\\hash.file",
                 InputDirectory = null,
                 InputFiles = null,
-                TargetFileExtension = targetFileExtension
+                TargetFileExtensions = new string[] { targetFileExtension }
             };
 
             var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: true);
@@ -197,7 +197,7 @@ namespace Andy.FlacHash.Application.Cmd
                 HashFile = null,
                 InputDirectory = dir,
                 InputFiles = filepaths,
-                TargetFileExtension = targetFileExtension
+                TargetFileExtensions = new string[] { targetFileExtension }
             };
 
             filesearch.Setup(
