@@ -13,10 +13,35 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\FlacHash.Audio\FlacHash.Audio.csproj" />
+    <ProjectReference Include="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" />
     <ProjectReference Include="..\FlacHasher\FlacHasher.csproj" />
     <ProjectReference Include="..\FlacHash\FlacHash.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="help_decoder_config.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="help.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="TextResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TextResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="TextResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TextResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+	
   <ItemGroup>
     <Compile Update="Properties.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -26,7 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="settings.cfg">
+    <None Update="settings.w.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Properties.settings">

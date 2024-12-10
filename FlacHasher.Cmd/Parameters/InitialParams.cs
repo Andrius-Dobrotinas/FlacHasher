@@ -15,11 +15,13 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.Profile)]
         [Optional]
         [AllowEmpty]
+        [ParameterDescription("Settings profile to use. Overrides the value provided in the settings file. Empty value results in overriding a pre-configured Profile value to use the default one")]
         public string Profile { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.DecoderProfile)]
         [AllowEmpty] // To override what's in the settings file
         [OptionalEitherOr("decoder")]
+        [ParameterDescription("Name of a pre-configured decoder profile. Overrides the value provided in the settings file. Empty value results in overriding a pre-configured Profile value to use the default one")]
         public string DecoderProfile { get; set; }
 
         /// <summary>
@@ -33,6 +35,7 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.HashingProfile)]
         [AllowEmpty]
         [OptionalEitherOr("hashAlgorithm")]
+        [ParameterDescription("Name of a pre-configured hashing profile. Overrides the value provided in the settings file. Empty value results in overriding a pre-configured Profile value to use the default one")]
         public string HashingProfile { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.HashAlgorithm)]
@@ -40,7 +43,15 @@ namespace Andy.FlacHash.Application.Cmd
         public Algorithm? HashAlgorithm { get; set; }
 
         [CmdLineParameter(CmdlineParameterNames.ModeVerify)]
+        [OptionalEitherOr("operation")]
+        public bool? IsVerification { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.ModeHash)]
+        [OptionalEitherOr("operation")]
+        public bool? IsHashing { get; set; }
+
+        [CmdLineParameter(CmdlineParameterNames.ModeHelp)]
         [Optional]
-        public bool IsVerification { get; set; }
+        public bool IsHelp { get; set; }
     }
 }

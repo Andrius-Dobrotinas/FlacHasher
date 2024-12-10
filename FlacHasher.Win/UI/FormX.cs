@@ -168,9 +168,9 @@ namespace Andy.FlacHash.Application.Win.UI
         void ResetStatusMessages()
         {
             if (mode == Mode.Hashing)
-                ResetLog("Select a directory to hash some files!");
+                ResetLog("Select a directory to hash some files!", TextResources.F1Hint);
             else
-                ResetLog("Select a hashfile to verify files");
+                ResetLog("Select a hashfile to verify files", TextResources.F1Hint);
         }
 
         private async Task WithTryCatch_Operation(Func<Task> function)
@@ -619,6 +619,12 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
+        void WriteLine(string message)
+        {
+            txtStatus.AppendText(message);
+            txtStatus.AppendText(Environment.NewLine);
+        }
+
         void ResetLog(params string[] message)
         {
             txtStatus.Text = null;
@@ -635,6 +641,9 @@ namespace Andy.FlacHash.Application.Win.UI
         void ShowFatalError(Exception e)
         {
             ResetLog(e.Message);
+            if (e is ConfigurationException)
+                LogMessage(TextResources.F1Hint);
+
             MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
@@ -766,6 +775,18 @@ namespace Andy.FlacHash.Application.Win.UI
             }
 
             this.WindowState = (FormWindowState)Properties.Default.WindowState;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.F1)
+            {
+                ResetLog();
+                WriteLine(HelpUtil.GetHelpText().ToString());
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         struct HasherKey

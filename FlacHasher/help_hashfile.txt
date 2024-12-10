@@ -1,0 +1,2 @@
+A "hashfile" can either contain just the hashes (with no file names) or filenames with hashes.
+If a hashfile contains file names, then HashfileEntrySeparator must be configured.

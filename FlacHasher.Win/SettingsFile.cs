@@ -52,9 +52,9 @@ namespace Andy.FlacHash.Application.Win
                         return new DecoderProfile
                         {
                             Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase),
-                            Decoder = profileRaw.Decoder,
+                            Decoder = profileRaw.DecoderExe,
                             DecoderParameters = profileRaw.DecoderParameters,
-                            TargetFileExtensions = profileRaw.TargetFileExtensions
+                            TargetFileExtensions = profileRaw.TargetFileExtension
                         };
                     }).ToArray()
                 : new DecoderProfile[]
@@ -73,29 +73,29 @@ namespace Andy.FlacHash.Application.Win
             return new DecoderProfile
             {
                 Name = "FLAC",
-                Decoder = profileRaw.Decoder,
+                Decoder = profileRaw.DecoderExe,
                 DecoderParameters = profileRaw.DecoderParameters,
-                TargetFileExtensions = profileRaw.TargetFileExtensions
+                TargetFileExtensions = profileRaw.TargetFileExtension
             };
         }
 
-        class DecoderProfileTemp
+        public class DecoderProfileTemp
         {
-            [Parameter(nameof(Decoder))]
-            public virtual string Decoder { get; set; }
+            [Parameter("Decoder")]
+            public virtual string DecoderExe { get; set; }
 
             [Parameter(nameof(DecoderParameters))]
             public virtual string[] DecoderParameters { get; set; }
 
-            [Parameter(nameof(TargetFileExtensions))]
-            public virtual string[] TargetFileExtensions { get; set; }
+            [Parameter("TargetFileExtensions")]
+            public virtual string[] TargetFileExtension { get; set; }
         }
 
         class DecoderProfileTempDefaultFlac : DecoderProfileTemp
         {
-            [Parameter(nameof(Decoder))]
+            [Parameter("Decoder")]
             [Optional(defaultValue: "flac.exe")]
-            public override string Decoder { get; set; }
+            public override string DecoderExe { get; set; }
 
             [Parameter(nameof(DecoderParameters))]
             [Optional(defaultValue: new string[] {
@@ -104,9 +104,9 @@ namespace Andy.FlacHash.Application.Win
             })]
             public override string[] DecoderParameters { get; set; }
 
-            [Parameter(nameof(TargetFileExtensions))]
+            [Parameter("TargetFileExtension")]
             [Optional(defaultValue: "flac")]
-            public override string[] TargetFileExtensions { get; set; }
+            public override string[] TargetFileExtension { get; set; }
         }
     }
 }
