@@ -1,0 +1,11 @@
+  AUDIO DECODER SET UP
+
+- The program needs to know the path to the Audio Decoder executable file. It can be a full path or just a file name, in which case it gets looked up in paths configured in PATH environment variable.
+If not specified, the value is assumed to be "flac.exe", in which case it uses default decoder parameters (unless explicitly defined).
+
+- Multiple Audio decoder configurations can be stored as decoder Profiles. For that, a decoder section must be named [Decoder.YourName] -- eg, [Decoder.FLAC]. A default decoder can be stored simply as [Decoder].
+A go-to profile can then be specified in "Profile.Decoder".
+
+Each profile must have the following values configured:
+
+{DECODER_PARAMS}

@@ -13,7 +13,7 @@ Where value is "true"/"false", the value can be completely omitted to provide "t
   flachash --fail-fast
 
 ===========================================================
-  PARAMETER / CONFIGURATION INFO
+  GENERAL PARAMETER / CONFIGURATION INFO
 
 - Many aspects can also be configured via the settings file, which means they can be configured once. In such case, a value can be provided either way. A relevant settings file key will be listed right next to the command-line parameter, where available.
 
@@ -31,12 +31,15 @@ Where value is "true"/"false", the value can be completely omitted to provide "t
   The latter doesn't apply to the settings file.
 
 ===========================================================
+{DECODER_SECTION}
+
+===========================================================
   CONFIGURATION PROFILES
 
 - Decoder profile can be chosen via --profile-decoder | Profile.Decoder
 - Hashing profile can be chosen via --profile-hashing | Profile.Hashing
 
-- To create overall configuration profiles, place relevant configuration keys in [YourProfile] section.
+- To create general configuration profiles, place relevant configuration keys in [YourProfile] section.
 - A profile can be chosen via --profile | Profile
 
 ===========================================================

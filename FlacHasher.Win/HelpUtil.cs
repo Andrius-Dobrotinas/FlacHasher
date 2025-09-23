@@ -29,6 +29,9 @@ namespace Andy.FlacHash.Application.Win
                 .Where(x => decoderProfileProperties.Contains(x, Application.Help.PropertyInfoNameComparer.Instance))
                 .ToList();
             var temp = new System.Text.StringBuilder();
+
+            builder.Replace(Help.Placeholder.DecoderSection, Help.GetDecoderSectionText().ReplaceLineEndings());
+
             Help.PrintParameters<Cmd.MasterParameters, IniEntryAttribute>(temp, cmdlineProperties, Array.Empty<System.Reflection.PropertyInfo>());
             decoderParamsBuilder.Replace("{DECODER_PROFILE_CONFIG}", temp.ToString());
 
@@ -39,15 +42,11 @@ namespace Andy.FlacHash.Application.Win
 
             builder.Replace(Help.Placeholder.DecoderParams, decoderParamsBuilder.ToString());
 
-            builder.AppendLine("===========================================================");
-            builder.AppendLine($"{Help.Indentation}OTHER SETTINGS");
-            builder.AppendLine();
-            Help.PrintParameters<Settings, IniEntryAttribute>(builder, opSpecificProperties, miscProperties);
+            temp.Clear();
+            Help.PrintParameters<Settings, IniEntryAttribute>(temp, opSpecificProperties, miscProperties);
 
-            builder.AppendLine();
-            builder.AppendLine("===========================================================");
-            builder.AppendLine($"Settings file: {Program.settingsFileName}");
-
+            builder.Replace("{OTHER_SETTINGS}", temp.ToString());
+            builder.Replace("{SETTINGS_FILE_NAME}", Program.settingsFileName);
 
             return builder;
         }

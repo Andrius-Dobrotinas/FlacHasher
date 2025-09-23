@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="help_decoder.txt" />
     <EmbeddedResource Include="help.txt">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>

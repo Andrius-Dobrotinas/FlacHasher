@@ -184,6 +184,7 @@ namespace Andy.FlacHash.Application.Cmd
 
             sb.Replace("{HASHING_PARAMS}", Help.GetOperationAndMiscParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties));
             sb.Replace("{VERIFICATION_PARAMS}", Help.GetOperationAndMiscParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties));
+            sb.Replace(Help.Placeholder.DecoderSection, Help.GetDecoderSectionText());
             sb.Replace(Help.Placeholder.DecoderParams, Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties));
 
             WriteUserLine(sb.ToString());
