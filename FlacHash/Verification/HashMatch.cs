@@ -2,8 +2,8 @@
 {
     public enum HashMatch
     {
-        False = 0,
-        True = 1,
+        NoMatch = 0,
+        Match = 1,
         Error = 2,
         NotFound = 3,
         NotExpected = 4

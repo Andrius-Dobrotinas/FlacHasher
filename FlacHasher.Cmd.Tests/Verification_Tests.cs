@@ -236,13 +236,8 @@ namespace Andy.FlacHash.Application.Cmd
             }
         }
 
-        class Params : IHashfileParams
+        class Params : VerificationParameters
         {
-            public string HashFile { get; set; }
-            public string[] HashfileExtensions { get; set; }
-            public string HashfileEntrySeparator { get; set; }
-            public string InputDirectory { get; set; }
-            public bool InputIgnoreExtraneous { get; set; }
         }
     }
 }

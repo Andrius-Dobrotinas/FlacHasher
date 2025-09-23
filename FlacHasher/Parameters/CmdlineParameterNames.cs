@@ -7,6 +7,7 @@
         public const string HashingProfile = "--profile-hashing";
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
+        public const string DecoderParams = "--params";
         public const string DecoderPrintProgress = "--decoder-verbose";
         public const string HashAlgorithm = "--algorithm";
 
@@ -16,12 +17,15 @@
         public const string InputFiles = "--input";
 
         public const string InputDirectory = "--inputDir";
-        public const string FileExtension = "--file-extension";
+        public const string FileExtensions = "--file-extensions";
+        public const string FileLookupIncludeHidden = "--include-hidden";
         public const string ProcessExitTimeoutMs = "--process-exit-timeout";
         public const string ProcessTimeoutSec = "--process-timeout";
         public const string FailOnError = "--fail-fast";
 
+        public const string ModeHash = "hash";
         public const string ModeVerify = "verify";
+        public const string ModeHelp = "help";
         public const string HashFile = "--hash";
     }
 }

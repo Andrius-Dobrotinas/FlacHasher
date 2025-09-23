@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Application.Win
                 throw new ConfigurationException("The Configuration file is empty");
 
             var settings = Application.SettingsFile.GetSettingsProfile(wholeSettingsFileDictionary, profileName, caseInsensitive: true);
-            Application.SettingsFile.MergeSectionValuesIn(settings, wholeSettingsFileDictionary, Application.SettingsFile.BuildSectionName(ApplicationSettings.HashingSectionPrefix, ApplicationSettings.DefaultHashingSection));
+            Application.SettingsFile.MergeSectionValuesIn(settings, wholeSettingsFileDictionary, Application.SettingsFile.BuildSectionName(ApplicationSettings.HashingSectionPrefix, ApplicationSettings.DefaultHashingSection), isMandatory: false);
 
             var decoderProfiles = wholeSettingsFileDictionary.Where(x => x.Key.StartsWith("Decoder", StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionary(
@@ -52,7 +52,7 @@ namespace Andy.FlacHash.Application.Win
                         return new DecoderProfile
                         {
                             Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase),
-                            Decoder = AudioDecoder.ResolveDecoderOrThrow(profileRaw.Decoder),
+                            Decoder = profileRaw.DecoderExe,
                             DecoderParameters = profileRaw.DecoderParameters,
                             TargetFileExtensions = profileRaw.TargetFileExtensions
                         };
@@ -67,21 +67,22 @@ namespace Andy.FlacHash.Application.Win
 
         static DecoderProfile GetDefaultFlacProfile(ParameterReader paramReader)
         {
+            // Just to fill it with default values
             var profileRaw = paramReader.GetParameters<DecoderProfileTempDefaultFlac>(new Dictionary<string, string[]>());
 
             return new DecoderProfile
             {
                 Name = "FLAC",
-                Decoder = AudioDecoder.ResolveDecoderOrThrow(profileRaw.Decoder),
+                Decoder = profileRaw.DecoderExe,
                 DecoderParameters = profileRaw.DecoderParameters,
                 TargetFileExtensions = profileRaw.TargetFileExtensions
             };
         }
 
-        class DecoderProfileTemp
+        public class DecoderProfileTemp
         {
-            [Parameter(nameof(Decoder))]
-            public virtual string Decoder { get; set; }
+            [Parameter("Decoder")]
+            public virtual string DecoderExe { get; set; }
 
             [Parameter(nameof(DecoderParameters))]
             public virtual string[] DecoderParameters { get; set; }
@@ -92,9 +93,9 @@ namespace Andy.FlacHash.Application.Win
 
         class DecoderProfileTempDefaultFlac : DecoderProfileTemp
         {
-            [Parameter(nameof(Decoder))]
+            [Parameter("Decoder")]
             [Optional(defaultValue: "flac.exe")]
-            public override string Decoder { get; set; }
+            public override string DecoderExe { get; set; }
 
             [Parameter(nameof(DecoderParameters))]
             [Optional(defaultValue: new string[] {
@@ -103,7 +104,7 @@ namespace Andy.FlacHash.Application.Win
             })]
             public override string[] DecoderParameters { get; set; }
 
-            [Parameter(nameof(TargetFileExtensions))]
+            [Parameter("TargetFileExtension")]
             [Optional(defaultValue: "flac")]
             public override string[] TargetFileExtensions { get; set; }
         }

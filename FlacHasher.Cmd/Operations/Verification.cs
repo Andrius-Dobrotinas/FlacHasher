@@ -14,12 +14,8 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public static class Verification
     {
-        public interface IHashfileParams
+        public interface IVerificationParams
         {
-            string HashFile { get; set; }
-            string[] HashfileExtensions { get; set; }
-            string HashfileEntrySeparator { get; set; }
-            string InputDirectory { get; set; }
             bool InputIgnoreExtraneous { get; set; }
         }
 
@@ -27,7 +23,7 @@ namespace Andy.FlacHash.Application.Cmd
         /// This currently assumes the hash file is in the same directory as the target files
         /// and just take the first hash file found
         /// </summary>
-        public static void Verify(IList<FileInfo> targetFiles, IHashfileParams parameters, IAudioFileDecoder audioFileDecoder, Algorithm hashAlgorithm, IFileSearch fileSearch, CancellationToken cancellation)
+        public static void Verify(VerificationParameters parameters, IAudioFileDecoder audioFileDecoder, IFileSearch fileSearch, CancellationToken cancellation)
         {
             var hashfile = GetHashFile(parameters, fileSearch);
             Console.Error.WriteLine($"Hashfile: {hashfile?.FullName}");
@@ -37,29 +33,30 @@ namespace Andy.FlacHash.Application.Cmd
             var hashfileReader = HashFileReader.Default.BuildHashfileReader(parameters.HashfileEntrySeparator);
             var fileHashMap = hashfileReader.Read(hashfile);
 
-            var hasher = BuildHasher(audioFileDecoder, hashAlgorithm);
+            var targetFiles = FindFiles(hashfile, fileHashMap, parameters, fileSearch).ToArray();
+
+            var hasher = BuildHasher(audioFileDecoder, parameters.HashAlgorithm);
             var verifier = BuildVerifier();
 
             Verify(hasher, verifier, targetFiles, fileHashMap, parameters, cancellation);
         }
 
-        public static void Verify(IMultiFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, IHashfileParams parameters, CancellationToken cancellation)
+        public static void Verify(IMultiFileHasher hasher, HashVerifier hashVerifier, IList<FileInfo> files, FileHashMap fileHashMap, IVerificationParams parameters, CancellationToken cancellation)
         {
             var results = VerifyHashes(files, fileHashMap, hashVerifier, hasher, parameters, cancellation);
 
             WriteStdErrLine();
             WriteStdErrLine();
-            WriteStdErrLine("======== Results =========");
-            WriteStdErrLine("File\t=>\tIsMatch");
+            WriteStdErrLine("RESULTS".PadLeft(25));
+            WriteStdErrLine();
+            WriteStdErrLine($"{"==================== File ".PadRight(50, '=')}|= Hash Match ==");
             foreach (var result in results)
             {
-                WriteStdErrLine($"{result.Key.Name} => {result.Value}");
+                WriteStdErrLine($"{result.Key.Name.PadRight(50, '.')}|  {HashMatchValueFormatter.GetString(result.Value)}");
             }
-
-            WriteStdErrLine("======== The End =========");
         }
 
-        private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultiFileHasher hasher, IHashfileParams parameters, CancellationToken cancellation)
+        private static IList<KeyValuePair<FileInfo, HashMatch>> VerifyHashes(IList<FileInfo> files, FileHashMap expectedHashes, HashVerifier hashVerifier, IMultiFileHasher hasher, IVerificationParams parameters, CancellationToken cancellation)
         {
             var filesUnique = files
                 .Distinct(new FileInfoEqualityComprarer())
@@ -78,8 +75,10 @@ namespace Andy.FlacHash.Application.Cmd
                 if (hashingResult.Exception == null)
                 {
                     var isMatch = hashVerifier.DoesMatch(fileHashes, hashingResult.File, hashingResult.Hash);
-                    Console.WriteLine($"{hashingResult.File.Name} => {isMatch}");
-                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False));
+                    var result = isMatch ? HashMatch.Match : HashMatch.NoMatch;
+
+                    Console.WriteLine($"{hashingResult.File.Name} => {HashMatchValueFormatter.GetString(result)}");
+                    results.Add(new KeyValuePair<FileInfo, HashMatch>(hashingResult.File, result));
                 }
                 else
                 {
@@ -113,8 +112,9 @@ namespace Andy.FlacHash.Application.Cmd
             return new MultiFileHasher(hasher, continueOnError: true);
         }
 
-        public static FileInfo GetHashFile(IHashfileParams parameters, IFileSearch fileSearch)
+        public static FileInfo GetHashFile(VerificationParameters parameters, IFileSearch fileSearch)
         {
+            // hashfile && input dir && input files == no
             if (parameters.HashFile != null)
             {
                 var isAbsolute = Path.IsPathRooted(parameters.HashFile);
@@ -123,6 +123,7 @@ namespace Andy.FlacHash.Application.Cmd
                 else
                     return new FileInfo(parameters.HashFile);
             }
+            // no hashfile specced
             else if (parameters.InputDirectory != null)
             {
                 var hashfileExtensions = FileExtension.PrefixWithDot(parameters.HashfileExtensions);
@@ -133,6 +134,43 @@ namespace Andy.FlacHash.Application.Cmd
             }
             else
                 return null;
+        }
+
+        /* infer target files here:
+        * 1. hashfile only -- take files DEFINED in the hashfile, from hashfile directory (if relative, then take files from "current")
+        * 2. hashfile and input dir -- take files DEFINED in the hashfile, from the specced dir
+        * 3. hashfile && input files -ok use case, MOSTLY for position-based.
+        * 4. input dir only
+        * * should position-based hashes specificly demand a list of files, no input dirs? nah
+        */
+        public static IEnumerable<FileInfo> FindFiles(FileInfo resolvedHashfile, FileHashMap fileHashMap, VerificationParameters parameters, IFileSearch fileSearch)
+        {
+            if (parameters.HashFile != null)
+            {
+                if (parameters.InputDirectory != null)
+                    return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), parameters.TargetFileExtensions);
+                else if (parameters.InputFiles != null)
+                    return parameters.InputFiles.Select(x => new FileInfo(x));
+                else // hashfile only
+                {
+                    var baseDirPath = resolvedHashfile.Directory.FullName;
+
+                    if (fileHashMap.IsPositionBased)
+                        return fileSearch.FindFiles(new DirectoryInfo(baseDirPath), parameters.TargetFileExtensions);
+                    else
+                    {
+                        return fileHashMap.Hashes
+                            .Select(
+                                x => new FileInfo(Path.Combine(baseDirPath, x.Key)))
+                            .ToArray();
+                    }
+                }
+            }
+            // hashfile was null
+            else if (parameters.InputDirectory != null)
+                return fileSearch.FindFiles(new DirectoryInfo(parameters.InputDirectory), parameters.TargetFileExtensions);
+            else
+                throw new ConfigurationException("Bad input files parameter combination");
         }
 
         static void WriteStdErrLine(string text)

@@ -39,6 +39,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private NonBlockingHashComputation hasherService;
         Dictionary<HasherKey, NonBlockingHashComputation> hashers = new Dictionary<HasherKey, NonBlockingHashComputation>();
+        Dictionary<string, FileInfo> DecoderExes = new Dictionary<string, FileInfo>();
 
         private bool finishedWithErrors;
         private bool freshOperation = false;
@@ -49,7 +50,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private DecoderProfile DecoderProfile => (DecoderProfile)menu_decoderProfiles.SelectedItem;
         private FileExtensionsOption SelectedFileType => (FileExtensionsOption)menu_fileExtensions.SelectedItem;
-        private Algorithm HashingAlgorithmProfile => (Algorithm)menu_hashingAlgorithm.SelectedItem;
+        private Algorithm SelectedHashingAlgorithmProfile => (Algorithm)menu_hashingAlgorithm.SelectedItem;
 
         public FormX(
             HasherFactory hasherFactory,
@@ -118,16 +119,20 @@ namespace Andy.FlacHash.Application.Win.UI
             {
                 RefreshHashingFilelist();
             };
+        }
+
+        private void FormX_Load(object sender, EventArgs e)
+        {
+            LoadFormSettings();
 
             // Triggers all kinds of handlers
             List_hashing_results_Resize(null, null);
             List_verification_results_Resize(null, null);
             SetMode(Mode.Hashing);
-
-            BuildHasherCached(); // needs mode and decoder+algorithm to be pre-set
             ResetStatusMessages();
 
-            LoadFormSettings();
+            // mode and decoder+algorithm have to be pre-set
+            WithTryCatch(BuildHasherCached);
         }
 
         bool listResults_selectionReversal = false;
@@ -163,12 +168,12 @@ namespace Andy.FlacHash.Application.Win.UI
         void ResetStatusMessages()
         {
             if (mode == Mode.Hashing)
-                ResetLog("Select a directory to hash some files!");
+                ResetLog("Select a directory to hash some files!", TextResources.F1Hint);
             else
-                ResetLog("Select a hashfile to verify files");
+                ResetLog("Select a hashfile to verify files", TextResources.F1Hint);
         }
 
-        private async Task WithTryCatch(Func<Task> function)
+        private async Task WithTryCatch_Operation(Func<Task> function)
         {
             try
             {
@@ -176,19 +181,21 @@ namespace Andy.FlacHash.Application.Win.UI
             }
             catch (Exception ex)
             {
-                ShowFatalError(ex);
+                ShowFatalOperationError(ex);
             }
         }
 
-        private void WithTryCatch(Action function)
+        private bool WithTryCatch(Action function)
         {
             try
             {
                 function();
+                return true;
             }
             catch (Exception ex)
             {
                 ShowFatalError(ex);
+                return false;
             }
         }
 
@@ -406,7 +413,10 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private async void Btn_Go_Click(object sender, EventArgs e)
         {
-            await WithTryCatch(Go);
+            if (hasherService == null)
+                if (WithTryCatch(BuildHasherOrThrow) == false)
+                    return;
+            await WithTryCatch_Operation(Go);
         }
 
         private async Task Go()
@@ -464,7 +474,7 @@ namespace Andy.FlacHash.Application.Win.UI
                     {
                         var isMatch = hashVerifier.DoesMatch(expectedHashes, hashingResult.File, hashingResult.Hash);
 
-                        list_verification_results.SetData(hashingResult.File, isMatch ? HashMatch.True : HashMatch.False);
+                        list_verification_results.SetData(hashingResult.File, isMatch ? HashMatch.Match : HashMatch.NoMatch);
                     }
                     else
                     {
@@ -560,7 +570,7 @@ namespace Andy.FlacHash.Application.Win.UI
             progressReporter.Reset(0);
 
             LogMessage("Failed");
-            ShowFatalError(e);
+            ShowFatalOperationError(e);
         }
 
         private async Task ComputeHashes()
@@ -609,6 +619,12 @@ namespace Andy.FlacHash.Application.Win.UI
             }
         }
 
+        void WriteLine(string message)
+        {
+            txtStatus.AppendText(message);
+            txtStatus.AppendText(Environment.NewLine);
+        }
+
         void ResetLog(params string[] message)
         {
             txtStatus.Text = null;
@@ -616,10 +632,19 @@ namespace Andy.FlacHash.Application.Win.UI
                 LogMessage(message);
         }
 
-        void ShowFatalError(Exception e)
+        void ShowFatalOperationError(Exception e)
         {
             LogMessage($"Error processing file(s)", e.Message);
             MessageBox.Show($"Operation failed. See the error log", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        void ShowFatalError(Exception e)
+        {
+            ResetLog(e.Message);
+            if (e is ConfigurationException)
+                LogMessage(TextResources.F1Hint);
+
+            MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void SetMode(Mode mode)
@@ -655,18 +680,24 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void decoderProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BuildHasherCached();
+            WithTryCatch(BuildHasherCached);
         }
 
         private void hashingProfiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BuildHasherCached();
+            WithTryCatch(BuildHasherCached);
         }
 
-        private void BuildHasher()
+        private void BuildHasherOrThrow()
         {
+            if (!DecoderExes.ContainsKey(DecoderProfile.Decoder))
+            {
+                FileInfo decoderExe = Audio.AudioDecoder.ResolveDecoderOrThrow(DecoderProfile.Decoder);
+                DecoderExes.Add(DecoderProfile.Decoder, decoderExe);
+            }
+
             this.hasherService = HashComputationServiceFactory.Build(
-                hasherFactory.BuildDecoder(DecoderProfile.Decoder, DecoderProfile.DecoderParameters, HashingAlgorithmProfile),
+                hasherFactory.BuildDecoder(DecoderExes[DecoderProfile.Decoder], DecoderProfile.DecoderParameters, SelectedHashingAlgorithmProfile),
                 this,
                 OnOperationFinished,
                 OnFailure,
@@ -675,14 +706,14 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void BuildHasherCached()
         {
-            var key = new HasherKey(DecoderProfile.Name, HashingAlgorithmProfile);
+            var key = new HasherKey(DecoderProfile.Name, SelectedHashingAlgorithmProfile);
 
             hashers.TryGetValue(key, out hasherService);
 
             if (hasherService != null)
                 return;
 
-            BuildHasher();
+            BuildHasherOrThrow();
             hashers.Add(key, this.hasherService);
         }
 
@@ -751,6 +782,18 @@ namespace Andy.FlacHash.Application.Win.UI
                 this.menu_hashingAlgorithm.SelectedIndex = Properties.Default.HashingAlgo;
 
             this.WindowState = (FormWindowState)Properties.Default.WindowState;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.F1)
+            {
+                ResetLog();
+                WriteLine(HelpUtil.GetHelpText().ToString());
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         struct HasherKey

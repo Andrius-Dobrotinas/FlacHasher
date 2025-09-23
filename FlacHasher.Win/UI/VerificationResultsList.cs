@@ -10,7 +10,7 @@ namespace Andy.FlacHash.Application.Win.UI
         protected override void UpdateItem(ListViewItem<FileInfo> item, HashMatch isMatch)
         {
             item.ImageIndex = (int)(isMatch == HashMatch.NotFound ? HashMatch.Error : isMatch);
-            item.SubItems.Add(isMatch.ToString());
+            item.SubItems.Add(HashMatchValueFormatter.GetString(isMatch));
         }
     }
 }

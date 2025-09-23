@@ -1,21 +1,13 @@
 {
     "profiles": {
-        "Hash-SingleFile": {
-            "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --format=\"{name} {hash}\""
-        },
-        "Hash-SingleFile-APE-profile": {
-            "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.ape\" --profile-decoder=ape --format=\"{name} {hash}\""
-        },
-        "Hash-MultipleFiles": {
-            "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
-        },
-        "Hash-MultipleFiles2": {
-            "commandName": "Project",
-            "commandLineArgs": "--input=\"c:\\flac\\01 - Hex Me.flac\" --input=\"c:\\flac\\02 - Pay T;o Play.flac\" --format=\"{name} {hash}\""
-        },
+    "NoCommand": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    },
+    "Help": {
+      "commandName": "Project",
+      "commandLineArgs": "help"
+    },
         "Hash-Directory": {
             "commandName": "Project",
             "commandLineArgs": "--inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\" --format=\"{name} {hash}\""
@@ -43,9 +35,21 @@
             "commandName": "Project",
             "commandLineArgs": "--input=\"c:\\01 - Hex Me.flac\""
         },
-        "Verify-Directory": {
+        "Verify-Hashfile-Only": {
             "commandName": "Project",
-            "commandLineArgs": "verify --inputDir=\"C:\\flac\" --file-extension=flac --decoder=\"C:\\Program Files (x86)\\FLAC Frontend\\tools\\flac.exe\""
+            "commandLineArgs": "verify --hash=\"C:\\flac\\hash.hash\""
+        },
+        "Verify-Hashfile+Directory": {
+            "commandName": "Project",
+            "commandLineArgs": "verify --hash=\"C:\\flac\\hash.hash\" --inputDir=\"C:\\flac\" --file-extension=flac"
+        },
+        "Verify-Hashfile+SpecificFiles": {
+            "commandName": "Project",
+            "commandLineArgs": "verify --hash=\"C:\\flac\\hash.hash\" --input=\"C:\\flac\\03 - Curmudgeon.flac\" --input=\"C:\\flac\\04 - D-7.flac\""
+        },
+        "Verify-Directory-Only": {
+            "commandName": "Project",
+            "commandLineArgs": "verify --inputDir=\"C:\\flac\" --file-extension=flac"
         }
     }
 }

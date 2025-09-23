@@ -305,7 +305,7 @@
             // 
             // col_results_verification_isMatch
             // 
-            col_results_verification_isMatch.Text = "Matches";
+            col_results_verification_isMatch.Text = "Hash Match";
             // 
             // imgList_verification
             // 
@@ -354,6 +354,7 @@
             MinimumSize = new Size(650, 381);
             Name = "FormX";
             Text = "FormX";
+            Load += FormX_Load;
             FormClosing += FormX_FormClosing;
             tableLayoutPanel1.ResumeLayout(false);
             group_Left.ResumeLayout(false);
