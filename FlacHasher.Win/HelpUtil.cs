@@ -10,11 +10,11 @@ namespace Andy.FlacHash.Application.Win
     {
         public static StringBuilder GetHelpText()
         {
-            var helpText = Help.GetHelpText();
-            var helpHashfileText = Help.GetHashfileHelpText();
+            var helpText = Help.GetHelpText().ReplaceLineEndings();
+            var helpHashfileText = Help.GetHashfileHelpText().ReplaceLineEndings();
             var thisAssemply = System.Reflection.Assembly.GetExecutingAssembly();
-            var helpApplicationSpecific = Help.GetTextResource(thisAssemply, "help.txt");
-            var helpText_decoder = Help.GetTextResource(thisAssemply, "help_decoder_config.txt");
+            var helpApplicationSpecific = Help.GetTextResource(thisAssemply, "help.txt").ReplaceLineEndings();
+            var helpText_decoder = Help.GetTextResource(thisAssemply, "help_decoder_config.txt").ReplaceLineEndings();
 
             var builder = new System.Text.StringBuilder(helpText);
             var builderApplicationSpecific = new System.Text.StringBuilder(helpApplicationSpecific);
