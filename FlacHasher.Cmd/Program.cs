@@ -116,7 +116,7 @@ namespace Andy.FlacHash.Application.Cmd
                 var processRunner = new ExternalProcess.ProcessRunner(
                     timeoutSec: settings.ProcessTimeoutSec,
                     exitTimeoutMs: settings.ProcessExitTimeoutMs,
-                    startWaitMs: settings.ProcessStartWaitMs,
+                    startWaitMs: settings.ProcessStartDelayMs,
                     printProcessProgress);
 
                 var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderFile);
