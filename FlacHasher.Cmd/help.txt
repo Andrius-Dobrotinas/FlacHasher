@@ -1,7 +1,8 @@
+For information on what this is for refer to readme.txt.
+
 The following commands are available:
   - hash (operation name is optional, it executes by default)
   - verify
-  - help (for parameter/configuration reference)
 
 Syntax:
   flachasher [command] [--param=value]
@@ -12,88 +13,20 @@ for example:
 Where value is "true"/"false", the value can be completely omitted to provide "true", eg:
   flachash --fail-fast
 
-===========================================================
+=====
+1. Settings file: {SETTINGS_FILE_NAME}
 
-STRUCTURE OF THIS DOCUMENT
+=====
+2. Decoder Configuration:
 
-* General Parameter/Configuration Info
-* Audio Decoder Configuration
-* Configuration Profiles
+{DECODER_CONFIG}
 
-* Command Reference:
-> Hashing
-> Verification 
-
-===========================================================
-  GENERAL PARAMETER / CONFIGURATION INFO
-
-- Many aspects can also be configured via the settings file, which means they can be configured once. In such case, a value can be provided either way. A relevant settings file key will be listed right next to the command-line parameter, where available.
-
-  Settings file: settings.ini
-
-- Command-line parameter values with spaces: put the whole value in quotes, eg:
-    flachasher --input="c:\flac files\01 track.flac"
-
-- Parameters that take arrays of values (eg input or decoder parameters) have to be separated by a semi-color (;), eg:
-    --input=track1.flac;track2.flac
-
-  Alternatively, multi-value command-line parameters can be repeated to provide multiple values, eg:
-    --input=track1.flac --input=track2.flac
-
-  The latter doesn't apply to the settings file.
-
-===========================================================
-{DECODER_SECTION}
-
-===========================================================
-  CONFIGURATION PROFILES
-
-- Decoder profile can be chosen via --profile-decoder | Profile.Decoder
-- Hashing profile can be chosen via --profile-hashing | Profile.Hashing
-
-- To create general configuration profiles, place relevant configuration keys in [YourProfile] section.
-- A profile can be chosen via --profile | Profile
-
-===========================================================
-==COMMAND REFERENCE========================================
-===========================================================
-  HASHING
-
-Resulting hashes get written to std-out stream (whereas the rest of the info - to std-error), which means that they can be written to a file using standard output redirection commands.
-Multiple files can be hashed at a time.
-
-The most important inputs here are:
-  1) input audio files
-  2) audio decoder -- configuration explained in a dedicated section
-  3) hashing algorithm
-  4) output format
+====
+3.1. Hashing
 
 {HASHING_PARAMS}
 
-===========================================================
-  VERIFICATION
-
-{HASHFILE_DESCRIPTION}
-
-The most important inputs here are:
-  1) hashfile
-  2) actual audio files
-  3) audio decoder -- configuration explained in a dedicated section
-  4) hashing algorithm
-  5) hashfile format
-
-- Hashfile has to be either/or:
-a) a full path to the file - then target files get taken from the same directory as the hashfile, or from Input Directory specified separately;
-b) relative path (just the file name) - then Input Directory has to be specified (otherwise, hashfile and target files get looked up in "current" directory).
-
-If a Hashfile is not explicitly specified, it gets looked up in the Input Directory using HashfileExtensions.
-
-- Target file names get taken from the hashfile and are looked up in:
-a) Hashfile directory, if hashfile paramter is a full path
-b) Input Directory, if specified -- based on TargetFileExtension
-c) Input Files, if specified
-
+====
+3.2. Verification
 
 {VERIFICATION_PARAMS}
-
-- Hashing algorithm and hashfile extension maps can be stored as profiles, named [Hashing.Name], eg [Hashing.MD5].
