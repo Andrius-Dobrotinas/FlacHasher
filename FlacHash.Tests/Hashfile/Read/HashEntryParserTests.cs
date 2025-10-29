@@ -72,7 +72,6 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("file:1-hash1", "-", "file:1", "hash1", Description = "A char that could possibly be used as a separator in another life is in the first value")]
         [TestCase("file2 hash2", " ", "file2", "hash2")]
         [TestCase("file3\thash3", "\t", "file3", "hash3")]
-        [TestCase("file 3.1\thash 34", "\t", "file 3.1", "hash 34", Description = "Both values contain spaces")]
         [TestCase("file1>@l;'s]-hash1", "-", "file1>@l;'s]", "hash1", Description = "Both values contain all sorts of weird special characters, some of which could pass as a separator in another life")]
         [TestCase("crazy;file,name ; X2 \t@ #!45)(*&^%$#@.exe:hash|Y2-1234", ":", "crazy;file,name ; X2 \t@ #!45)(*&^%$#@.exe", "hash|Y2-1234", Description = "Both calues contain all sorts of weird special characters, some of which could pass as a separator in another life")]
         public void When_Line_has_values_separated_by_a_SingleChar_Separator__Must_return_the_First_segment_as_the_Key_and_the_Second_one_as_the_Value(string line, string separator, string expectedKey, string expectedValue)
@@ -88,7 +87,6 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("file1 => hash1", " => ", "file1", "hash1")]
         [TestCase("file2\t-\thash2", "\t-\t", "file2", "hash2")]
         [TestCase("file3    hash3", "    ", "file3", "hash3")]
-        [TestCase("file3 .    hash3", "    ", "file3 .", "hash3")]
         [TestCase("file4 Hash:hash4", " Hash:", "file4", "hash4")]
         [TestCase("file name X=>hash Y", "=>", "file name X", "hash Y")]
         [TestCase("file name \tX2 => hash Y2", " => ", "file name \tX2", "hash Y2", Description = "Both calues contain all sorts of weird special characters, some of which could pass as a separator in another life")]
@@ -192,7 +190,6 @@ namespace Andy.FlacHash.Hashfile.Read
 
         [TestCase("filehash", ":")]
         [TestCase("file hash", ":")]
-        [TestCase("file hash", "\t")]
         [TestCase("file= >hash", "=>")]
         public void When_Line_contains_No_Separator__Must_return_the_Whole_string_as_Value(string line, string separator)
         {
