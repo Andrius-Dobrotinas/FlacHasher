@@ -17,6 +17,7 @@ namespace Andy.FlacHash.Application
         {
             public const string ApplicationSpecific = "{APPLICATION_SPECIFIC}";
             public const string HashfileDescription = "{HASHFILE_DESCRIPTION}";
+            public const string DecoderSection = "{DECODER_SECTION}";
             public const string DecoderParams = "{DECODER_PARAMS}";
         }
 
@@ -275,6 +276,13 @@ namespace Andy.FlacHash.Application
             var assembly = Assembly.GetExecutingAssembly();
 
             return GetTextResource(assembly, "help_hashfile.txt");
+        }
+
+        public static string GetDecoderSectionText()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+
+            return GetTextResource(assembly, "help_decoder.txt");
         }
 
         static string ReadWhole(Stream source)

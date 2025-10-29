@@ -1,4 +1,13 @@
-Write a description here
+Settings file: {SETTINGS_FILE_NAME}
+
+===========================================================
+
+{DECODER_SECTION}
+
+===========================================================
+  OTHER SETTINGS
+
+{OTHER_SETTINGS}
 
 ===========================================================
   VERIFICATION

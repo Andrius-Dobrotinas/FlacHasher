@@ -116,7 +116,7 @@ namespace Andy.FlacHash.Application.Cmd
                 var processRunner = new ExternalProcess.ProcessRunner(
                     timeoutSec: settings.ProcessTimeoutSec,
                     exitTimeoutMs: settings.ProcessExitTimeoutMs,
-                    startWaitMs: settings.ProcessStartWaitMs,
+                    startWaitMs: settings.ProcessStartDelayMs,
                     printProcessProgress);
 
                 var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderFile);
@@ -184,6 +184,7 @@ namespace Andy.FlacHash.Application.Cmd
 
             sb.Replace("{HASHING_PARAMS}", Help.GetOperationAndMiscParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties));
             sb.Replace("{VERIFICATION_PARAMS}", Help.GetOperationAndMiscParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties));
+            sb.Replace(Help.Placeholder.DecoderSection, Help.GetDecoderSectionText());
             sb.Replace(Help.Placeholder.DecoderParams, Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties));
 
             WriteUserLine(sb.ToString());

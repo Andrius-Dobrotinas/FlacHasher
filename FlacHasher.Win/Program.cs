@@ -53,7 +53,7 @@ namespace Andy.FlacHash.Application.Win
                 var processRunner = new ExternalProcess.ProcessRunner(
                     settings.ProcessTimeoutSec,
                     settings.ProcessExitTimeoutMs,
-                    settings.ProcessStartWaitMs,
+                    settings.ProcessStartDelayMs,
                     showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput);
 
                 var hasherFactory = new HasherFactory(processRunner, fileReadProgressReporter, settings);

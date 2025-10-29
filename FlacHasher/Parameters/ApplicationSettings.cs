@@ -11,6 +11,7 @@ namespace Andy.FlacHash.Application
         [CmdLineParameter(CmdlineParameterNames.ProcessExitTimeoutMs, Order = 0)]
         [IniEntry(nameof(ProcessExitTimeoutMs), Order = 1)]
         [Optional(defaultValue: 1000)]
+        [ParameterDescription("The amount of time to wait for the decoder process to wind down after decoding is finished")]
         public int ProcessExitTimeoutMs { get; set; }
 
         // TODO: document: -1 for no timeout
@@ -22,9 +23,10 @@ namespace Andy.FlacHash.Application
         public int ProcessTimeoutSec { get; set; }
 
         [DecoderParam]
-        [IniEntry(nameof(ProcessStartWaitMs))]
+        [IniEntry(nameof(ProcessStartDelayMs))]
         [Optional(defaultValue: 100)]
-        public int ProcessStartWaitMs { get; set; }
+        [ParameterDescription("Amount of extra time to give the decoder process to start up before feeding it data. If the process is not ready to receive data, that can result in an error. Normally, this is not an issue.")]
+        public int ProcessStartDelayMs { get; set; }
 
         [OperationParam]
         [CmdLineParameter(CmdlineParameterNames.HashAlgorithm, Order = 0)]

@@ -7,8 +7,6 @@ namespace Andy.Cmd.Parameter
 {
     public class ParameterReader
     {
-        private static Type[] allowedTypes = new Type[] { typeof(string), typeof(string[]) };
-
         private readonly IParameterValueResolver parameterValueResolver;
 
         public ParameterReader(IParameterValueResolver parameterValueResolver)

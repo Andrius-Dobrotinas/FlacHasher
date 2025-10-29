@@ -10,11 +10,11 @@ namespace Andy.FlacHash.Application.Win
     {
         public static StringBuilder GetHelpText()
         {
-            var helpText = Help.GetHelpText();
-            var helpHashfileText = Help.GetHashfileHelpText();
+            var helpText = Help.GetHelpText().ReplaceLineEndings();
+            var helpHashfileText = Help.GetHashfileHelpText().ReplaceLineEndings();
             var thisAssemply = System.Reflection.Assembly.GetExecutingAssembly();
-            var helpApplicationSpecific = Help.GetTextResource(thisAssemply, "help.txt");
-            var helpText_decoder = Help.GetTextResource(thisAssemply, "help_decoder_config.txt");
+            var helpApplicationSpecific = Help.GetTextResource(thisAssemply, "help.txt").ReplaceLineEndings();
+            var helpText_decoder = Help.GetTextResource(thisAssemply, "help_decoder_config.txt").ReplaceLineEndings();
 
             var builder = new System.Text.StringBuilder(helpText);
             var builderApplicationSpecific = new System.Text.StringBuilder(helpApplicationSpecific);
@@ -29,6 +29,9 @@ namespace Andy.FlacHash.Application.Win
                 .Where(x => decoderProfileProperties.Contains(x, Application.Help.PropertyInfoNameComparer.Instance))
                 .ToList();
             var temp = new System.Text.StringBuilder();
+
+            builder.Replace(Help.Placeholder.DecoderSection, Help.GetDecoderSectionText().ReplaceLineEndings());
+
             Help.PrintParameters<Cmd.MasterParameters, IniEntryAttribute>(temp, cmdlineProperties, Array.Empty<System.Reflection.PropertyInfo>());
             decoderParamsBuilder.Replace("{DECODER_PROFILE_CONFIG}", temp.ToString());
 
@@ -39,15 +42,11 @@ namespace Andy.FlacHash.Application.Win
 
             builder.Replace(Help.Placeholder.DecoderParams, decoderParamsBuilder.ToString());
 
-            builder.AppendLine("===========================================================");
-            builder.AppendLine($"{Help.Indentation}OTHER SETTINGS");
-            builder.AppendLine();
-            Help.PrintParameters<Settings, IniEntryAttribute>(builder, opSpecificProperties, miscProperties);
+            temp.Clear();
+            Help.PrintParameters<Settings, IniEntryAttribute>(temp, opSpecificProperties, miscProperties);
 
-            builder.AppendLine();
-            builder.AppendLine("===========================================================");
-            builder.AppendLine($"Settings file: {Program.settingsFileName}");
-
+            builder.Replace("{OTHER_SETTINGS}", temp.ToString());
+            builder.Replace("{SETTINGS_FILE_NAME}", Program.settingsFileName);
 
             return builder;
         }
