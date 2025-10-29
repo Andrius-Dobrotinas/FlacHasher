@@ -58,5 +58,29 @@ namespace Andy.FlacHash.Application.Win {
                 this["WindowState"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DecoderProfile {
+            get {
+                return ((int)(this["DecoderProfile"]));
+            }
+            set {
+                this["DecoderProfile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int HashingAlgo {
+            get {
+                return ((int)(this["HashingAlgo"]));
+            }
+            set {
+                this["HashingAlgo"] = value;
+            }
+        }
     }
 }
