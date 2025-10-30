@@ -1,17 +1,21 @@
-Settings file: {SETTINGS_FILE_NAME}
+For information on what this is for refer to readme.txt.
 
-===========================================================
+1. Settings file: {SETTINGS_FILE_NAME}
+========================================================
 
-{DECODER_SECTION}
+2. Audio Decoder Condiguration
 
-===========================================================
-  OTHER SETTINGS
+2.1. Profile-specific configuration
+Multiple configuration profiles are possible.
+Create each profile with under [Decoder.Profilename] section. Available fields:
+
+{DECODER_PROFILE_CONFIG}
+
+2.2. Global (not profile-specific) configuration:
+
+{DECODER_CONFIG}
+========================================================
+
+3.1. General Configuration
 
 {OTHER_SETTINGS}
-
-===========================================================
-  VERIFICATION
-
-{HASHFILE_DESCRIPTION}
-
-Refer to the configuration section for more info on what needs to be configured for this to work

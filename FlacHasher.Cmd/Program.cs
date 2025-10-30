@@ -171,21 +171,18 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void PrintHelp(bool isVerification)
         {
-            var helpText = Help.GetHelpText();
-            var helpHashfileText = Help.GetHashfileHelpText();
             var helpCmdText = Help.GetTextResource(Assembly.GetExecutingAssembly(), "help.txt");
 
-            var sb = new StringBuilder(helpText);
-            sb.Replace(Help.Placeholder.ApplicationSpecific, helpCmdText);
-            sb.Replace(Help.Placeholder.HashfileDescription, helpHashfileText);
+            var sb = new StringBuilder(helpCmdText);
 
             var (sharedDecoderProperties, sharedOpSpecificProperties, sharedMiscProperties) = Help.GetPropertiesByParameterPurpose<MasterParameters>();
             var sharedParamProperties = sharedDecoderProperties.Concat(sharedMiscProperties).ToList();
 
             sb.Replace("{HASHING_PARAMS}", Help.GetOperationAndMiscParameterString<HashingParameters, ParameterAttribute>(sharedParamProperties));
             sb.Replace("{VERIFICATION_PARAMS}", Help.GetOperationAndMiscParameterString<VerificationParameters, ParameterAttribute>(sharedParamProperties));
-            sb.Replace(Help.Placeholder.DecoderSection, Help.GetDecoderSectionText());
-            sb.Replace(Help.Placeholder.DecoderParams, Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties));
+            sb.Replace("{DECODER_CONFIG}", Help.GetParameterString<MasterParameters, ParameterAttribute>(sharedDecoderProperties, sharedMiscProperties));
+
+            sb.Replace("{SETTINGS_FILE_NAME}", Program.settingsFileName);
 
             WriteUserLine(sb.ToString());
         }

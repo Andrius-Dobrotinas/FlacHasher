@@ -13,14 +13,6 @@ namespace Andy.FlacHash.Application
         public const string Indentation = "  ";
         public const string HeadingIndentation = Indentation;
 
-        public static class Placeholder
-        {
-            public const string ApplicationSpecific = "{APPLICATION_SPECIFIC}";
-            public const string HashfileDescription = "{HASHFILE_DESCRIPTION}";
-            public const string DecoderSection = "{DECODER_SECTION}";
-            public const string DecoderParams = "{DECODER_PARAMS}";
-        }
-
         public static string GetOperationAndMiscParameterString<T, TParamSource>(IEnumerable<PropertyInfo> propertiesToExclude)
             where TParamSource : ParameterAttribute
         {
@@ -263,28 +255,7 @@ namespace Andy.FlacHash.Application
                 return ReadWhole(stream);
             }
         }
-
-        public static string GetHelpText()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-
-            return GetTextResource(assembly, "help.txt");
-        }
-
-        public static string GetHashfileHelpText()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-
-            return GetTextResource(assembly, "help_hashfile.txt");
-        }
-
-        public static string GetDecoderSectionText()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-
-            return GetTextResource(assembly, "help_decoder.txt");
-        }
-
+        
         static string ReadWhole(Stream source)
         {
             using (StreamReader reader = new StreamReader(source))
