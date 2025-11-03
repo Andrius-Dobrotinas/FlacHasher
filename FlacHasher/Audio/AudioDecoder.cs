@@ -92,7 +92,7 @@ namespace Andy.FlacHash.Application.Audio
         public static FileInfo ResolveDecoderOrThrow(string decoderExe)
         {
             return ResolveDecoder(decoderExe)
-                ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {decoderExe}");
+                ?? throw new ConfigurationException($"The specified decoder exe file was not found (not in PATH either): {decoderExe}. Refer to the help page to find out how to configure an Audio Decoder");
         }
     }
 }
