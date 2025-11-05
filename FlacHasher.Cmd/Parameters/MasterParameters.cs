@@ -10,7 +10,7 @@ namespace Andy.FlacHash.Application.Cmd
         [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
         [IniEntry("Decoder", Order = 1)]
-        [ParameterDescription($"Path to the Audio decoder executable file")]
+        [ParameterDescription("Path to the Audio Decoder executable file. It can be either a) a Full path or b) name with no path for look-up in paths configured in PATH environment variable")]
         [FrontAndCenterParam]
         public string DecoderExe { get; set; }
 
@@ -23,7 +23,7 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.DecoderParams, Order = 0)]
         [IniEntry(nameof(DecoderParameters), Order = 1)]
         [Optional]
-        [ParameterDescription($"An array of parameters to the Audio decoder (to process a single file), exactly the way they are supposed to appear (with dashes and whatnot), but separated by semi-colons instead of spaces. Filename placeholder: \"{DecoderParameter.FilePlaceholder}\"; alternatively, data can be fed via stdin - use the approrpiate decoder parameter for that. If not specified, default FLAC parameters are used, but this HAS to be specified for other decoders")]
+        [ParameterDescription($"An array of parameters to the Audio decoder (to process a single file), exactly the way they are supposed to appear (with dashes and whatnot), but separated by semi-colons instead of spaces. Filename placeholder: \"{DecoderParameter.FilePlaceholder}\"; alternatively, data can be fed via stdin - use the approrpiate decoder parameter for that")]
         [FrontAndCenterParam]
         public string[] DecoderParameters { get; set; }
 

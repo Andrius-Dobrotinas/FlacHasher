@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using Andy.Cmd.Parameter;
 using Andy.FlacHash.Application.Audio;
+using Andy.FlacHash.Application.Cmd;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
@@ -12,7 +14,20 @@ namespace Andy.FlacHash.Application.Win.UI
         public DecoderProfileDialog()
         {
             InitializeComponent();
+            SetHelpTexts();
             UpdateOkButtonState();
+        }
+
+        private void SetHelpTexts()
+        {
+            var decoderDescription = ParameterDescriptionAttribute.GetDescription<MasterParameters>(x => x.DecoderExe);
+            lblDecoderHelp.Text = decoderDescription ?? string.Empty;
+
+            var decoderParametersDescription = ParameterDescriptionAttribute.GetDescription<MasterParameters>(x => x.DecoderParameters);
+            lblDecoderParametersHelp.Text = decoderParametersDescription ?? string.Empty;
+
+            var targetFileExtensionsDescription = ParameterDescriptionAttribute.GetDescription<MasterParameters>(x => x.TargetFileExtensions);
+            lblTargetFileExtensionsHelp.Text = targetFileExtensionsDescription ?? string.Empty;
         }
 
         private void UpdateOkButtonState()
