@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using Andy.FlacHash.Application.Audio;
 
 namespace Andy.FlacHash.Application.Win.UI
 {
@@ -60,6 +61,16 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void BtnOk_Click(object sender, EventArgs e)
         {
+            var decoderText = txtDecoder.Text.Trim();
+            var resolved = AudioDecoder.ResolveDecoder(decoderText);
+            if (resolved == null)
+            {
+                MessageBox.Show(this, $"Decoder not found: {decoderText}", "Invalid decoder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtDecoder.Focus();
+                txtDecoder.SelectAll();
+                return;
+            }
+
             var decoderParameters = txtDecoderParameters.Text
                 .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(p => p.Trim())
