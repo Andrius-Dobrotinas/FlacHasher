@@ -36,11 +36,44 @@ namespace Andy.FlacHash.Application.Win
 
         public static (Settings, DecoderProfile[]) ParseSettings(IDictionary<string, string[]> settingsRaw, IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
         {
-            var paramReader = ParameterReader.Build();
             var settings = ParameterReader.Build().GetParameters<Settings>(settingsRaw);
+            var decoderProfiles = ParseDecoderProfiles(decoderProfilesRaw).ToArray();
+            return (settings, decoderProfiles);
+        }
 
-            var decoderProfiles = decoderProfilesRaw.Any()
-                ? decoderProfilesRaw
+        public static IList<DecoderProfile> ParseDecoderProfiles(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
+        {
+            var paramReader = ParameterReader.Build();
+
+            var profilesFromIni = decoderProfilesRaw.Any() ? Get(decoderProfilesRaw, paramReader) : Array.Empty<DecoderProfile>();
+
+            var profilesFromUserProfile = Properties.Default.DecoderProfiles?.Profiles != null ? Properties.Default.DecoderProfiles.Profiles : Array.Empty<DecoderProfile>();
+
+            if (!profilesFromIni.Any() && !profilesFromUserProfile.Any())
+                return PromptUserToCreateProfile();
+
+            return MergeProfiles(profilesFromIni, profilesFromUserProfile);
+        }
+
+        /// <summary>
+        /// Merge, preferring profiles from INI
+        /// </summary>
+        static IList<DecoderProfile> MergeProfiles(IList<DecoderProfile> profilesFromIni, IList<DecoderProfile> profilesFromUserProfile)
+        {
+            var merged = new List<DecoderProfile>(profilesFromIni);
+            var iniNames = new HashSet<string>(profilesFromIni.Select(p => p.Name), StringComparer.InvariantCultureIgnoreCase);
+            foreach (var profile in profilesFromUserProfile)
+            {
+                if (!iniNames.Contains(profile.Name))
+                    merged.Add(profile);
+            }
+
+            return merged;
+        }
+
+        static IList<DecoderProfile> Get(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw, ParameterReader paramReader)
+        {
+            return decoderProfilesRaw
                     .Select(profileSection =>
                     {
                         var isDefaultFlacSection = profileSection.Key.Equals($"{ApplicationSettings.DecoderSectionPrefix}.FLAC", StringComparison.InvariantCultureIgnoreCase);
@@ -56,27 +89,25 @@ namespace Andy.FlacHash.Application.Win
                             DecoderParameters = profileRaw.DecoderParameters,
                             TargetFileExtensions = profileRaw.TargetFileExtensions
                         };
-                    }).ToArray()
-                : new DecoderProfile[]
-                {
-                    GetDefaultFlacProfile(paramReader)
-                };
-
-            return (settings, decoderProfiles);
+                    })
+                    .ToArray();
         }
 
-        static DecoderProfile GetDefaultFlacProfile(ParameterReader paramReader)
+        static IList<DecoderProfile> PromptUserToCreateProfile()
         {
-            // Just to fill it with default values
-            var profileRaw = paramReader.GetParameters<DecoderProfileTempDefaultFlac>(new Dictionary<string, string[]>());
-
-            return new DecoderProfile
+            using (var dialog = new UI.DecoderProfileDialog())
             {
-                Name = "FLAC",
-                Decoder = profileRaw.DecoderExe,
-                DecoderParameters = profileRaw.DecoderParameters,
-                TargetFileExtensions = profileRaw.TargetFileExtensions
-            };
+                var result = dialog.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    DecoderProfile[] profiles = [dialog.Profile];
+                    Properties.Default.DecoderProfiles = new DecoderProfileList { Profiles = profiles };
+                    Properties.Default.Save();
+                    return profiles;
+                }
+                else
+                    throw new OperationCanceledException();
+            }
         }
 
         public class DecoderProfileTemp
