@@ -15,7 +15,7 @@ namespace Andy.FlacHash.Application.Win
 
             // Decoder profile params
             var builder = new System.Text.StringBuilder(helpText_decoder);
-            var decoderProfileProperties = typeof(SettingsFile.DecoderProfileTemp).GetProperties().Where(Andy.Cmd.Parameter.Metadata.IsParameter);
+            var decoderProfileProperties = typeof(SettingsFile.DecoderProfileIniSection).GetProperties().Where(Andy.Cmd.Parameter.Metadata.IsParameter);
             var cmdlineProperties = typeof(Cmd.MasterParameters).GetProperties().Where(Andy.Cmd.Parameter.Metadata.IsParameter)
                 .Where(x => decoderProfileProperties.Contains(x, Application.Help.PropertyInfoNameComparer.Instance))
                 .ToList();

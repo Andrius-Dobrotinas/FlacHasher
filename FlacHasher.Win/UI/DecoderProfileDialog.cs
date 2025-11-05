@@ -11,11 +11,32 @@ namespace Andy.FlacHash.Application.Win.UI
     {
         public DecoderProfile Profile { get; private set; }
 
+        private readonly DecoderProfile _initialProfile;
+
         public DecoderProfileDialog()
+            : this(null)
+        {
+        }
+
+        public DecoderProfileDialog(DecoderProfile profile)
         {
             InitializeComponent();
+            _initialProfile = profile;
             SetHelpTexts();
+            if (_initialProfile != null)
+            {
+                PopulateFieldsFromProfile(_initialProfile);
+            }
             UpdateOkButtonState();
+        }
+
+        // New: populate fields from profile
+        private void PopulateFieldsFromProfile(DecoderProfile profile)
+        {
+            txtName.Text = profile.Name;
+            txtDecoder.Text = profile.Decoder;
+            txtDecoderParameters.Text = profile.DecoderParameters != null ? string.Join(";", profile.DecoderParameters) : null;
+            txtTargetFileExtensions.Text = profile.TargetFileExtensions != null ? string.Join(";", profile.TargetFileExtensions) : null;
         }
 
         private void SetHelpTexts()

@@ -26,8 +26,8 @@ namespace Andy.FlacHash.Application.Win
 
             var decoderProfiles = wholeSettingsFileDictionary.Where(x => x.Key.StartsWith("Decoder", StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionary(
-                    x => x.Key, 
-                    x => x.Value.ToDictionary (
+                    x => x.Key,
+                    x => x.Value.ToDictionary(
                         i => i.Key,
                         i => new[] { i.Value }));
 
@@ -76,11 +76,7 @@ namespace Andy.FlacHash.Application.Win
             return decoderProfilesRaw
                     .Select(profileSection =>
                     {
-                        var isDefaultFlacSection = profileSection.Key.Equals($"{ApplicationSettings.DecoderSectionPrefix}.FLAC", StringComparison.InvariantCultureIgnoreCase);
-
-                        var profileRaw = isDefaultFlacSection
-                            ? paramReader.GetParameters<DecoderProfileTempDefaultFlac>(profileSection.Value)
-                            : paramReader.GetParameters<DecoderProfileTemp>(profileSection.Value);
+                        var profileRaw = paramReader.GetParameters<DecoderProfileIniSection>(profileSection.Value);
 
                         return new DecoderProfile
                         {
@@ -95,7 +91,16 @@ namespace Andy.FlacHash.Application.Win
 
         static IList<DecoderProfile> PromptUserToCreateProfile()
         {
-            using (var dialog = new UI.DecoderProfileDialog())
+            using (var dialog = new UI.DecoderProfileDialog(new DecoderProfile
+            {
+                Name = "FLAC",
+                Decoder = "flac.exe",
+                DecoderParameters = new string[] {
+                    Audio.Flac.Parameters.Options.Decoder.Decode,
+                    Audio.Flac.Parameters.Options.Decoder.ReadFromStdIn
+                },
+                TargetFileExtensions = new string[] { "flac" }
+            }))
             {
                 var result = dialog.ShowDialog();
                 if (result == DialogResult.OK)
@@ -110,7 +115,7 @@ namespace Andy.FlacHash.Application.Win
             }
         }
 
-        public class DecoderProfileTemp
+        public class DecoderProfileIniSection
         {
             [Parameter("Decoder")]
             public virtual string DecoderExe { get; set; }
@@ -120,24 +125,6 @@ namespace Andy.FlacHash.Application.Win
 
             [Parameter(nameof(TargetFileExtensions))]
             public virtual string[] TargetFileExtensions { get; set; }
-        }
-
-        class DecoderProfileTempDefaultFlac : DecoderProfileTemp
-        {
-            [Parameter("Decoder")]
-            [Optional(defaultValue: "flac.exe")]
-            public override string DecoderExe { get; set; }
-
-            [Parameter(nameof(DecoderParameters))]
-            [Optional(defaultValue: new string[] {
-                Audio.Flac.Parameters.Options.Decoder.Decode,
-                Audio.Flac.Parameters.Options.Decoder.ReadFromStdIn
-            })]
-            public override string[] DecoderParameters { get; set; }
-
-            [Parameter("TargetFileExtension")]
-            [Optional(defaultValue: "flac")]
-            public override string[] TargetFileExtensions { get; set; }
         }
     }
 }
