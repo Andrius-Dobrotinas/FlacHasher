@@ -1,4 +1,5 @@
 ﻿using Andy.Cmd.Parameter;
+using Andy.FlacHash.Application.Cmd.Parameters;
 using Andy.FlacHash.Audio;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Andy.FlacHash.Application.Cmd
         [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
         [IniEntry("Decoder", Order = 1)]
-        [ParameterDescription("Path to the Audio Decoder executable file. It can be either a) a Full path or b) name with no path for look-up in paths configured in PATH environment variable")]
+        [DecoderExeDescription]
         [FrontAndCenterParam]
         public string DecoderExe { get; set; }
 
@@ -23,7 +24,7 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.DecoderParams, Order = 0)]
         [IniEntry(nameof(DecoderParameters), Order = 1)]
         [Optional]
-        [ParameterDescription($"An array of parameters to the Audio decoder (to process a single file), exactly the way they are supposed to appear (with dashes and whatnot), but separated by semi-colons instead of spaces. Filename placeholder: \"{DecoderParameter.FilePlaceholder}\"; alternatively, data can be fed via stdin - use the approrpiate decoder parameter for that")]
+        [DecoderParamsDescription]
         [FrontAndCenterParam]
         public string[] DecoderParameters { get; set; }
 
@@ -33,7 +34,7 @@ namespace Andy.FlacHash.Application.Cmd
         [CmdLineParameter(CmdlineParameterNames.FileExtensions, Order = 0)]
         [IniEntry(nameof(TargetFileExtensions), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
-        [ParameterDescription("File types that are accepted by the configured Audio decoder (semi-colon-separated). Only for file lookup when specifying an input Directory. This can be stored with each Audio Decoder profile")]
+        [DecoderTargetFileExtensions]
         [FrontAndCenterParam]
         public string[] TargetFileExtensions { get; set; }
 
