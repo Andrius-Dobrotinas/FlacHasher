@@ -95,10 +95,7 @@ namespace Andy.FlacHash.Application.Win
             {
                 Name = "FLAC",
                 Decoder = "flac.exe",
-                DecoderParameters = new string[] {
-                    Audio.Flac.Parameters.Options.Decoder.Decode,
-                    Audio.Flac.Parameters.Options.Decoder.ReadFromStdIn
-                },
+                DecoderParameters = Audio.Flac.Parameters.Decode.Stream,
                 TargetFileExtensions = new string[] { "flac" }
             }))
             {
