@@ -81,13 +81,16 @@ namespace Andy.FlacHash.Application.Win
 
         public class DecoderProfileTemp
         {
-            [Parameter("Decoder")]
+            [IniEntry("Decoder")]
+            [Cmd.Parameters.DecoderExeDescription]
             public virtual string DecoderExe { get; set; }
 
-            [Parameter(nameof(DecoderParameters))]
+            [IniEntry(nameof(DecoderParameters))]
+            [Cmd.Parameters.DecoderParamsDescription]
             public virtual string[] DecoderParameters { get; set; }
 
-            [Parameter(nameof(TargetFileExtensions))]
+            [IniEntry(nameof(TargetFileExtensions))]
+            [Cmd.Parameters.DecoderTargetFileExtensions]
             public virtual string[] TargetFileExtensions { get; set; }
         }
 
