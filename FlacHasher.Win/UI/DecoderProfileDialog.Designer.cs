@@ -71,10 +71,19 @@ namespace Andy.FlacHash.Application.Win.UI
             lblDecoder.TabIndex = 2;
             lblDecoder.Text = "Decoder:";
             // 
+            // lblDecoderHelp
+            // 
+            lblDecoderHelp.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lblDecoderHelp.AutoSize = false;
+            lblDecoderHelp.Location = new System.Drawing.Point(12, 83);
+            lblDecoderHelp.Name = "lblDecoderHelp";
+            lblDecoderHelp.Size = new System.Drawing.Size(461, 36);
+            lblDecoderHelp.TabIndex = 5;
+            // 
             // txtDecoder
             // 
             txtDecoder.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDecoder.Location = new System.Drawing.Point(12, 83);
+            txtDecoder.Location = new System.Drawing.Point(12, 122);
             txtDecoder.Name = "txtDecoder";
             txtDecoder.Size = new System.Drawing.Size(380, 23);
             txtDecoder.TabIndex = 3;
@@ -83,22 +92,13 @@ namespace Andy.FlacHash.Application.Win.UI
             // btnBrowse
             // 
             btnBrowse.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnBrowse.Location = new System.Drawing.Point(398, 82);
+            btnBrowse.Location = new System.Drawing.Point(398, 121);
             btnBrowse.Name = "btnBrowse";
             btnBrowse.Size = new System.Drawing.Size(75, 25);
             btnBrowse.TabIndex = 4;
             btnBrowse.Text = "Browse...";
             btnBrowse.UseVisualStyleBackColor = true;
             btnBrowse.Click += BtnBrowse_Click;
-            // 
-            // lblDecoderHelp
-            // 
-            lblDecoderHelp.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblDecoderHelp.AutoSize = false;
-            lblDecoderHelp.Location = new System.Drawing.Point(12, 109);
-            lblDecoderHelp.Name = "lblDecoderHelp";
-            lblDecoderHelp.Size = new System.Drawing.Size(461, 36);
-            lblDecoderHelp.TabIndex = 5;
             // 
             // lblDecoderParameters
             // 
@@ -109,23 +109,23 @@ namespace Andy.FlacHash.Application.Win.UI
             lblDecoderParameters.TabIndex = 6;
             lblDecoderParameters.Text = "Decoder Parameters:";
             // 
-            // txtDecoderParameters
-            // 
-            txtDecoderParameters.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDecoderParameters.Location = new System.Drawing.Point(12, 170);
-            txtDecoderParameters.Name = "txtDecoderParameters";
-            txtDecoderParameters.Size = new System.Drawing.Size(461, 23);
-            txtDecoderParameters.TabIndex = 7;
-            txtDecoderParameters.TextChanged += TxtDecoderParameters_TextChanged;
-            // 
             // lblDecoderParametersHelp
             // 
             lblDecoderParametersHelp.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblDecoderParametersHelp.AutoSize = false;
-            lblDecoderParametersHelp.Location = new System.Drawing.Point(12, 196);
+            lblDecoderParametersHelp.Location = new System.Drawing.Point(12, 170);
             lblDecoderParametersHelp.Name = "lblDecoderParametersHelp";
             lblDecoderParametersHelp.Size = new System.Drawing.Size(461, 36);
             lblDecoderParametersHelp.TabIndex = 8;
+            // 
+            // txtDecoderParameters
+            // 
+            txtDecoderParameters.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtDecoderParameters.Location = new System.Drawing.Point(12, 209);
+            txtDecoderParameters.Name = "txtDecoderParameters";
+            txtDecoderParameters.Size = new System.Drawing.Size(461, 23);
+            txtDecoderParameters.TabIndex = 7;
+            txtDecoderParameters.TextChanged += TxtDecoderParameters_TextChanged;
             // 
             // lblTargetFileExtensions
             // 
@@ -136,23 +136,23 @@ namespace Andy.FlacHash.Application.Win.UI
             lblTargetFileExtensions.TabIndex = 9;
             lblTargetFileExtensions.Text = "Target File Extensions:";
             // 
-            // txtTargetFileExtensions
-            // 
-            txtTargetFileExtensions.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtTargetFileExtensions.Location = new System.Drawing.Point(12, 257);
-            txtTargetFileExtensions.Name = "txtTargetFileExtensions";
-            txtTargetFileExtensions.Size = new System.Drawing.Size(461, 23);
-            txtTargetFileExtensions.TabIndex = 10;
-            txtTargetFileExtensions.TextChanged += TxtTargetFileExtensions_TextChanged;
-            // 
             // lblTargetFileExtensionsHelp
             // 
             lblTargetFileExtensionsHelp.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblTargetFileExtensionsHelp.AutoSize = false;
-            lblTargetFileExtensionsHelp.Location = new System.Drawing.Point(12, 283);
+            lblTargetFileExtensionsHelp.Location = new System.Drawing.Point(12, 257);
             lblTargetFileExtensionsHelp.Name = "lblTargetFileExtensionsHelp";
             lblTargetFileExtensionsHelp.Size = new System.Drawing.Size(461, 36);
             lblTargetFileExtensionsHelp.TabIndex = 11;
+            // 
+            // txtTargetFileExtensions
+            // 
+            txtTargetFileExtensions.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtTargetFileExtensions.Location = new System.Drawing.Point(12, 296);
+            txtTargetFileExtensions.Name = "txtTargetFileExtensions";
+            txtTargetFileExtensions.Size = new System.Drawing.Size(461, 23);
+            txtTargetFileExtensions.TabIndex = 10;
+            txtTargetFileExtensions.TextChanged += TxtTargetFileExtensions_TextChanged;
             // 
             // btnOk
             // 
