@@ -1,4 +1,4 @@
-﻿using Andy.Cmd.Parameter;
+using Andy.Cmd.Parameter;
 using Andy.FlacHash.Application.Audio;
 using System;
 using System.Collections.Generic;
@@ -11,8 +11,38 @@ namespace Andy.FlacHash.Application.Win
     {
         public static (Settings, DecoderProfile[]) GetSettings(FileInfo settingsFile)
         {
-            var (settingsRaw, decoderProfilesRaw) = ReadIniFile(settingsFile);
-            return ParseSettings(settingsRaw, decoderProfilesRaw);
+            var settings = GetApplicationSettings();
+
+            var (_, decoderProfilesRaw) = ReadIniFile(settingsFile);
+            var decoderProfiles = ParseDecoderProfiles(decoderProfilesRaw).ToArray();
+
+            return (settings, decoderProfiles);
+        }
+
+        private static Settings GetApplicationSettings()
+        {
+            var settings = Properties.Default.ApplicationSettings;
+
+            if (settings != null)
+                return settings;
+            else
+            {
+                using (var settingsForm = new SettingsForm(new Settings()))
+                {
+                    var result = settingsForm.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        settings = settingsForm.Result;
+                        Properties.Default.ApplicationSettings = settings;
+                        Properties.Default.Save();
+                        return settings;
+                    }
+                    else
+                    {
+                        throw new OperationCanceledException();
+                    }
+                }
+            }
         }
 
         public static (IDictionary<string, string[]>, IDictionary<string, Dictionary<string, string[]>>) ReadIniFile(FileInfo settingsFile, string profileName = null)
@@ -32,13 +62,6 @@ namespace Andy.FlacHash.Application.Win
                         i => new[] { i.Value }));
 
             return (settings.ToDictionary(x => x.Key, x => new[] { x.Value }), decoderProfiles);
-        }
-
-        public static (Settings, DecoderProfile[]) ParseSettings(IDictionary<string, string[]> settingsRaw, IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
-        {
-            var settings = ParameterReader.Build().GetParameters<Settings>(settingsRaw);
-            var decoderProfiles = ParseDecoderProfiles(decoderProfilesRaw).ToArray();
-            return (settings, decoderProfiles);
         }
 
         public static IList<DecoderProfile> ParseDecoderProfiles(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
@@ -102,7 +125,7 @@ namespace Andy.FlacHash.Application.Win
                 var result = dialog.ShowDialog();
                 if (result == DialogResult.OK)
                 {
-                    DecoderProfile[] profiles = [dialog.Profile];
+                    DecoderProfile[] profiles = { dialog.Profile };
                     Properties.Default.DecoderProfiles = new DecoderProfileList { Profiles = profiles };
                     Properties.Default.Save();
                     return profiles;

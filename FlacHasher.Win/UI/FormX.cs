@@ -796,6 +796,19 @@ namespace Andy.FlacHash.Application.Win.UI
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        private void toolStripButtonSettings_Click(object sender, EventArgs e)
+        {
+            using (var form = new SettingsForm(settings))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    Properties.Default.ApplicationSettings = form.Result; 
+                    Properties.Default.Save();
+                    System.Windows.Forms.Application.Restart();
+                }
+            }
+        }
+
         struct HasherKey
         {
             public string DecoderProfile { get; }
