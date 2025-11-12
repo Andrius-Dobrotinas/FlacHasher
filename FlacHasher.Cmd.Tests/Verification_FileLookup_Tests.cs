@@ -1,3 +1,4 @@
+using Andy.Cmd.Parameter;
 using Andy.IO;
 using Moq;
 using NUnit.Framework;
@@ -57,6 +58,31 @@ namespace Andy.FlacHash.Application.Cmd
                 "Must search for files of pre-configured type");
         }
 
+        [Test]
+        public void When_Hashfile_Is_PositionBased__Must_Require_TargetFileExtension()
+        {
+            var @params = new Params
+            {
+                HashFile = "c:\\files\\hash.file",
+                InputDirectory = null,
+                InputFiles = null,
+                TargetFileExtensions = null
+            };
+
+            var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: true);
+            var hashfile = new FileInfo("c:\\files\\hash.file");
+
+            filesearch.Setup(
+                x => x.FindFiles(
+                    It.IsAny<DirectoryInfo>(),
+                    It.IsAny<string[]>()))
+                .Returns([]);
+
+            var exception = Assert.Throws<ParameterMissingException>(() => Verification.FindFiles(hashfile, filehashmap_file, @params, filesearch.Object));
+
+            Assert.AreEqual(typeof(VerificationParameters).GetProperty(nameof(VerificationParameters.TargetFileExtensions)), exception.ParameterProperty);
+        }
+
         [TestCase("c:\\file\\01.flac")]
         [TestCase("c:\\file\\04.flac", "c:\\file\\06.flac")]
         public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_PositionBased__Must__Return_LookedUpFiles(params string[] files)
@@ -65,7 +91,8 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 HashFile = "c:\\files\\hash.file",
                 InputDirectory = null,
-                InputFiles = null
+                InputFiles = null,
+                TargetFileExtensions = ["flac"]
             };
 
             var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: true);
@@ -93,7 +120,8 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 HashFile = hashfilePath,
                 InputDirectory = null,
-                InputFiles = null
+                InputFiles = null,
+                TargetFileExtensions = ["flac"]
             };
 
             var expectedFiles = hashfileEntries.Keys;

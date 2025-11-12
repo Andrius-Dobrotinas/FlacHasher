@@ -159,9 +159,9 @@ namespace Andy.FlacHash.Application.Cmd
                     if (fileHashMap.IsPositionBased)
                     {
                         if (parameters.TargetFileExtensions == null || !parameters.TargetFileExtensions.Any())
-                            throw new ParameterMissingException($"asd", typeof(VerificationParameters).GetProperty(nameof(VerificationParameters.TargetFileExtensions)));
+                            throw new ParameterMissingException($"Position-based hashfile requires target file extension", typeof(VerificationParameters).GetProperty(nameof(VerificationParameters.TargetFileExtensions)));
 
-                        return fileSearch.FindFiles(new DirectoryInfo(baseDirPath), parameters.TargetFileExtensions);
+                        return fileSearch.FindFiles(new DirectoryInfo(baseDirPath), parameters.TargetFileExtensions).ToArray();
                     }
                     else
                     {
