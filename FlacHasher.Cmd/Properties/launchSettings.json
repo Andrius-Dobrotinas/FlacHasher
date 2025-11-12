@@ -37,7 +37,7 @@
         },
         "Verify-Hashfile-Only": {
             "commandName": "Project",
-        "commandLineArgs": "verify --hash=\"C:\\flac\\hash.hash\" --hashfile-separator=:"
+        "commandLineArgs": "verify --hash=\"C:\\flac\\hash.hash\" --hashfile-separator=\"\t\""
         },
         "Verify-Hashfile+Directory": {
             "commandName": "Project",
