@@ -41,6 +41,7 @@ namespace Andy.Cmd.Parameter
             var optionalAttr = optionalAttrs.FirstOrDefault(x => x.DefaultValue != null) ?? optionalAttrs.FirstOrDefault();
 
             var isEmptyAllowed = property.GetCustomAttributes(typeof(AllowEmptyAttribute), false).SingleOrDefault() as AllowEmptyAttribute != null;
+            var isWhitespaceAllowed = property.GetCustomAttributes(typeof(AllowWhitespaceAttribute), false).Any();
 
             if (isEmptyAllowed
                 && !(propertyType == typeof(string) || propertyType.IsArray))
@@ -58,7 +59,7 @@ namespace Andy.Cmd.Parameter
             {
                 if (propertyType == typeof(string))
                 {
-                    HandleStringParam(arguments, property, paramNamesPrioritized, optionalAttr, isEmptyAllowed, paramsInstances);
+                    HandleStringParam(arguments, property, paramNamesPrioritized, optionalAttr, isEmptyAllowed, isWhitespaceAllowed, paramsInstances);
                 }
                 else if (propertyType.IsArray)
                 {
@@ -76,7 +77,7 @@ namespace Andy.Cmd.Parameter
             }
         }
 
-        static void HandleStringParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, IEnumerable<string> paramNamesPrioritized, OptionalAttribute optionalAttr, bool isEmptyAllowed, TTarget paramsInstances)
+        static void HandleStringParam<TTarget>(IDictionary<string, string[]> arguments, PropertyInfo property, IEnumerable<string> paramNamesPrioritized, OptionalAttribute optionalAttr, bool isEmptyAllowed, bool isWhitespaceAllowed, TTarget paramsInstances)
         {
             if (!paramNamesPrioritized.Any())
                 throw new ArgumentOutOfRangeException(nameof(paramNamesPrioritized), "At least one parameter name must be provided");
@@ -102,10 +103,33 @@ namespace Andy.Cmd.Parameter
             {
                 string value = values.Last();
 
-                if ((value == null) || (ParameterValueResolverFunctions.IsEmptyOrWhitespace(value) && !isEmptyAllowed))
+                if (value == null) throw new ParameterEmptyException(paramName);
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    if (!isEmptyAllowed) throw new ParameterEmptyException(paramName);
+                    property.SetValue(paramsInstances, value);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    if (isWhitespaceAllowed)
+                    {
+                        property.SetValue(paramsInstances, value);
+                        return;
+                    }
+
+                    if (isEmptyAllowed)
+                    {
+                        property.SetValue(paramsInstances, value.Trim());
+                        return;
+                    }
+
                     throw new ParameterEmptyException(paramName);
-                else
-                    property.SetValue(paramsInstances, value.Trim());
+                }
+
+                property.SetValue(paramsInstances, value.Trim());
             }
         }
 
