@@ -70,16 +70,7 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (ParameterMissingException e)
             {
-                var property = Metadata.GetParameterMetadata<ParameterAttribute>(e.ParameterProperty.DeclaringType, e.ParameterProperty);
-                var sb = new System.Text.StringBuilder();
-                sb.AppendLine(e.Message);
-                sb.AppendLine();
-                sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
-                sb.AppendLine(string.Join(", ", property.Sources.Select(x => $"{x.Name}")));
-                sb.AppendLine();
-                sb.AppendLine(HelpMessage);
-                WriteUserLine(sb.ToString());
-                return (int)ReturnValue.ArgumentNotProvided;
+                return WriteParameterErrorAndReturnExitCode(e);
             }
             catch (ParameterGroupException e)
             {
@@ -159,6 +150,10 @@ namespace Andy.FlacHash.Application.Cmd
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.NoFilesToProcess;
             }
+            catch (ParameterMissingException e)
+            {
+                return WriteParameterErrorAndReturnExitCode(e);
+            }
             catch (Exception e)
             {
                 WriteUserLine(e.Message);
@@ -195,6 +190,20 @@ namespace Andy.FlacHash.Application.Cmd
                 Console.Error.WriteLine("");
             }
             Console.Error.WriteLine(text);
+        }
+
+        static int WriteParameterErrorAndReturnExitCode(ParameterMissingException e)
+        {
+            var property = Metadata.GetParameterMetadata<ParameterAttribute>(e.ParameterProperty.DeclaringType, e.ParameterProperty);
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine(e.Message);
+            sb.AppendLine();
+            sb.AppendLine($"Provide the configuration for \"{property.DisplayName}\" via:");
+            sb.AppendLine(string.Join(", ", property.Sources.Select(x => $"{x.Name}")));
+            sb.AppendLine();
+            sb.AppendLine(HelpMessage);
+            WriteUserLine(sb.ToString());
+            return (int)ReturnValue.ArgumentNotProvided;
         }
     }
 }
