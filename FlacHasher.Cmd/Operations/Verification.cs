@@ -1,4 +1,5 @@
-﻿using Andy.FlacHash.Audio;
+﻿using Andy.Cmd.Parameter;
+using Andy.FlacHash.Audio;
 using Andy.FlacHash.Crypto;
 using Andy.FlacHash.Hashfile.Read;
 using Andy.FlacHash.Hashing;
@@ -156,7 +157,12 @@ namespace Andy.FlacHash.Application.Cmd
                     var baseDirPath = resolvedHashfile.Directory.FullName;
 
                     if (fileHashMap.IsPositionBased)
+                    {
+                        if (parameters.TargetFileExtensions == null || !parameters.TargetFileExtensions.Any())
+                            throw new ParameterMissingException($"asd", typeof(VerificationParameters).GetProperty(nameof(VerificationParameters.TargetFileExtensions)));
+
                         return fileSearch.FindFiles(new DirectoryInfo(baseDirPath), parameters.TargetFileExtensions);
+                    }
                     else
                     {
                         return fileHashMap.Hashes
