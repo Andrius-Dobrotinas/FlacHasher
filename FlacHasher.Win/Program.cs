@@ -36,7 +36,7 @@ namespace Andy.FlacHash.Application.Win
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Failure reading a settings file. {e.Message}");
+                MessageBox.Show($"Failure reading settings. {e.Message}");
                 return;
             }
 
