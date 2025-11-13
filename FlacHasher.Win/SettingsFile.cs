@@ -1,5 +1,4 @@
 using Andy.Cmd.Parameter;
-using Andy.FlacHash.Application.Audio;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,7 +26,7 @@ namespace Andy.FlacHash.Application.Win
                 return settings;
             else
             {
-                using (var settingsForm = new SettingsForm(new Settings()))
+                using (var settingsForm = new SettingsForm(ParamUtil.CreateWithDefaults<Settings>()))
                 {
                     var result = settingsForm.ShowDialog();
                     if (result == DialogResult.OK)
