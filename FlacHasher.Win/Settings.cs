@@ -14,6 +14,7 @@ namespace Andy.FlacHash.Application.Win
 
         [IniEntry(nameof(HashfileEntrySeparator))]
         [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]
+        [AllowWhitespace]
         [ParameterDescription("A character sequence that separates File-name and Hash-value in a hashfile. Not need when hashfile doesn't contain file names. To specify a Space char via the command line, put the value in quotes (\" \"). Don't use quotes when configuring via the settings file")]
         public string HashfileEntrySeparator { get; set; }
 
