@@ -12,8 +12,6 @@ namespace Andy.FlacHash.Application.Win
     public partial class SettingsForm : Form
     {
         private readonly Dictionary<PropertyInfo, Control> _propertyControls = new Dictionary<PropertyInfo, Control>();
-        private readonly Settings _settings;
-        private readonly Settings _originalSettings;
         private Button _okButton;
         private Button _cancelButton;
         private TableLayoutPanel _mainLayout;
@@ -23,39 +21,9 @@ namespace Andy.FlacHash.Application.Win
 
         public SettingsForm(Settings settings)
         {
-            _originalSettings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _settings = CloneSettings(_originalSettings);
             InitializeForm();
-            BuildDynamicControls();
-            LoadSettingsIntoControls();
-        }
-
-        private Settings CloneSettings(Settings source)
-        {
-            var clone = new Settings();
-            var properties = source.GetType()
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead && p.CanWrite);
-
-            foreach (var property in properties)
-            {
-                try
-                {
-                    var value = property.GetValue(source);
-                    // Clone arrays
-                    if (value is Array array)
-                    {
-                        value = array.Clone();
-                    }
-                    property.SetValue(clone, value);
-                }
-                catch
-                {
-                    // Skip properties that can't be copied
-                }
-            }
-
-            return clone;
+            BuildDynamicControls(settings);
+            LoadSettingsIntoControls(settings);
         }
 
         private string FormatPropertyName(string propertyName)
@@ -132,11 +100,11 @@ namespace Andy.FlacHash.Application.Win
             CancelButton = _cancelButton;
         }
 
-        private void BuildDynamicControls()
+        private void BuildDynamicControls(Settings settings)
         {
             // Get all public instance properties from the Settings class and its base classes
             // Exclude properties decorated with OperationParamAttribute
-            var properties = _settings.GetType()
+            var properties = settings.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead && p.CanWrite)
                 .Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == "OperationParamAttribute"))
@@ -368,7 +336,7 @@ namespace Andy.FlacHash.Application.Win
             };
         }
 
-        private void LoadSettingsIntoControls()
+        private void LoadSettingsIntoControls(Settings settings)
         {
             foreach (var kvp in _propertyControls)
             {
@@ -377,7 +345,7 @@ namespace Andy.FlacHash.Application.Win
 
                 try
                 {
-                    var value = property.GetValue(_settings);
+                    var value = property.GetValue(settings);
                     SetControlValue(control, property.PropertyType, value);
                 }
                 catch (Exception ex)
@@ -423,10 +391,33 @@ namespace Andy.FlacHash.Application.Win
         {
             try
             {
-                SaveControlsToSettings();
-                Result = _settings;
+                Result = SaveControlsToSettings();
                 DialogResult = DialogResult.OK;
                 Close();
+            }
+            catch (ParameterMissingException ex)
+            {
+                MessageBox.Show($"Provide value for: {FormatPropertyName(ex.ParameterProperty.Name)}",
+                    "Configuration problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult = DialogResult.None;
+            }
+            catch (ParameterEmptyException ex)
+            {
+                MessageBox.Show($"Provide value for: {FormatPropertyName(ex.ParameterName)}",
+                    "Configuration problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult = DialogResult.None;
+            }
+            catch (ParameterValueException ex)
+            {
+                MessageBox.Show($"Problem with value of {FormatPropertyName(ex.ParameterName)}. {ex.Message}",
+                    "Configuration problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult = DialogResult.None;
+            }
+            catch (ParameterException ex)
+            {
+                MessageBox.Show($"Problem with configuartion: {ex.Message}",
+                    "Configuration problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult = DialogResult.None;
             }
             catch (Exception ex)
             {
@@ -443,23 +434,15 @@ namespace Andy.FlacHash.Application.Win
             Close();
         }
 
-        private void SaveControlsToSettings()
+        private Settings SaveControlsToSettings()
         {
-            foreach (var kvp in _propertyControls)
-            {
-                var property = kvp.Key;
-                var control = kvp.Value;
+            var values = _propertyControls.Select(x => new { x.Key, Value = GetControlValue(x.Value, x.Key.PropertyType) })
+                .ToDictionary(
+                x => x.Key.Name.ToString(),
+                x => x.Value != null ? new[] { x.Value.ToString() } : null);
 
-                try
-                {
-                    var value = GetControlValue(control, property.PropertyType);
-                    property.SetValue(_settings, value);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error setting {property.Name}: {ex.Message}", ex);
-                }
-            }
+            var paramReader = new ParameterReader(new ParameterValueResolver());
+            return paramReader.GetParameters<Settings>(values);
         }
 
         private object GetControlValue(Control control, Type propertyType)
