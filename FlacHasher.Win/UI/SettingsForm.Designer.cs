@@ -1,4 +1,4 @@
-namespace Andy.FlacHash.Application.Win
+namespace Andy.FlacHash.Application.Win.UI
 {
     partial class SettingsForm
     {

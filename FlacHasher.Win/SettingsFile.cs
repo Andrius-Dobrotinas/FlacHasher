@@ -26,7 +26,7 @@ namespace Andy.FlacHash.Application.Win
                 return settings;
             else
             {
-                using (var settingsForm = new SettingsForm(ParamUtil.CreateWithDefaults<Settings>()))
+                using (var settingsForm = new UI.SettingsForm(ParamUtil.CreateWithDefaults<Settings>()))
                 {
                     var result = settingsForm.ShowDialog();
                     if (result == DialogResult.OK)

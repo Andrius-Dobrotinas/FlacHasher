@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace Andy.FlacHash.Application.Win
+namespace Andy.FlacHash.Application.Win.UI
 {
     public partial class SettingsForm : Form
     {
