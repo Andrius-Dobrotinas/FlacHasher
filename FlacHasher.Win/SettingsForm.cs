@@ -107,7 +107,7 @@ namespace Andy.FlacHash.Application.Win
             var properties = settings.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead && p.CanWrite)
-                .Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == "OperationParamAttribute"))
+                .Where(p => !p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == nameof(OperationParamAttribute)))
                 .OrderBy(p => p.Name)
                 .ToList();
 
@@ -116,11 +116,11 @@ namespace Andy.FlacHash.Application.Win
                 .GroupBy(p =>
                 {
                     var aspectAttr = p.GetCustomAttributes(true)
-                        .FirstOrDefault(attr => attr.GetType().Name == "SettingsAspectAttribute");
+                        .FirstOrDefault(attr => attr.GetType().Name == nameof(SettingsAspectAttribute));
                     
                     if (aspectAttr != null)
                     {
-                        var nameProperty = aspectAttr.GetType().GetProperty("Name");
+                        var nameProperty = aspectAttr.GetType().GetProperty(nameof(SettingsAspectAttribute.Name));
                         return nameProperty?.GetValue(aspectAttr)?.ToString() ?? string.Empty;
                     }
                     return string.Empty; // No attribute = empty group name
