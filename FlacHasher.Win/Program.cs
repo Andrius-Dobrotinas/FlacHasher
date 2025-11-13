@@ -36,6 +36,7 @@ namespace Andy.FlacHash.Application.Win
             }
             catch (Exception e)
             {
+                // TODO: need to think about how to recover from that
                 MessageBox.Show($"Failure reading settings. {e.Message}");
                 return;
             }
