@@ -13,8 +13,8 @@ namespace Andy.FlacHash.Application.Win
         {
             var settings = GetApplicationSettings();
 
-            var (_, decoderProfilesRaw) = ReadIniFile(settingsFile);
-            var decoderProfiles = ParseDecoderProfiles(decoderProfilesRaw).ToArray();
+            var decoderProfilesIni = ReadIniFile(settingsFile);
+            var decoderProfiles = ParseDecoderProfiles(decoderProfilesIni).ToArray();
 
             return (settings, decoderProfiles);
         }
@@ -45,14 +45,11 @@ namespace Andy.FlacHash.Application.Win
             }
         }
 
-        public static (IDictionary<string, string[]>, IDictionary<string, Dictionary<string, string[]>>) ReadIniFile(FileInfo settingsFile, string profileName = null)
+        public static IDictionary<string, Dictionary<string, string[]>> ReadIniFile(FileInfo settingsFile)
         {
             var wholeSettingsFileDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
             if (!wholeSettingsFileDictionary.Any())
-                throw new ConfigurationException("The Configuration file is empty");
-
-            var settings = Application.SettingsFile.GetSettingsProfile(wholeSettingsFileDictionary, profileName, caseInsensitive: true);
-            Application.SettingsFile.MergeSectionValuesIn(settings, wholeSettingsFileDictionary, Application.SettingsFile.BuildSectionName(ApplicationSettings.HashingSectionPrefix, ApplicationSettings.DefaultHashingSection), isMandatory: false);
+                return null;
 
             var decoderProfiles = wholeSettingsFileDictionary.Where(x => x.Key.StartsWith(ApplicationSettings.DecoderSectionPrefix, StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionary(
@@ -61,14 +58,14 @@ namespace Andy.FlacHash.Application.Win
                         i => i.Key,
                         i => new[] { i.Value }));
 
-            return (settings.ToDictionary(x => x.Key, x => new[] { x.Value }), decoderProfiles);
+            return decoderProfiles;
         }
 
         public static IList<DecoderProfile> ParseDecoderProfiles(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
         {
             var paramReader = ParameterReader.Build();
 
-            var profilesFromIni = decoderProfilesRaw.Any() ? Get(decoderProfilesRaw, paramReader) : Array.Empty<DecoderProfile>();
+            var profilesFromIni = (decoderProfilesRaw != null && decoderProfilesRaw.Any()) ? Get(decoderProfilesRaw, paramReader) : Array.Empty<DecoderProfile>();
 
             var profilesFromUserProfile = Properties.Default.DecoderProfiles?.Profiles != null ? Properties.Default.DecoderProfiles.Profiles : Array.Empty<DecoderProfile>();
 
