@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Application
         [IniEntry(nameof(ProcessExitTimeoutMs), Order = 1)]
         [Optional(defaultValue: 1000)]
         [ParameterDescription("The amount of time to wait for the decoder process to wind down after decoding is finished")]
-        [SettingsAspect(AspectDecoder)]
+        [ConfigurationAspect(AspectDecoder)]
         public int ProcessExitTimeoutMs { get; set; }
 
         // TODO: document: -1 for no timeout
@@ -25,14 +25,14 @@ namespace Andy.FlacHash.Application
         [IniEntry(nameof(ProcessTimeoutSec), Order = 1)]
         [Optional(defaultValue: 180)]
         [ParameterDescription("The maximum amount of time (in seconds) an Audio decoder is allowed to take to decode a file. This is useful for situations where something goes wrong and the decoder stops responding and needs to be murdered. No timeout: -1")]
-        [SettingsAspect(AspectDecoder)]
+        [ConfigurationAspect(AspectDecoder)]
         public int ProcessTimeoutSec { get; set; }
 
         [DecoderParam]
         [IniEntry(nameof(ProcessStartDelayMs))]
         [Optional(defaultValue: 100)]
         [ParameterDescription("Amount of extra time to give the decoder process to start up before feeding it data. If the process is not ready to receive data, that can result in an error. Normally, this is not an issue.")]
-        [SettingsAspect(AspectDecoder)]
+        [ConfigurationAspect(AspectDecoder)]
         public int ProcessStartDelayMs { get; set; }
 
         [OperationParam]
