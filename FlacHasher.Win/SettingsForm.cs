@@ -1,4 +1,5 @@
 using Andy.Cmd.Parameter;
+using FlacHasher.Win.UI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -287,7 +288,7 @@ namespace Andy.FlacHash.Application.Win
             // Handle string array
             if (propertyType == typeof(string[]))
             {
-                return CreateStringArrayControl();
+                return new StringListControl();
             }
 
             // Handle bool
@@ -331,115 +332,6 @@ namespace Andy.FlacHash.Application.Win
             };
         }
 
-        private Control CreateStringArrayControl()
-        {
-            var container = new Panel
-            {
-                Height = 130,
-                BorderStyle = BorderStyle.None
-            };
-
-            var layout = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 4,
-                RowCount = 2
-            };
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60F));
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60F));
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 70F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
-
-            var listBox = new ListBox
-            {
-                Dock = DockStyle.Fill,
-                IntegralHeight = false
-            };
-            layout.SetColumnSpan(listBox, 4);
-
-            var textBox = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Margin = new Padding(0, 5, 0, 0)
-            };
-
-            var addButton = new Button { Text = "Add", Dock = DockStyle.Fill, Margin = new Padding(5, 5, 0, 0) };
-            var updateButton = new Button { Text = "Update", Dock = DockStyle.Fill, Margin = new Padding(5, 5, 0, 0) };
-            var removeButton = new Button { Text = "Remove", Dock = DockStyle.Fill, Margin = new Padding(5, 5, 0, 0) };
-
-            layout.Controls.Add(listBox, 0, 0);
-            layout.Controls.Add(textBox, 0, 1);
-            layout.Controls.Add(addButton, 1, 1);
-            layout.Controls.Add(updateButton, 2, 1);
-            layout.Controls.Add(removeButton, 3, 1);
-
-            // Event handlers
-            listBox.SelectedIndexChanged += (s, e) =>
-            {
-                if (listBox.SelectedItem != null)
-                {
-                    textBox.Text = listBox.SelectedItem.ToString();
-                    updateButton.Enabled = true;
-                    removeButton.Enabled = true;
-                }
-                else
-                {
-                    textBox.Clear();
-                    updateButton.Enabled = false;
-                    removeButton.Enabled = false;
-                }
-            };
-
-            addButton.Click += (s, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(textBox.Text) && !listBox.Items.Contains(textBox.Text))
-                {
-                    listBox.Items.Add(textBox.Text);
-                    textBox.Clear();
-                    textBox.Focus();
-                }
-            };
-
-            updateButton.Click += (s, e) =>
-            {
-                if (listBox.SelectedItem != null && !string.IsNullOrWhiteSpace(textBox.Text) && !listBox.Items.Contains(textBox.Text))
-                {
-                    int selectedIndex = listBox.SelectedIndex;
-                    listBox.Items[selectedIndex] = textBox.Text;
-                }
-            };
-
-            removeButton.Click += (s, e) =>
-            {
-                if (listBox.SelectedItem != null)
-                {
-                    int selectedIndex = listBox.SelectedIndex;
-                    listBox.Items.RemoveAt(selectedIndex);
-                    textBox.Clear();
-
-                    if (selectedIndex < listBox.Items.Count)
-                    {
-                        listBox.SelectedIndex = selectedIndex;
-                    }
-                    else if (listBox.Items.Count > 0)
-                    {
-                        listBox.SelectedIndex = listBox.Items.Count - 1;
-                    }
-                }
-            };
-
-            // Initial state
-            updateButton.Enabled = false;
-            removeButton.Enabled = false;
-
-            container.Controls.Add(layout);
-            container.Tag = listBox;
-
-            return container;
-        }
-
         private void LoadSettingsIntoControls(Settings settings)
         {
             foreach (var kvp in _propertyControls)
@@ -462,15 +354,9 @@ namespace Andy.FlacHash.Application.Win
 
         private void SetControlValue(Control control, Type propertyType, object value)
         {
-            if (control is Panel && control.Tag is ListBox && propertyType == typeof(string[]))
+            if (control is StringListControl stringListControl && propertyType == typeof(string[]))
             {
-                var listBox = (ListBox)control.Tag;
-                listBox.Items.Clear();
-                var array = value as string[];
-                if (array != null)
-                {
-                    listBox.Items.AddRange(array);
-                }
+                stringListControl.Values = value as string[];
             }
             else if (control is TextBox textBox)
             {
@@ -566,10 +452,9 @@ namespace Andy.FlacHash.Application.Win
 
         private object GetControlValue(Control control, Type propertyType)
         {
-            if (control is Panel && control.Tag is ListBox && propertyType == typeof(string[]))
+            if (control is StringListControl stringListControl && propertyType == typeof(string[]))
             {
-                var listBox = (ListBox)control.Tag;
-                return listBox.Items.Cast<string>().ToArray();
+                return stringListControl.Values.ToArray();
             }
             else if (control is TextBox textBox)
             {
