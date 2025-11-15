@@ -28,7 +28,6 @@ namespace Andy.FlacHash.Application.Win.UI
             UpdateOkButtonState();
         }
 
-        // New: populate fields from profile
         private void PopulateFieldsFromProfile(DecoderProfile profile)
         {
             txtName.Text = profile.Name;
@@ -137,4 +136,3 @@ namespace Andy.FlacHash.Application.Win.UI
         }
     }
 }
-

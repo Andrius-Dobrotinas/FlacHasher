@@ -10,15 +10,18 @@ namespace Andy.FlacHash.Application.Win
     {
         public static (Settings, DecoderProfile[]) GetSettings(FileInfo settingsFile)
         {
-            var settings = GetApplicationSettings();
-
             var decoderProfilesIni = ReadIniFile(settingsFile);
+
+            var initialDecoderProfiles = ParseDecoderProfiles(decoderProfilesIni).ToArray();
+
+            var settings = GetApplicationSettings(initialDecoderProfiles);
+
             var decoderProfiles = ParseDecoderProfiles(decoderProfilesIni).ToArray();
 
             return (settings, decoderProfiles);
         }
 
-        private static Settings GetApplicationSettings()
+        private static Settings GetApplicationSettings(IList<DecoderProfile> decoderProfiles = null)
         {
             var settings = Properties.Default.ApplicationSettings;
 
@@ -26,13 +29,19 @@ namespace Andy.FlacHash.Application.Win
                 return settings;
             else
             {
-                using (var settingsForm = new UI.SettingsForm(ParamUtil.CreateWithDefaults<Settings>()))
+                using (var settingsForm = new UI.SettingsForm(ParamUtil.CreateWithDefaults<Settings>(), decoderProfiles))
                 {
                     var result = settingsForm.ShowDialog();
                     if (result == DialogResult.OK)
                     {
                         settings = settingsForm.Result;
                         Properties.Default.ApplicationSettings = settings;
+
+                        Properties.Default.DecoderProfiles = new DecoderProfileList
+                        {
+                            Profiles = settingsForm.ResultDecoderProfiles.ToArray()
+                        };
+
                         Properties.Default.Save();
                         return settings;
                     }

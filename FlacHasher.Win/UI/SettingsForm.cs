@@ -2,6 +2,7 @@ using Andy.Cmd.Parameter;
 using FlacHasher.Win.UI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -17,11 +18,20 @@ namespace Andy.FlacHash.Application.Win.UI
         private Button _cancelButton;
         private TableLayoutPanel _mainLayout;
         private FlowLayoutPanel _buttonPanel;
+        private readonly BindingList<DecoderProfile> _decoderProfiles;
+        private ComboBox _decoderProfilesComboBox;
+        private Button _addProfileButton;
+        private Button _editProfileButton;
+        private Button _removeProfileButton;
 
         public Settings Result { get; private set; }
+        public IList<DecoderProfile> ResultDecoderProfiles { get; private set; }
 
-        public SettingsForm(Settings settings)
+        public SettingsForm(Settings settings, IList<DecoderProfile> decoderProfiles)
         {
+            // It's important to copy the list so the original stays intact in case of Cancellation
+            _decoderProfiles = new BindingList<DecoderProfile>(decoderProfiles != null ? decoderProfiles.ToList() : new List<DecoderProfile>());
+
             InitializeForm();
             BuildDynamicControls(settings);
             LoadSettingsIntoControls(settings);
@@ -139,6 +149,14 @@ namespace Andy.FlacHash.Application.Win.UI
                 Padding = new Padding(5)
             };
 
+            var decoderProfilesGroupBox = CreateDecoderProfilesGroupBox();
+            if (decoderProfilesGroupBox != null)
+            {
+                contentPanel.RowCount++;
+                contentPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                contentPanel.Controls.Add(decoderProfilesGroupBox);
+            }
+
             foreach (var group in groupedProperties)
             {
                 var groupBox = CreateGroupBox(group.Key, group.ToList());
@@ -162,6 +180,71 @@ namespace Andy.FlacHash.Application.Win.UI
             _mainLayout.Controls.Add(scrollPanel, 0, 0);
         }
 
+        private GroupBox CreateDecoderProfilesGroupBox()
+        {
+            var groupBox = new GroupBox
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Dock = DockStyle.Fill,
+                Padding = new Padding(10),
+                Margin = new Padding(5),
+                Text = "Decoder Profiles"
+            };
+
+            var layout = new TableLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Dock = DockStyle.Fill,
+                ColumnCount = 4,
+                Padding = new Padding(5)
+            };
+
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80F));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80F));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80F));
+
+            _decoderProfilesComboBox = new ComboBox
+            {
+                Dock = DockStyle.Fill,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+
+            _addProfileButton = new Button
+            {
+                Text = "Add",
+                Dock = DockStyle.Fill
+            };
+            _addProfileButton.Click += AddProfileButton_Click;
+
+            _editProfileButton = new Button
+            {
+                Text = "Edit",
+                Dock = DockStyle.Fill
+            };
+            _editProfileButton.Click += EditProfileButton_Click;
+
+            _removeProfileButton = new Button
+            {
+                Text = "Remove",
+                Dock = DockStyle.Fill
+            };
+            _removeProfileButton.Click += RemoveProfileButton_Click;
+
+            layout.Controls.Add(_decoderProfilesComboBox, 0, 0);
+            layout.Controls.Add(_addProfileButton, 1, 0);
+            layout.Controls.Add(_editProfileButton, 2, 0);
+            layout.Controls.Add(_removeProfileButton, 3, 0);
+
+            groupBox.Controls.Add(layout);
+
+            InitializeDecoderProfilesSelector();
+
+            return groupBox;
+        }
+
         private GroupBox CreateGroupBox(string groupName, List<PropertyInfo> properties)
         {
             var groupBox = new GroupBox
@@ -171,7 +254,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 Dock = DockStyle.Fill,
                 Padding = new Padding(10),
                 Margin = new Padding(5),
-                Text = groupName // Empty string for properties without the attribute
+                Text = groupName
             };
 
             var groupPanel = new TableLayoutPanel
@@ -196,6 +279,28 @@ namespace Andy.FlacHash.Application.Win.UI
 
             groupBox.Controls.Add(groupPanel);
             return groupBox;
+        }
+
+        private void InitializeDecoderProfilesSelector()
+        {
+            _decoderProfilesComboBox.BeginUpdate();
+            try
+            {
+                _decoderProfilesComboBox.DataSource = _decoderProfiles;
+                _decoderProfilesComboBox.DisplayMember = nameof(DecoderProfile.Name);
+            }
+            finally
+            {
+                _decoderProfilesComboBox.EndUpdate();
+            }
+
+            _decoderProfiles.ListChanged += _decoderProfiles_ListChanged;
+        }
+
+        private void _decoderProfiles_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            _removeProfileButton.Enabled = _decoderProfiles.Count > 1;
+            _editProfileButton.Enabled = _decoderProfiles.Any();
         }
 
         private Panel CreatePropertyPanel(PropertyInfo property)
@@ -392,6 +497,7 @@ namespace Andy.FlacHash.Application.Win.UI
             try
             {
                 Result = SaveControlsToSettings();
+                ResultDecoderProfiles = _decoderProfiles;
                 DialogResult = DialogResult.OK;
                 Close();
             }
@@ -485,6 +591,40 @@ namespace Andy.FlacHash.Application.Win.UI
             }
 
             return null;
+        }
+
+        private void AddProfileButton_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new DecoderProfileDialog())
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    _decoderProfiles.Add(dialog.Profile);
+                }
+            }
+        }
+
+        private void EditProfileButton_Click(object sender, EventArgs e)
+        {
+            var selected = _decoderProfilesComboBox.SelectedItem as DecoderProfile;
+
+            using (var dialog = new DecoderProfileDialog(selected))
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    selected.Name = dialog.Profile.Name;
+                    selected.Decoder = dialog.Profile.Decoder;
+                    selected.DecoderParameters = dialog.Profile.DecoderParameters;
+                    selected.TargetFileExtensions = dialog.Profile.TargetFileExtensions;
+                }
+            }
+        }
+
+        private void RemoveProfileButton_Click(object sender, EventArgs e)
+        {
+            var index = _decoderProfilesComboBox.SelectedIndex;
+
+            _decoderProfiles.RemoveAt(index);
         }
     }
 }

@@ -798,11 +798,15 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void toolStripButtonSettings_Click(object sender, EventArgs e)
         {
-            using (var form = new SettingsForm(settings))
+            using (var form = new SettingsForm(settings, decoderProfiles))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    Properties.Default.ApplicationSettings = form.Result; 
+                    Properties.Default.ApplicationSettings = form.Result;
+                    Properties.Default.DecoderProfiles = new DecoderProfileList
+                    {
+                        Profiles = form.ResultDecoderProfiles.ToArray()
+                    };
                     Properties.Default.Save();
                     System.Windows.Forms.Application.Restart();
                 }
