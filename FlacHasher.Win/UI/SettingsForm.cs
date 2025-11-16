@@ -127,11 +127,11 @@ namespace Andy.FlacHash.Application.Win.UI
                 .GroupBy(p =>
                 {
                     var aspectAttr = p.GetCustomAttributes(true)
-                        .FirstOrDefault(attr => attr.GetType().Name == nameof(ConfigurationAspectAttribute));
+                        .FirstOrDefault(attr => attr.GetType().Name == nameof(ConfigurationFacetAttribute));
                     
                     if (aspectAttr != null)
                     {
-                        var nameProperty = aspectAttr.GetType().GetProperty(nameof(ConfigurationAspectAttribute.Name));
+                        var nameProperty = aspectAttr.GetType().GetProperty(nameof(ConfigurationFacetAttribute.Name));
                         return nameProperty?.GetValue(aspectAttr)?.ToString() ?? string.Empty;
                     }
                     return string.Empty; // No attribute = empty group name
