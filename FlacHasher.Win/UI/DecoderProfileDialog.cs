@@ -39,7 +39,7 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void SetHelpTexts()
         {
-            var decoderDescription = ParameterDescriptionAttribute.GetDescription<DecoderProfileIniSection>(x => x.DecoderExe);
+            var decoderDescription = ParameterDescriptionAttribute.GetDescription<DecoderProfileIniSection>(x => x.Decoder);
             lblDecoderHelp.Text = decoderDescription ?? string.Empty;
 
             var decoderParametersDescription = ParameterDescriptionAttribute.GetDescription<DecoderProfileIniSection>(x => x.DecoderParameters);
