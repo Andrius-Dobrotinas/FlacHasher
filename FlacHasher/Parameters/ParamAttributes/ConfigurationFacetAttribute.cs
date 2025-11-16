@@ -9,6 +9,7 @@ namespace Andy.FlacHash.Application
 
         public ConfigurationFacetAttribute(string name)
         {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Gotta specify the name!");
             Name = name;
         }
     }
