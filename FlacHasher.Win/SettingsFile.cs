@@ -21,7 +21,7 @@ namespace Andy.FlacHash.Application.Win
             return (settings, decoderProfiles);
         }
 
-        private static Settings GetApplicationSettings(IList<DecoderProfile> decoderProfiles = null)
+        private static Settings GetApplicationSettings(IList<DecoderProfile> decoderProfiles)
         {
             var settings = Properties.Default.ApplicationSettings;
 
