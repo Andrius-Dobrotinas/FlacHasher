@@ -118,7 +118,7 @@ namespace Andy.FlacHash.Application.Win.UI
             var properties = settings.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead && p.CanWrite)
-                .Where(p => !p.GetCustomAttributes(true).Any(attr => attr is OperationParamAttribute))
+                .Where(p => !p.GetCustomAttributes().Any(attr => attr is OperationParamAttribute))
                 .OrderBy(p => p.Name)
                 .ToList();
 
@@ -126,7 +126,7 @@ namespace Andy.FlacHash.Application.Win.UI
             var groupedProperties = properties
                 .GroupBy(p =>
                 {
-                    var aspectAttr = p.GetCustomAttributes(true)
+                    var aspectAttr = p.GetCustomAttributes()
                         .FirstOrDefault(attr => attr is ConfigurationFacetAttribute);
                     
                     if (aspectAttr != null)
