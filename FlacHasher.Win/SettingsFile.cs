@@ -109,7 +109,7 @@ namespace Andy.FlacHash.Application.Win
                         return new DecoderProfile
                         {
                             Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase),
-                            Decoder = profileRaw.DecoderExe,
+                            Decoder = profileRaw.Decoder,
                             DecoderParameters = profileRaw.DecoderParameters,
                             TargetFileExtensions = profileRaw.TargetFileExtensions
                         };
@@ -140,19 +140,16 @@ namespace Andy.FlacHash.Application.Win
             }
         }
 
-        public class DecoderProfileIniSection
+        public class DecoderProfileIniSection : DecoderProfile
         {
-            [IniEntry("Decoder")]
-            [Cmd.Parameters.DecoderExeDescription]
-            public virtual string DecoderExe { get; set; }
+            [IniEntry(nameof(Decoder))]
+            public override string Decoder { get; set; }
 
             [IniEntry(nameof(DecoderParameters))]
-            [Cmd.Parameters.DecoderParamsDescription]
-            public virtual string[] DecoderParameters { get; set; }
+            public override string[] DecoderParameters { get; set; }
 
             [IniEntry(nameof(TargetFileExtensions))]
-            [Cmd.Parameters.DecoderTargetFileExtensions]
-            public virtual string[] TargetFileExtensions { get; set; }
+            public override string[] TargetFileExtensions { get; set; }
         }
     }
 }
