@@ -608,6 +608,16 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             var selected = _decoderProfilesComboBox.SelectedItem as DecoderProfile;
 
+            if (selected is DecoderProfileIniSection)
+            {
+                MessageBox.Show(
+                    "To modify this decoder profile, edit the INI file it's defined in",
+                    "Decoder profile defined in the INI file",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
             using (var dialog = new DecoderProfileDialog(selected))
             {
                 if (dialog.ShowDialog(this) == DialogResult.OK)
@@ -622,9 +632,17 @@ namespace Andy.FlacHash.Application.Win.UI
 
         private void RemoveProfileButton_Click(object sender, EventArgs e)
         {
-            var index = _decoderProfilesComboBox.SelectedIndex;
+            if (_decoderProfilesComboBox.SelectedItem is DecoderProfileIniSection)
+            {
+                MessageBox.Show(
+                    "This item is defined in the INI file so you're going to have to remove it manually",
+                    "Decoder profile defined in the INI file",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
 
-            _decoderProfiles.RemoveAt(index);
+            _decoderProfiles.RemoveAt(_decoderProfilesComboBox.SelectedIndex);
         }
     }
 }

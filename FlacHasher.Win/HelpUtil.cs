@@ -14,12 +14,12 @@ namespace Andy.FlacHash.Application.Win
 
             // Decoder profile params
             var builder = new System.Text.StringBuilder(helpText_decoder);
-            var decoderProfileProperties = typeof(SettingsFile.DecoderProfileIniSection).GetProperties()
+            var decoderProfileProperties = typeof(DecoderProfileIniSection).GetProperties()
                 .Where(Andy.Cmd.Parameter.Metadata.IsParameter)
                 .ToList();
             
             var decoderProfileConfigBuilder = new System.Text.StringBuilder();
-            Help.PrintParameters<SettingsFile.DecoderProfileIniSection, Andy.Cmd.Parameter.ParameterAttribute>(decoderProfileConfigBuilder, decoderProfileProperties, Array.Empty<System.Reflection.PropertyInfo>());
+            Help.PrintParameters<DecoderProfileIniSection, Andy.Cmd.Parameter.ParameterAttribute>(decoderProfileConfigBuilder, decoderProfileProperties, Array.Empty<System.Reflection.PropertyInfo>());
             builder.Replace("{DECODER_PROFILE_CONFIG}", decoderProfileConfigBuilder.ToString());
             decoderProfileConfigBuilder.Clear();
 

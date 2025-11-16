@@ -69,11 +69,11 @@ namespace Andy.FlacHash.Application.Win
             return decoderProfiles;
         }
 
-        public static IList<DecoderProfile> ParseDecoderProfiles(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
+        public static IList<DecoderProfile> ParseDecoderProfiles(IDictionary<string, Dictionary<string, string[]>> decoderProfilesFromIni)
         {
             var paramReader = ParameterReader.Build();
 
-            var profilesFromIni = (decoderProfilesRaw != null && decoderProfilesRaw.Any()) ? Get(decoderProfilesRaw, paramReader) : Array.Empty<DecoderProfile>();
+            var profilesFromIni = (decoderProfilesFromIni != null && decoderProfilesFromIni.Any()) ? Get(decoderProfilesFromIni, paramReader) : Array.Empty<DecoderProfileIniSection>();
 
             var profilesFromUserProfile = Properties.Default.DecoderProfiles?.Profiles != null ? Properties.Default.DecoderProfiles.Profiles : Array.Empty<DecoderProfile>();
 
@@ -86,7 +86,7 @@ namespace Andy.FlacHash.Application.Win
         /// <summary>
         /// Merge, preferring profiles from INI
         /// </summary>
-        static IList<DecoderProfile> MergeProfiles(IList<DecoderProfile> profilesFromIni, IList<DecoderProfile> profilesFromUserProfile)
+        static IList<DecoderProfile> MergeProfiles(IList<DecoderProfileIniSection> profilesFromIni, IList<DecoderProfile> profilesFromUserProfile)
         {
             var merged = new List<DecoderProfile>(profilesFromIni);
             var iniNames = new HashSet<string>(profilesFromIni.Select(p => p.Name), StringComparer.InvariantCultureIgnoreCase);
@@ -99,20 +99,15 @@ namespace Andy.FlacHash.Application.Win
             return merged;
         }
 
-        static IList<DecoderProfile> Get(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw, ParameterReader paramReader)
+        static IList<DecoderProfileIniSection> Get(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw, ParameterReader paramReader)
         {
             return decoderProfilesRaw
                     .Select(profileSection =>
                     {
                         var profileRaw = paramReader.GetParameters<DecoderProfileIniSection>(profileSection.Value);
+                        profileRaw.Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase);
 
-                        return new DecoderProfile
-                        {
-                            Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase),
-                            Decoder = profileRaw.Decoder,
-                            DecoderParameters = profileRaw.DecoderParameters,
-                            TargetFileExtensions = profileRaw.TargetFileExtensions
-                        };
+                        return profileRaw;
                     })
                     .ToArray();
         }
@@ -138,18 +133,6 @@ namespace Andy.FlacHash.Application.Win
                 else
                     throw new OperationCanceledException();
             }
-        }
-
-        public class DecoderProfileIniSection : DecoderProfile
-        {
-            [IniEntry(nameof(Decoder))]
-            public override string Decoder { get; set; }
-
-            [IniEntry(nameof(DecoderParameters))]
-            public override string[] DecoderParameters { get; set; }
-
-            [IniEntry(nameof(TargetFileExtensions))]
-            public override string[] TargetFileExtensions { get; set; }
         }
     }
 }
