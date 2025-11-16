@@ -168,9 +168,9 @@ namespace Andy.FlacHash.Application.Win.UI
         void ResetStatusMessages()
         {
             if (mode == Mode.Hashing)
-                ResetLog("Select a directory to hash some files!", TextResources.F1Hint);
+                ResetLog("Select a directory to hash some files!");
             else
-                ResetLog("Select a hashfile to verify files", TextResources.F1Hint);
+                ResetLog("Select a hashfile to verify files");
         }
 
         private async Task WithTryCatch_Operation(Func<Task> function)
@@ -642,7 +642,7 @@ namespace Andy.FlacHash.Application.Win.UI
         {
             ResetLog(e.Message);
             if (e is ConfigurationException)
-                LogMessage(TextResources.F1Hint);
+                LogMessage(TextResources.ReferToReadme);
 
             MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
@@ -786,12 +786,6 @@ namespace Andy.FlacHash.Application.Win.UI
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == Keys.F1)
-            {
-                ResetLog();
-                WriteLine(HelpUtil.GetHelpText().ToString());
-                return true;
-            }
             if (keyData == Keys.F12)
             {
                 toolStripButtonSettings_Click(this, EventArgs.Empty);
