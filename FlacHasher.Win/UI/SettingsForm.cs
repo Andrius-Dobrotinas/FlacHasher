@@ -254,7 +254,7 @@ namespace Andy.FlacHash.Application.Win.UI
                 Dock = DockStyle.Fill,
                 Padding = new Padding(10),
                 Margin = new Padding(5),
-                Text = groupName
+                Text = FormatPropertyName(groupName)
             };
 
             var groupPanel = new TableLayoutPanel

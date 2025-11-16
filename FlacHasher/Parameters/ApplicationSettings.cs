@@ -7,9 +7,9 @@ namespace Andy.FlacHash.Application
 {
     public class ApplicationSettings
     {
-        public const string AspectVerification = "Hash Verification";
+        public const string AspectVerification = "HashVerification";
         public const string AspectHashing = "Hashing";
-        public const string AspectDecoder = "Audio Decoder";
+        public const string AspectDecoder = "AudioDecoder";
 
         [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.ProcessExitTimeoutMs, Order = 0)]
