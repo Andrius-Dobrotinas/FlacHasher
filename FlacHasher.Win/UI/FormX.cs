@@ -792,7 +792,11 @@ namespace Andy.FlacHash.Application.Win.UI
                 WriteLine(HelpUtil.GetHelpText().ToString());
                 return true;
             }
-
+            if (keyData == Keys.F12)
+            {
+                toolStripButtonSettings_Click(this, EventArgs.Empty);
+                return true;
+            }
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
