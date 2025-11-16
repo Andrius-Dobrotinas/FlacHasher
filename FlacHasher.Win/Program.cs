@@ -17,6 +17,10 @@ namespace Andy.FlacHash.Application.Win
         [STAThread]
         static void Main()
         {
+            System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            System.Windows.Forms.Application.EnableVisualStyles();
+            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+
             Settings settings;
             DecoderProfile[] decoderProfiles;
             try
@@ -25,6 +29,10 @@ namespace Andy.FlacHash.Application.Win
                 var result = SettingsFile.GetSettings(settingsFile);
                 settings = result.Item1;
                 decoderProfiles = result.Item2;
+            }
+            catch (OperationCanceledException)
+            {
+                return;
             }
             catch (Exception e)
             {
@@ -36,10 +44,6 @@ namespace Andy.FlacHash.Application.Win
 
             var hashfileExtensions = FileExtension.PrefixWithDot(settings.HashfileExtensions);
             var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
-
-            System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            System.Windows.Forms.Application.EnableVisualStyles();
-            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
             var algosString = BuildFileFilter(algorithms);
 
