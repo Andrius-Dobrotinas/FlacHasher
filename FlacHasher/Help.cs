@@ -199,8 +199,9 @@ namespace Andy.FlacHash.Application
         public static (ICollection<PropertyInfo> decoderProperties, ICollection<PropertyInfo> opSpecificProperties, ICollection<PropertyInfo> miscProperties) GetPropertiesByParameterPurpose<TParams>()
         {
             var sharedParamProperties = typeof(TParams).GetProperties().Where(Metadata.IsParameter);
-
-            var decoderProperties = sharedParamProperties.Where(x => x.GetCustomAttribute<DecoderParamAttribute>() != null).ToList();
+            var decoderProperties = sharedParamProperties
+                .Where(x => x.GetCustomAttribute<ConfigurationFacetAttribute>()?.Name == ApplicationSettings.ConfigurationFacet.Decoder)
+                .ToList();
             var opSpecificProperties = sharedParamProperties.Except(decoderProperties).ToList();
             var miscProperties = sharedParamProperties.Except(decoderProperties).Except(opSpecificProperties).ToList();
 
