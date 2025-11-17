@@ -93,5 +93,16 @@ namespace Andy.FlacHash.Application.Win {
                 this["DecoderProfiles"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::Andy.FlacHash.Application.Win.Settings ApplicationSettings {
+            get {
+                return ((global::Andy.FlacHash.Application.Win.Settings)(this["ApplicationSettings"]));
+            }
+            set {
+                this["ApplicationSettings"] = value;
+            }
+        }
     }
 }
