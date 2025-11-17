@@ -72,7 +72,7 @@ namespace Andy.FlacHash.Application.Win
                             fileSearch),
                         hashFormatter,
                         HashFileReader.Default.BuildHashfileReader(settings.HashfileEntrySeparator),
-                        new HashVerifier(hashFormatter),
+                        new HashVerifier(),
                         decoderProfiles,
                         algorithms,
                         settings,
