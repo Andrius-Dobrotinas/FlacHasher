@@ -8,7 +8,7 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public class HashingParameters : MasterParameters
     {
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [ParameterDescription($"If not specified, it outputs the actual hash bytes. Otherwise, the following data can be put into the output string: {OutputFormatting.Placeholders.Hash}, {OutputFormatting.Placeholders.FileName}, {OutputFormatting.Placeholders.FilePath}")]
         [CmdLineParameter(CmdlineParameterNames.OutputFormat, Order = 0)]
         [IniEntry(nameof(OutputFormat), Order = 1)]
@@ -16,14 +16,14 @@ namespace Andy.FlacHash.Application.Cmd
         [FrontAndCenterParam]
         public string OutputFormat { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [ParameterDescription("A list of files to hash. If filenames don't include paths, they get looked up in the \"current\" directory (which is the one this programs is being executed in)")]
         [CmdLineParameter(CmdlineParameterNames.InputFiles)]
         [EitherOr("input")]
         [FrontAndCenterParam]
         public string[] InputFiles { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [ParameterDescription($"A directory that contains files to hash. They get looked up based on {CmdlineParameterNames.FileExtensions}")]
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [EitherOr("input")]

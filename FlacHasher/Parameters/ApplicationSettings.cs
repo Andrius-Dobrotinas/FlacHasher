@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Application
         [ConfigurationFacet(ConfigurationFacet.Decoder)]
         public int ProcessStartDelayMs { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.HashAlgorithm, Order = 0)]
         [IniEntry(nameof(HashAlgorithm), Order = 1)]
         [Optional(defaultValue: Defaults.HashAlgorithm)]

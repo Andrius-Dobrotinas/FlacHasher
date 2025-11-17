@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         public abstract string InputDirectory { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.FileExtensions, Order = 0)]
         [IniEntry(nameof(TargetFileExtensions), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]

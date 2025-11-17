@@ -22,7 +22,7 @@ namespace Andy.FlacHash.Application
 
             var allOperationSpecificProperties = allProperties.Except(propertiesToExclude, PropertyInfoComparer.Instance).ToList();
 
-            var allOperationSpecificProperties_Main = allOperationSpecificProperties.Where(x => x.GetCustomAttribute<OperationParamAttribute>() != null).ToList();
+            var allOperationSpecificProperties_Main = allOperationSpecificProperties.Where(x => x.GetCustomAttribute<OperationInstanceConfigurationAttribute>() != null).ToList();
             var allOperationSpecificProperties_Other = allOperationSpecificProperties.Except(allOperationSpecificProperties_Main).ToList();
 
             PrintParameters<T, TParamSource>(builder, allOperationSpecificProperties_Main, allOperationSpecificProperties_Other);

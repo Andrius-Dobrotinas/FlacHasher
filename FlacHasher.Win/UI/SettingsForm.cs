@@ -118,7 +118,7 @@ namespace Andy.FlacHash.Application.Win.UI
             var properties = settings.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead && p.CanWrite)
-                .Where(p => !p.GetCustomAttributes().Any(attr => attr is OperationParamAttribute))
+                .Where(p => !p.GetCustomAttributes().Any(attr => attr is OperationInstanceConfigurationAttribute))
                 .OrderBy(p => p.Name)
                 .ToList();
 
