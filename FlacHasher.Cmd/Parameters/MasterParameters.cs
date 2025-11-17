@@ -1,5 +1,4 @@
 ﻿using Andy.Cmd.Parameter;
-using Andy.FlacHash.Application.Cmd.Parameters;
 using Andy.FlacHash.Audio;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public abstract class MasterParameters : ApplicationSettings
     {
-        [DecoderParam]
+        [ConfigurationFacet(ApplicationSettings.ConfigurationFacet.Decoder)]
         [CmdLineParameter(CmdlineParameterNames.Decoder, Order = 0)]
         [IniEntry("Decoder", Order = 1)]
         [DecoderExeDescription]
@@ -20,7 +19,7 @@ namespace Andy.FlacHash.Application.Cmd
         /// (with dashes and whatnot).
         /// There are default parameters defined in the code
         /// </summary>
-        [DecoderParam]
+        [ConfigurationFacet(ApplicationSettings.ConfigurationFacet.Decoder)]
         [CmdLineParameter(CmdlineParameterNames.DecoderParams, Order = 0)]
         [IniEntry(nameof(DecoderParameters), Order = 1)]
         [Optional]
@@ -30,7 +29,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         public abstract string InputDirectory { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.FileExtensions, Order = 0)]
         [IniEntry(nameof(TargetFileExtensions), Order = 1)]
         [RequiredWith(nameof(InputDirectory))]
@@ -38,7 +37,7 @@ namespace Andy.FlacHash.Application.Cmd
         [FrontAndCenterParam]
         public string[] TargetFileExtensions { get; set; }
 
-        [DecoderParam]
+        [ConfigurationFacet(ApplicationSettings.ConfigurationFacet.Decoder)]
         [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]
         [IniEntry(nameof(PrintDecoderProgress), Order = 1)]
         [Optional(defaultValue: true)]

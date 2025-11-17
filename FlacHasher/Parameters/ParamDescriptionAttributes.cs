@@ -1,7 +1,7 @@
 ﻿using Andy.Cmd.Parameter;
 using Andy.FlacHash.Audio;
 
-namespace Andy.FlacHash.Application.Cmd.Parameters
+namespace Andy.FlacHash.Application
 {
     public class DecoderExeDescriptionAttribute : ParameterDescriptionAttribute
     {

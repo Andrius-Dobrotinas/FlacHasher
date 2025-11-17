@@ -8,14 +8,14 @@ namespace Andy.FlacHash.Application.Cmd
 {
     public class VerificationParameters : MasterParameters, IVerificationParams
     {
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.HashFile)]
         [AtLeastOneOf("hashfile")]
         [ParameterDescription($"Path to the hashfile. If relative, {nameof(InputDirectory)} is required")]
         [FrontAndCenterParam]
         public string HashFile { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.InputDirectory)]
         [AtLeastOneOf("hashfile")]
         [OptionalEitherOr("input")]
@@ -23,21 +23,21 @@ namespace Andy.FlacHash.Application.Cmd
         [FrontAndCenterParam]
         public override string InputDirectory { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.InputFiles)]
         [OptionalEitherOr("input")]
         [ParameterDescription("Files to verify when hashfile comes with no file names")]
         [FrontAndCenterParam]
         public string[] InputFiles { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [IniEntry(nameof(HashfileExtensions))]
         [Optional(defaultValue: ApplicationSettings.Defaults.HashfileExtension)]
         [ParameterDescription($"For hashfile lookup {nameof(InputDirectory)} when Hashfile is not explicitly specified")]
         [FrontAndCenterParam]
         public string[] HashfileExtensions { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.HashfileEntrySeparator)]
         [IniEntry(nameof(HashfileEntrySeparator))]
         [Optional(defaultValue: HashFileReader.Default.HashfileEntrySeparator)]

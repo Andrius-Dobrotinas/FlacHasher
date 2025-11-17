@@ -8,13 +8,13 @@ namespace Andy.FlacHash.Application.Win
     {
         public string Name { get; set; }
 
-        [Cmd.Parameters.DecoderExeDescription]
+        [DecoderExeDescription]
         public virtual string Decoder { get; set; }
         
-        [Cmd.Parameters.DecoderParamsDescription]
+        [DecoderParamsDescription]
         public virtual string[] DecoderParameters { get; set; }
         
-        [Cmd.Parameters.DecoderTargetFileExtensions]
+        [DecoderTargetFileExtensions]
         public virtual string[] TargetFileExtensions { get; set; }
     }
 }

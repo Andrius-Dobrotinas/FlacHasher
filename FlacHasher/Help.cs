@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Andy.Cmd.Parameter;
+using Andy.Cmd.Parameter.Meta;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Andy.Cmd.Parameter;
 
 namespace Andy.FlacHash.Application
 {
@@ -22,7 +23,7 @@ namespace Andy.FlacHash.Application
 
             var allOperationSpecificProperties = allProperties.Except(propertiesToExclude, PropertyInfoComparer.Instance).ToList();
 
-            var allOperationSpecificProperties_Main = allOperationSpecificProperties.Where(x => x.GetCustomAttribute<OperationParamAttribute>() != null).ToList();
+            var allOperationSpecificProperties_Main = allOperationSpecificProperties.Where(x => x.GetCustomAttribute<ConfigurationScopeAttribute>()?.Scope == ConfigurationScopeAttribute.ConfigurationScope.OperationInstance).ToList();
             var allOperationSpecificProperties_Other = allOperationSpecificProperties.Except(allOperationSpecificProperties_Main).ToList();
 
             PrintParameters<T, TParamSource>(builder, allOperationSpecificProperties_Main, allOperationSpecificProperties_Other);
@@ -199,8 +200,9 @@ namespace Andy.FlacHash.Application
         public static (ICollection<PropertyInfo> decoderProperties, ICollection<PropertyInfo> opSpecificProperties, ICollection<PropertyInfo> miscProperties) GetPropertiesByParameterPurpose<TParams>()
         {
             var sharedParamProperties = typeof(TParams).GetProperties().Where(Metadata.IsParameter);
-
-            var decoderProperties = sharedParamProperties.Where(x => x.GetCustomAttribute<DecoderParamAttribute>() != null).ToList();
+            var decoderProperties = sharedParamProperties
+                .Where(x => x.GetCustomAttribute<ConfigurationFacetAttribute>()?.Name == ApplicationSettings.ConfigurationFacet.Decoder)
+                .ToList();
             var opSpecificProperties = sharedParamProperties.Except(decoderProperties).ToList();
             var miscProperties = sharedParamProperties.Except(decoderProperties).Except(opSpecificProperties).ToList();
 

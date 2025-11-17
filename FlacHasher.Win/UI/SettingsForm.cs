@@ -1,4 +1,5 @@
 using Andy.Cmd.Parameter;
+using Andy.Cmd.Parameter.Meta;
 using FlacHasher.Win.UI;
 using System;
 using System.Collections.Generic;
@@ -118,7 +119,8 @@ namespace Andy.FlacHash.Application.Win.UI
             var properties = settings.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead && p.CanWrite)
-                .Where(p => !p.GetCustomAttributes().Any(attr => attr is OperationParamAttribute))
+                .Where(p => !p.GetCustomAttributes<ConfigurationScopeAttribute>()
+                    .Any(attr => attr.Scope == ConfigurationScopeAttribute.ConfigurationScope.OperationInstance))
                 .OrderBy(p => p.Name)
                 .ToList();
 
