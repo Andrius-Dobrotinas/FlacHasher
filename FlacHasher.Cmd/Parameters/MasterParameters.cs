@@ -1,5 +1,4 @@
 ﻿using Andy.Cmd.Parameter;
-using Andy.FlacHash.Application.Cmd.Parameters;
 using Andy.FlacHash.Audio;
 using System;
 using System.Collections.Generic;
