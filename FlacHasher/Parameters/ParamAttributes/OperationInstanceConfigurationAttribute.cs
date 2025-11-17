@@ -8,5 +8,8 @@ namespace Andy.FlacHash.Application
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class OperationInstanceConfigurationAttribute : ConfigurationScopeAttribute
     {
+        public OperationInstanceConfigurationAttribute() : base(ConfigurationScope.OperationInstance)
+        {
+        }
     }
 }
