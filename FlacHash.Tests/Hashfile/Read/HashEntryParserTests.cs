@@ -227,7 +227,7 @@ namespace Andy.FlacHash.Hashfile.Read
         {
             var target = new HashEntryParser(separator);
 
-            Assert.Throws<Exception>(
+            Assert.Throws<FormatException>(
                 () => target.Parse(line));
         }
 
