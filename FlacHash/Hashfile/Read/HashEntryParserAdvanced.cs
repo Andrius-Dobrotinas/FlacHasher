@@ -114,16 +114,11 @@ namespace Andy.FlacHash.Hashfile.Read
             if (textBeforeHash.Length == 0 && textAfterHash.Length == 0)
                 return new KeyValuePair<string, string>(null, hash);
 
-            if (textBeforeHash.Length == 0)
-            {
-                var file = ExtractFilenameFromTrailingText(textAfterHash);
-                return new KeyValuePair<string, string>(string.IsNullOrWhiteSpace(file) ? null : file, hash);
-            }
-            else
-            {
-                var file = ExtractFilenameFromLeadingText(textBeforeHash);
-                return new KeyValuePair<string, string>(string.IsNullOrWhiteSpace(file) ? null : file, hash);
-            }
+            var file = textBeforeHash.Length == 0
+                ? ExtractFilenameFromTrailingText(textAfterHash)
+                : ExtractFilenameFromLeadingText(textBeforeHash);
+
+            return new KeyValuePair<string, string>(string.IsNullOrWhiteSpace(file) ? null : file, hash);
         }
 
         private static string StripPrefix(string value)
