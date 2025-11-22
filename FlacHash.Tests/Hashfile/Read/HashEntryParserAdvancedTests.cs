@@ -154,9 +154,9 @@ namespace Andy.FlacHash.Hashfile.Read
         {
             foreach (var separatorSequence in new string[]
             {
-                ">", "<", "=", "-", "*", "|",
-                "--", "->", "=>", ">>", "||",
-                "<--->", "*-*", "-=*", "<>|<>", "=*-=*="
+                ">", "<", "=", "-", "*", "|", "#",
+                "--", "->", "=>", ">>", "||", "##",
+                "<--->", "*-*", "-=*", "<>|<>", "=*-=*=", "#->"
             })
             {
                 yield return new TestCaseData(separatorSequence);
@@ -194,6 +194,15 @@ namespace Andy.FlacHash.Hashfile.Read
         public void ExtractSegments_HashFirst_When_Separators_Are_SurroundedByVariousWhitespace(string separator)
         {
             var result = RequireResult(target.Parse($"DEADBEAF00112233\t{separator}  slts.flac"));
+
+            Assert.AreEqual("slts.flac", result.Key, "FileName");
+            Assert.AreEqual("DEADBEAF00112233", result.Value, "Hash");
+        }
+
+        [TestCaseSource(nameof(GetValidSeparators))]
+        public void ExtractSegments_When_LineStartsWithPrefix(string separator)
+        {
+            var result = RequireResult(target.Parse($"#slts.flac\t{separator} DEADBEAF00112233"));
 
             Assert.AreEqual("slts.flac", result.Key, "FileName");
             Assert.AreEqual("DEADBEAF00112233", result.Value, "Hash");
