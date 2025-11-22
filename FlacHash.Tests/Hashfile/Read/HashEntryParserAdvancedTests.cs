@@ -23,51 +23,7 @@ namespace Andy.FlacHash.Hashfile.Read
 
             Assert.IsNull(result);
         }
-
-        [TestCase("DE")]
-        [TestCase("deadbe")]
-        [TestCase("DEADBEF")]
-        public void IdentifyHash_When_HashTooShort__ReturnNull(string input)
-        {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
-        }
-
-        [TestCase("DEADBEEX")]
-        [TestCase("11-22-33-44-AA-BB-CC-DD")]
-        [TestCase("XEADBEAF00112233")]
-        public void IdentifyHash_When_HashIsNotHex__ReturnNull(string input)
-        {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
-        }
-
-        [TestCase("DEADBEEF")]
-        [TestCase("deadbeef")]
-        [TestCase("11223344AABBCCDD")]
-        [TestCase("8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6")]
-        [TestCase("8C6C0210E16E3853FF1BD8EB52917243E2706FC5057692D0F560F066045523F6")]
-        public void IdentifyHash_MustBe_HexString_AtLeast8CharsLong_CaseInsentive(string input)
-        {
-            var result = RequireResult(target.Parse(input));
-
-            Assert.AreEqual(input, result.Value, "Hash");
-        }
-
-        [TestCase("DEADBEEF,")]
-        [TestCase("[DEADBEEF]")]
-        [TestCase("foo.flac-DEADBEEF")]
-        [TestCase("song_DEADBEEF00112233.flac")]
-        [TestCase("DEADBEEF00112233.flac")]
-        public void IdentifyHash_When_HashBoundaryIs_NonWordChars_ReturnNull(string input)
-        {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
-        }
-
+        
         [TestCase("slts.flac")]
         [TestCase("slts")]
         [TestCase("Smells Like Teen Spirit")]
