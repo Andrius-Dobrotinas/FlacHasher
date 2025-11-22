@@ -97,6 +97,16 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.IsNull(result);
         }
 
+        [TestCase("slts.flac--test")]
+        [TestCase("--slts.flac--test")]
+        [TestCase("Nirvana <---> Melvana")]
+        public void When_NoHash_But_ValidSeparators_Present__Must_ReturnNull(string input)
+        {
+            var result = target.Parse(input);
+
+            Assert.IsNull(result);
+        }
+
         [TestCase("DEADBEAF00112233", "DEADBEAF00112233")]
         [TestCase("  deadbeef00112233  ", "deadbeef00112233")]
         [TestCase("\tDEADbeef00112233", "DEADbeef00112233")]

@@ -41,11 +41,21 @@ namespace Andy.FlacHash.Hashfile.Read
             RegexOptions.Compiled);
 
         /// <summary>
+        /// Hex chars, at least 8 char long
+        /// </summary>
+        private const string HashPattern = "[0-9A-Fa-f]{8,}";
+
+        /// <summary>
+        /// Matches a single hexadecimal hash of at least 8 bytes
+        /// </summary>
+        private static readonly Regex HashRegex = new Regex(HashPattern, RegexOptions.Compiled);
+
+        /// <summary>
         /// Matches a single hexadecimal hash of at least 8 bytes
         /// that is delimited by the start/end of the line or whitespace.
         /// Captures the hash in capture group 2 (index 2).
         /// </summary>
-        private static readonly Regex HashRegex = new Regex(@"(^|\s)([0-9A-Fa-f]{8,})(?=$|\s)", RegexOptions.Compiled);
+        private static readonly Regex HashWordRegex = new Regex("(^|\\s)(" + HashPattern + ")(?=$|\\s)", RegexOptions.Compiled);
 
         /// <summary>
         /// Detects invalid separator structures: any contiguous sequence of two or more separator characters (any from <see cref="SeparatorChars"/>)
@@ -70,16 +80,25 @@ namespace Andy.FlacHash.Hashfile.Read
             if (string.IsNullOrWhiteSpace(body))
                 return null;
 
-            if (InvalidSeparatorRegex.IsMatch(body))
-                throw new InvalidHashLineFormatException("Invalid separator structure found");
+            var hashMatches = HashWordRegex.Matches(body);
 
-            var hashMatches = HashRegex.Matches(body);
-
+            // No properly delimited hash found.
             if (hashMatches.Count == 0)
+            {
+                // If there are also no hash-like sequences, this line is simply not a hash line and should return null.
+                // If there ARE hash-like sequences and invalid separator clusters, treat it
+                // as a malformed hash line and throw.
+                if (InvalidSeparatorRegex.IsMatch(body) && HashRegex.IsMatch(body))
+                    throw new InvalidHashLineFormatException("Invalid separator structure found");
+
                 return null;
+            }
 
             if (hashMatches.Count > 1)
                 throw new InvalidHashLineFormatException("Multiple hashes found");
+
+            if (InvalidSeparatorRegex.IsMatch(body))
+                throw new InvalidHashLineFormatException("Invalid separator structure found");
 
             var match = hashMatches.First();
             var hashGroup = match.Groups[2];
