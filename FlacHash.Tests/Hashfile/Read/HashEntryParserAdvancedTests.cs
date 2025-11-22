@@ -335,6 +335,35 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(expectedHash, result.Value, "Hash");
         }
 
+        [TestCase(",. DEADBEAF00112233", "DEADBEAF00112233")]
+        [TestCase("[] DEADBEAF00112233", "DEADBEAF00112233")]
+        [TestCase("# @ DEADBEAF00112233", "DEADBEAF00112233")]
+        [TestCase(",. -- DEADBEAF00112233", "DEADBEAF00112233")]
+        [TestCase("#,. -- DEADBEAF00112233", "DEADBEAF00112233")]
+        [TestCase("!@#$% DEADBEAF00112233", "DEADBEAF00112233")]
+        public void ExtractSegments_When_Filename_Has_No_AlphaNumericChars__FileFirst__ReturnNull(string input, string hash)
+        {
+            var result = RequireResult(target.Parse(input));
+
+            Assert.IsNull(result.Key, "Filename");
+            Assert.AreEqual(hash, result.Value, "Hash");
+        }
+
+        [TestCase("DEADBEAF00112233 ,.", "DEADBEAF00112233")]
+        [TestCase("DEADBEAF00112233 []", "DEADBEAF00112233")]
+        [TestCase("DEADBEAF00112233 @", "DEADBEAF00112233")]
+        [TestCase("DEADBEAF00112233 -- ,.", "DEADBEAF00112233")]
+        [TestCase("# DEADBEAF00112233 @", "DEADBEAF00112233")]
+        [TestCase("# DEADBEAF00112233 -- ,.", "DEADBEAF00112233")]
+        [TestCase("DEADBEAF00112233 !@#$%", "DEADBEAF00112233")]
+        public void ExtractSegments_When_Filename_Has_No_AlphaNumericChars__HashFirst__ReturnNull(string input, string hash)
+        {
+            var result = RequireResult(target.Parse(input));
+
+            Assert.IsNull(result.Key, "Filename");
+            Assert.AreEqual(hash, result.Value, "Hash");
+        }
+
         [TestCase("DEADBEAF00112233 AABBCCDDEEFF0011")]
         [TestCase("slts.flac DEADBEAF00112233 AABBCCDDEEFF0011")]
         [TestCase("DEADBEAF00112233 slts.flac AABBCCDDEEFF0011")]

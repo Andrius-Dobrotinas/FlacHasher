@@ -20,24 +20,25 @@ namespace Andy.FlacHash.Hashfile.Read
         private static readonly string SeparatorCharClass = $"\\{SeparatorChars}";
 
         /// <summary>
-        /// Parses text that ends with a separator token (precedes the hash).
-        /// Captures the leading non-whitespace text as the filename (group "filename")
-        /// and the final separator characters (any combination of chars from <see cref="SeparatorChars"/>)
-        /// as the separator (group "sep").
-        /// Examples: "file.flac --", "Nirvana - MV  -", "track.flac <--->".
+        /// Parses text that may end with a separator token (ie it precedes the hash).
+        /// Captures non-whitespace text up to the separator (or until the end of the line if there is none) as the filename (group "filename")
+        /// and the final separator characters (any combination of chars from <see cref="SeparatorChars"/>) as the separator (group "sep").
+        /// The filename must contain at least one alphanumeric character.
+        /// Examples: "file.flac --", "Nirvana - MV  -", "track.flac <--->", "track.flac ", "track.flac".
         /// </summary>
         private static readonly Regex LeadingFilenameWithSeparatorRegex = new Regex(
-            @"^(?<" + GroupNameFilename + @">.*\S)\s+(?<" + GroupNameSeparator + @">[" + SeparatorCharClass + @"]+)$",
+            @"^(?:(?<" + GroupNameFilename + @">(?=.*[0-9A-Za-z]).*\S)\s+(?<" + GroupNameSeparator + @">[" + SeparatorCharClass + @"]+)|(?<" + GroupNameFilename + @">(?=.*[0-9A-Za-z]).*\S))$",
             RegexOptions.Compiled);
 
         /// <summary>
-        /// Parses text that starts with a separator token (follows the hash).
-        /// Captures the leading separator characters (any combination of chars from <see cref="SeparatorChars"/>)
-        /// as the separator (group "sep") and the remaining non-whitespace text as the filename (group "filename").
-        /// Examples: "-- track.flac", "-> Nirvana - MV.flac", "<---> track.flac".
+        /// Parses text that may start with a separator token (ie it follows the hash).
+        /// Captures non-whitespace text up to the separator (or until the end of the line if there is none) as the filename (group "filename")
+        /// and the final separator characters (any combination of chars from <see cref="SeparatorChars"/>) as the separator (group "sep").
+        /// The filename must contain at least one alphanumeric character.
+        /// Examples: "-- track.flac", "-> Nirvana - MV.flac", "<---> track.flac", " track.flac", "track.flac".
         /// </summary>
         private static readonly Regex TrailingFilenameWithSeparatorRegex = new Regex(
-            @"^(?<" + GroupNameSeparator + @">[" + SeparatorCharClass + @"]+)\s+(?<" + GroupNameFilename + @">.*\S)$",
+            @"^(?:(?<" + GroupNameSeparator + @">[" + SeparatorCharClass + @"]+)\s+)?(?<" + GroupNameFilename + @">(?=.*[0-9A-Za-z]).*\S)$",
             RegexOptions.Compiled);
 
         /// <summary>
@@ -116,18 +117,12 @@ namespace Andy.FlacHash.Hashfile.Read
             if (textBeforeHash.Length == 0)
             {
                 var file = ExtractFilenameFromTrailingText(textAfterHash);
-                if (string.IsNullOrWhiteSpace(file))
-                    return null;
-
-                return new KeyValuePair<string, string>(file, hash);
+                return new KeyValuePair<string, string>(string.IsNullOrWhiteSpace(file) ? null : file, hash);
             }
             else
             {
                 var file = ExtractFilenameFromLeadingText(textBeforeHash);
-                if (string.IsNullOrWhiteSpace(file))
-                    return null;
-
-                return new KeyValuePair<string, string>(file, hash);
+                return new KeyValuePair<string, string>(string.IsNullOrWhiteSpace(file) ? null : file, hash);
             }
         }
 
@@ -154,13 +149,11 @@ namespace Andy.FlacHash.Hashfile.Read
                 return null;
 
             var match = LeadingFilenameWithSeparatorRegex.Match(text);
-            if (match.Success)
-            {
-                var filename = match.Groups[GroupNameFilename].Value;
-                return filename.Length == 0 ? null : filename;
-            }
+            if (!match.Success)
+                return null;
 
-            return text;
+            var filename = match.Groups[GroupNameFilename].Value;
+            return filename.Length == 0 ? null : filename;
         }
 
         private static string ExtractFilenameFromTrailingText(string text)
@@ -169,13 +162,11 @@ namespace Andy.FlacHash.Hashfile.Read
                 return null;
 
             var match = TrailingFilenameWithSeparatorRegex.Match(text);
-            if (match.Success)
-            {
-                var filename = match.Groups[GroupNameFilename].Value;
-                return filename.Length == 0 ? null : filename;
-            }
+            if (!match.Success)
+                return null;
 
-            return text;
+            var filename = match.Groups[GroupNameFilename].Value;
+            return filename.Length == 0 ? null : filename;
         }
     }
 }
