@@ -152,8 +152,15 @@ namespace Andy.FlacHash.Hashfile.Read
 
         public static IEnumerable<TestCaseData> GetValidSeparators()
         {
-            foreach (var separatorSequence in new string[] { ">", "<", "=", "-", "*", "|", "--", "->", "=>", ">>", "||" })
+            foreach (var separatorSequence in new string[]
+            {
+                ">", "<", "=", "-", "*", "|",
+                "--", "->", "=>", ">>", "||",
+                "<--->", "*-*", "-=*", "<>|<>", "=*-=*="
+            })
+            {
                 yield return new TestCaseData(separatorSequence);
+            }
         }
 
         [TestCaseSource(nameof(GetValidSeparators))]

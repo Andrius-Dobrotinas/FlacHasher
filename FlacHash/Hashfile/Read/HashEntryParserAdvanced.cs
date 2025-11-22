@@ -9,30 +9,36 @@ namespace Andy.FlacHash.Hashfile.Read
         private const string GroupNameFilename = "filename";
         private const string GroupNameSeparator = "sep";
 
-        private static readonly HashSet<string> Separators = new HashSet<string>(StringComparer.Ordinal)
-        {
-            ">", "<", "=", "-", "*", "|", "--", "->", "=>", ">>", "||"
-        };
-
-        private static bool IsSeparatorToken(string token) => Separators.Contains(token);
-
         private const string PrefixChars = "#-+*<=>";
 
         /// <summary>
-        /// Parses text that ends with a separator token.
-        /// Captures the leading non-whitespace text as the filename (group "filename")
-        /// and the final 1-2 separator characters as the separator (group "sep").
-        /// Examples: "file.flac --", "Nirvana - MV  -".
+        /// Characters that can form separator clusters between filename and hash.
         /// </summary>
-        private static readonly Regex LeadingFilenameWithSeparatorRegex = new Regex(@"^(?<" + GroupNameFilename + @">.*\S)\s+(?<" + GroupNameSeparator + @">[\-+*<>=|]{1,2})$", RegexOptions.Compiled);
+        private const string SeparatorChars = "-+*<>=|";
+
+        // "-" needs to be escaped when it's used in a group ([]); others are fine like that
+        private static readonly string SeparatorCharClass = $"\\{SeparatorChars}";
 
         /// <summary>
-        /// Parses text that starts with a separator token.
-        /// Captures the first 1-2 separator characters as the separator (group "sep")
-        /// and the remaining non-whitespace text as the filename (group "filename").
-        /// Examples: "-- track.flac", "-> Nirvana - MV.flac".
+        /// Parses text that ends with a separator token (precedes the hash).
+        /// Captures the leading non-whitespace text as the filename (group "filename")
+        /// and the final separator characters (any combination of chars from <see cref="SeparatorChars"/>)
+        /// as the separator (group "sep").
+        /// Examples: "file.flac --", "Nirvana - MV  -", "track.flac <--->".
         /// </summary>
-        private static readonly Regex TrailingFilenameWithSeparatorRegex = new Regex(@"^(?<" + GroupNameSeparator + @">[\-+*<>=|]{1,2})\s+(?<" + GroupNameFilename + @">.*\S)$", RegexOptions.Compiled);
+        private static readonly Regex LeadingFilenameWithSeparatorRegex = new Regex(
+            @"^(?<" + GroupNameFilename + @">.*\S)\s+(?<" + GroupNameSeparator + @">[" + SeparatorCharClass + @"]+)$",
+            RegexOptions.Compiled);
+
+        /// <summary>
+        /// Parses text that starts with a separator token (follows the hash).
+        /// Captures the leading separator characters (any combination of chars from <see cref="SeparatorChars"/>)
+        /// as the separator (group "sep") and the remaining non-whitespace text as the filename (group "filename").
+        /// Examples: "-- track.flac", "-> Nirvana - MV.flac", "<---> track.flac".
+        /// </summary>
+        private static readonly Regex TrailingFilenameWithSeparatorRegex = new Regex(
+            @"^(?<" + GroupNameSeparator + @">[" + SeparatorCharClass + @"]+)\s+(?<" + GroupNameFilename + @">.*\S)$",
+            RegexOptions.Compiled);
 
         /// <summary>
         /// Matches a single hexadecimal hash of at least 8 bytes
@@ -42,12 +48,14 @@ namespace Andy.FlacHash.Hashfile.Read
         private static readonly Regex HashRegex = new Regex(@"(^|\s)([0-9A-Fa-f]{8,})(?=$|\s)", RegexOptions.Compiled);
 
         /// <summary>
-        /// Detects invalid separator structures: any sequence of two or more separator
-        /// characters (-, +, *, <, >, =, |) that is not surrounded by whitespace on both sides.
-        /// It's used to reject lines where separators are glued to adjacent text,
-        /// e.g. "slts.flac--DEADBEAF00112233" or "DEADBEAF00112233** slts.flac".
+        /// Detects invalid separator structures: any contiguous sequence of two or more separator characters (any from <see cref="SeparatorChars"/>)
+        /// where either the character immediately before the sequence is non-whitespace,
+        /// or the character immediately after the sequence is non-whitespace.
+        /// Clusters fully surrounded by whitespace (e.g. "\t<--->  ") are considered valid.
         /// </summary>
-        private static readonly Regex InvalidSeparatorRegex = new Regex(@"(?<!\s)[\-+*<>=|]{2,}|[\-+*<>=|]{2,}(?!\s)", RegexOptions.Compiled);
+        private static readonly Regex InvalidSeparatorRegex = new Regex(
+            @"(?<![" + SeparatorCharClass + @"])(?<!\s)[" + SeparatorCharClass + @"]{2,}|[" + SeparatorCharClass + @"]{2,}(?!\s)(?![" + SeparatorCharClass + @"])",
+            RegexOptions.Compiled);
 
         public KeyValuePair<string, string>? Parse(string line)
         {
@@ -127,7 +135,7 @@ namespace Andy.FlacHash.Hashfile.Read
                 return null;
 
             var match = LeadingFilenameWithSeparatorRegex.Match(text);
-            if (match.Success && IsSeparatorToken(match.Groups[GroupNameSeparator].Value))
+            if (match.Success)
             {
                 var filename = match.Groups[GroupNameFilename].Value;
                 return filename.Length == 0 ? null : filename;
@@ -142,7 +150,7 @@ namespace Andy.FlacHash.Hashfile.Read
                 return null;
 
             var match = TrailingFilenameWithSeparatorRegex.Match(text);
-            if (match.Success && IsSeparatorToken(match.Groups[GroupNameSeparator].Value))
+            if (match.Success)
             {
                 var filename = match.Groups[GroupNameFilename].Value;
                 return filename.Length == 0 ? null : filename;
