@@ -61,11 +61,11 @@ namespace Andy.FlacHash.Application.Win {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Press F1 for help.
+        ///   Looks up a localized string similar to See Readme.txt file for help.
         /// </summary>
-        internal static string F1Hint {
+        internal static string ReferToReadme {
             get {
-                return ResourceManager.GetString("F1Hint", resourceCulture);
+                return ResourceManager.GetString("ReferToReadme", resourceCulture);
             }
         }
     }
