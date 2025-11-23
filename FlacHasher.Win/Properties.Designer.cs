@@ -12,7 +12,7 @@ namespace Andy.FlacHash.Application.Win {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.12.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
     internal sealed partial class Properties : global::System.Configuration.ApplicationSettingsBase {
         
         private static Properties defaultInstance = ((Properties)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Properties())));
@@ -80,6 +80,28 @@ namespace Andy.FlacHash.Application.Win {
             }
             set {
                 this["HashingAlgo"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::Andy.FlacHash.Application.Win.DecoderProfileList DecoderProfiles {
+            get {
+                return ((global::Andy.FlacHash.Application.Win.DecoderProfileList)(this["DecoderProfiles"]));
+            }
+            set {
+                this["DecoderProfiles"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::Andy.FlacHash.Application.Win.Settings ApplicationSettings {
+            get {
+                return ((global::Andy.FlacHash.Application.Win.Settings)(this["ApplicationSettings"]));
+            }
+            set {
+                this["ApplicationSettings"] = value;
             }
         }
     }

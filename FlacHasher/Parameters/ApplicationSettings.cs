@@ -7,28 +7,35 @@ namespace Andy.FlacHash.Application
 {
     public class ApplicationSettings
     {
-        [DecoderParam]
+        public static class ConfigurationFacet
+        {
+            public const string Verification = "HashVerification";
+            public const string Hashing = "Hashing";
+            public const string Decoder = "AudioDecoder";
+        }
+
         [CmdLineParameter(CmdlineParameterNames.ProcessExitTimeoutMs, Order = 0)]
         [IniEntry(nameof(ProcessExitTimeoutMs), Order = 1)]
         [Optional(defaultValue: 1000)]
         [ParameterDescription("The amount of time to wait for the decoder process to wind down after decoding is finished")]
+        [ConfigurationFacet(ConfigurationFacet.Decoder)]
         public int ProcessExitTimeoutMs { get; set; }
 
         // TODO: document: -1 for no timeout
-        [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.ProcessTimeoutSec, Order = 0)]
         [IniEntry(nameof(ProcessTimeoutSec), Order = 1)]
         [Optional(defaultValue: 180)]
         [ParameterDescription("The maximum amount of time (in seconds) an Audio decoder is allowed to take to decode a file. This is useful for situations where something goes wrong and the decoder stops responding and needs to be murdered. No timeout: -1")]
+        [ConfigurationFacet(ConfigurationFacet.Decoder)]
         public int ProcessTimeoutSec { get; set; }
 
-        [DecoderParam]
         [IniEntry(nameof(ProcessStartDelayMs))]
         [Optional(defaultValue: 100)]
         [ParameterDescription("Amount of extra time to give the decoder process to start up before feeding it data. If the process is not ready to receive data, that can result in an error. Normally, this is not an issue.")]
+        [ConfigurationFacet(ConfigurationFacet.Decoder)]
         public int ProcessStartDelayMs { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.HashAlgorithm, Order = 0)]
         [IniEntry(nameof(HashAlgorithm), Order = 1)]
         [Optional(defaultValue: Defaults.HashAlgorithm)]
