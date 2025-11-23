@@ -8,11 +8,11 @@ namespace Andy.FlacHash.Hashfile.Read
     /// Parses hash file lines to extract a single hexadecimal hash and an optional filename.
     /// Supports hashes of at least 8 bytes (16 hex characters); which can't contain dashes.
     /// A hash can't have any chars touching it except for whitespace.
-    /// Filename can be either before or after the hash and must be separated from the hash by whitespace and/or specific separator sequences (any combination of <see cref="SeparatorChars"/>).
-    /// Filename can contain any characters except it can't start with <see cref="LinePrefixChars"/> and can't end with <see cref="SeparatorChars"/>.
+    /// A filename can be either before or after the hash and must be separated from the hash by whitespace and/or specific separator sequences (any combination of <see cref="SeparatorChars"/>).
+    /// A filename can contain any characters except it can't start with <see cref="LinePrefixChars"/> and can't end with <see cref="SeparatorChars"/>.
     /// A line may start with whitespace, <see cref="LinePrefixChars"/> or jump right straight to filename or hash.
     /// A line cannot contain more than one hash.
-    /// A filename can have a hash pattern, but in that case, it has to have an extension.
+    /// A filename can have a hash pattern, but in that case, it has to have an extension - otherwise, it will be mistreated as a hash.
     /// 
     /// Returns null for lines that don't contain a hash.
     /// Throws <see cref="InvalidHashLineFormatException"/> for malformed lines, such as those with multiple hashes or invalid separator sequences.
