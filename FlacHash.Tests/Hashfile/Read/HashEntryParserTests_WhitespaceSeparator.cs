@@ -44,10 +44,12 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\"  \" segment", null, "segment")]
         [TestCase("\"   \" segment", null, "segment")]
         [TestCase("\" \"\tsegment", null, "segment")]
-        public void When_Segments_are_wrapped_in_Quotes__Must_Throw_an_exception(string line, string expectedKey, string expectedValue)
+        public void When_Segments_are_wrapped_in_Quotes__Must_return_Empty_segments_within_a_line_as_Null(string line, string expectedKey, string expectedValue)
         {
-            Assert.Throws<FormatException>(
-                () => new HashEntryParser(" ").Parse(line));
+            var result = new HashEntryParser(" ").Parse(line);
+
+            Assert.AreEqual(expectedKey, result.Key, "Key");
+            Assert.AreEqual(expectedValue, result.Value, "Value");
         }
 
         [TestCase("filehash")]

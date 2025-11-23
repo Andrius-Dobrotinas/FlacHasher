@@ -44,15 +44,12 @@ namespace Andy.FlacHash.Hashfile.Read
         }
 
         /// <summary>
-        /// If a segment separator char/sequence is present in the <paramref name="line"/>, it splits the line into two segments
+        /// If no segment separator char/sequence is found in the <paramref name="line"/>, it returns the whole line as Value and null for Key.
+        /// If a segment separator char/sequence is present in the <paramref name="line"/>, it splits the the line into two segments
         /// and returns the 1st segment as Key and the 2nd one as as Value.
-        /// If no segment separator char/sequence is found in the <paramref name="line"/>, it returns the whole line as Value with null Key.
         /// If the separator char/sequence is found more than once, it returns first two segments omitting the rest.
         /// 
-        /// Segments wrapped in quotes can safely contain separator chars, which then get treated as part of the segment value.
-        /// Keys and Values get trimmed.
-        /// 
-        /// Empty segments are not allowed - they produce an exception.
+        /// Segments wrapped in quotes can safely contain separator chars, which then get treated as part of the value.
         /// </summary>
         public KeyValuePair<string, string> Parse(string line)
         {
@@ -62,17 +59,19 @@ namespace Andy.FlacHash.Hashfile.Read
 
             var reasult = this.regex.Match(line.Trim());
 
-            // Must be a position-based value-only hashfile
             if (!reasult.Success)
                 return new KeyValuePair<string, string>(
                     null,
-                    TrimAndReplaceEmptyWithNull(line) ?? throw new FormatException("Value segment can't be empty"));
+                    TrimAndReplaceEmptyWithNull(line));
 
             var segment1 = reasult.Groups["key"].Value;
             var segment2 = reasult.Groups["value"].Value;
 
-            var key = TrimAndReplaceEmptyWithNull(segment1) ?? throw new FormatException("Key segment can't be empty");
-            var value = TrimAndReplaceEmptyWithNull(segment2) ?? throw new FormatException("Value segment can't be empty");
+            var key = TrimAndReplaceEmptyWithNull(segment1);
+            var value = TrimAndReplaceEmptyWithNull(segment2);
+
+            if (key == null && value == null)
+                throw new Exception("The input didn't match the expected pattern!");
 
             return new KeyValuePair<string, string>(key, value);
         }

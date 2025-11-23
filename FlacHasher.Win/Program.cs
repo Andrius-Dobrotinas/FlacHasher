@@ -17,6 +17,10 @@ namespace Andy.FlacHash.Application.Win
         [STAThread]
         static void Main()
         {
+            System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            System.Windows.Forms.Application.EnableVisualStyles();
+            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+
             Settings settings;
             DecoderProfile[] decoderProfiles;
             try
@@ -26,9 +30,14 @@ namespace Andy.FlacHash.Application.Win
                 settings = result.Item1;
                 decoderProfiles = result.Item2;
             }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
             catch (Exception e)
             {
-                MessageBox.Show($"Failure reading a settings file. {e.Message}");
+                // TODO: need to think about how to recover from that
+                MessageBox.Show($"Failure reading settings. {e.Message}");
                 return;
             }
 
@@ -36,10 +45,6 @@ namespace Andy.FlacHash.Application.Win
 
             var hashfileExtensions = FileExtension.PrefixWithDot(settings.HashfileExtensions);
             var fileSearch = new FileSearch(settings.FileLookupIncludeHidden);
-
-            System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            System.Windows.Forms.Application.EnableVisualStyles();
-            System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
             var algosString = BuildFileFilter(algorithms);
 

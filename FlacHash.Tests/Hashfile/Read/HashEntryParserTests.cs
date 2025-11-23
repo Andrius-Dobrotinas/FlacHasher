@@ -127,29 +127,35 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(expectedValue, result.Value, "Value");
         }
 
-        [TestCase(":hash", Description = "First segment is empty")]
-        [TestCase("file:", Description = "Second segment is empty")]
-        [TestCase("\"\":value", Description = "First segment is empty quotes")]
-        [TestCase("segment:\"\"", Description = "Second segment is empty quotes")]
-        public void When_there_are_Empty_segments_within_the_line__Must_Throw_an_error(string line)
+        [TestCase(":hash", null, "hash", Description = "Even when one of the segments is empty")]
+        [TestCase("file:", "file", null, Description = "Even when one of the segments is empty")]
+        [TestCase("\"\":value", null, "value")]
+        [TestCase("segment:\"\"", "segment", null)]
+        public void Must_return_Empty_segments_within_a_line_as_Null(string line, string expectedKey, string expectedValue)
         {
-            Assert.Throws<FormatException>(
-                () => new HashEntryParser(":").Parse(line));
+            var result = new HashEntryParser(":").Parse(line);
+
+            Assert.AreEqual(expectedKey, result.Key, "Key");
+            Assert.AreEqual(expectedValue, result.Value, "Value");
         }
 
-        [TestCase(" :asd")]
-        [TestCase("segment:\"\"")]
-        [TestCase("segment:\" \t\"")]
-        [TestCase("\" \t\":value")]
-        [TestCase("segment:\" \t\"")]
-        public void When_there_are_Whitespace_segments_within_the_line__Must_Throw_an_error(string line)
+        [TestCase(" :asd", null, "asd")]
+        [TestCase("segment:\"\"", "segment", null)]
+        [TestCase("segment:\" \t\"", "segment", null)]
+        [TestCase("\" \t\":value", null, "value")]
+        [TestCase("segment:\" \t\"", "segment", null)]
+        public void Must_return_Whitespace_segments_within_the_line_as_Null(string line, string expectedKey, string expectedValue)
         {
-            Assert.Throws<FormatException>(
-                () => new HashEntryParser(":").Parse(line));
+            var result = new HashEntryParser(":").Parse(line);
+
+            Assert.AreEqual(expectedKey, result.Key, "Key");
+            Assert.AreEqual(expectedValue, result.Value, "Value");
         }
 
         [TestCase("file:hash:", "file", "hash")]
         [TestCase("file:two:hash", "file", "two")]
+        [TestCase(":file:hash:", null, "file")]
+        [TestCase("file::hash", "file", null)]
         [TestCase("file:hash::", "file", "hash")]
         [TestCase("\"one\":\"two\":\"three\"", "one", "two")]
         [TestCase("\"ichi\":\"ni\":", "ichi", "ni")]
@@ -174,11 +180,11 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\"   \":\"\"")]
         [TestCase("\"\t\":\"\"")]
         [TestCase("\"\t\" :\"\"")]
-        public void When_Line_contains_Just_separators_with_or_without_whitespace__Must_throw_an_exception(string line)
+        public void When_Line_contains_Just_separators_and_optionally_whitespace__Must_throw_an_exception(string line)
         {
             var target = new HashEntryParser(":");
 
-            Assert.Throws<FormatException>(
+            Assert.Throws<Exception>(
                 () => target.Parse(line));
         }
 

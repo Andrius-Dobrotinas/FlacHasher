@@ -1,5 +1,4 @@
-﻿using Andy.Cmd.Parameter;
-using Andy.FlacHash.Application.Audio;
+using Andy.Cmd.Parameter;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,105 +10,129 @@ namespace Andy.FlacHash.Application.Win
     {
         public static (Settings, DecoderProfile[]) GetSettings(FileInfo settingsFile)
         {
-            var (settingsRaw, decoderProfilesRaw) = ReadIniFile(settingsFile);
-            return ParseSettings(settingsRaw, decoderProfilesRaw);
-        }
+            var decoderProfilesIni = ReadIniFile(settingsFile);
 
-        public static (IDictionary<string, string[]>, IDictionary<string, Dictionary<string, string[]>>) ReadIniFile(FileInfo settingsFile, string profileName = null)
-        {
-            var wholeSettingsFileDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
-            if (!wholeSettingsFileDictionary.Any())
-                throw new ConfigurationException("The Configuration file is empty");
+            var initialDecoderProfiles = ParseDecoderProfiles(decoderProfilesIni).ToArray();
 
-            var settings = Application.SettingsFile.GetSettingsProfile(wholeSettingsFileDictionary, profileName, caseInsensitive: true);
-            Application.SettingsFile.MergeSectionValuesIn(settings, wholeSettingsFileDictionary, Application.SettingsFile.BuildSectionName(ApplicationSettings.HashingSectionPrefix, ApplicationSettings.DefaultHashingSection), isMandatory: false);
+            var settings = GetApplicationSettings(initialDecoderProfiles);
 
-            var decoderProfiles = wholeSettingsFileDictionary.Where(x => x.Key.StartsWith("Decoder", StringComparison.InvariantCultureIgnoreCase))
-                .ToDictionary(
-                    x => x.Key, 
-                    x => x.Value.ToDictionary (
-                        i => i.Key,
-                        i => new[] { i.Value }));
-
-            return (settings.ToDictionary(x => x.Key, x => new[] { x.Value }), decoderProfiles);
-        }
-
-        public static (Settings, DecoderProfile[]) ParseSettings(IDictionary<string, string[]> settingsRaw, IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw)
-        {
-            var paramReader = ParameterReader.Build();
-            var settings = ParameterReader.Build().GetParameters<Settings>(settingsRaw);
-
-            var decoderProfiles = decoderProfilesRaw.Any()
-                ? decoderProfilesRaw
-                    .Select(profileSection =>
-                    {
-                        var isDefaultFlacSection = profileSection.Key.Equals($"{ApplicationSettings.DecoderSectionPrefix}.FLAC", StringComparison.InvariantCultureIgnoreCase);
-
-                        var profileRaw = isDefaultFlacSection
-                            ? paramReader.GetParameters<DecoderProfileTempDefaultFlac>(profileSection.Value)
-                            : paramReader.GetParameters<DecoderProfileTemp>(profileSection.Value);
-
-                        return new DecoderProfile
-                        {
-                            Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase),
-                            Decoder = profileRaw.DecoderExe,
-                            DecoderParameters = profileRaw.DecoderParameters,
-                            TargetFileExtensions = profileRaw.TargetFileExtensions
-                        };
-                    }).ToArray()
-                : new DecoderProfile[]
-                {
-                    GetDefaultFlacProfile(paramReader)
-                };
+            var decoderProfiles = ParseDecoderProfiles(decoderProfilesIni).ToArray();
 
             return (settings, decoderProfiles);
         }
 
-        static DecoderProfile GetDefaultFlacProfile(ParameterReader paramReader)
+        private static Settings GetApplicationSettings(IList<DecoderProfile> decoderProfiles)
         {
-            // Just to fill it with default values
-            var profileRaw = paramReader.GetParameters<DecoderProfileTempDefaultFlac>(new Dictionary<string, string[]>());
+            var settings = Properties.Default.ApplicationSettings;
 
-            return new DecoderProfile
+            if (settings != null)
+                return settings;
+            else
+            {
+                using (var settingsForm = new UI.SettingsForm(ParamUtil.CreateWithDefaults<Settings>(), decoderProfiles))
+                {
+                    var result = settingsForm.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        settings = settingsForm.Result;
+                        Properties.Default.ApplicationSettings = settings;
+
+                        Properties.Default.DecoderProfiles = new DecoderProfileList
+                        {
+                            Profiles = settingsForm.ResultDecoderProfiles.ToArray()
+                        };
+
+                        Properties.Default.Save();
+                        return settings;
+                    }
+                    else
+                    {
+                        throw new OperationCanceledException();
+                    }
+                }
+            }
+        }
+
+        public static IDictionary<string, Dictionary<string, string[]>> ReadIniFile(FileInfo settingsFile)
+        {
+            var wholeSettingsFileDictionary = Configuration.Ini.IniFileReader.Default.ReadIniFile(settingsFile);
+            if (!wholeSettingsFileDictionary.Any())
+                return null;
+
+            var decoderProfiles = wholeSettingsFileDictionary.Where(x => x.Key.StartsWith(ApplicationSettings.DecoderSectionPrefix, StringComparison.InvariantCultureIgnoreCase))
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.Value.ToDictionary(
+                        i => i.Key,
+                        i => new[] { i.Value }));
+
+            return decoderProfiles;
+        }
+
+        public static IList<DecoderProfile> ParseDecoderProfiles(IDictionary<string, Dictionary<string, string[]>> decoderProfilesFromIni)
+        {
+            var paramReader = ParameterReader.Build();
+
+            var profilesFromIni = (decoderProfilesFromIni != null && decoderProfilesFromIni.Any()) ? Get(decoderProfilesFromIni, paramReader) : Array.Empty<DecoderProfileIniSection>();
+
+            var profilesFromUserProfile = Properties.Default.DecoderProfiles?.Profiles != null ? Properties.Default.DecoderProfiles.Profiles : Array.Empty<DecoderProfile>();
+
+            if (!profilesFromIni.Any() && !profilesFromUserProfile.Any())
+                return PromptUserToCreateProfile();
+
+            return MergeProfiles(profilesFromIni, profilesFromUserProfile);
+        }
+
+        /// <summary>
+        /// Merge, preferring profiles from INI
+        /// </summary>
+        static IList<DecoderProfile> MergeProfiles(IList<DecoderProfileIniSection> profilesFromIni, IList<DecoderProfile> profilesFromUserProfile)
+        {
+            var merged = new List<DecoderProfile>(profilesFromIni);
+            var iniNames = new HashSet<string>(profilesFromIni.Select(p => p.Name), StringComparer.InvariantCultureIgnoreCase);
+            foreach (var profile in profilesFromUserProfile)
+            {
+                if (!iniNames.Contains(profile.Name))
+                    merged.Add(profile);
+            }
+
+            return merged;
+        }
+
+        static IList<DecoderProfileIniSection> Get(IDictionary<string, Dictionary<string, string[]>> decoderProfilesRaw, ParameterReader paramReader)
+        {
+            return decoderProfilesRaw
+                    .Select(profileSection =>
+                    {
+                        var profileRaw = paramReader.GetParameters<DecoderProfileIniSection>(profileSection.Value);
+                        profileRaw.Name = profileSection.Key.Replace($"{ApplicationSettings.DecoderSectionPrefix}.", "", StringComparison.InvariantCultureIgnoreCase);
+
+                        return profileRaw;
+                    })
+                    .ToArray();
+        }
+
+        static IList<DecoderProfile> PromptUserToCreateProfile()
+        {
+            using (var dialog = new UI.DecoderProfileDialog(new DecoderProfile
             {
                 Name = "FLAC",
-                Decoder = profileRaw.DecoderExe,
-                DecoderParameters = profileRaw.DecoderParameters,
-                TargetFileExtensions = profileRaw.TargetFileExtensions
-            };
-        }
-
-        public class DecoderProfileTemp
-        {
-            [IniEntry("Decoder")]
-            [Cmd.Parameters.DecoderExeDescription]
-            public virtual string DecoderExe { get; set; }
-
-            [IniEntry(nameof(DecoderParameters))]
-            [Cmd.Parameters.DecoderParamsDescription]
-            public virtual string[] DecoderParameters { get; set; }
-
-            [IniEntry(nameof(TargetFileExtensions))]
-            [Cmd.Parameters.DecoderTargetFileExtensions]
-            public virtual string[] TargetFileExtensions { get; set; }
-        }
-
-        class DecoderProfileTempDefaultFlac : DecoderProfileTemp
-        {
-            [Parameter("Decoder")]
-            [Optional(defaultValue: "flac.exe")]
-            public override string DecoderExe { get; set; }
-
-            [Parameter(nameof(DecoderParameters))]
-            [Optional(defaultValue: new string[] {
-                Audio.Flac.Parameters.Options.Decoder.Decode,
-                Audio.Flac.Parameters.Options.Decoder.ReadFromStdIn
-            })]
-            public override string[] DecoderParameters { get; set; }
-
-            [Parameter("TargetFileExtension")]
-            [Optional(defaultValue: "flac")]
-            public override string[] TargetFileExtensions { get; set; }
+                Decoder = "flac.exe",
+                DecoderParameters = Audio.Flac.Parameters.Decode.Stream,
+                TargetFileExtensions = new string[] { "flac" }
+            }))
+            {
+                var result = dialog.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    DecoderProfile[] profiles = { dialog.Profile };
+                    Properties.Default.DecoderProfiles = new DecoderProfileList { Profiles = profiles };
+                    Properties.Default.Save();
+                    return profiles;
+                }
+                else
+                    throw new OperationCanceledException();
+            }
         }
     }
 }
