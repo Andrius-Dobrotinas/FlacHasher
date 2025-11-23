@@ -14,7 +14,6 @@ namespace Andy.FlacHash.Application
             public const string Decoder = "AudioDecoder";
         }
 
-        [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.ProcessExitTimeoutMs, Order = 0)]
         [IniEntry(nameof(ProcessExitTimeoutMs), Order = 1)]
         [Optional(defaultValue: 1000)]
@@ -23,7 +22,6 @@ namespace Andy.FlacHash.Application
         public int ProcessExitTimeoutMs { get; set; }
 
         // TODO: document: -1 for no timeout
-        [DecoderParam]
         [CmdLineParameter(CmdlineParameterNames.ProcessTimeoutSec, Order = 0)]
         [IniEntry(nameof(ProcessTimeoutSec), Order = 1)]
         [Optional(defaultValue: 180)]
@@ -31,14 +29,13 @@ namespace Andy.FlacHash.Application
         [ConfigurationFacet(ConfigurationFacet.Decoder)]
         public int ProcessTimeoutSec { get; set; }
 
-        [DecoderParam]
         [IniEntry(nameof(ProcessStartDelayMs))]
         [Optional(defaultValue: 100)]
         [ParameterDescription("Amount of extra time to give the decoder process to start up before feeding it data. If the process is not ready to receive data, that can result in an error. Normally, this is not an issue.")]
         [ConfigurationFacet(ConfigurationFacet.Decoder)]
         public int ProcessStartDelayMs { get; set; }
 
-        [OperationParam]
+        [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.HashAlgorithm, Order = 0)]
         [IniEntry(nameof(HashAlgorithm), Order = 1)]
         [Optional(defaultValue: Defaults.HashAlgorithm)]
