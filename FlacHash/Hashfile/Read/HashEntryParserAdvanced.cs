@@ -4,6 +4,19 @@ using System.Text.RegularExpressions;
 
 namespace Andy.FlacHash.Hashfile.Read
 {
+    /// <summary>
+    /// Parses hash file lines to extract a single hexadecimal hash and an optional filename.
+    /// Supports hashes of at least 8 bytes (16 hex characters); which can't contain dashes.
+    /// A hash can't have any chars touching it except for whitespace.
+    /// Filename can be either before or after the hash and must be separated from the hash by whitespace and/or specific separator sequences (any combination of <see cref="SeparatorChars"/>).
+    /// Filename can contain any characters except it can't start with <see cref="LinePrefixChars"/> and can't end with <see cref="SeparatorChars"/>.
+    /// A line may start with whitespace, <see cref="LinePrefixChars"/> or jump right straight to filename or hash.
+    /// A line cannot contain more than one hash.
+    /// A filename can have a hash pattern, but in that case, it has to have an extension.
+    /// 
+    /// Returns null for lines that don't contain a hash.
+    /// Throws <see cref="InvalidHashLineFormatException"/> for malformed lines, such as those with multiple hashes or invalid separator sequences.
+    /// </summary>
     public class HashEntryParserAdvanced
     {
         static class GroupName
@@ -12,12 +25,12 @@ namespace Andy.FlacHash.Hashfile.Read
             public const string Separator = "sep";
         }
 
-        private const string PrefixChars = "#-+*<=>";
+        public const string LinePrefixChars = "#-+*<=>";
 
         /// <summary>
         /// Characters that can form separator clusters between filename and hash.
         /// </summary>
-        private const string SeparatorChars = "-+*<>=|#";
+        public const string SeparatorChars = "-+*<>=|#";
 
         // "-" needs to be escaped when it's used in a group ([]); others are fine like that
         private static readonly string SeparatorCharClass = $"\\{SeparatorChars}";
@@ -45,17 +58,17 @@ namespace Andy.FlacHash.Hashfile.Read
             RegexOptions.Compiled);
 
         /// <summary>
-        /// Hex chars, at least 16 chars long (8 bytes)
+        /// Hex chars, at least 8 char long
         /// </summary>
         private const string HashPattern = "[0-9A-Fa-f]{16,}";
 
         /// <summary>
-        /// Matches a single hexadecimal hash of at least 8 bytes (16 hex characters)
+        /// Matches a single hexadecimal hash of at least 8 bytes
         /// </summary>
         private static readonly Regex HashRegex = new Regex(HashPattern, RegexOptions.Compiled);
 
         /// <summary>
-        /// Matches a single hexadecimal hash of at least 8 bytes (16 hex characters)
+        /// Matches a single hexadecimal hash of at least 8 bytes
         /// that is delimited by the start/end of the line or whitespace.
         /// Captures the hash in capture group 2 (index 2).
         /// </summary>
@@ -129,7 +142,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var s = value;
             var i = 0;
 
-            while (i < s.Length && PrefixChars.Contains(s[i]))
+            while (i < s.Length && LinePrefixChars.Contains(s[i]))
                 i++;
 
             if (i == 0)
