@@ -37,7 +37,7 @@ namespace Andy.FlacHash.Application.Cmd
             var targetFiles = FindFiles(hashfile, fileHashMap, parameters, fileSearch).ToArray();
 
             var hasher = BuildHasher(audioFileDecoder, parameters.HashAlgorithm);
-            var verifier = BuildVerifier();
+            var verifier = new HashVerifier();
 
             Verify(hasher, verifier, targetFiles, fileHashMap, parameters, cancellation);
         }
@@ -104,7 +104,7 @@ namespace Andy.FlacHash.Application.Cmd
         public static HashVerifier BuildVerifier()
         {
             var hashFormatter = new PlainLowercaseHashFormatter();
-            return new HashVerifier(hashFormatter);
+            return new HashVerifier();
         }
 
         public static IMultiFileHasher BuildHasher(IAudioFileDecoder reader, Algorithm hashAlgorithm)

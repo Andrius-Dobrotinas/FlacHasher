@@ -6,8 +6,7 @@ namespace Andy.FlacHash
     {
         public static string GetInLowercase(byte[] hash)
         {
-            return BitConverter.ToString(hash)
-                .Replace("-", "")
+            return Convert.ToHexString(hash)
                 .ToLowerInvariant();
         }
     }
