@@ -245,7 +245,7 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(expectedHash, result.Value, "Hash");
         }
 
-        [TestCase("slts.flac DEADBEEF", "slts.flac", "DEADBEEF")]
+        [TestCase("slts.flac DEADBEEFDEADBEEF", "slts.flac", "DEADBEEFDEADBEEF")]
         [TestCase("slts.flac 8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6", "slts.flac", "8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6")]
         [TestCase("8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6 slts.flac", "slts.flac", "8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6")]
         public void ExtractSegments_ReturnHash(string input, string expectedFilename, string expectedHash)

@@ -12,12 +12,12 @@ namespace Andy.FlacHash.Hashfile.Read
             return result.Value;
         }
 
-        [TestCase("DEADBEEF")]
-        [TestCase("deadbeef")]
+        [TestCase("DEADBEEFDEADBEEF")]
+        [TestCase("deadbeefdeadbeef")]
         [TestCase("11223344AABBCCDD")]
         [TestCase("8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6")]
         [TestCase("8C6C0210E16E3853FF1BD8EB52917243E2706FC5057692D0F560F066045523F6")]
-        public void Must_Be_HexString_AtLeast8CharsLong_CaseInsentive(string input)
+        public void Must_Be_HexString_AtLeast_8_Bytes_Long_CaseInsentive(string input)
         {
             var result = RequireResult(target.Parse(input));
 
@@ -41,7 +41,9 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("DE")]
         [TestCase("deadbe")]
         [TestCase("DEADBEF")]
-        public void MustNot_Be_TooShort(string input)
+        [TestCase("DEADBEEF")]
+        [TestCase("DEADBEEFEFEFEF")]
+        public void MustNot_Be_LessThan_8_Bytes(string input)
         {
             var result = target.Parse(input);
 
