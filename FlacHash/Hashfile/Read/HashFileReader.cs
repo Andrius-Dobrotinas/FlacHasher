@@ -34,17 +34,15 @@ namespace Andy.FlacHash.Hashfile.Read
                 return new HashFileReader(
                             new HashMapParser(
                                 new HashEntryCollectionParser(
-                                    new HashEntryParser(hashfileEntrySeparator)),
+                                    hashfileEntrySeparator == null
+                                        ? new HashEntryParserAdvanced()
+                                        : new HashEntryParser(hashfileEntrySeparator)),
                                 new CaseInsensitiveOrdinalStringComparer()));
             }
 
             public static HashFileReader BuildAdvancedHashfileReader()
             {
-                return new HashFileReader(
-                            new HashMapParser(
-                                new HashEntryCollectionParser(
-                                    new HashEntryParserAdvanced()),
-                                new CaseInsensitiveOrdinalStringComparer()));
+                return BuildHashfileReader(null);
             }
         }
     }
