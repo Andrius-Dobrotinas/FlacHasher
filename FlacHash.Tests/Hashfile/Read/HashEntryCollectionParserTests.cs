@@ -76,7 +76,7 @@ namespace Andy.FlacHash.Hashfile.Read
             lineParser.Setup(x => x.Parse("line4")).Returns(new KeyValuePair<string, string>("file4", "hash4"));
             lineParser.Setup(x => x.Parse("line2")).Throws(exception);
 
-            var ex = Assert.Throws<Exception>(() => target.Parse(lines).ToArray());
+            var ex = Assert.Throws<HashFileException>(() => target.Parse(lines).ToArray());
 
             Assert.That(ex.InnerException, Is.SameAs(exception));
             Assert.That(ex.Message, Does.Contain("line #2"));

@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Hashfile.Read
             }
             catch (Exception e)
             {
-                throw new Exception($"Error parsing hash file's line #{lineNumber}: {e.Message}", e);
+                throw new HashFileException($"Error parsing hash file's line #{lineNumber}: {e.Message}", e);
             }
         }
     }
