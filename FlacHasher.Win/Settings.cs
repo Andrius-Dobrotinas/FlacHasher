@@ -25,7 +25,7 @@ namespace Andy.FlacHash.Application.Win
         public bool FailOnError { get; set; }
 
         [IniEntry(nameof(OutputFormat))]
-        [Optional(defaultValue: "{name}:{hash}")]
+        [Optional(defaultValue: "{name} {hash}")]
         [ParameterDescription($"A format which hash result is saved in. Use the following placeholders: {OutputFormatting.Placeholders.Hash}, {OutputFormatting.Placeholders.FileName}, {OutputFormatting.Placeholders.FilePath}")]
         [ConfigurationFacet(ConfigurationFacet.Hashing)]
         public string OutputFormat { get; set; }
