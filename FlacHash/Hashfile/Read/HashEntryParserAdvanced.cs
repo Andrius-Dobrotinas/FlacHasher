@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Hashfile.Read
     /// Returns null for lines that don't contain a hash.
     /// Throws <see cref="InvalidHashLineFormatException"/> for malformed lines, such as those with multiple hashes or invalid separator sequences.
     /// </summary>
-    public class HashEntryParserAdvanced
+    public class HashEntryParserAdvanced : IHashEntryParser
     {
         static class GroupName
         {
