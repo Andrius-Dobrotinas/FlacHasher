@@ -120,9 +120,9 @@ namespace Andy.FlacHash.Hashfile.Read
         {
             foreach (var separatorSequence in new string[]
             {
-                ">", "<", "=", "-", "*", "|", "#",
-                "--", "->", "=>", ">>", "||", "##",
-                "<--->", "*-*", "-=*", "<>|<>", "=*-=*=", "#->"
+                ">", "<", "=", "-", "*", "|", "#", ":",
+                "--", "->", "=>", ">>", "||", "##", "::",
+                "<--->", "*-*", "-=*", "<>|<>", "=*-=*=", "#->", ":=>"
             })
             {
                 yield return new TestCaseData(separatorSequence);

@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Hashfile.Read
         /// <summary>
         /// Characters that can form separator clusters between filename and hash.
         /// </summary>
-        public const string SeparatorChars = "-+*<>=|#";
+        public const string SeparatorChars = "-+*<>=|#:";
 
         // "-" needs to be escaped when it's used in a group ([]); others are fine like that
         private static readonly string SeparatorCharClass = $"\\{SeparatorChars}";
