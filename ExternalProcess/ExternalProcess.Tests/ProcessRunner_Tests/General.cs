@@ -183,7 +183,6 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             }
         }
 
-        [Ignore("Intermittently times out - TODO fix it")]
         [TestCase(false, true)]
         [TestCase(false, false)]
         [TestCase(true, true)]
@@ -214,7 +213,6 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             Assert.True(process.IsDisposedOf, "Must dispose of the process");
         }
 
-        [Ignore("Intermittently times out - TODO fix it")]
         [TestCase(false, true)]
         [TestCase(false, false)]
         [TestCase(true, true)]

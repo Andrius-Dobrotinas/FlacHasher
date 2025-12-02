@@ -13,7 +13,7 @@ namespace Andy.ExternalProcess
         private readonly int startWaitMs;
         private readonly int timeoutMs;
         private readonly bool showProcessWindowWithStdErrOutput;
-        
+
         private const int ExitCode_CtrlC = -1073741510;
         public const int NoTimeoutValue = -1;
 
@@ -37,7 +37,7 @@ namespace Andy.ExternalProcess
             CancellationToken cancellation = default)
         {
             var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
-            
+
             var process = new ExternalProcess { StartInfo = processSettings };
 
             return GetOutputStream_WaitProcessExitInParallel(process, input: null, process.StartInfo.RedirectStandardError, cancellation);
@@ -80,19 +80,20 @@ namespace Andy.ExternalProcess
             if (readStderr)
             {
                 errorReadCancellation = new CancellationTokenSource();
-                stdErrorTask = Task.Run<MemoryStream>(() => ReadStreamCancellable(process.StandardError.BaseStream, errorReadCancellation.Token));
+                stdErrorTask = BackgroundTask.StartBackgroundTask(() => ReadStreamCancellable(process.StandardError.BaseStream, errorReadCancellation.Token));
             }
 
-            var writeTask = input != null
-                ? Task.Run(() => WriteToStdInAndDisposeOf(process.StandardInput.BaseStream, input))
-                : null;
+            if (input != null)
+            {
+                BackgroundTask.StartBackgroundTask(() => WriteToStdInAndDisposeOf(process.StandardInput.BaseStream, input));
+            }
 
             //I don't need a return value, but there's no non-generic version of this
             var outputReadTaskCompletion = new TaskCompletionSource<object>();
 
-            var processWaitTask = Task.Run(() =>
+            var processWaitTask = BackgroundTask.StartBackgroundTask(() =>
             {
-                WaitForOutputRead_AndProcessExitCode(process, outputReadTaskCompletion.Task, stdErrorTask, cancellation);
+                WaitForOutputRead_AndProcessExitCode(process, outputReadTaskCompletion.Task, stdErrorTask, cancellation, errorReadCancellation);
             });
 
             return new ProcessOutputStream(process.StandardOutput.BaseStream, outputReadTaskCompletion, processWaitTask);
@@ -230,7 +231,7 @@ namespace Andy.ExternalProcess
         private static TStream WaitForErrorStream<TStream>(Task<TStream> stdErrorTask, int exitTimeoutMs, CancellationTokenSource errorReadCancellation)
         {
             bool finished = stdErrorTask.Wait(exitTimeoutMs);
-            
+
             //Shouldn't ever happen, but just in case the stars align right
             if (!finished)
                 errorReadCancellation.Cancel();
