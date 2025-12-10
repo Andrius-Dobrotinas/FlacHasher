@@ -1,4 +1,4 @@
-name: Run Tests (in Docker)
+name: Run Tests on Windows (Docker)
 
 on:
     workflow_dispatch:
@@ -12,6 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build
-        run: docker compose pull tests
+        run: docker compose --file docker-compose-win.yml pull tests
       - name: Run Tests
-        run: docker compose run tests
+        run: docker compose --file docker-compose-win.yml run tests
