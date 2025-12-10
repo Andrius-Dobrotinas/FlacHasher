@@ -15,3 +15,11 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet build ./FlacHasher.sln --configuration Release
       - run: dotnet test ./FlacHasher.sln --configuration Release --no-build
+      - uses: actions/upload-artifact@v4
+        id: report-upload-step
+        with:
+          name: test-report-win-${{ github.sha }}
+          path: ./TestResults/.html
+          retention-days: 7
+      - name: Output ID
+        run: echo "Uploaded to ${{ steps.report-upload-step.outputs.artifact-id }} "

@@ -2,14 +2,9 @@ services:
   tests:
     image: mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-1809
     working_dir: "c:\\src"
-    entrypoint:
-     - dotnet
+    entrypoint: ["cmd", "/c"]
     command:
-     - test
-     - FlacHasher.sln
-     - --configuration
-     - Release
-     - /p:EnableWindowsTargeting=true
+      - run-tests.cmd
     environment:
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
@@ -17,3 +12,6 @@ services:
       - type: bind
         source: .
         target: "c:\\src"
+      - type: bind
+        source: ..\report
+        target: "c:\\TestResults"
