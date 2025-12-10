@@ -14,4 +14,4 @@ jobs:
       - name: Build
         run: docker compose --file docker-compose-lnx.yml build tests --progress=plain
       - name: Run Tests
-        run: docker compose --file docker-compose-lnx.yml run tests
+        run: docker compose --file docker-compose-lnx.yml run --rm tests
