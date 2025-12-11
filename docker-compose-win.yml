@@ -17,3 +17,11 @@ services:
       - type: bind
         source: .
         target: "c:\\src"
+
+  tests_report:
+    extends:
+      service: tests
+    # "/c" is a requirement for Cmd to execute run-tests.cmd
+    entrypoint: ["cmd", "/c"]
+    command:
+      - run-tests.cmd
