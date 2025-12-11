@@ -99,6 +99,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         {
             var target = new ProcessRunner(-1, 0, 0, false);
 
+            // Simulates delayed data availability and waits for a read operation to complete (within a generous 5 sec timeout)
             using (var stdoutReadSignal = new AutoResetEvent(false))
             {
                 var stdout = new SignalWaitingMemoryStream(new byte[] { 1, 2 }, stdoutReadSignal);

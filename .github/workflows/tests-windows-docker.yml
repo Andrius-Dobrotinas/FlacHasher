@@ -1,0 +1,17 @@
+name: Run Tests on Windows (Docker)
+
+on:
+    workflow_dispatch:
+    pull_request:
+      branches:
+        - "**"
+
+jobs:
+  tests:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker compose --file docker-compose-win.yml pull tests
+      - name: Run Tests
+        run: docker compose --file docker-compose-win.yml run --rm tests

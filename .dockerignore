@@ -1,0 +1,9 @@
+.gitignore
+.gitattributes
+docker-compose.yml
+
+**/.vs/
+**/.github/
+
+**/bin/
+**/bin/**
