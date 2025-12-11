@@ -58,17 +58,17 @@ namespace Andy.FlacHash.Hashfile.Read
             RegexOptions.Compiled);
 
         /// <summary>
-        /// Hex chars, at least 8 char long
+        /// Hex chars, at least 16 chars long (8 bytes)
         /// </summary>
         private const string HashPattern = "[0-9A-Fa-f]{16,}";
 
         /// <summary>
-        /// Matches a single hexadecimal hash of at least 8 bytes
+        /// Matches a single hexadecimal hash of at least 8 bytes (16 hex characters)
         /// </summary>
         private static readonly Regex HashRegex = new Regex(HashPattern, RegexOptions.Compiled);
 
         /// <summary>
-        /// Matches a single hexadecimal hash of at least 8 bytes
+        /// Matches a single hexadecimal hash of at least 8 bytes (16 hex characters)
         /// that is delimited by the start/end of the line or whitespace.
         /// Captures the hash in capture group 2 (index 2).
         /// </summary>
