@@ -1,0 +1,21 @@
+name: Release the Compiled Application
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: dotnet build ./FlacHasher.sln --configuration Release
+      - name: Upload the bin!
+        id: upload-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          files: ./FlacHasher.Cmd/bin/Release/net8.0/**
+          draft: true
+      - run: "echo ${{ steps.upload-release.outputs.url }}"
+      - run: "echo ${{ steps.upload-release.outputs.assets }}"
