@@ -38,5 +38,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: flachasher-cmd.zip
           draft: true
+      
+      - name: Add the Report to the Summary
+        shell: bash
+        run: |
+          echo "### Release Uploaded" >> $GITHUB_STEP_SUMMARY
+          echo "Tag: ${{ steps.determine-tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
           
-      - run: "echo ${{ steps.upload-release.outputs.url }}"
+          uploadUrl=${{ steps.upload-release.outputs.url}}
+          echo "[${uploadUrl}](${uploadUrl})" >> $GITHUB_STEP_SUMMARY
