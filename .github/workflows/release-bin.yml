@@ -1,16 +1,43 @@
+# Builds and Releases a selected application (CMD or GUI), zipped.
+# For now, as a draft.
+
 name: Release the Compiled Application (Draft for now)
 
 on:
   workflow_dispatch:
+    inputs:
+      project:
+        description: "Application to release"
+        required: true
+        type: choice
+        options:
+          - cmd
+          - gui
 
 permissions:
-  contents: write  # required to create tags and releases
+  contents: write  # required for tag and release creation
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Determine inputs
+        id: determine-project
+        shell: bash
+        run: |
+          echo "Application: \`${{github.event.inputs.project}}\`" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ github.event.inputs.project }}" == "cmd" ]]; then
+            echo "project_dir=FlacHasher.Cmd" >> $GITHUB_OUTPUT
+            echo "build_output_dir=net8.0" >> $GITHUB_OUTPUT
+            echo "name=flachasher-cmd" >> $GITHUB_OUTPUT
+          else
+            echo "project_dir=FlacHasher.Win" >> $GITHUB_OUTPUT
+            echo "build_output_dir=net8.0-windows" >> $GITHUB_OUTPUT
+            echo "name=flachasher-gui" >> $GITHUB_OUTPUT
+          fi
 
       - name: Determine tag
         id: determine-tag
@@ -19,31 +46,35 @@ jobs:
           if ($env:GITHUB_REF -like "refs/tags/*") {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = "draft-" + (Get-Date -Format "yyyyMMdd-HHmmss")
+            $tag = "${{steps.determine-project.outputs.name}}-draft-" + (Get-Date -Format "yyyyMMdd-HHmmss")
           }
           "tag=$tag" | Out-File -Append $env:GITHUB_OUTPUT
 
+      - name: "Summary: tag"
+        shell: bash
+        run: |
+          echo "Version: \`${{ steps.determine-tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+
       - name: Build
-        run: dotnet build ./FlacHasher.sln --configuration Release
-
-      - name: Zip
+        run: dotnet build ./${{ steps.determine-project.outputs.project_dir }}/ --configuration Release
+      
+      - name: Zip CMD bins
         shell: pwsh
-        run: Compress-Archive -Path ./FlacHasher.Cmd/bin/Release/net8.0/* -DestinationPath flachasher-cmd.zip -Force 
-
-      - name: Upload the bin!
+        run: Compress-Archive -Path ./${{ steps.determine-project.outputs.project_dir }}/bin/Release/${{ steps.determine-project.outputs.build_output_dir }}/* -DestinationPath ./${{steps.determine-project.outputs.name}}.zip -Force 
+      
+      - name: Upload the CMD bin!
         id: upload-release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.determine-tag.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: flachasher-cmd.zip
+          files: ${{steps.determine-project.outputs.name}}.zip
           draft: true
       
       - name: Add the Report to the Summary
         shell: bash
         run: |
           echo "### Release Uploaded" >> $GITHUB_STEP_SUMMARY
-          echo "Tag: ${{ steps.determine-tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
           
           uploadUrl=${{ steps.upload-release.outputs.url}}
           echo "[${uploadUrl}](${uploadUrl})" >> $GITHUB_STEP_SUMMARY
