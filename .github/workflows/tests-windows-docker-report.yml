@@ -12,13 +12,63 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: mkdir TestResults
+
       - name: Build
         run: docker compose --file docker-compose-win.yml pull tests_report
+      
+      - name: Install Pandoc
+        run: choco install pandoc -y
+      
       - name: Run Tests
+        id: run-tests
+        continue-on-error: true
         run: docker compose --file docker-compose-win.yml run --rm tests_report
+      
       - uses: actions/upload-artifact@v4
         id: report-upload-steps
         with:
           name: test-repor-win-${{ github.sha }}
           path: TestResults
           retention-days: 1
+      
+      - name: Convert all HTML files to a single Markdown file (separate sections for each file)
+        shell: bash
+        run: |
+          outfile="TestResults/combined_report.md"
+          rm -f "$outfile"
+
+          for file in TestResults/*.html; do
+            name="$(basename "$file")"
+            title="${name%.html}"  # strip .html if desired
+
+            {
+              echo "<details>"
+              echo "<summary><strong>${title}</strong></summary>"
+              echo ""
+              pandoc "$file" -f html -t gfm
+              echo ""
+              echo "</details>"
+              echo ""
+            } >> "$outfile"
+          done
+      
+      - name: Add the Report to the Summary
+        shell: bash
+        run: |
+          artifact_id="${{ steps.report-upload-steps.outputs.artifact-id }}"
+          artifact_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${artifact_id}"
+
+          echo "### Test Report" >> $GITHUB_STEP_SUMMARY
+          {
+            echo ""
+            echo "[Download Reports Zipped](${artifact_url})"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+
+          cat TestResults/combined_report.md >> $GITHUB_STEP_SUMMARY
+      
+      - name: Fail the job on test failure
+        if: steps.run-tests.outcome == 'failure'
+        run: |
+          echo "Tests failed — marking job as failed."
+          exit 1
