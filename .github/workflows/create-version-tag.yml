@@ -33,6 +33,13 @@ jobs:
       contents: write
 
     steps:
+      - name: Fail if not on master
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "master" ]; then
+            echo "This workflow may only be run from master"
+            exit 1
+          fi
+          
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
