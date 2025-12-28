@@ -61,7 +61,8 @@ jobs:
       - name: Get the last tag from the master branch
         id: latest
         run: |
-          latest_tag=$(git tag --merged origin/master --sort=-creatordate | head -n 1 || echo "0.0")
+          latest_tag=$(git tag --merged origin/master --sort=-creatordate | head -n 1)
+          latest_tag=${latest_tag:-0.0}
           
           echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           echo "Latest tag on master: $latest_tag"
@@ -72,7 +73,7 @@ jobs:
           last_commit_tag="${{ steps.latest.outputs.latest_tag }}"
 
           # Skip check if this is the first tag
-          if [ "$latest_tag" = "0.0" ]; then
+          if [ "$last_commit_tag" = "0.0" ]; then
             echo "No previous tag on master; skipping age check"
             exit 0
           fi
