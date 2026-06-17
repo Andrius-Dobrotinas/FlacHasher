@@ -31,11 +31,9 @@ jobs:
 
           if [[ "${{ github.event.inputs.project }}" == "cmd" ]]; then
             echo "project_dir=FlacHasher.Cmd" >> $GITHUB_OUTPUT
-            echo "build_output_dir=net8.0" >> $GITHUB_OUTPUT
             echo "name=flachasher-cmd" >> $GITHUB_OUTPUT
           else
             echo "project_dir=FlacHasher.Win" >> $GITHUB_OUTPUT
-            echo "build_output_dir=net8.0-windows" >> $GITHUB_OUTPUT
             echo "name=flachasher-gui" >> $GITHUB_OUTPUT
           fi
 
@@ -55,12 +53,12 @@ jobs:
         run: |
           echo "Version: \`${{ steps.determine-tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
 
-      - name: Build
-        run: dotnet build ./${{ steps.determine-project.outputs.project_dir }}/ --configuration Release
+      - name: Publish
+        run: dotnet publish ./${{ steps.determine-project.outputs.project_dir }}/ --configuration Release --output ./out
       
       - name: Zip CMD bins
         shell: pwsh
-        run: Compress-Archive -Path ./${{ steps.determine-project.outputs.project_dir }}/bin/Release/${{ steps.determine-project.outputs.build_output_dir }}/* -DestinationPath ./${{steps.determine-project.outputs.name}}.zip -Force 
+        run: Compress-Archive -Path ./out/* -DestinationPath ./${{steps.determine-project.outputs.name}}.zip -Force 
       
       - name: Upload the CMD bin!
         id: upload-release
