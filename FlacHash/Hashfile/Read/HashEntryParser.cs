@@ -4,11 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace Andy.FlacHash.Hashfile.Read
 {
-    public interface IHashEntryParser
-    {
-        KeyValuePair<string, string> Parse(string line);
-    }
 
+    /// <summary>
+    /// Throws <see cref="Exception"/> if the line is empty
+    /// </summary>
     public class HashEntryParser : IHashEntryParser
     {
         private readonly Regex regex;
@@ -51,21 +50,21 @@ namespace Andy.FlacHash.Hashfile.Read
         /// 
         /// Segments wrapped in quotes can safely contain separator chars, which then get treated as part of the value.
         /// </summary>
-        public KeyValuePair<string, string> Parse(string line)
+        public KeyValuePair<string, string>? Parse(string line)
         {
             if (line == null) throw new ArgumentNullException(nameof(line));
             if (string.IsNullOrWhiteSpace(line)) throw new FormatException("An empty string is unacceptable!");
             if (string.IsNullOrWhiteSpace(line.Trim('\"'))) throw new FormatException("An empty string wrapped in quotes is unacceptable!");
 
-            var reasult = this.regex.Match(line.Trim());
+            var result = this.regex.Match(line.Trim());
 
-            if (!reasult.Success)
+            if (!result.Success)
                 return new KeyValuePair<string, string>(
                     null,
                     TrimAndReplaceEmptyWithNull(line));
 
-            var segment1 = reasult.Groups["key"].Value;
-            var segment2 = reasult.Groups["value"].Value;
+            var segment1 = result.Groups["key"].Value;
+            var segment2 = result.Groups["value"].Value;
 
             var key = TrimAndReplaceEmptyWithNull(segment1);
             var value = TrimAndReplaceEmptyWithNull(segment2);
