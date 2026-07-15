@@ -53,6 +53,11 @@ jobs:
         run: |
           echo "Version: \`${{ steps.determine-tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
       - name: Build
         run: dotnet publish ./${{ steps.determine-project.outputs.project_dir }}/ -c Release --output ./out
       
