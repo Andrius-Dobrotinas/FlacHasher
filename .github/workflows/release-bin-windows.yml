@@ -61,11 +61,11 @@ jobs:
       - name: Build
         run: dotnet publish ./${{ steps.determine-project.outputs.project_dir }}/ -c Release --output ./out
       
-      - name: Zip CMD bins
+      - name: Zip bins
         shell: pwsh
         run: Compress-Archive -Path ./out/* -DestinationPath ./${{steps.determine-project.outputs.name}}.zip -Force 
       
-      - name: Upload the CMD bin!
+      - name: Upload release
         id: upload-release
         uses: softprops/action-gh-release@v2
         with:
