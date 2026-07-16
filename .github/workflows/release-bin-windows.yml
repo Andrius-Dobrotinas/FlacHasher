@@ -117,7 +117,7 @@ jobs:
           files: |
             ${{steps.zip-filename.outputs.filename}}
             ${{steps.zip-filename.outputs.filename}}.sha256
-          draft: true
+          draft: ${{ !startsWith(github.ref, 'refs/tags/') }}
       
       - name: Add the Report to the Summary
         shell: bash
