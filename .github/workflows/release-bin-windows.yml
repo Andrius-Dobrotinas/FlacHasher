@@ -13,6 +13,14 @@ on:
         options:
           - cmd
           - gui
+      runtime:
+        description: "Runtime identifier"
+        required: true
+        type: choice
+        options:
+          - win-x64
+          - win-x86
+          - win-arm64
 
 jobs:
   build:
@@ -52,23 +60,28 @@ jobs:
         run: |
           echo "Version: \`${{ steps.determine-tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
 
+      - name: Determine zip filename
+        id: zip-filename
+        shell: bash
+        run: echo "filename=${{ steps.determine-project.outputs.name }}-${{ steps.determine-tag.outputs.tag }}-${{ github.event.inputs.runtime }}.zip" >> $GITHUB_OUTPUT
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
       - name: Build
-        run: dotnet publish ./${{ steps.determine-project.outputs.project_dir }}/ -c Release --output ./out
+        run: dotnet publish ./${{ steps.determine-project.outputs.project_dir }}/ -c Release -r ${{ github.event.inputs.runtime }} --output ./out
       
       - name: Zip bins
         shell: pwsh
-        run: Compress-Archive -Path ./out/* -DestinationPath ./${{steps.determine-project.outputs.name}}.zip -Force 
+        run: Compress-Archive -Path ./out/* -DestinationPath ./${{steps.zip-filename.outputs.filename}} -Force 
 
       - name: Generate checksum
         shell: pwsh
         run: |
-          $hash = (Get-FileHash ./${{steps.determine-project.outputs.name}}.zip -Algorithm SHA256).Hash.ToLower()
-          "$hash  ${{steps.determine-project.outputs.name}}.zip" | Out-File ./${{steps.determine-project.outputs.name}}.zip.sha256 -Encoding utf8NoBOM
+          $hash = (Get-FileHash ./${{steps.zip-filename.outputs.filename}} -Algorithm SHA256).Hash.ToLower()
+          "$hash  ${{steps.zip-filename.outputs.filename}}" | Out-File ./${{steps.zip-filename.outputs.filename}}.sha256 -Encoding utf8NoBOM
       
       - name: Upload release
         id: upload-release
@@ -77,8 +90,8 @@ jobs:
           tag_name: ${{ steps.determine-tag.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ${{steps.determine-project.outputs.name}}.zip
-            ${{steps.determine-project.outputs.name}}.zip.sha256
+            ${{steps.zip-filename.outputs.filename}}
+            ${{steps.zip-filename.outputs.filename}}.sha256
           draft: true
       
       - name: Add the Report to the Summary
