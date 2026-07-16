@@ -73,6 +73,15 @@ jobs:
       - name: Build
         run: dotnet publish ./${{ steps.determine-project.outputs.project_dir }}/ -c Release -r ${{ github.event.inputs.runtime }} --output ./out
       
+      - name: Verify publish output
+        shell: pwsh
+        run: |
+          $exeFiles = Get-ChildItem -Path ./out -Filter *.exe
+          if ($exeFiles.Count -eq 0) {
+            Write-Error "No .exe files found in the publish output directory './out'. The build may have failed or produced unexpected output."
+            exit 1
+          }
+
       - name: Zip bins
         shell: pwsh
         run: Compress-Archive -Path ./out/* -DestinationPath ./${{steps.zip-filename.outputs.filename}} -Force 
