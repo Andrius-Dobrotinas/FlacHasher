@@ -51,7 +51,7 @@ jobs:
           if ($env:GITHUB_REF -like "refs/tags/*") {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = "${{steps.determine-project.outputs.name}}-draft-" + (Get-Date -Format "yyyyMMdd-HHmmss")
+            $tag = "draft-" + (Get-Date -Format "yyyyMMdd-HHmmss")
           }
           "tag=$tag" | Out-File -Append $env:GITHUB_OUTPUT
 
