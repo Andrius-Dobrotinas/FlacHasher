@@ -63,6 +63,12 @@ jobs:
       - name: Zip bins
         shell: pwsh
         run: Compress-Archive -Path ./out/* -DestinationPath ./${{steps.determine-project.outputs.name}}.zip -Force 
+
+      - name: Generate checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash ./${{steps.determine-project.outputs.name}}.zip -Algorithm SHA256).Hash.ToLower()
+          "$hash  ${{steps.determine-project.outputs.name}}.zip" | Out-File ./${{steps.determine-project.outputs.name}}.zip.sha256 -Encoding utf8NoBOM
       
       - name: Upload release
         id: upload-release
@@ -70,7 +76,9 @@ jobs:
         with:
           tag_name: ${{ steps.determine-tag.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: ${{steps.determine-project.outputs.name}}.zip
+          files: |
+            ${{steps.determine-project.outputs.name}}.zip
+            ${{steps.determine-project.outputs.name}}.zip.sha256
           draft: true
       
       - name: Add the Report to the Summary
