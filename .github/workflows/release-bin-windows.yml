@@ -33,10 +33,12 @@ jobs:
       - name: Determine inputs
         id: determine-project
         shell: bash
+        env:
+          INPUT_PROJECT: ${{ github.event.inputs.project }}
         run: |
-          echo "Application: \`${{github.event.inputs.project}}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Application: \`${INPUT_PROJECT}\`" >> $GITHUB_STEP_SUMMARY
 
-          if [[ "${{ github.event.inputs.project }}" == "cmd" ]]; then
+          if [[ "$INPUT_PROJECT" == "cmd" ]]; then
             echo "project_dir=FlacHasher.Cmd" >> $GITHUB_OUTPUT
             echo "name=flachasher-cmd" >> $GITHUB_OUTPUT
           else
@@ -57,13 +59,19 @@ jobs:
 
       - name: "Summary: tag"
         shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.determine-tag.outputs.tag }}
         run: |
-          echo "Version: \`${{ steps.determine-tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Version: \`${RELEASE_TAG}\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Determine zip filename
         id: zip-filename
         shell: bash
-        run: echo "filename=${{ steps.determine-project.outputs.name }}-${{ steps.determine-tag.outputs.tag }}-${{ github.event.inputs.runtime }}.zip" >> $GITHUB_OUTPUT
+        env:
+          PROJECT_NAME: ${{ steps.determine-project.outputs.name }}
+          RELEASE_TAG: ${{ steps.determine-tag.outputs.tag }}
+          INPUT_RUNTIME: ${{ github.event.inputs.runtime }}
+        run: echo "filename=${PROJECT_NAME}-${RELEASE_TAG}-${INPUT_RUNTIME}.zip" >> $GITHUB_OUTPUT
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -71,7 +79,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Build
-        run: dotnet publish ./${{ steps.determine-project.outputs.project_dir }}/ -c Release -r ${{ github.event.inputs.runtime }} --output ./out
+        env:
+          PROJECT_DIR: ${{ steps.determine-project.outputs.project_dir }}
+          INPUT_RUNTIME: ${{ github.event.inputs.runtime }}
+        run: dotnet publish ./$env:PROJECT_DIR/ -c Release -r $env:INPUT_RUNTIME --output ./out
       
       - name: Verify publish output
         shell: pwsh
@@ -84,13 +95,18 @@ jobs:
 
       - name: Zip bins
         shell: pwsh
-        run: Compress-Archive -Path ./out/* -DestinationPath ./${{steps.zip-filename.outputs.filename}} -Force 
+        env:
+          ZIP_FILENAME: ${{ steps.zip-filename.outputs.filename }}
+        run: Compress-Archive -Path ./out/* -DestinationPath ./$env:ZIP_FILENAME -Force 
 
       - name: Generate checksum
         shell: pwsh
+        env:
+          ZIP_FILENAME: ${{ steps.zip-filename.outputs.filename }}
         run: |
-          $hash = (Get-FileHash ./${{steps.zip-filename.outputs.filename}} -Algorithm SHA256).Hash.ToLower()
-          "$hash  ${{steps.zip-filename.outputs.filename}}" | Out-File ./${{steps.zip-filename.outputs.filename}}.sha256 -Encoding utf8NoBOM
+          $filename = $env:ZIP_FILENAME
+          $hash = (Get-FileHash "./$filename" -Algorithm SHA256).Hash.ToLower()
+          "$hash  $filename" | Out-File "./${filename}.sha256" -Encoding utf8NoBOM
       
       - name: Upload release
         id: upload-release
@@ -105,8 +121,10 @@ jobs:
       
       - name: Add the Report to the Summary
         shell: bash
+        env:
+          UPLOAD_URL: ${{ steps.upload-release.outputs.url }}
         run: |
           echo "### Release Uploaded" >> $GITHUB_STEP_SUMMARY
           
-          uploadUrl=${{ steps.upload-release.outputs.url}}
+          uploadUrl=$UPLOAD_URL
           echo "[${uploadUrl}](${uploadUrl})" >> $GITHUB_STEP_SUMMARY
