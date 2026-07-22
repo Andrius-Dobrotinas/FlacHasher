@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace Andy.ExternalProcess
@@ -34,6 +35,13 @@ namespace Andy.ExternalProcess
             }
             catch (ObjectDisposedException)
             {
+                return 0;
+            }
+            catch (IOException ex) when (ex.InnerException is SocketException socketEx && socketEx.SocketErrorCode == SocketError.Interrupted)
+            {
+                // On Linux, System.IO.Pipes streams are backed by sockets. When the pipe is closed
+                // while a Read is blocked, it surfaces as this exception instead of ObjectDisposedException
+                // (which is what happens on Windows). Treat it the same way: as EOF.
                 return 0;
             }
         }
