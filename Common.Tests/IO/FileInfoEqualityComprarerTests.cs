@@ -62,10 +62,14 @@ namespace Andy.IO
         private static IEnumerable<TestCaseData> GetMatches()
         {
             yield return new TestCaseData("asd.flac", "Asd.Flac");
-            yield return new TestCaseData(@"c:\asd.flac", @"c:\Asd.Flac");
-            yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
-            yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
-            yield return new TestCaseData(@"c:\flac\asd.flac", @"c:/FLac/asd.flac");
+            yield return new TestCaseData(Absolute("asd.flac"), Absolute("Asd.Flac"));
+            yield return new TestCaseData(Absolute("flac", "asd.flac"), Absolute("FLac", "asd.flac"));
+
+            if (Path.DirectorySeparatorChar != Path.AltDirectorySeparatorChar)
+            {
+                var path = Absolute("flac", "asd.flac");
+                yield return new TestCaseData(path, path.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            }
 
             var file = new FileInfo("sad.flac");
             yield return new TestCaseData(file.Name, file.FullName);
@@ -74,7 +78,16 @@ namespace Andy.IO
         private static IEnumerable<TestCaseData> GetNoMatches()
         {
             yield return new TestCaseData("asd.flac", "asd.lac");
-            yield return new TestCaseData(@"c:\asd.flac", @"d:\asd.flac");
+            yield return new TestCaseData(Absolute("left", "asd.flac"), Absolute("right", "asd.flac"));
+        }
+
+        private static string Absolute(params string[] parts)
+        {
+            var rootedParts = new string[parts.Length + 1];
+            rootedParts[0] = Path.GetPathRoot(Environment.CurrentDirectory) ?? Path.DirectorySeparatorChar.ToString();
+            Array.Copy(parts, 0, rootedParts, 1, parts.Length);
+
+            return Path.Combine(rootedParts);
         }
     }
 }

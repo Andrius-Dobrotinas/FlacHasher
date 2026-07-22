@@ -32,10 +32,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.IsNull(result);
         }
 
-        [TestCase("c:\\file.hash", null)]
-        [TestCase("c:\\file.hash", "c:\\flac")]
-        [TestCase("c:\\fyle", null)]
-        [TestCase("c:\\fyle", "c:\\muzak")]
+        [TestCaseSource(nameof(GetCases_AbsoluteHashfileLookup))]
         public void Hashfile_SpecifiedAs_AbsolutePath__RegardlessOfDirectory__Must_Return_This_File(string filename, string dirname)
         {
             var @params = new Params
@@ -65,9 +62,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.AreEqual(new DirectoryInfo(Directory.GetCurrentDirectory()).FullName, result.Directory.FullName);
         }
 
-        [TestCase("file.hash", "d:\\dir")]
-        [TestCase("hasheesh.md5", "d:\\muzak\\flac\\directory")]
-        [TestCase("hasheesh", "d:\\muzak\\flac\\directory")]
+        [TestCaseSource(nameof(GetCases_HashfileInSpecifiedDirectory))]
         public void Hashfile_SpecifiedAs_JustFileName__DirectorySpecified__Must_Return_This_File_InThe_Specified_Directory(string filename, string dirname)
         {
             var @params = new Params
@@ -83,9 +78,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.AreEqual(new DirectoryInfo(dirname).FullName, result.Directory.FullName);
         }
 
-        [TestCase("d:\\dir")]
-        [TestCase("d:\\dir\\")]
-        [TestCase("d:\\muzak\\flac\\directory")]
+        [TestCaseSource(nameof(GetCases_DirectoriesToScan))]
         public void No_Hashfile_Specified__Must_Scan_The_SpecifiedDirectory_For_Files(string dirname)
         {
             var @params = new Params
@@ -120,7 +113,7 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCaseSource(nameof(GetCases_HashfileLookup))]
         public void No_Hashfile_Specified__Must_Pick_Any_Hashfile_Of_Accepted_Filetypes__From_The_SpecifiedDirectory(string description, string[] nameOfFilesInTheDirectory, string[] acceptedHashTypes, string[] acceptableHashfileNames)
         {
-            var dirname = "c:\\muzak\\narvana\\boot1";
+            var dirname = Absolute("muzak", "narvana", "boot1");
 
             var filesInDir = nameOfFilesInTheDirectory.Select(filename => new FileInfo(Path.Combine(dirname, filename))).ToArray();
             var acceptableFiles = acceptableHashfileNames.Select(filename => filesInDir.First(x => x.Name == filename)).ToArray();
@@ -234,6 +227,39 @@ namespace Andy.FlacHash.Application.Cmd
                         "fingerprint-copy-0.hash",
                     });
             }
+        }
+
+        static IEnumerable<TestCaseData> GetCases_AbsoluteHashfileLookup()
+        {
+            yield return new TestCaseData(Absolute("file.hash"), null);
+            yield return new TestCaseData(Absolute("file.hash"), Absolute("flac"));
+            yield return new TestCaseData(Absolute("fyle"), null);
+            yield return new TestCaseData(Absolute("fyle"), Absolute("muzak"));
+        }
+
+        static IEnumerable<TestCaseData> GetCases_HashfileInSpecifiedDirectory()
+        {
+            yield return new TestCaseData("file.hash", Absolute("dir"));
+            yield return new TestCaseData("hasheesh.md5", Absolute("muzak", "flac", "directory"));
+            yield return new TestCaseData("hasheesh", Absolute("muzak", "flac", "directory"));
+        }
+
+        static IEnumerable<TestCaseData> GetCases_DirectoriesToScan()
+        {
+            var directory = Absolute("dir");
+
+            yield return new TestCaseData(directory);
+            yield return new TestCaseData(directory + Path.DirectorySeparatorChar);
+            yield return new TestCaseData(Absolute("muzak", "flac", "directory"));
+        }
+
+        static string Absolute(params string[] parts)
+        {
+            var rootedParts = new string[parts.Length + 1];
+            rootedParts[0] = Path.GetPathRoot(Environment.CurrentDirectory) ?? Path.DirectorySeparatorChar.ToString();
+            Array.Copy(parts, 0, rootedParts, 1, parts.Length);
+
+            return Path.Combine(rootedParts);
         }
 
         class Params : VerificationParameters
