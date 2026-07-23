@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace Andy.ExternalProcess
@@ -31,6 +32,10 @@ namespace Andy.ExternalProcess
             {
                 var readCount = source.Read(buffer, offset, count);
                 return readCount;
+            }
+            catch (IOException ex) when (ex.InnerException is SocketException socket && socket.SocketErrorCode == SocketError.Interrupted)
+            {
+                return 0;
             }
             catch (ObjectDisposedException)
             {
