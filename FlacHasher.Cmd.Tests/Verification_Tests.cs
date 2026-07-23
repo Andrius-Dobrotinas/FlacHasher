@@ -32,10 +32,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.IsNull(result);
         }
 
-        [TestCase("c:\\file.hash", null)]
-        [TestCase("c:\\file.hash", "c:\\flac")]
-        [TestCase("c:\\fyle", null)]
-        [TestCase("c:\\fyle", "c:\\muzak")]
+        [TestCaseSource(nameof(GetCases_HashfileSpecifiedAsAbsolutePath))]
         public void Hashfile_SpecifiedAs_AbsolutePath__RegardlessOfDirectory__Must_Return_This_File(string filename, string dirname)
         {
             var @params = new Params
@@ -83,9 +80,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.AreEqual(new DirectoryInfo(dirname).FullName, result.Directory.FullName);
         }
 
-        [TestCase("d:\\dir")]
-        [TestCase("d:\\dir\\")]
-        [TestCase("d:\\muzak\\flac\\directory")]
+        [TestCaseSource(nameof(GetCases_NoHashfileSpecified))]
         public void No_Hashfile_Specified__Must_Scan_The_SpecifiedDirectory_For_Files(string dirname)
         {
             var @params = new Params
@@ -138,6 +133,30 @@ namespace Andy.FlacHash.Application.Cmd
             var result = Verification.GetHashFile(@params, filesearch.Object);
 
             AssertThat.IsIn(result, acceptableFiles);
+        }
+
+        static IEnumerable<TestCaseData> GetCases_HashfileSpecifiedAsAbsolutePath()
+        {
+            yield return new TestCaseData(Absolute("file.hash"), null);
+            yield return new TestCaseData(Absolute("file.hash"), Absolute("flac"));
+            yield return new TestCaseData(Absolute("fyle"), null);
+            yield return new TestCaseData(Absolute("fyle"), Absolute("muzak"));
+        }
+
+        static IEnumerable<TestCaseData> GetCases_NoHashfileSpecified()
+        {
+            yield return new TestCaseData(Absolute("dir"));
+            yield return new TestCaseData(Absolute("dir") + Path.DirectorySeparatorChar);
+            yield return new TestCaseData(Absolute("muzak", "flac", "directory"));
+        }
+
+        static string Absolute(params string[] parts)
+        {
+            var rootedParts = new string[parts.Length + 1];
+            rootedParts[0] = Path.GetPathRoot(Environment.CurrentDirectory) ?? Path.DirectorySeparatorChar.ToString();
+            Array.Copy(parts, 0, rootedParts, 1, parts.Length);
+
+            return Path.Combine(rootedParts);
         }
 
         static IEnumerable<TestCaseData> GetCases_HashfileLookup()

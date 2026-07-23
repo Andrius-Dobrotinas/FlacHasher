@@ -65,7 +65,11 @@ namespace Andy.IO
             yield return new TestCaseData(@"c:\asd.flac", @"c:\Asd.Flac");
             yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
             yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
-            yield return new TestCaseData(@"c:\flac\asd.flac", @"c:/FLac/asd.flac");
+
+            // Only meaningful on platforms where '/' is an alternate separator to '\' (i.e. Windows).
+            // On platforms where they're the same character (e.g. Linux), this pairing isn't a case-only difference.
+            if (Path.DirectorySeparatorChar != Path.AltDirectorySeparatorChar)
+                yield return new TestCaseData(@"c:\flac\asd.flac", @"c:/FLac/asd.flac");
 
             var file = new FileInfo("sad.flac");
             yield return new TestCaseData(file.Name, file.FullName);

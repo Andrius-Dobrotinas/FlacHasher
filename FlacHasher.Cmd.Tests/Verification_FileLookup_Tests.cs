@@ -141,8 +141,7 @@ namespace Andy.FlacHash.Application.Cmd
                 "file directory");
         }
 
-        [TestCase("c:\\hasheesh\\hash.hash", "c:\\d\\muzak", "1.flac", "2.flac")]
-        [TestCase("c:\\d\\a.txt", "e:\\mp3\\flac", "four.flac", "2.flac", "five.flac")]
+        [TestCaseSource(nameof(GetCases_SpecifiedHashfileAndInputDir))]
         public void Specified_Hashfile_And_InputDir__Must__Search_For_InputFiles_In_TheSpecified_InputDirectory(string hashfilePath, string inputDirPath, params string[] filepaths)
         {
             var @params = new Params
@@ -275,8 +274,8 @@ namespace Andy.FlacHash.Application.Cmd
                     });
 
                 yield return new TestCaseData(
-                    "d:\\muzak\\one\\hashfile.one",
-                    "d:\\muzak\\one",
+                    Absolute("muzak", "one", "hashfile.one"),
+                    Absolute("muzak", "one"),
                     new Dictionary<string, string>
                     {
                         { "01.flac", "hash1" },
@@ -284,8 +283,8 @@ namespace Andy.FlacHash.Application.Cmd
                     });
 
                 yield return new TestCaseData(
-                    "c:\\muzak\\elsewhere\\file.two.txt",
-                    "c:\\muzak\\elsewhere",
+                    Absolute("muzak", "elsewhere", "file.two.txt"),
+                    Absolute("muzak", "elsewhere"),
                     new Dictionary<string, string>
                     {
                         { "uno.flac", "hash11" },
@@ -293,6 +292,21 @@ namespace Andy.FlacHash.Application.Cmd
                         { "tres.flac", "hash33" }
                     });
             }
+        }
+
+        static IEnumerable<TestCaseData> GetCases_SpecifiedHashfileAndInputDir()
+        {
+            yield return new TestCaseData(Absolute("hasheesh", "hash.hash"), Absolute("d", "muzak"), new[] { "1.flac", "2.flac" });
+            yield return new TestCaseData(Absolute("d", "a.txt"), Absolute("mp3", "flac"), new[] { "four.flac", "2.flac", "five.flac" });
+        }
+
+        static string Absolute(params string[] parts)
+        {
+            var rootedParts = new string[parts.Length + 1];
+            rootedParts[0] = Path.GetPathRoot(Environment.CurrentDirectory) ?? Path.DirectorySeparatorChar.ToString();
+            Array.Copy(parts, 0, rootedParts, 1, parts.Length);
+
+            return Path.Combine(rootedParts);
         }
 
         class Params : VerificationParameters
