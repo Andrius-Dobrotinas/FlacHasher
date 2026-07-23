@@ -12,24 +12,29 @@ namespace Andy.IO
     {
         private FileInfoEqualityComprarer target = new FileInfoEqualityComprarer();
 
+        private static FileInfo CreateFileInfo(string path)
+        {
+            return new FileInfo(Path.GetFullPath(TestPath.Normalize(path)));
+        }
+
         [TestCaseSource(nameof(GetMatches))]
         public void Equals__True_When_FullPaths_Match_Ignoring_LetterCasing(string file1, string file2)
         {
-            var result = target.Equals(new FileInfo(file1), new FileInfo(file2));
+            var result = target.Equals(CreateFileInfo(file1), CreateFileInfo(file2));
             Assert.True(result);
         }
 
         [TestCaseSource(nameof(GetNoMatches))]
         public void Equals__False_When_FullPaths_DontMatch_Ignoring_LetterCasing(string file1, string file2)
         {
-            var result = target.Equals(new FileInfo(file1), new FileInfo(file2));
+            var result = target.Equals(CreateFileInfo(file1), CreateFileInfo(file2));
             Assert.False(result);
         }
 
         [TestCaseSource(nameof(GetMatches))]
         public void Equals__True_When_BothFiles_Are_TheSameInstance(string file1, string file2)
         {
-            var file = new FileInfo(file1);
+            var file = CreateFileInfo(file1);
             var result = target.Equals(file, file);
             Assert.True(result);
         }
@@ -37,23 +42,23 @@ namespace Andy.IO
         [TestCaseSource(nameof(GetMatches))]
         public void GetHashCode__Identical_Hashcodes_ForFiles_Where_FullPaths_Match_Ignoring_LetterCasing(string file1, string file2)
         {
-            var one = target.GetHashCode(new FileInfo(file1));
-            var two = target.GetHashCode(new FileInfo(file2));
+            var one = target.GetHashCode(CreateFileInfo(file1));
+            var two = target.GetHashCode(CreateFileInfo(file2));
             Assert.AreEqual(one, two);
         }
 
         [TestCaseSource(nameof(GetNoMatches))]
         public void Equals__Different_Hashcodes_ForFiles_Where_FullPaths_DontMatch_Ignoring_LetterCasing(string file1, string file2)
         {
-            var one = target.GetHashCode(new FileInfo(file1));
-            var two = target.GetHashCode(new FileInfo(file2));
+            var one = target.GetHashCode(CreateFileInfo(file1));
+            var two = target.GetHashCode(CreateFileInfo(file2));
             Assert.AreNotEqual(one, two);
         }
 
         [TestCaseSource(nameof(GetMatches))]
         public void GetHashCode__Identical_Hashcodes_ForFiles_That_Are_TheSameInstance(string file1, string file2)
         {
-            var file = new FileInfo(file1);
+            var file = CreateFileInfo(file1);
             var one = target.GetHashCode(file);
             var two = target.GetHashCode(file);
             Assert.AreEqual(one, two);

@@ -13,6 +13,9 @@ namespace Andy.FlacHash.Application.Cmd
     {
         Mock<IFileSearch> filesearch;
 
+        private static string NormalizePath(string path) => TestPath.Normalize(path);
+        private static FileInfo CreateFileInfo(string path) => new FileInfo(NormalizePath(path));
+
         [SetUp]
         public void Setup()
         {
@@ -24,16 +27,18 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("hashfile.one", "ext")]
         public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_PositionBased__Must__Search_For_InputFiles_In_Resolved_Hashfile_Directory(string hashfilePath, string targetFileExtension)
         {
+            hashfilePath = NormalizePath(hashfilePath);
+
             var @params = new Params
             {
-                HashFile = "c:\\hash.file",
+                HashFile = NormalizePath("c:\\hash.file"),
                 InputDirectory = null,
                 InputFiles = null,
                 TargetFileExtensions = new string[] { targetFileExtension }
             };
 
             var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: true);
-            var hashfile = new FileInfo(hashfilePath);
+            var hashfile = CreateFileInfo(hashfilePath);
             var expectedDirectoryPath = hashfile.Directory.FullName;
             var expectedLookupExtensions = new string[] { targetFileExtension };
             var result = Verification.FindFiles(hashfile, filehashmap_file, @params, filesearch.Object);
@@ -63,14 +68,14 @@ namespace Andy.FlacHash.Application.Cmd
         {
             var @params = new Params
             {
-                HashFile = "c:\\files\\hash.file",
+                HashFile = NormalizePath("c:\\files\\hash.file"),
                 InputDirectory = null,
                 InputFiles = null,
                 TargetFileExtensions = null
             };
 
             var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: true);
-            var hashfile = new FileInfo("c:\\files\\hash.file");
+            var hashfile = CreateFileInfo("c:\\files\\hash.file");
 
             filesearch.Setup(
                 x => x.FindFiles(
@@ -89,16 +94,16 @@ namespace Andy.FlacHash.Application.Cmd
         {
             var @params = new Params
             {
-                HashFile = "c:\\files\\hash.file",
+                HashFile = NormalizePath("c:\\files\\hash.file"),
                 InputDirectory = null,
                 InputFiles = null,
                 TargetFileExtensions = ["flac"]
             };
 
             var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: true);
-            var hashfile = new FileInfo("c:\\files\\hash.file");
+            var hashfile = CreateFileInfo("c:\\files\\hash.file");
 
-            var expectedFiles = files.Select(x => new FileInfo(x));
+            var expectedFiles = files.Select(CreateFileInfo);
 
             filesearch.Setup(
                 x => x.FindFiles(
@@ -116,6 +121,9 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCaseSource(nameof(GetCases_FileLookup1))]
         public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_FilenameBased__Must__Return_AllFiles_DefinedInHashfile_With_BasePath_SameAsHashfile(string hashfilePath, string expectedBasePath, IDictionary<string, string> hashfileEntries)
         {
+            hashfilePath = NormalizePath(hashfilePath);
+            expectedBasePath = NormalizePath(expectedBasePath);
+
             var @params = new Params
             {
                 HashFile = hashfilePath,
@@ -127,7 +135,7 @@ namespace Andy.FlacHash.Application.Cmd
             var expectedFiles = hashfileEntries.Keys;
 
             var filehashmap_file = new FileHashMap(hashfileEntries.ToArray(), hasNoFileNames: false);
-            var hashfile = new FileInfo(hashfilePath);
+            var hashfile = CreateFileInfo(hashfilePath);
             var result = Verification.FindFiles(hashfile, filehashmap_file, @params, filesearch.Object);
 
             AssertThat.CollectionsMatchExactly(
@@ -145,6 +153,9 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("c:\\d\\a.txt", "e:\\mp3\\flac", "four.flac", "2.flac", "five.flac")]
         public void Specified_Hashfile_And_InputDir__Must__Search_For_InputFiles_In_TheSpecified_InputDirectory(string hashfilePath, string inputDirPath, params string[] filepaths)
         {
+            hashfilePath = NormalizePath(hashfilePath);
+            inputDirPath = NormalizePath(inputDirPath);
+
             var @params = new Params
             {
                 HashFile = hashfilePath,
@@ -152,7 +163,7 @@ namespace Andy.FlacHash.Application.Cmd
                 InputFiles = null
             };
 
-            var expectedFiles = filepaths.Select(x => new FileInfo(x));
+            var expectedFiles = filepaths.Select(CreateFileInfo);
 
             filesearch.Setup(
                 x => x.FindFiles(
@@ -161,7 +172,7 @@ namespace Andy.FlacHash.Application.Cmd
                 .Returns(expectedFiles);
 
             var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: false);
-            var hashfile = new FileInfo(hashfilePath);
+            var hashfile = CreateFileInfo(hashfilePath);
             var result = Verification.FindFiles(hashfile, filehashmap_file, @params, filesearch.Object);
 
             filesearch.Verify(
@@ -187,6 +198,8 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("c:\\d\\a.txt", "four.flac", "2.flac", "five.flac")]
         public void Specified_Hashfile_And_InputFiles__Must__Use_TheSuppliedInputFiles(string hashfilePath, params string[] filepaths)
         {
+            hashfilePath = NormalizePath(hashfilePath);
+
             var @params = new Params
             {
                 HashFile = hashfilePath,
@@ -194,7 +207,7 @@ namespace Andy.FlacHash.Application.Cmd
                 InputFiles = filepaths
             };
 
-            var expectedFiles = filepaths.Select(x => new FileInfo(x));
+            var expectedFiles = filepaths.Select(CreateFileInfo);
 
             filesearch.Setup(
                 x => x.FindFiles(
@@ -203,7 +216,7 @@ namespace Andy.FlacHash.Application.Cmd
                 .Returns(expectedFiles);
 
             var filehashmap_file = new FileHashMap(Array.Empty<KeyValuePair<string, string>>(), hasNoFileNames: false);
-            var hashfile = new FileInfo(hashfilePath);
+            var hashfile = CreateFileInfo(hashfilePath);
             var result = Verification.FindFiles(hashfile, filehashmap_file, @params, filesearch.Object);
 
             AssertThat.CollectionsMatchExactly(
@@ -216,8 +229,9 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("d:\\e\\m", "x", "four.flac", "2.flac", "five.flac")]
         public void Specified_NoHashfile_OnlyInputDir__Must__Search_ForFiles_InTheDir(string dir, string targetFileExtension, params string[] filepaths)
         {
+            dir = NormalizePath(dir);
             var expectedDirectoryPath = new DirectoryInfo(dir).FullName;
-            var expectedFiles = filepaths.Select(x => new FileInfo(x));
+            var expectedFiles = filepaths.Select(CreateFileInfo);
             var expectedLookupExtensions = new string[] { targetFileExtension };
             
             var @params = new Params

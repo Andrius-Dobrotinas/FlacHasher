@@ -13,6 +13,8 @@ namespace Andy.FlacHash.Application.Cmd
     {
         Mock<IFileSearch> filesearch;
 
+        private static string NormalizePath(string path) => TestPath.Normalize(path);
+
         [SetUp]
         public void Setup()
         {
@@ -38,6 +40,9 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("c:\\fyle", "c:\\muzak")]
         public void Hashfile_SpecifiedAs_AbsolutePath__RegardlessOfDirectory__Must_Return_This_File(string filename, string dirname)
         {
+            filename = NormalizePath(filename);
+            dirname = NormalizePath(dirname);
+
             var @params = new Params
             {
                 HashFile = filename,
@@ -70,6 +75,8 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("hasheesh", "d:\\muzak\\flac\\directory")]
         public void Hashfile_SpecifiedAs_JustFileName__DirectorySpecified__Must_Return_This_File_InThe_Specified_Directory(string filename, string dirname)
         {
+            dirname = NormalizePath(dirname);
+
             var @params = new Params
             {
                 HashFile = filename,
@@ -88,6 +95,9 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCase("d:\\muzak\\flac\\directory")]
         public void No_Hashfile_Specified__Must_Scan_The_SpecifiedDirectory_For_Files(string dirname)
         {
+            dirname = NormalizePath(dirname);
+            var expectedDirectoryPath = new DirectoryInfo(dirname).FullName;
+
             var @params = new Params
             {
                 InputDirectory = dirname,
@@ -105,7 +115,7 @@ namespace Andy.FlacHash.Application.Cmd
             filesearch.Verify(
                 x => x.FindFiles(
                     It.Is<DirectoryInfo>(
-                        arg => arg.FullName == dirname),
+                        arg => arg.FullName == expectedDirectoryPath),
                     It.IsAny<string>()),
                 "Must search the Specified Directory");
 
@@ -120,7 +130,7 @@ namespace Andy.FlacHash.Application.Cmd
         [TestCaseSource(nameof(GetCases_HashfileLookup))]
         public void No_Hashfile_Specified__Must_Pick_Any_Hashfile_Of_Accepted_Filetypes__From_The_SpecifiedDirectory(string description, string[] nameOfFilesInTheDirectory, string[] acceptedHashTypes, string[] acceptableHashfileNames)
         {
-            var dirname = "c:\\muzak\\narvana\\boot1";
+            var dirname = NormalizePath("c:\\muzak\\narvana\\boot1");
 
             var filesInDir = nameOfFilesInTheDirectory.Select(filename => new FileInfo(Path.Combine(dirname, filename))).ToArray();
             var acceptableFiles = acceptableHashfileNames.Select(filename => filesInDir.First(x => x.Name == filename)).ToArray();
