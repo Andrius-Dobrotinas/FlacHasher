@@ -143,12 +143,12 @@ namespace Andy.FlacHash.Verification
 
         private static IEnumerable<TestCaseData> GetCases_FewerFilesPresent_ThanExpected()
         {
-            var file1 = new FileInfo($@"{path}\{filename1}");
-            var file2 = new FileInfo($@"{path}\{filename2}");
-            var file3 = new FileInfo($@"{path}\{filename3}");
-            var file4 = new FileInfo($@"{path}\{filename4}");
-            var file5 = new FileInfo($@"{path}\{filename5}");
-            var file6 = new FileInfo($@"{path}\{filename6}");
+            var file1 = new FileInfo(Path.Combine(path, filename1));
+            var file2 = new FileInfo(Path.Combine(path, filename2));
+            var file3 = new FileInfo(Path.Combine(path, filename3));
+            var file4 = new FileInfo(Path.Combine(path, filename4));
+            var file5 = new FileInfo(Path.Combine(path, filename5));
+            var file6 = new FileInfo(Path.Combine(path, filename6));
 
             yield return new TestCaseData(
                 "Last file missing",
@@ -243,12 +243,12 @@ namespace Andy.FlacHash.Verification
 
         private static IEnumerable<TestCaseData> GetCases_SomeMissing_SomeExtra()
         {
-            var file1 = new FileInfo($@"{path}\{filename1}");
-            var file2 = new FileInfo($@"{path}\{filename2}");
-            var file3 = new FileInfo($@"{path}\{filename3}");
-            var file4 = new FileInfo($@"{path}\{filename4}");
-            var file5 = new FileInfo($@"{path}\{filename5}");
-            var file6 = new FileInfo($@"{path}\{filename6}");
+            var file1 = new FileInfo(Path.Combine(path, filename1));
+            var file2 = new FileInfo(Path.Combine(path, filename2));
+            var file3 = new FileInfo(Path.Combine(path, filename3));
+            var file4 = new FileInfo(Path.Combine(path, filename4));
+            var file5 = new FileInfo(Path.Combine(path, filename5));
+            var file6 = new FileInfo(Path.Combine(path, filename6));
 
             yield return new TestCaseData(
                 "One file missing, One file extra",
@@ -326,11 +326,11 @@ namespace Andy.FlacHash.Verification
 
         private static IEnumerable<TestCaseData> GetCases_AllMissing_SomeExtra()
         {
-            var file1 = new FileInfo($@"{path}\{filename1}");
-            var file2 = new FileInfo($@"{path}\{filename2}");
-            var file3 = new FileInfo($@"{path}\{filename3}");
-            var file4 = new FileInfo($@"{path}\{filename4}");
-            var file5 = new FileInfo($@"{path}\{filename5}");
+            var file1 = new FileInfo(Path.Combine(path, filename1));
+            var file2 = new FileInfo(Path.Combine(path, filename2));
+            var file3 = new FileInfo(Path.Combine(path, filename3));
+            var file4 = new FileInfo(Path.Combine(path, filename4));
+            var file5 = new FileInfo(Path.Combine(path, filename5));
 
             yield return new TestCaseData(
                 new List<KeyValuePair<string, string>>
@@ -370,10 +370,10 @@ namespace Andy.FlacHash.Verification
 
         private static IEnumerable<TestCaseData> GetCases_SameNumberOfFiles_AsHashes()
         {
-            var file1 = new FileInfo($@"{path}\{filename1}");
-            var file2 = new FileInfo($@"{path}\{filename2}");
-            var file3 = new FileInfo($@"{path}\{filename3}");
-            var file4 = new FileInfo($@"{path}\{filename4}");
+            var file1 = new FileInfo(Path.Combine(path, filename1));
+            var file2 = new FileInfo(Path.Combine(path, filename2));
+            var file3 = new FileInfo(Path.Combine(path, filename3));
+            var file4 = new FileInfo(Path.Combine(path, filename4));
 
             yield return new TestCaseData(
                 "Single file",
@@ -456,11 +456,11 @@ namespace Andy.FlacHash.Verification
 
         private static IEnumerable<TestCaseData> GetCases_AllMatches_WithExtraFiles()
         {
-            var file1 = new FileInfo($@"{path}\{filename1}");
-            var file2 = new FileInfo($@"{path}\{filename2}");
-            var file3 = new FileInfo($@"{path}\{filename3}");
-            var file4 = new FileInfo($@"{path}\{filename4}");
-            var file5 = new FileInfo($@"{path}\{filename5}");
+            var file1 = new FileInfo(Path.Combine(path, filename1));
+            var file2 = new FileInfo(Path.Combine(path, filename2));
+            var file3 = new FileInfo(Path.Combine(path, filename3));
+            var file4 = new FileInfo(Path.Combine(path, filename4));
+            var file5 = new FileInfo(Path.Combine(path, filename5));
 
             yield return new TestCaseData(
                 "Single hash",
