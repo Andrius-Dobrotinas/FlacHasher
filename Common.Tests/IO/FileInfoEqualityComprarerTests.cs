@@ -64,7 +64,6 @@ namespace Andy.IO
             yield return new TestCaseData("asd.flac", "Asd.Flac");
             yield return new TestCaseData(@"c:\asd.flac", @"c:\Asd.Flac");
             yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
-            yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
             yield return new TestCaseData(@"c:\flac\asd.flac", @"c:/FLac/asd.flac");
 
             var file = new FileInfo("sad.flac");
