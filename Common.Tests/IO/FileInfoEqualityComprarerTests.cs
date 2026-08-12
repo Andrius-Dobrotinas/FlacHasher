@@ -61,19 +61,41 @@ namespace Andy.IO
 
         private static IEnumerable<TestCaseData> GetMatches()
         {
-            yield return new TestCaseData("asd.flac", "Asd.Flac");
-            yield return new TestCaseData(@"c:\asd.flac", @"c:\Asd.Flac");
-            yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
-            yield return new TestCaseData(@"c:\flac\asd.flac", @"c:/FLac/asd.flac");
+            foreach (var testCase in OperatingSystem.IsWindows() ? GetMatchesWindows() : GetMatchesLinux())
+                yield return testCase;
 
             var file = new FileInfo("sad.flac");
             yield return new TestCaseData(file.Name, file.FullName);
         }
 
-        private static IEnumerable<TestCaseData> GetNoMatches()
+        private static IEnumerable<TestCaseData> GetMatchesWindows()
+        {
+            yield return new TestCaseData("asd.flac", "Asd.Flac");
+            yield return new TestCaseData(@"c:\asd.flac", @"c:\Asd.Flac");
+            yield return new TestCaseData(@"c:\flac\asd.flac", @"C:\FLac\asd.flac");
+            yield return new TestCaseData(@"c:\flac\asd.flac", @"c:/FLac/asd.flac");
+        }
+
+        private static IEnumerable<TestCaseData> GetMatchesLinux()
+        {
+            yield return new TestCaseData("asd.flac", "Asd.Flac");
+            yield return new TestCaseData("/asd.flac", "/Asd.Flac");
+            yield return new TestCaseData("/flac/asd.flac", "/FLac/asd.flac");
+        }
+
+        private static IEnumerable<TestCaseData> GetNoMatches() =>
+            OperatingSystem.IsWindows() ? GetNoMatchesWindows() : GetNoMatchesLinux();
+
+        private static IEnumerable<TestCaseData> GetNoMatchesWindows()
         {
             yield return new TestCaseData("asd.flac", "asd.lac");
             yield return new TestCaseData(@"c:\asd.flac", @"d:\asd.flac");
+        }
+
+        private static IEnumerable<TestCaseData> GetNoMatchesLinux()
+        {
+            yield return new TestCaseData("asd.flac", "asd.lac");
+            yield return new TestCaseData("/flac/asd.flac", "/var/asd.flac");
         }
     }
 }
