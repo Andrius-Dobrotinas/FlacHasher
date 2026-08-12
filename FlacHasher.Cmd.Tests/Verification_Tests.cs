@@ -32,10 +32,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.IsNull(result);
         }
 
-        [TestCase("c:\\file.hash", null)]
-        [TestCase("c:\\file.hash", "c:\\flac")]
-        [TestCase("c:\\fyle", null)]
-        [TestCase("c:\\fyle", "c:\\muzak")]
+        [TestCaseSource(nameof(GetCases_AbsolutePathHashfile))]
         public void Hashfile_SpecifiedAs_AbsolutePath__RegardlessOfDirectory__Must_Return_This_File(string filename, string dirname)
         {
             var @params = new Params
@@ -65,9 +62,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.AreEqual(new DirectoryInfo(Directory.GetCurrentDirectory()).FullName, result.Directory.FullName);
         }
 
-        [TestCase("file.hash", "d:\\dir")]
-        [TestCase("hasheesh.md5", "d:\\muzak\\flac\\directory")]
-        [TestCase("hasheesh", "d:\\muzak\\flac\\directory")]
+        [TestCaseSource(nameof(GetCases_JustFileName_DirectorySpecified))]
         public void Hashfile_SpecifiedAs_JustFileName__DirectorySpecified__Must_Return_This_File_InThe_Specified_Directory(string filename, string dirname)
         {
             var @params = new Params
@@ -83,9 +78,7 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.AreEqual(new DirectoryInfo(dirname).FullName, result.Directory.FullName);
         }
 
-        [TestCase("d:\\dir")]
-        [TestCase("d:\\dir\\")]
-        [TestCase("d:\\muzak\\flac\\directory")]
+        [TestCaseSource(nameof(GetCases_ScanSpecifiedDirectory))]
         public void No_Hashfile_Specified__Must_Scan_The_SpecifiedDirectory_For_Files(string dirname)
         {
             var @params = new Params
@@ -138,6 +131,42 @@ namespace Andy.FlacHash.Application.Cmd
             var result = Verification.GetHashFile(@params, filesearch.Object);
 
             AssertThat.IsIn(result, acceptableFiles);
+        }
+
+        static IEnumerable<TestCaseData> GetCases_AbsolutePathHashfile()
+        {
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\file.hash" : "/file.hash",
+                null);
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\file.hash" : "/file.hash",
+                OperatingSystem.IsWindows() ? "c:\\flac" : "/flac");
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\fyle" : "/fyle",
+                null);
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\fyle" : "/fyle",
+                OperatingSystem.IsWindows() ? "c:\\muzak" : "/muzak");
+        }
+
+        static IEnumerable<TestCaseData> GetCases_JustFileName_DirectorySpecified()
+        {
+            yield return new TestCaseData(
+                "file.hash",
+                OperatingSystem.IsWindows() ? "d:\\dir" : "/dir");
+            yield return new TestCaseData(
+                "hasheesh.md5",
+                OperatingSystem.IsWindows() ? "d:\\muzak\\flac\\directory" : "/muzak/flac/directory");
+            yield return new TestCaseData(
+                "hasheesh",
+                OperatingSystem.IsWindows() ? "d:\\muzak\\flac\\directory" : "/muzak/flac/directory");
+        }
+
+        static IEnumerable<TestCaseData> GetCases_ScanSpecifiedDirectory()
+        {
+            yield return new TestCaseData(OperatingSystem.IsWindows() ? "d:\\dir" : "/dir");
+            yield return new TestCaseData(OperatingSystem.IsWindows() ? "d:\\dir\\" : "/dir/");
+            yield return new TestCaseData(OperatingSystem.IsWindows() ? "d:\\muzak\\flac\\directory" : "/muzak/flac/directory");
         }
 
         static IEnumerable<TestCaseData> GetCases_HashfileLookup()
