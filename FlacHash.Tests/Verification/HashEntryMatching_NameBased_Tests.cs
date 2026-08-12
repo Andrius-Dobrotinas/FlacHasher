@@ -25,6 +25,27 @@ namespace Andy.FlacHash.Verification
 
         static string FileToString(FileInfo file) => file.Name;
 
+        [TestCase(path)]
+        [TestCase(@"c:\some\other\directory")]
+        [TestCase("", Description = "No directory at all")]
+        [TestCase(@"..\asd")]
+        [TestCase("/asd")]
+        public void Must_Match_BasedOn_Filename_Only__Ignoring_InputFilePath(string inputFileDirectory)
+        {
+            var inputHashes = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>(filename1, hash1)
+            };
+
+            var inputFile = new FileInfo(Path.Combine(inputFileDirectory, filename1));
+
+            var result = HashEntryMatching.MatchFilesToHashesNameBased(inputHashes, new[] { inputFile }).ToList();
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreSame(inputFile, result[0].Key, "Matched file");
+            Assert.AreEqual(hash1, result[0].Value, "Hash value");
+        }
+
         [TestCaseSource(nameof(GetCases_SameNumberOfFiles_AsHashes))]
         public void When_All_FilesReferencedByHashlist_ArePresent__Must_Return_AllHashes_WithCorrespondingFiles_InOriginalHashOrder(string description, IList<KeyValuePair<string, string>> inputHashes, IList<FileInfo> inputFiles, IList<KeyValuePair<FileInfo, string>> expected)
         {
