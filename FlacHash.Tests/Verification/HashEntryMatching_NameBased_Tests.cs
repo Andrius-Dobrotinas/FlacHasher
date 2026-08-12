@@ -345,40 +345,6 @@ namespace Andy.FlacHash.Verification
                 });
         }
 
-        private static IEnumerable<TestCaseData> GetCases_AllMissing_SomeExtra()
-        {
-            var file1 = new FileInfo(Path.Combine(path, filename1));
-            var file2 = new FileInfo(Path.Combine(path, filename2));
-            var file3 = new FileInfo(Path.Combine(path, filename3));
-            var file4 = new FileInfo(Path.Combine(path, filename4));
-            var file5 = new FileInfo(Path.Combine(path, filename5));
-
-            yield return new TestCaseData(
-                new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>(filename4, hash4)
-                },
-                new FileInfo[] // input files
-                {
-                    file3,
-                    file5,
-                    file1
-                });
-
-            yield return new TestCaseData(
-                new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>(filename1, hash1),
-                    new KeyValuePair<string, string>(filename2, hash2),
-                    new KeyValuePair<string, string>(filename3, hash3)
-                },
-                new FileInfo[] // input files
-                {
-                    file4,
-                    file5
-                });
-        }
-
         private static IEnumerable<TestCaseData> GetCases_NoInputFilesPresent()
         {
             yield return new TestCaseData(
