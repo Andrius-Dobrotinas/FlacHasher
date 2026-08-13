@@ -6,9 +6,17 @@ on:
       branches:
         - "**"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     runs-on: windows-2022
+    timeout-minutes: 30     # Because it installs extra stuff
     steps:
       - uses: actions/checkout@v4
       - run: mkdir TestResults
