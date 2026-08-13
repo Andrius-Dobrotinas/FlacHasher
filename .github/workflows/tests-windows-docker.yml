@@ -1,3 +1,4 @@
+# Same tests, just ran via Docker, not directly on the host (GH runner)
 name: Run Tests on Windows (Docker)
 
 on:
