@@ -17,15 +17,24 @@ jobs:
   tests:
     runs-on: windows-2022
     timeout-minutes: 30     # Because it installs extra stuff
+    env:
+      SLN_ARGS: FlacHasher.sln --configuration Release
+
     steps:
       - uses: actions/checkout@v4
       - run: mkdir TestResults
 
-      - name: Build
+      - name: Pull the image
         run: docker compose --file docker-compose-win.yml pull tests_report
       
       - name: Install Pandoc
         run: choco install pandoc -y
+
+      # Target "tests" service (not "tests_report") because "tests_report" overrides the
+      # entrypoint to "cmd /c run-tests-w-report.cmd", so any args passed here would go to cmd, not dotnet.
+      # Both services share the same image so build output would be the same
+      - name: Build
+        run: docker compose --file docker-compose-win.yml run --rm tests build ${{ env.SLN_ARGS }} /p:EnableWindowsTargeting=true
       
       - name: Run Tests
         id: run-tests

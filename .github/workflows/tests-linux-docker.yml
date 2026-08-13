@@ -13,9 +13,14 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      SLN_ARGS: FlacHasher.sln --configuration Release
+      
     steps:
       - uses: actions/checkout@v4
+      - name: Pull the image
+        run: docker compose --file docker-compose-lnx.yml pull tests
       - name: Build
-        run: docker compose --file docker-compose-lnx.yml build tests --progress=plain
+        run: docker compose --file docker-compose-lnx.yml run --rm tests build ${{ env.SLN_ARGS }} /p:EnableWindowsTargeting=true
       - name: Run Tests
-        run: docker compose --file docker-compose-lnx.yml run --rm tests
+        run: docker compose --file docker-compose-lnx.yml run --rm tests test ${{ env.SLN_ARGS }} --no-build
