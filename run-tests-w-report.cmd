@@ -1,5 +1,6 @@
-dotnet build "FlacHasher.sln" --configuration Release /p:EnableWindowsTargeting=true
 
+:: Each project writes a report in HTML to an absolute directory.
+:: TODO: make it either relative or configurable. It's not fit for local use here.
 dotnet test "Andy.Cmd.Tests\\Cmd.Tests.csproj" --configuration Release --no-build --logger "html;LogFileName=c:\src\TestResults\Cmd.Tests.html"
 dotnet test "Common.Tests\\Common.Tests.csproj" --configuration Release --no-build --logger "html;LogFileName=c:\src\TestResults\Common.Tests.html"
 dotnet test "ExternalProcess\ExternalProcess.Tests\ExternalProcess.Tests.csproj" --configuration Release --no-build --logger "html;LogFileName=c:\src\TestResults\ExternalProcess.Tests.html"
