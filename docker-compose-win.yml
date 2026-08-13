@@ -1,6 +1,6 @@
 services:
   tests:
-    image: mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-1809
+    image: mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022
     working_dir: "c:\\src"
     entrypoint:
      - dotnet
@@ -18,10 +18,11 @@ services:
         source: .
         target: "c:\\src"
 
+  # Each test project writes a report in HTML
   tests_report:
     extends:
       service: tests
-    # "/c" is a requirement for Cmd to execute run-tests.cmd
+    # "/c" is a requirement for Cmd to execute run-tests-w-report.cmd
     entrypoint: ["cmd", "/c"]
     command:
-      - run-tests.cmd
+      - run-tests-w-report.cmd
