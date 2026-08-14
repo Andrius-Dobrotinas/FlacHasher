@@ -41,9 +41,11 @@ jobs:
           if [[ "$INPUT_PROJECT" == "cmd" ]]; then
             echo "project_dir=FlacHasher.Cmd" >> $GITHUB_OUTPUT
             echo "name=flachasher-cmd" >> $GITHUB_OUTPUT
+            echo "exe=FlacHasher.exe" >> $GITHUB_OUTPUT
           else
             echo "project_dir=FlacHasher.Win" >> $GITHUB_OUTPUT
             echo "name=flachasher-gui" >> $GITHUB_OUTPUT
+            echo "exe=FlacHasherUI.exe" >> $GITHUB_OUTPUT
           fi
 
       - name: Determine tag
@@ -86,10 +88,12 @@ jobs:
       
       - name: Verify publish output
         shell: pwsh
+        env:
+          EXE_NAME: ${{ steps.determine-project.outputs.exe }}
         run: |
-          $exeFiles = Get-ChildItem -Path ./out -Filter *.exe
-          if ($exeFiles.Count -eq 0) {
-            Write-Error "No .exe files found in the publish output directory './out'. The build may have failed or produced unexpected output."
+          $exePath = Join-Path './out' $env:EXE_NAME
+          if (-not (Test-Path -Path $exePath -PathType Leaf)) {
+            Write-Error "Expected executable '$env:EXE_NAME' was not found in the publish output directory './out'. The build may have failed or produced unexpected output."
             exit 1
           }
 
