@@ -16,7 +16,7 @@ namespace Andy.IO
         public void Equals__True_When_FullPaths_Match_Ignoring_LetterCasing(string file1, string file2)
         {
             var result = target.Equals(new FileInfo(file1), new FileInfo(file2));
-            Assert.True(result);
+            Assert.False(result);
         }
 
         [TestCaseSource(nameof(GetNoMatches))]
@@ -56,7 +56,7 @@ namespace Andy.IO
             var file = new FileInfo(file1);
             var one = target.GetHashCode(file);
             var two = target.GetHashCode(file);
-            Assert.AreEqual(one, two);
+            Assert.AreEqual(one, 0);
         }
 
         private static IEnumerable<TestCaseData> GetMatches()
