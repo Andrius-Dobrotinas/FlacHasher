@@ -66,6 +66,34 @@ jobs:
         run: |
           echo "Version: \`${RELEASE_TAG}\`" >> $GITHUB_STEP_SUMMARY
 
+      # Assembly and file versions must be numeric, so they're taken from the tag only when it looks like a version number (e.g. "v1.2.3"),
+      # and fall back to 0.0.0 otherwise. The informational version is free-form, so it always carries the actual tag plus the commit it was built from.
+      - name: Determine version
+        id: determine-version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ steps.determine-tag.outputs.tag }}
+        run: |
+          $tag = $env:RELEASE_TAG
+
+          $match = [regex]::Match($tag, '^v?(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?$')
+          if ($match.Success) {
+            $version = "$($match.Groups[1].Value).$($match.Groups[2].Value).$($match.Groups[3].Value)"
+            if ($match.Groups[4].Success) {
+              $version = "$version.$($match.Groups[4].Value)"
+            }
+          } else {
+            $version = "0.0.0"
+          }
+
+          $informational = "$tag+$($env:GITHUB_SHA.Substring(0, 7))"
+
+          "version=$version" | Out-File -Append $env:GITHUB_OUTPUT
+          "informational=$informational" | Out-File -Append $env:GITHUB_OUTPUT
+
+          "Assembly version: ``$version``" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "Informational version: ``$informational``" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+
       - name: Determine zip filename
         id: zip-filename
         shell: bash
@@ -81,10 +109,13 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Build
+        shell: pwsh
         env:
           PROJECT_DIR: ${{ steps.determine-project.outputs.project_dir }}
           INPUT_RUNTIME: ${{ github.event.inputs.runtime }}
-        run: dotnet publish ./$env:PROJECT_DIR/ -c Release -r $env:INPUT_RUNTIME --output ./out
+          VERSION: ${{ steps.determine-version.outputs.version }}
+          INFORMATIONAL_VERSION: ${{ steps.determine-version.outputs.informational }}
+        run: dotnet publish ./$env:PROJECT_DIR/ -c Release -r $env:INPUT_RUNTIME --output ./out -p:Version=$env:VERSION "-p:InformationalVersion=$env:INFORMATIONAL_VERSION"
       
       - name: Verify publish output
         shell: pwsh
