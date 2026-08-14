@@ -19,14 +19,14 @@ namespace Andy.FlacHash.Application.Cmd
             filesearch = new Mock<IFileSearch>();
         }
 
-        [TestCase("hashfile.one", "x")]
-        [TestCase("c:\\file\\my.hash.file", "flask")]
-        [TestCase("hashfile.one", "ext")]
+        [TestCaseSource(nameof(GetCases_SearchInResolvedHashfileDirectory))]
         public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_PositionBased__Must__Search_For_InputFiles_In_Resolved_Hashfile_Directory(string hashfilePath, string targetFileExtension)
         {
             var @params = new Params
             {
-                HashFile = "c:\\hash.file",
+                HashFile = OperatingSystem.IsWindows()
+                    ? "c:\\hash.file"
+                    : "/hash.file",
                 InputDirectory = null,
                 InputFiles = null,
                 TargetFileExtensions = new string[] { targetFileExtension }
@@ -63,7 +63,9 @@ namespace Andy.FlacHash.Application.Cmd
         {
             var @params = new Params
             {
-                HashFile = "c:\\files\\hash.file",
+                HashFile = OperatingSystem.IsWindows()
+                    ? "c:\\files\\hash.file"
+                    : "/files/hash.file",
                 InputDirectory = null,
                 InputFiles = null,
                 TargetFileExtensions = null
@@ -83,13 +85,14 @@ namespace Andy.FlacHash.Application.Cmd
             Assert.AreEqual(typeof(VerificationParameters).GetProperty(nameof(VerificationParameters.TargetFileExtensions)), exception.ParameterProperty);
         }
 
-        [TestCase("c:\\file\\01.flac")]
-        [TestCase("c:\\file\\04.flac", "c:\\file\\06.flac")]
+        [TestCaseSource(nameof(GetCases_PositionBased_ReturnLookedUpFiles))]
         public void Specified_Hashfile_NoInputDir_NoInputFiles_And_HashfileIs_PositionBased__Must__Return_LookedUpFiles(params string[] files)
         {
             var @params = new Params
             {
-                HashFile = "c:\\files\\hash.file",
+                HashFile = OperatingSystem.IsWindows() 
+                    ? "c:\\files\\hash.file"
+                    : "/files/hash.file",
                 InputDirectory = null,
                 InputFiles = null,
                 TargetFileExtensions = ["flac"]
@@ -141,8 +144,7 @@ namespace Andy.FlacHash.Application.Cmd
                 "file directory");
         }
 
-        [TestCase("c:\\hasheesh\\hash.hash", "c:\\d\\muzak", "1.flac", "2.flac")]
-        [TestCase("c:\\d\\a.txt", "e:\\mp3\\flac", "four.flac", "2.flac", "five.flac")]
+        [TestCaseSource(nameof(GetCases_HashfileAndInputDir))]
         public void Specified_Hashfile_And_InputDir__Must__Search_For_InputFiles_In_TheSpecified_InputDirectory(string hashfilePath, string inputDirPath, params string[] filepaths)
         {
             var @params = new Params
@@ -183,8 +185,7 @@ namespace Andy.FlacHash.Application.Cmd
                 "Return files returned by the search thing");
         }
 
-        [TestCase("c:\\hasheesh\\hash.hash", "1.flac", "2.flac")]
-        [TestCase("c:\\d\\a.txt", "four.flac", "2.flac", "five.flac")]
+        [TestCaseSource(nameof(GetCases_HashfileAndInputFiles))]
         public void Specified_Hashfile_And_InputFiles__Must__Use_TheSuppliedInputFiles(string hashfilePath, params string[] filepaths)
         {
             var @params = new Params
@@ -212,8 +213,7 @@ namespace Andy.FlacHash.Application.Cmd
                 "Return files returned by the search thing");
         }
 
-        [TestCase("c:\\directory", "flac", "1.flac", "2.flac")]
-        [TestCase("d:\\e\\m", "x", "four.flac", "2.flac", "five.flac")]
+        [TestCaseSource(nameof(GetCases_NoHashfileOnlyInputDir))]
         public void Specified_NoHashfile_OnlyInputDir__Must__Search_ForFiles_InTheDir(string dir, string targetFileExtension, params string[] filepaths)
         {
             var expectedDirectoryPath = new DirectoryInfo(dir).FullName;
@@ -262,6 +262,61 @@ namespace Andy.FlacHash.Application.Cmd
                 "Return files returned by the search thing");
         }
 
+        static IEnumerable<TestCaseData> GetCases_SearchInResolvedHashfileDirectory()
+        {
+            yield return new TestCaseData("hashfile.one", "x");
+            yield return new TestCaseData("hashfile.one", "ext");
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\file\\my.hash.file" : "/file/my.hash.file",
+                "flask");
+        }
+
+        static IEnumerable<TestCaseData> GetCases_PositionBased_ReturnLookedUpFiles()
+        {
+            yield return new TestCaseData(
+                (object)new[] { OperatingSystem.IsWindows() ? "c:\\file\\01.flac" : "/file/01.flac" });
+            yield return new TestCaseData(
+                (object)new[]
+                {
+                    OperatingSystem.IsWindows() ? "c:\\file\\04.flac" : "/file/04.flac",
+                    OperatingSystem.IsWindows() ? "c:\\file\\06.flac" : "/file/06.flac"
+                });
+        }
+
+        static IEnumerable<TestCaseData> GetCases_HashfileAndInputDir()
+        {
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\hasheesh\\hash.hash" : "/hasheesh/hash.hash",
+                OperatingSystem.IsWindows() ? "c:\\d\\muzak" : "/d/muzak",
+                new[] { "1.flac", "2.flac" });
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\d\\a.txt" : "/d/a.txt",
+                OperatingSystem.IsWindows() ? "e:\\mp3\\flac" : "/mp3/flac",
+                new[] { "four.flac", "2.flac", "five.flac" });
+        }
+
+        static IEnumerable<TestCaseData> GetCases_HashfileAndInputFiles()
+        {
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\hasheesh\\hash.hash" : "/hasheesh/hash.hash",
+                new[] { "1.flac", "2.flac" });
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\d\\a.txt" : "/d/a.txt",
+                new[] { "four.flac", "2.flac", "five.flac" });
+        }
+
+        static IEnumerable<TestCaseData> GetCases_NoHashfileOnlyInputDir()
+        {
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "c:\\directory" : "/directory",
+                "flac",
+                new[] { "1.flac", "2.flac" });
+            yield return new TestCaseData(
+                OperatingSystem.IsWindows() ? "d:\\e\\m" : "/e/m",
+                "x",
+                new[] { "four.flac", "2.flac", "five.flac" });
+        }
+
         static IEnumerable<TestCaseData> GetCases_FileLookup1()
         {
             {
@@ -275,8 +330,8 @@ namespace Andy.FlacHash.Application.Cmd
                     });
 
                 yield return new TestCaseData(
-                    "d:\\muzak\\one\\hashfile.one",
-                    "d:\\muzak\\one",
+                    OperatingSystem.IsWindows() ? "d:\\muzak\\one\\hashfile.one" : "/muzak/one/hashfile.one",
+                    OperatingSystem.IsWindows() ? "d:\\muzak\\one" :  "/muzak/one",
                     new Dictionary<string, string>
                     {
                         { "01.flac", "hash1" },
@@ -284,8 +339,8 @@ namespace Andy.FlacHash.Application.Cmd
                     });
 
                 yield return new TestCaseData(
-                    "c:\\muzak\\elsewhere\\file.two.txt",
-                    "c:\\muzak\\elsewhere",
+                    OperatingSystem.IsWindows() ? "c:\\muzak\\elsewhere\\file.two.txt" : "/muzak/elsewhere/file.two.txt",
+                    OperatingSystem.IsWindows() ? "c:\\muzak\\elsewhere" : "/muzak/elsewhere",
                     new Dictionary<string, string>
                     {
                         { "uno.flac", "hash11" },

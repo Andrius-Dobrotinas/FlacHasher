@@ -1,0 +1,26 @@
+name: Runs Tests on Linux (Docker)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SLN_ARGS: FlacHasher.sln --configuration Release /p:EnableWindowsTargeting=true
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull the image
+        run: docker compose --file docker-compose-lnx.yml pull tests
+      - name: Build
+        run: docker compose --file docker-compose-lnx.yml run --rm tests build ${{ env.SLN_ARGS }}
+      - name: Run Tests
+        run: docker compose --file docker-compose-lnx.yml run --rm tests test ${{ env.SLN_ARGS }}
