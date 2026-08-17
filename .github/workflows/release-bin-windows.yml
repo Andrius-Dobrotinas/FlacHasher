@@ -142,7 +142,9 @@ jobs:
         run: |
           $filename = $env:ZIP_FILENAME
           $hash = (Get-FileHash "./$filename" -Algorithm SHA256).Hash.ToLower()
-          "$hash  $filename" | Out-File "./${filename}.sha256" -Encoding utf8NoBOM
+          # Out-File emits CRLF on Windows, which breaks `sha256sum -c` on Linux/macOS (the \r gets
+          # folded into the filename). Write LF-only line endings explicitly instead.
+          [System.IO.File]::WriteAllText("$PWD/${filename}.sha256", "$hash  $filename`n")
       
       - name: Upload release
         id: upload-release
