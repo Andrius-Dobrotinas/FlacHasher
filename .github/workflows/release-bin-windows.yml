@@ -55,7 +55,8 @@ jobs:
           if ($env:GITHUB_REF -like "refs/tags/*") {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = "draft-" + (Get-Date -Format "yyyyMMdd-HHmmss")
+            # A fixed tag (rather than one per run) so repeated draft dispatches update the same draft release/assets instead of piling up a new draft release each time.
+            $tag = "draft"
           }
           "tag=$tag" | Out-File -Append $env:GITHUB_OUTPUT
 
@@ -153,6 +154,7 @@ jobs:
             ${{steps.zip-filename.outputs.filename}}
             ${{steps.zip-filename.outputs.filename}}.sha256
           draft: true
+          overwrite_files: true
       
       - name: Add the Report to the Summary
         shell: bash
