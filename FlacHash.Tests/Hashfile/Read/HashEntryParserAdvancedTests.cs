@@ -53,9 +53,9 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.IsNull(result);
         }
 
-        [TestCase("slts.flac--test")]
-        [TestCase("--slts.flac--test")]
-        [TestCase("Nirvana <---> Melvana")]
+        [TestCase("slts.flac -- test")]
+        [TestCase("--slts.flac -- test")]
+        [TestCase("Nirvana -> Melvana")]
         public void When_NoHash_But_ValidSeparators_Present__Must_ReturnNull(string input)
         {
             var result = target.Parse(input);
