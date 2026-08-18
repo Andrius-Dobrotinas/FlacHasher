@@ -1,7 +1,8 @@
 # Builds and Releases a selected application (CMD or GUI), zipped.
-# For now, as a draft.
+# Draft (checkbox ticked): always publishes to a draft release. If a tag was also selected at launch, the assembly is versioned from it; otherwise it's versioned at 0.0.0.
+# Production: publishes a real, non-draft release; requires a tag to be selected; fails otherwise.
 
-name: Release the Compiled Application (Draft for now)
+name: Release the Compiled Application
 
 on:
   workflow_dispatch:
@@ -21,6 +22,11 @@ on:
           - win-x64
           - win-x86
           - win-arm64
+      draft:
+        description: "Publish as draft (uncheck for a production release; requires a tag to be selected)"
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -52,21 +58,41 @@ jobs:
       - name: Determine tag
         id: determine-tag
         shell: pwsh
+        env:
+          INPUT_DRAFT: ${{ github.event.inputs.draft }}
         run: |
-          if ($env:GITHUB_REF -like "refs/tags/*") {
-            $tag = $env:GITHUB_REF_NAME
-          } else {
-            # A fixed tag (rather than one per run) so repeated draft dispatches update the same draft release/assets instead of piling up a new draft release each time.
-            $tag = "draft"
+          $isTagRef = $env:GITHUB_REF -like "refs/tags/*"
+          $selectedTag = if ($isTagRef) { $env:GITHUB_REF_NAME } else { $null }
+          $isDraft = $env:INPUT_DRAFT -eq 'true'
+
+          if (-not $isDraft -and -not $isTagRef) {
+            Write-Error "Production releases (non-draft) require a tag to be selected in 'Use workflow from'. Either select a tag or mark it as 'draft'"
+            exit 1
           }
-          "tag=$tag" | Out-File -Append $env:GITHUB_OUTPUT
+
+          if ($isDraft) {
+            # Fixed tag (rather than one per run) so repeated draft dispatches update the same draft release/assets instead of piling up a new one each time.
+            $releaseTag = "draft"
+          } else {
+            $releaseTag = $selectedTag
+          }
+
+          # Assembly version is taken from the selected tag when there is one, whether draft or not; "draft" itself is never a version source.
+          $versionTag = if ($selectedTag) { $selectedTag } else { "draft" }
+
+          "tag=$releaseTag" | Out-File -Append $env:GITHUB_OUTPUT
+          "is_draft=$($isDraft.ToString().ToLower())" | Out-File -Append $env:GITHUB_OUTPUT
+          "version_tag=$versionTag" | Out-File -Append $env:GITHUB_OUTPUT
 
       - name: "Summary: tag"
         shell: bash
         env:
           RELEASE_TAG: ${{ steps.determine-tag.outputs.tag }}
+          IS_DRAFT: ${{ steps.determine-tag.outputs.is_draft }}
+          VERSION_TAG: ${{ steps.determine-tag.outputs.version_tag }}
         run: |
-          echo "Version: \`${RELEASE_TAG}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Release: \`${RELEASE_TAG}\` (draft: \`${IS_DRAFT}\`)" >> $GITHUB_STEP_SUMMARY
+          echo "Version source: \`${VERSION_TAG}\`" >> $GITHUB_STEP_SUMMARY
 
       # Assembly and file versions must be numeric, so they're taken from the tag only when it looks like a version number (e.g. "v1.2.3"),
       # and fall back to 0.0.0 otherwise. The informational version is free-form, so it always carries the actual tag plus the commit it was built from.
@@ -74,7 +100,7 @@ jobs:
         id: determine-version
         shell: pwsh
         env:
-          RELEASE_TAG: ${{ steps.determine-tag.outputs.tag }}
+          RELEASE_TAG: ${{ steps.determine-tag.outputs.version_tag }}
         run: |
           $tag = $env:RELEASE_TAG
 
@@ -156,7 +182,7 @@ jobs:
           files: |
             ${{steps.zip-filename.outputs.filename}}
             ${{steps.zip-filename.outputs.filename}}.sha256
-          draft: true
+          draft: ${{ steps.determine-tag.outputs.is_draft }}
           overwrite_files: true
       
       - name: Add the Report to the Summary
