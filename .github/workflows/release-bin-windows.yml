@@ -94,15 +94,18 @@ jobs:
           echo "Release: \`${RELEASE_TAG}\` (draft: \`${IS_DRAFT}\`)" >> $GITHUB_STEP_SUMMARY
           echo "Version source: \`${VERSION_TAG}\`" >> $GITHUB_STEP_SUMMARY
 
-      # Assembly and file versions must be numeric, so they're taken from the tag only when it looks like a version number (e.g. "v1.2.3"),
-      # and fall back to 0.0.0 otherwise. The informational version is free-form, so it always carries the actual tag plus the commit it was built from.
+      # Assembly and file versions must be numeric, so they're taken from the tag -- when it looks like a version number (e.g. "v1.2.3").
+      # A production release always REQUIRES a version-based tag
+      # Draft builds: fall back to 0.0.0 when the tag does not carry version number.
       - name: Determine version
         id: determine-version
         shell: pwsh
         env:
           RELEASE_TAG: ${{ steps.determine-tag.outputs.version_tag }}
+          IS_DRAFT: ${{ steps.determine-tag.outputs.is_draft }}
         run: |
           $tag = $env:RELEASE_TAG
+          $isDraft = $env:IS_DRAFT -eq 'true'
 
           $match = [regex]::Match($tag, '^v?(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?$')
           if ($match.Success) {
@@ -110,6 +113,9 @@ jobs:
             if ($match.Groups[4].Success) {
               $version = "$version.$($match.Groups[4].Value)"
             }
+          } elseif (-not $isDraft) {
+            Write-Error "Production releases require the selected tag ('$tag') to look like a version number (e.g. 'v1.2.3')"
+            exit 1
           } else {
             $version = "0.0.0"
           }
