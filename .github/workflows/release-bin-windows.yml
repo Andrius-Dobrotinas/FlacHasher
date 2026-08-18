@@ -190,7 +190,8 @@ jobs:
             ${{steps.zip-filename.outputs.filename}}
             ${{steps.zip-filename.outputs.filename}}.sha256
           draft: ${{ steps.determine-tag.outputs.is_draft }}
-          overwrite_files: true
+          # Draft assets are meant to be overwritten by repeated dispatches; production assets are not.
+          overwrite_files: ${{ steps.determine-tag.outputs.is_draft }}
       
       - name: Add the Report to the Summary
         shell: bash
