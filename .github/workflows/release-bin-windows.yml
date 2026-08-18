@@ -1,11 +1,204 @@
-name: Release the Compiled Application (PLACEHOLDER)
+# Builds and Releases a selected application (CMD or GUI), zipped.
+# Draft (checkbox ticked): always publishes to a draft release. If a tag was also selected at launch, the assembly is versioned from it; otherwise it's versioned at 0.0.0.
+# Production: publishes a real, non-draft release; requires a tag to be selected; fails otherwise.
+
+name: Release the Compiled Application
 
 on:
   workflow_dispatch:
+    inputs:
+      project:
+        description: "Application to release"
+        required: true
+        type: choice
+        options:
+          - cmd
+          - gui
+      runtime:
+        description: "Runtime identifier"
+        required: true
+        type: choice
+        options:
+          - win-x64
+          - win-x86
+          - win-arm64
+      draft:
+        description: "Publish as draft (uncheck for a production release; requires a tag to be selected)"
+        required: true
+        type: boolean
+        default: true
 
 jobs:
-  windows-base:
+  build:
     runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write  # required for tag and release creation
     steps:
-      - shell: pwsh
-        run: Write-Host "Placeholder workflow"
+      - uses: actions/checkout@v4
+
+      - name: Determine inputs
+        id: determine-project
+        shell: bash
+        env:
+          INPUT_PROJECT: ${{ github.event.inputs.project }}
+        run: |
+          echo "Application: \`${INPUT_PROJECT}\`" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "$INPUT_PROJECT" == "cmd" ]]; then
+            echo "project_dir=FlacHasher.Cmd" >> $GITHUB_OUTPUT
+            echo "name=flachasher-cmd" >> $GITHUB_OUTPUT
+            echo "exe=FlacHasher.exe" >> $GITHUB_OUTPUT
+          else
+            echo "project_dir=FlacHasher.Win" >> $GITHUB_OUTPUT
+            echo "name=flachasher-gui" >> $GITHUB_OUTPUT
+            echo "exe=FlacHasherUI.exe" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine tag
+        id: determine-tag
+        shell: pwsh
+        env:
+          INPUT_DRAFT: ${{ github.event.inputs.draft }}
+        run: |
+          $isTagRef = $env:GITHUB_REF -like "refs/tags/*"
+          $selectedTag = if ($isTagRef) { $env:GITHUB_REF_NAME } else { $null }
+          $isDraft = $env:INPUT_DRAFT -eq 'true'
+
+          if (-not $isDraft -and -not $isTagRef) {
+            Write-Error "Production releases (non-draft) require a tag to be selected in 'Use workflow from'. Either select a tag or mark it as 'draft'"
+            exit 1
+          }
+
+          if ($isDraft) {
+            # Fixed tag (rather than one per run) so repeated draft dispatches update the same draft release/assets instead of piling up a new one each time.
+            $releaseTag = "draft"
+          } else {
+            $releaseTag = $selectedTag
+          }
+
+          # Assembly version is taken from the selected tag when there is one, whether draft or not; "draft" itself is never a version source.
+          $versionTag = if ($selectedTag) { $selectedTag } else { "draft" }
+
+          "tag=$releaseTag" | Out-File -Append $env:GITHUB_OUTPUT
+          "is_draft=$($isDraft.ToString().ToLower())" | Out-File -Append $env:GITHUB_OUTPUT
+          "version_tag=$versionTag" | Out-File -Append $env:GITHUB_OUTPUT
+
+      - name: "Summary: tag"
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.determine-tag.outputs.tag }}
+          IS_DRAFT: ${{ steps.determine-tag.outputs.is_draft }}
+          VERSION_TAG: ${{ steps.determine-tag.outputs.version_tag }}
+        run: |
+          echo "Release: \`${RELEASE_TAG}\` (draft: \`${IS_DRAFT}\`)" >> $GITHUB_STEP_SUMMARY
+          echo "Version source: \`${VERSION_TAG}\`" >> $GITHUB_STEP_SUMMARY
+
+      # Assembly and file versions must be numeric, so they're taken from the tag -- when it looks like a version number (e.g. "v1.2.3").
+      # A production release always REQUIRES a version-based tag
+      # Draft builds: fall back to 0.0.0 when the tag does not carry version number.
+      - name: Determine version
+        id: determine-version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ steps.determine-tag.outputs.version_tag }}
+          IS_DRAFT: ${{ steps.determine-tag.outputs.is_draft }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          $isDraft = $env:IS_DRAFT -eq 'true'
+
+          # Accepts an optional "v" or "v." prefix and an optional "-anything" suffix, e.g. 1.0.1, v1.0.1-release-x, v.1.0.1-whatever.
+          $match = [regex]::Match($tag, '^(?:v\.?)?(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?(?:-.*)?$')
+          if ($match.Success) {
+            $version = "$($match.Groups[1].Value).$($match.Groups[2].Value).$($match.Groups[3].Value)"
+            if ($match.Groups[4].Success) {
+              $version = "$version.$($match.Groups[4].Value)"
+            }
+          } elseif (-not $isDraft) {
+            Write-Error "Production releases require the selected tag ('$tag') to look like a version number (e.g. 'v1.2.3')"
+            exit 1
+          } else {
+            $version = "0.0.0"
+          }
+
+          $informational = "$tag+$($env:GITHUB_SHA.Substring(0, 7))"
+
+          "version=$version" | Out-File -Append $env:GITHUB_OUTPUT
+          "informational=$informational" | Out-File -Append $env:GITHUB_OUTPUT
+
+          "Assembly version: ``$version``" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+          "Informational version: ``$informational``" | Out-File -Append $env:GITHUB_STEP_SUMMARY
+
+      - name: Determine zip filename
+        id: zip-filename
+        shell: bash
+        env:
+          PROJECT_NAME: ${{ steps.determine-project.outputs.name }}
+          RELEASE_TAG: ${{ steps.determine-tag.outputs.tag }}
+          INPUT_RUNTIME: ${{ github.event.inputs.runtime }}
+        run: echo "filename=${PROJECT_NAME}-${RELEASE_TAG}-${INPUT_RUNTIME}.zip" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build
+        shell: pwsh
+        env:
+          PROJECT_DIR: ${{ steps.determine-project.outputs.project_dir }}
+          INPUT_RUNTIME: ${{ github.event.inputs.runtime }}
+          VERSION: ${{ steps.determine-version.outputs.version }}
+          INFORMATIONAL_VERSION: ${{ steps.determine-version.outputs.informational }}
+        run: dotnet publish ./$env:PROJECT_DIR/ -c Release -r $env:INPUT_RUNTIME --output ./out -p:Version=$env:VERSION "-p:InformationalVersion=$env:INFORMATIONAL_VERSION"
+      
+      - name: Verify publish output
+        shell: pwsh
+        env:
+          EXE_NAME: ${{ steps.determine-project.outputs.exe }}
+        run: |
+          $exePath = Join-Path './out' $env:EXE_NAME
+          if (-not (Test-Path -Path $exePath -PathType Leaf)) {
+            Write-Error "Expected executable '$env:EXE_NAME' was not found in the publish output directory './out'. The build may have failed or produced unexpected output."
+            exit 1
+          }
+
+      - name: Zip bins
+        shell: pwsh
+        env:
+          ZIP_FILENAME: ${{ steps.zip-filename.outputs.filename }}
+        run: Compress-Archive -Path ./out/* -DestinationPath ./$env:ZIP_FILENAME -Force 
+
+      - name: Generate checksum
+        shell: pwsh
+        env:
+          ZIP_FILENAME: ${{ steps.zip-filename.outputs.filename }}
+        run: |
+          $filename = $env:ZIP_FILENAME
+          $hash = (Get-FileHash "./$filename" -Algorithm SHA256).Hash.ToLower()
+          # Out-File emits CRLF on Windows, which breaks `sha256sum -c` on Linux/macOS (the \r gets
+          # folded into the filename). Write LF-only line endings explicitly instead.
+          [System.IO.File]::WriteAllText("$PWD/${filename}.sha256", "$hash  $filename`n")
+      
+      - name: Upload release
+        id: upload-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.determine-tag.outputs.tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            ${{steps.zip-filename.outputs.filename}}
+            ${{steps.zip-filename.outputs.filename}}.sha256
+          draft: ${{ steps.determine-tag.outputs.is_draft }}
+          # Draft assets are meant to be overwritten by repeated dispatches; production assets are not.
+          overwrite_files: ${{ steps.determine-tag.outputs.is_draft }}
+      
+      - name: Add the Report to the Summary
+        shell: bash
+        env:
+          UPLOAD_URL: ${{ steps.upload-release.outputs.url }}
+        run: |
+          echo "### Release Uploaded" >> $GITHUB_STEP_SUMMARY
+          
+          uploadUrl=$UPLOAD_URL
+          echo "[${uploadUrl}](${uploadUrl})" >> $GITHUB_STEP_SUMMARY
