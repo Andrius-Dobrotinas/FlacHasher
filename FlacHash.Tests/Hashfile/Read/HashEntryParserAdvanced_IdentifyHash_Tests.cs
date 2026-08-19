@@ -33,9 +33,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("DEADBEEF00112233.flac")]
         public void MustNot_Be_PrefixedOrSuffixedBy_NonHex_Chars(string input)
         {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
+            Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
 
         [TestCase("DE")]
@@ -45,9 +43,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("DEADBEEFEFEFEF")]
         public void MustNot_Be_LessThan_8_Bytes(string input)
         {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
+            Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
 
         [TestCase("DEADBEEX")]
@@ -55,9 +51,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("XEADBEAF00112233")]
         public void MustNot_Contain_NonHex_Chars(string input)
         {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
+            Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
     }
 }

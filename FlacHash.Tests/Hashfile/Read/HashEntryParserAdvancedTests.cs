@@ -40,11 +40,9 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("01. Smells Like Teen Spirit")]
         [TestCase("[01] Smells Like Teen Spirit.flac")]
         [TestCase("Smells Like Teen Spirit.flac #asd")]
-        public void When_NoHash_JustFilename_ReturnsNull(string input)
+        public void When_NoHash_JustFilename__Rejects(string input)
         {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
+            Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
 
         [TestCase("##  just text")]
@@ -52,21 +50,17 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("# [01] Smells Like Teen Spirit")]
         [TestCase("+ 01 - Smells Like Teen Spirit.flac")]
         [TestCase("--\tNirvana : in bloom.flac")]
-        public void When_NoHash_WithPrefix_ReturnsNull(string input)
+        public void When_NoHash_WithPrefix__Rejects(string input)
         {
-            var result = target.Parse(input);
-            
-            Assert.IsNull(result);
+            Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
 
         [TestCase("slts.flac -- test")]
         [TestCase("--slts.flac -- test")]
         [TestCase("Nirvana -> Melvana")]
-        public void When_NoHash_But_ValidSeparators_Present__Must_ReturnNull(string input)
+        public void When_NoHash_But_ValidSeparators_Present__Rejects(string input)
         {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
+            Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
 
         [TestCase("DEADBEAF00112233", "DEADBEAF00112233")]
@@ -89,11 +83,9 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("01 - Smells Like Teen Spirit.flac 11-22-33-44-AA-BB-CC-DD")]
         [TestCase("01 -- Smells Like Teen Spirit.flac 11-22-33-44-AA-BB-CC-DD")]
         [TestCase("# 11-22-33-44-AA-BB-CC-DD irrelevant text")]
-        public void ExtractSegments_When_Line_ContainsInvalidHash__ReturnNull(string input)
+        public void ExtractSegments_When_Line_ContainsInvalidHash__Rejects(string input)
         {
-            var result = target.Parse(input);
-
-            Assert.IsNull(result);
+            Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
 
         [TestCase(" ")]

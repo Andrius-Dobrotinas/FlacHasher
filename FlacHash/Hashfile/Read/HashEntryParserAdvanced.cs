@@ -14,7 +14,7 @@ namespace Andy.FlacHash.Hashfile.Read
     /// A line cannot contain more than one hash.
     /// A filename can have a hash pattern, but in that case, it has to have an extension - otherwise, it will be mistreated as a hash.
     /// 
-    /// Returns null for lines that don't contain a hash.
+    /// Throws <see cref="MissingHashValueException"/> for lines that don't contain a hash.
     /// Throws <see cref="InvalidHashLineFormatException"/> for malformed lines, such as those with multiple hashes or invalid separator sequences.
     /// </summary>
     public class HashEntryParserAdvanced : IHashEntryParser
@@ -100,13 +100,12 @@ namespace Andy.FlacHash.Hashfile.Read
             // No properly delimited hash found.
             if (hashMatches.Count == 0)
             {
-                // If there are also no hash-like sequences, this line is simply not a hash line and should return null.
-                // If there ARE hash-like sequences and invalid separator clusters, treat it
-                // as a malformed hash line and throw.
+                // Hash-like sequences alongside invalid separator clusters mean a malformed hash,
+                // as opposed to a line that simply has no hash in it.
                 if (InvalidSeparatorRegex.IsMatch(body) && HashRegex.IsMatch(body))
                     throw new InvalidHashLineFormatException("Invalid separator structure found");
 
-                return null;
+                throw new MissingHashValueException();
             }
 
             if (hashMatches.Count > 1)
