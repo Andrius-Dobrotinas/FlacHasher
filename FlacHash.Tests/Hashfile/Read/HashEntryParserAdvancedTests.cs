@@ -31,7 +31,9 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("Nirvana + Melvins > Melvana")]
         [TestCase(@"Nirvana - ""Lithium"".wav")]
         [TestCase("01 - Smells Like Teen Spirit")]
+        [TestCase("01 -- Smells Like Teen Spirit")]
         [TestCase("01 - Smells Like Teen Spirit.flac")]
+        [TestCase("01 -- Smells Like Teen Spirit.flac")]
         [TestCase("01. Smells Like Teen Spirit")]
         [TestCase("[01] Smells Like Teen Spirit.flac")]
         public void When_NoHash_JustFilename_ReturnsNull(string input)
@@ -76,10 +78,12 @@ namespace Andy.FlacHash.Hashfile.Read
         }
 
         [TestCase(" DEADBEF ")]
+        [TestCase("11-22-33-44-AA-BB-CC-DD")]
         [TestCase("slts.flac DEADBEF")]
         [TestCase("DEADBEF slts.flac")]
         [TestCase("# DEADBEF slts.flac")]
         [TestCase("01 - Smells Like Teen Spirit.flac 11-22-33-44-AA-BB-CC-DD")]
+        [TestCase("01 -- Smells Like Teen Spirit.flac 11-22-33-44-AA-BB-CC-DD")]
         [TestCase("# 11-22-33-44-AA-BB-CC-DD irrelevant text")]
         public void ExtractSegments_When_Line_ContainsInvalidHash__ReturnNull(string input)
         {
@@ -92,8 +96,6 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("  ")]
         [TestCase("\t")]
         [TestCase(" \t")]
-        [TestCase(" - ")]
-        [TestCase(" - ")]
         public void ExtractSegments_When_Separators_AreWhitespace__FileFirst(string separator)
         {
             var result = RequireResult(target.Parse($"slts.flac{separator}DEADBEAF00112233"));
@@ -106,8 +108,6 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("  ")]
         [TestCase("\t")]
         [TestCase(" \t")]
-        [TestCase(" - ")]
-        [TestCase(" - ")]
         public void ExtractSegments_When_Separators_AreWhitespace__HashFirst(string separator)
         {
             var result = RequireResult(target.Parse($"DEADBEAF00112233{separator}slts.flac"));
