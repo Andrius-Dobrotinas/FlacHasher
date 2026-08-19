@@ -50,6 +50,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("01 -- Smells Like Teen Spirit.flac")]
         [TestCase("01. Smells Like Teen Spirit")]
         [TestCase("[01] Smells Like Teen Spirit.flac")]
+        [TestCase("Smells Like Teen Spirit.flac #asd")]
         public void When_NoHash_JustFilename_ReturnsNull(string input)
         {
             var result = target.Parse(input);
