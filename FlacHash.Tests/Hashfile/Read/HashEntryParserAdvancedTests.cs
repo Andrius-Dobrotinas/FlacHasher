@@ -15,17 +15,6 @@ namespace Andy.FlacHash.Hashfile.Read
                 yield return separatorSequence;
         }
 
-        static string[] MultiplyValues(string[] values, int multiplier)
-        {
-            return values.Select(x => string.Join(null, Enumerable.Repeat(x, multiplier))).ToArray();
-        }
-
-        static KeyValuePair<string, string> RequireResult(KeyValuePair<string, string>? result)
-        {
-            Assert.IsNotNull(result);
-            return result.Value;
-        }
-
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("   ")]
@@ -131,12 +120,6 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual("DEADBEAF00112233", result.Value, "Hash");
         }
 
-        public static IEnumerable<TestCaseData> GetValidSeparators()
-        {
-            foreach (var separatorSequence in GetSeparators())
-                yield return new TestCaseData(separatorSequence);
-            }
-
         [TestCaseSource(nameof(GetValidSeparators))]
         public void ExtractSegments_FileFirst_When_Separators_SurroundedBySingleSpaces(string separator)
         {
@@ -220,15 +203,6 @@ namespace Andy.FlacHash.Hashfile.Read
 
             Assert.AreEqual(expectedFilename, result.Key, "FileName");
             Assert.AreEqual(expectedHash, result.Value, "Hash");
-        }
-
-        public static IEnumerable<TestCaseData> GetPrefixCases()
-        {
-            foreach (var prefix in GetSeparators())
-            {
-                yield return new TestCaseData($"{prefix} slts.flac DEADBEAF00112233", "slts.flac", "DEADBEAF00112233");
-                yield return new TestCaseData($"{prefix} DEADBEAF00112233", null, "DEADBEAF00112233");
-        }
         }
 
         [TestCase("slts.flac DEADBEEFDEADBEEF", "slts.flac", "DEADBEEFDEADBEEF")]
@@ -323,6 +297,32 @@ namespace Andy.FlacHash.Hashfile.Read
         public void When_InvalidSeparatorStructure_Rejects(string input)
         {
             Assert.Throws<InvalidHashLineFormatException>(() => target.Parse(input));
+        }
+
+        public static IEnumerable<TestCaseData> GetValidSeparators()
+        {
+            foreach (var separatorSequence in GetSeparators())
+                yield return new TestCaseData(separatorSequence);
+        }
+
+        public static IEnumerable<TestCaseData> GetPrefixCases()
+        {
+            foreach (var prefix in GetSeparators())
+            {
+                yield return new TestCaseData($"{prefix} slts.flac DEADBEAF00112233", "slts.flac", "DEADBEAF00112233");
+                yield return new TestCaseData($"{prefix} DEADBEAF00112233", null, "DEADBEAF00112233");
+            }
+        }
+
+        static string[] MultiplyValues(string[] values, int multiplier)
+        {
+            return values.Select(x => string.Join(null, Enumerable.Repeat(x, multiplier))).ToArray();
+        }
+
+        static KeyValuePair<string, string> RequireResult(KeyValuePair<string, string>? result)
+        {
+            Assert.IsNotNull(result);
+            return result.Value;
         }
     }
 }
