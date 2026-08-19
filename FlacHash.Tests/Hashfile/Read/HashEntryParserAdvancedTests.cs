@@ -5,6 +5,20 @@ namespace Andy.FlacHash.Hashfile.Read
     public class HashEntryParserAdvancedTests
     {
         readonly HashEntryParserAdvanced target = new HashEntryParserAdvanced();
+        static string[] CoreSeparators = HashEntryParserAdvanced.SeparatorChars.ToCharArray().Select(x => x.ToString()).ToArray();
+
+        public static IEnumerable<string> GetSeparators()
+        {
+            foreach (var separatorSequence in CoreSeparators.Concat(MultiplyValues(CoreSeparators, 2))
+                .Concat(MultiplyValues(CoreSeparators, 3))
+                .Concat(new string[] { "#*", "-+", "+-", "*#", "<>", "><", "=>", ":>", "|>" }))
+                yield return separatorSequence;
+        }
+
+        static string[] MultiplyValues(string[] values, int multiplier)
+        {
+            return values.Select(x => string.Join(null, Enumerable.Repeat(x, multiplier))).ToArray();
+        }
 
         static KeyValuePair<string, string> RequireResult(KeyValuePair<string, string>? result)
         {
@@ -118,16 +132,9 @@ namespace Andy.FlacHash.Hashfile.Read
 
         public static IEnumerable<TestCaseData> GetValidSeparators()
         {
-            foreach (var separatorSequence in new string[]
-            {
-                ">", "<", "=", "-", "*", "|", "#", ":",
-                "--", "->", "=>", ">>", "||", "##", "::",
-                "<--->", "*-*", "-=*", "<>|<>", "=*-=*=", "#->", ":=>"
-            })
-            {
+            foreach (var separatorSequence in GetSeparators())
                 yield return new TestCaseData(separatorSequence);
             }
-        }
 
         [TestCaseSource(nameof(GetValidSeparators))]
         public void ExtractSegments_FileFirst_When_Separators_SurroundedBySingleSpaces(string separator)
