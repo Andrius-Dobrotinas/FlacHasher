@@ -139,19 +139,17 @@ namespace Andy.FlacHash.Hashfile.Read
 
         private static string StripPrefix(string value)
         {
-            var s = value;
             var i = 0;
 
-            while (i < s.Length && LinePrefixChars.Contains(s[i]))
+            // Determine how many chars are prefix
+            while (i < value.Length && LinePrefixChars.Contains((char)value[i]))
                 i++;
 
+            // No prefix characters found, return the original string
             if (i == 0)
-                return s;
+                return value;
 
-            while (i < s.Length && char.IsWhiteSpace(s[i]))
-                i++;
-
-            return s.Substring(i);
+            return value.Substring(i).TrimStart();
         }
 
         private static string ExtractFilenameFromLeadingText(string text)
