@@ -212,44 +212,22 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(expectedHash, result.Value, "Hash");
         }
 
-        [TestCase("# DEADBEAF00112233", "DEADBEAF00112233")]
-        [TestCase("#DEADBEAF00112233", "DEADBEAF00112233")]
-        [TestCase("## DEADBEAF00112233", "DEADBEAF00112233")]
-        [TestCase("##   DEADBEAF00112233", "DEADBEAF00112233")]
-        [TestCase("--\tdeadbeef00112233", "deadbeef00112233")]
-        [TestCase("***  DEADBEAF00112233   ", "DEADBEAF00112233")]
-        public void ExtractSegments_HashOnly_When_LineStartsWithSpecialCharPrefix_IgnorePrefix(string input, string expectedHash)
+        [TestCaseSource(nameof(GetPrefixCases))]
+        public void ExtractSegments_When_LineStartsWithSpecialCharPrefix_IgnorePrefix(string line, string expectedFilename, string expectedHash)
         {
-            var result = RequireResult(target.Parse(input));
-
-            Assert.IsNull(result.Key, "FileName");
-            Assert.AreEqual(expectedHash, result.Value, "Hash");
-        }
-
-        public static IEnumerable<TestCaseData> GetValidPrefixes()
-        {
-            foreach (var separatorSequence in new string[] { "#", "-", "+", "*", "<", ">", "=", "##", "--", "++", "**", "<<", ">>", "==", "#*", "-+", "+-", "*#", "<>", "><", "=>" })
-                yield return new TestCaseData(separatorSequence);
-        }
-
-        [TestCaseSource(nameof(GetValidPrefixes))]
-        public void ExtractSegments_When_LineStartsWithSpecialCharPrefix_IgnorePrefix(string prefix)
-        {
-            var result = RequireResult(target.Parse($"{prefix} slts.flac  DEADBEAF00112233"));
-
-            Assert.AreEqual("slts.flac", result.Key, "FileName");
-            Assert.AreEqual("DEADBEAF00112233", result.Value, "Hash");
-        }
-
-        [TestCase("##  slts.flac  DEADBEAF00112233", "slts.flac", "DEADBEAF00112233")]
-        [TestCase("--\tSmells Like Teen Spirit  DEADBEAF00112233", "Smells Like Teen Spirit", "DEADBEAF00112233")]
-        [TestCase("++  DEADBEAF00112233  slts.flac", "slts.flac", "DEADBEAF00112233")]
-        public void ExtractSegments_When_LineStartsWithSpecialCharPrefix_IgnorePrefix__VariousFileInputs(string input, string expectedFilename, string expectedHash)
-        {
-            var result = RequireResult(target.Parse(input));
+            var result = RequireResult(target.Parse(line));
 
             Assert.AreEqual(expectedFilename, result.Key, "FileName");
             Assert.AreEqual(expectedHash, result.Value, "Hash");
+        }
+
+        public static IEnumerable<TestCaseData> GetPrefixCases()
+        {
+            foreach (var prefix in GetSeparators())
+            {
+                yield return new TestCaseData($"{prefix} slts.flac DEADBEAF00112233", "slts.flac", "DEADBEAF00112233");
+                yield return new TestCaseData($"{prefix} DEADBEAF00112233", null, "DEADBEAF00112233");
+        }
         }
 
         [TestCase("slts.flac DEADBEEFDEADBEEF", "slts.flac", "DEADBEEFDEADBEEF")]

@@ -9,8 +9,8 @@ namespace Andy.FlacHash.Hashfile.Read
     /// Supports hashes of at least 8 bytes (16 hex characters); which can't contain dashes.
     /// A hash can't have any chars touching it except for whitespace.
     /// A filename can be either before or after the hash and must be separated from the hash by whitespace and/or specific separator sequences (any combination of <see cref="SeparatorChars"/>).
-    /// A filename can contain any characters except it can't start with <see cref="LinePrefixChars"/> and can't end with <see cref="SeparatorChars"/>.
-    /// A line may start with whitespace, <see cref="LinePrefixChars"/> or jump right straight to filename or hash.
+    /// A filename can contain any characters except it can't start or end with <see cref="SeparatorChars"/>.
+    /// A line may start with whitespace, <see cref="SeparatorChars"/> or jump right straight to filename or hash.
     /// A line cannot contain more than one hash.
     /// A filename can have a hash pattern, but in that case, it has to have an extension - otherwise, it will be mistreated as a hash.
     /// 
@@ -24,8 +24,6 @@ namespace Andy.FlacHash.Hashfile.Read
             public const string Filename = "filename";
             public const string Separator = "sep";
         }
-
-        public const string LinePrefixChars = "#-+*<=>";
 
         /// <summary>
         /// Characters that can form separator clusters between filename and hash.
@@ -142,7 +140,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var i = 0;
 
             // Determine how many chars are prefix
-            while (i < value.Length && LinePrefixChars.Contains((char)value[i]))
+            while (i < value.Length && SeparatorChars.Contains((char)value[i]))
                 i++;
 
             // No prefix characters found, return the original string
