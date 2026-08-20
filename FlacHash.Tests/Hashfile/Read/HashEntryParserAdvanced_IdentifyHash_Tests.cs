@@ -14,6 +14,7 @@ namespace Andy.FlacHash.Hashfile.Read
 
         [TestCase("DEADBEEFDEADBEEF")]
         [TestCase("deadbeefdeadbeef")]
+        [TestCase("deADbeefDEadbeeF")]
         [TestCase("11223344AABBCCDD")]
         [TestCase("8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6")]
         [TestCase("8C6C0210E16E3853FF1BD8EB52917243E2706FC5057692D0F560F066045523F6")]
@@ -51,6 +52,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("DEADBEF")]
         [TestCase("DEADBEEF")]
         [TestCase("DEADBEEFEFEFEF")]
+        [TestCase("DEADBEEFDEADBEE")]
         public void MustNot_Be_LessThan_8_Bytes(string input)
         {
             Assert.Throws<MissingHashValueException>(() => target.Parse(input));
