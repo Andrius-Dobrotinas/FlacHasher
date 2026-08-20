@@ -24,14 +24,24 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.AreEqual(input, result.Value, "Hash");
         }
 
-        [TestCase("DEADBEEF,")]
-        [TestCase("[DEADBEEF]")]
-        [TestCase("{DEADBEEF}")]
-        [TestCase("\"DEADBEEF\"")]
-        [TestCase("foo.flac-DEADBEEF")]
+        [TestCase("[DEADBEAF00112233]", "DEADBEAF00112233")]
+        [TestCase("(DEADBEAF00112233)", "DEADBEAF00112233")]
+        [TestCase("{DEADBEAF00112233}", "DEADBEAF00112233")]
+        [TestCase("`DEADBEAF00112233`", "DEADBEAF00112233")]
+        public void Must_Accept_Hash_Wrapped_In_Brackets__HashOnly(string input, string hash)
+        {
+            var result = RequireResult(target.Parse(input));
+
+            Assert.IsNull(result.Key, "Filename");
+            Assert.AreEqual(hash, result.Value, "Hash");
+        }
+
+        [TestCase("DEADBEEFDEADBEEF,")]
+        [TestCase("\"DEADBEEFDEADBEEF\"")]
+        [TestCase("foo.flac-DEADBEEFDEADBEEF")]
         [TestCase("song_DEADBEEF00112233.flac")]
         [TestCase("DEADBEEF00112233.flac")]
-        public void MustNot_Be_PrefixedOrSuffixedBy_NonHex_Chars(string input)
+        public void MustNot_Be_PrefixedOrSuffixedBy_AnythingThanAllowed_Chars(string input)
         {
             Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }

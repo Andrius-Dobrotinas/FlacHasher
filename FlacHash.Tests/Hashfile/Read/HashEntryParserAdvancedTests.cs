@@ -257,10 +257,6 @@ namespace Andy.FlacHash.Hashfile.Read
             Assert.Throws<MissingHashValueException>(() => target.Parse(input));
         }
 
-        [TestCase("[DEADBEAF00112233]", "DEADBEAF00112233")]
-        [TestCase("(DEADBEAF00112233)", "DEADBEAF00112233")]
-        [TestCase("{DEADBEAF00112233}", "DEADBEAF00112233")]
-        [TestCase("`DEADBEAF00112233`", "DEADBEAF00112233")]
         [TestCase("- [DEADBEAF00112233]", "DEADBEAF00112233")]
         [TestCase("#- [DEADBEAF00112233]", "DEADBEAF00112233")]
         [TestCase("[DEADBEAF00112233] whatever", "DEADBEAF00112233")]
@@ -268,7 +264,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("[DEADBEAF00112233] # whatever", "DEADBEAF00112233")]
         [TestCase("[DEADBEAF00112233] // whatever", "DEADBEAF00112233")]
         [TestCase("# [DEADBEAF00112233] // whatever", "DEADBEAF00112233")]
-        public void Must_Accept_Hash_Wrapped_In_Brackets__HashOnly(string input, string hash)
+        public void Must_Accept_Hash_Wrapped_In_Brackets__When_There_Is_Extra_Stuff(string input, string hash)
         {
             var result = RequireResult(target.Parse(input));
 
@@ -295,7 +291,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("# 01 - smells like teen spirit.flac = [DEADBEAF00112233]", "01 - smells like teen spirit.flac", "DEADBEAF00112233")]
         [TestCase("# 01 - smells like teen spirit.flac > [DEADBEAF00112233] commetnary", "01 - smells like teen spirit.flac", "DEADBEAF00112233")]
         [TestCase("# 01 - smells like teen spirit.flac - [DEADBEAF00112233] -commetnary", "01 - smells like teen spirit.flac", "DEADBEAF00112233")]
-        public void Must_Accept_Hash_Wrapped_In_Brackets__FileAndHash(string input, string filename, string hash)
+        public void Must_Accept_Hash_Wrapped_In_Brackets__When_Filename_Present(string input, string filename, string hash)
         {
             var result = RequireResult(target.Parse(input));
 
