@@ -31,7 +31,7 @@ namespace Andy.FlacHash.Application.Cmd
             if (hashfile == null || !hashfile.Exists)
                 throw new InputFileMissingException("Hash file not found");
 
-            var hashfileReader = HashFileReader.Default.BuildHashfileReader(parameters.HashfileEntrySeparator);
+            var hashfileReader = HashFileReader.Default.BuildHashfileReader(parameters.HashfileEntrySeparator, parameters.IgnoreNonhashLines);
             var fileHashMap = hashfileReader.Read(hashfile);
 
             var targetFiles = FindFiles(hashfile, fileHashMap, parameters, fileSearch).ToArray();

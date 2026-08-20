@@ -9,7 +9,7 @@ namespace Andy.FlacHash.Application
         {
             public const string Hash = "{hash}";
             public const string FileName = "{name}";
-            public const string FilePath = "{path}";
+            public const string FilePath = "{path\\name}";
         }
 
         public static string GetFormattedString(string format, string hash, FileInfo file)
