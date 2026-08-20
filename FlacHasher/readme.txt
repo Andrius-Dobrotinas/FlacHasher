@@ -36,10 +36,9 @@ Refer to the application's help page for info on required parameters.
 2. HASH VERIFICATION: HASHFILE STRUCTURE
 
 A "hashfile" stores previously-calculated file hashes for future verification.
+The file should only contain file-hash entries. However, when `IgnoreNonhashLines` is switched on, the file may contain any other text -- which gets ignored, as long as it's not intermingled with the lines that contain filename and hash value, and it doesn't contain hash-like values.
 
-The file may contain lines with any other text, which gets ignored, as long as it's not intermingled with the lines that contain filename and hash value, and it doesn't contain hash-like values.
-- Expected format: `{file name} {hash}` OR `{hash}`: ie, it must contain a hash, and file name is optional.
-
+Expected format: `{file name} {hash}` OR `{hash}`: ie, it must contain a hash, and file name is optional.
 - A filename, when present, must precede the hash, not follow it.
 - Filename and hash have to be separated either by spaces (whitespace) or by any combination of the following characters (surrounded by spaces): -, +, *, <, >, =, |, #, :. Eg: `01 file name.flac 11223344AABBCCDD`, `01 file name.flac -> 11223344AABBCCDD`
 - Anything found after the hash on the same line is ignored.

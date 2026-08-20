@@ -16,10 +16,13 @@ namespace Andy.FlacHash.Hashfile.Read
     public class HashEntryCollectionParser : IHashEntryCollectionParser
     {
         private readonly IHashEntryParser lineParser;
+        private readonly bool ignoreNonhashLines;
 
-        public HashEntryCollectionParser(IHashEntryParser lineParser)
+        /// <param name="ignoreNonhashLines">Whether to skip non-empty lines that contain no hash value instead of failing</param>
+        public HashEntryCollectionParser(IHashEntryParser lineParser, bool ignoreNonhashLines)
         {
             this.lineParser = lineParser;
+            this.ignoreNonhashLines = ignoreNonhashLines;
         }
 
         public IEnumerable<KeyValuePair<string, string>> Parse(IEnumerable<string> lines)
@@ -39,6 +42,10 @@ namespace Andy.FlacHash.Hashfile.Read
             try
             {
                 return lineParser.Parse(line);
+            }
+            catch (MissingHashValueException) when (ignoreNonhashLines)
+            {
+                return null;
             }
             catch (Exception e)
             {

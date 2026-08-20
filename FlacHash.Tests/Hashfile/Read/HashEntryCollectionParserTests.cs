@@ -15,7 +15,7 @@ namespace Andy.FlacHash.Hashfile.Read
         public void Setup()
         {
             lineParser = new Mock<IHashEntryParser>();
-            target = new HashEntryCollectionParser(lineParser.Object);
+            target = new HashEntryCollectionParser(lineParser.Object, ignoreNonhashLines: false);
         }
 
         [Test]
@@ -75,6 +75,44 @@ namespace Andy.FlacHash.Hashfile.Read
             lineParser.Setup(x => x.Parse("line3")).Returns(new KeyValuePair<string, string>("file3", "hash3"));
             lineParser.Setup(x => x.Parse("line4")).Returns(new KeyValuePair<string, string>("file4", "hash4"));
             lineParser.Setup(x => x.Parse("line2")).Throws(exception);
+
+            var ex = Assert.Throws<HashFileException>(() => target.Parse(lines).ToArray());
+
+            Assert.That(ex.InnerException, Is.SameAs(exception));
+            Assert.That(ex.Message, Does.Contain("line #2"));
+        }
+
+        [Test]
+        public void When_IgnoreNonhashLines_is_On_and_lineParser_throws_MissingHashValue_for_a_line__Must_skip_that_line()
+        {
+            target = new HashEntryCollectionParser(lineParser.Object, ignoreNonhashLines: true);
+
+            var lines = new[] { "line1", "line2", "line3" };
+
+            var value1 = new KeyValuePair<string, string>("file1", "hash1");
+            var value3 = new KeyValuePair<string, string>("file3", "hash3");
+
+            lineParser.Setup(x => x.Parse("line1")).Returns(value1);
+            lineParser.Setup(x => x.Parse("line2")).Throws(new MissingHashValueException());
+            lineParser.Setup(x => x.Parse("line3")).Returns(value3);
+
+            var result = target.Parse(lines).ToArray();
+
+            AssertThat.CollectionsMatchExactly(new[] { value1, value3 }, result);
+        }
+
+        [Test]
+        public void When_IgnoreNonhashLines_is_Off_and_lineParser_throws_MissingHashValue_for_a_line__Must_rethrow_exception_with_line_number()
+        {
+            target = new HashEntryCollectionParser(lineParser.Object, ignoreNonhashLines: false);
+
+            var lines = new[] { "line1", "line2", "line3" };
+
+            var exception = new MissingHashValueException();
+
+            lineParser.Setup(x => x.Parse("line1")).Returns(new KeyValuePair<string, string>("file1", "hash1"));
+            lineParser.Setup(x => x.Parse("line2")).Throws(exception);
+            lineParser.Setup(x => x.Parse("line3")).Returns(new KeyValuePair<string, string>("file3", "hash3"));
 
             var ex = Assert.Throws<HashFileException>(() => target.Parse(lines).ToArray());
 

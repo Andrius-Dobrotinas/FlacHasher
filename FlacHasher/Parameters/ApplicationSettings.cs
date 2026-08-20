@@ -49,6 +49,13 @@ namespace Andy.FlacHash.Application
         [ParameterDescription("Whether to include hidden files when scanning a directory")]
         public bool FileLookupIncludeHidden { get; set; }
 
+        [CmdLineParameter(CmdlineParameterNames.IgnoreNonhashLines, Order = 0)]
+        [IniEntry(nameof(IgnoreNonhashLines), Order = 1)]
+        [Optional(defaultValue: false)]
+        [ParameterDescription("Whether to skip hashfile lines that contain no hash value instead of failing (empty lines are ignored either way)")]
+        [ConfigurationFacet(ConfigurationFacet.Verification)]
+        public bool IgnoreNonhashLines { get; set; }
+
         public const string ProfileKey = "Profile";
         public const string DecoderProfileKey = "Profile.Decoder";
         public const string HashingProfileKey = "Profile.Hashing";

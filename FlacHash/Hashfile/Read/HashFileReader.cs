@@ -29,20 +29,21 @@ namespace Andy.FlacHash.Hashfile.Read
         {
             public const string HashfileEntrySeparator = ":";
 
-            public static HashFileReader BuildHashfileReader(string hashfileEntrySeparator)
+            public static HashFileReader BuildHashfileReader(string hashfileEntrySeparator, bool ignoreNonhashLines)
             {
                 return new HashFileReader(
                             new HashMapParser(
                                 new HashEntryCollectionParser(
                                     hashfileEntrySeparator == null
                                         ? new HashEntryParserAdvanced()
-                                        : new HashEntryParser(hashfileEntrySeparator)),
+                                        : new HashEntryParser(hashfileEntrySeparator),
+                                    ignoreNonhashLines),
                                 new CaseInsensitiveOrdinalStringComparer()));
             }
 
-            public static HashFileReader BuildAdvancedHashfileReader()
+            public static HashFileReader BuildAdvancedHashfileReader(bool ignoreNonhashLines)
             {
-                return BuildHashfileReader(null);
+                return BuildHashfileReader(null, ignoreNonhashLines);
             }
         }
     }
