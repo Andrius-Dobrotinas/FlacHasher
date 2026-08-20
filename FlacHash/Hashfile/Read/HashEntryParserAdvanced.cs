@@ -5,81 +5,49 @@ using System.Text.RegularExpressions;
 namespace Andy.FlacHash.Hashfile.Read
 {
     /// <summary>
-    /// Parses hash file lines to extract a single hexadecimal hash and an optional filename.
-    /// Supports hashes of at least 8 bytes (16 hex characters); which can't contain dashes.
-    /// A hash can't have any chars touching it except for whitespace.
-    /// A filename can be either before or after the hash and must be separated from the hash by whitespace and/or specific separator sequences (any combination of <see cref="SeparatorChars"/>).
-    /// A filename can contain any characters except it can't start or end with <see cref="SeparatorChars"/>.
-    /// A line may start with whitespace, <see cref="SeparatorChars"/> or jump right straight to filename or hash.
-    /// A line cannot contain more than one hash.
+    /// Parses hash file lines to extract a single hexadecimal hash and an optional filename that the hash is for.
+    /// Supports hashes of at least 8 bytes (16 hex characters) -- which can't contain dashes.
+    /// A hash can be wrapped in a matching pair of brackets or <see cref="AcceptedHashWrappers"/>
+    /// A filename must precede the hash
+    /// A filename and a hash must be separated by whitespace or a cluster of <see cref="SeparatorChars"/> surrounded by whitespace.
+    /// A filename can contain any characters, as long as it contains at least one alphanumeric one.
     /// A filename can have a hash pattern, but in that case, it has to have an extension - otherwise, it will be mistreated as a hash.
+    /// The line may start with whitespace or a <see cref="SeparatorChars"/> prefix, which get discarded.
+    /// A line cannot contain more than one hash.
     /// 
     /// Throws <see cref="MissingHashValueException"/> for lines that don't contain a hash.
-    /// Throws <see cref="InvalidHashLineFormatException"/> for malformed lines, such as those with multiple hashes or invalid separator sequences.
+    /// Throws <see cref="InvalidHashLineFormatException"/> for malformed lines, such as those with multiple hashes, invalid separator sequences or an unusable file name.
     /// </summary>
     public class HashEntryParserAdvanced : IHashEntryParser
     {
-        static class GroupName
-        {
-            public const string Filename = "filename";
-            public const string Separator = "sep";
-        }
-
         /// <summary>
         /// Characters that can form separator clusters between filename and hash.
         /// </summary>
         public const string SeparatorChars = "-+*<>=|#:";
-
-        // "-" needs to be escaped when it's used in a group ([]); others are fine like that
-        private static readonly string SeparatorCharClass = $"\\{SeparatorChars}";
-
-        /// <summary>
-        /// Parses text that may end with a separator token (ie it precedes the hash).
-        /// Captures non-whitespace text up to the separator (or until the end of the line if there is none) as the filename (group <see cref="GroupName.Filename"/>)
-        /// and the final separator characters (any combination of chars from <see cref="SeparatorChars"/>) as the separator (group <see cref="GroupName.Separator"/>).
-        /// The filename must contain at least one alphanumeric character.
-        /// Examples: "file.flac --", "Nirvana - MV  -", "track.flac <--->", "track.flac ", "track.flac".
-        /// </summary>
-        private static readonly Regex LeadingFilenameWithSeparatorRegex = new Regex(
-            @"^(?:(?<" + GroupName.Filename + @">(?=.*[0-9A-Za-z]).*\S)\s+(?<" + GroupName.Separator + @">[" + SeparatorCharClass + @"]+)|(?<" + GroupName.Filename + @">(?=.*[0-9A-Za-z]).*\S))$",
-            RegexOptions.Compiled);
-
-        /// <summary>
-        /// Parses text that may start with a separator token (ie it follows the hash).
-        /// Captures non-whitespace text up to the separator (or until the end of the line if there is none) as the filename (group <see cref="GroupName.Filename"/>)
-        /// and the final separator characters (any combination of chars from <see cref="SeparatorChars"/>) as the separator (group <see cref="GroupName.Separator"/>).
-        /// The filename must contain at least one alphanumeric character.
-        /// Examples: "-- track.flac", "-> Nirvana - MV.flac", "<---> track.flac", " track.flac", "track.flac".
-        /// </summary>
-        private static readonly Regex TrailingFilenameWithSeparatorRegex = new Regex(
-            @"^(?:(?<" + GroupName.Separator + @">[" + SeparatorCharClass + @"]+)\s+)?(?<" + GroupName.Filename + @">(?=.*[0-9A-Za-z]).*\S)$",
-            RegexOptions.Compiled);
 
         /// <summary>
         /// Hex chars, at least 16 chars long (8 bytes)
         /// </summary>
         private const string HashPattern = "[0-9A-Fa-f]{16,}";
 
-        /// <summary>
-        /// Matches a single hexadecimal hash of at least 8 bytes (16 hex characters)
-        /// </summary>
-        private static readonly Regex HashRegex = new Regex(HashPattern, RegexOptions.Compiled);
+        private const string HashGroupName = "hash";
+        private static readonly string[] AcceptedHashWrappers = { "[]", "{}", "()", "``" };
+
+        private static readonly string HashCapture = "(?<" + HashGroupName + ">" + HashPattern + ")";
 
         /// <summary>
         /// Matches a single hexadecimal hash of at least 8 bytes (16 hex characters)
-        /// that is delimited by the start/end of the line or whitespace.
-        /// Captures the hash in capture group 2 (index 2).
+        /// that is delimited by the start/end of the line or whitespace,
+        /// either on its own or wrapped in a matching pair of brackets or backticks.
+        /// Captures the hash itself, sans the wrapper, in the <see cref="HashGroupName"/> group.
         /// </summary>
-        private static readonly Regex HashWordRegex = new Regex("(^|\\s)(" + HashPattern + ")(?=$|\\s)", RegexOptions.Compiled);
-
-        /// <summary>
-        /// Detects invalid separator structures: any contiguous sequence of two or more separator characters (any from <see cref="SeparatorChars"/>)
-        /// where either the character immediately before the sequence is non-whitespace,
-        /// or the character immediately after the sequence is non-whitespace.
-        /// Clusters fully surrounded by whitespace (e.g. "\t<--->  ") are considered valid.
-        /// </summary>
-        private static readonly Regex InvalidSeparatorRegex = new Regex(
-            @"(?<![" + SeparatorCharClass + @"])(?<!\s)[" + SeparatorCharClass + @"]{2,}|[" + SeparatorCharClass + @"]{2,}(?!\s)(?![" + SeparatorCharClass + @"])",
+        private static readonly Regex HashWordRegex = new Regex(
+            "(?<=^|\\s)(?:" + HashCapture
+                + "|\\[" + HashCapture + "\\]"
+                + "|\\{" + HashCapture + "\\}"
+                + "|\\(" + HashCapture + "\\)"
+                + "|`" + HashCapture + "`"
+                + ")(?=$|\\s)",
             RegexOptions.Compiled);
 
         public KeyValuePair<string, string>? Parse(string line)
@@ -87,11 +55,7 @@ namespace Andy.FlacHash.Hashfile.Read
             if (line == null)
                 throw new ArgumentNullException(nameof(line));
 
-            var trimmed = line.Trim();
-            if (string.IsNullOrWhiteSpace(trimmed))
-                return null;
-
-            var body = StripPrefix(trimmed);
+            var body = StripPrefix(line.Trim()).Trim();
             if (string.IsNullOrWhiteSpace(body))
                 return null;
 
@@ -99,39 +63,16 @@ namespace Andy.FlacHash.Hashfile.Read
 
             // No properly delimited hash found.
             if (hashMatches.Count == 0)
-            {
-                // Hash-like sequences alongside invalid separator clusters mean a malformed hash,
-                // as opposed to a line that simply has no hash in it.
-                if (InvalidSeparatorRegex.IsMatch(body) && HashRegex.IsMatch(body))
-                    throw new InvalidHashLineFormatException("Invalid separator structure found");
-
                 throw new MissingHashValueException();
-            }
 
             if (hashMatches.Count > 1)
                 throw new InvalidHashLineFormatException("Multiple hashes found");
 
-            if (InvalidSeparatorRegex.IsMatch(body))
-                throw new InvalidHashLineFormatException("Invalid separator structure found");
-
             var match = hashMatches.First();
-            var hashGroup = match.Groups[2];
-            var hash = hashGroup.Value;
+            var matchStartIndexWithinBody = match.Index;
+            var file = ExtractFilename(body.Substring(0, matchStartIndexWithinBody));
 
-            var hashStartIndex = hashGroup.Index;
-            var hashEndIndex = hashStartIndex + hashGroup.Length;
-
-            var textBeforeHash = body.Substring(0, hashStartIndex).Trim();
-            var textAfterHash = body.Substring(hashEndIndex).Trim();
-
-            if (textBeforeHash.Length == 0 && textAfterHash.Length == 0)
-                return new KeyValuePair<string, string>(null, hash);
-
-            var file = textBeforeHash.Length == 0
-                ? ExtractFilenameFromTrailingText(textAfterHash)
-                : ExtractFilenameFromLeadingText(textBeforeHash);
-
-            return new KeyValuePair<string, string>(string.IsNullOrWhiteSpace(file) ? null : file, hash);
+            return new KeyValuePair<string, string>(file, match.Groups[HashGroupName].Value);
         }
 
         private static string StripPrefix(string value)
@@ -146,33 +87,50 @@ namespace Andy.FlacHash.Hashfile.Read
             if (i == 0)
                 return value;
 
-            return value.Substring(i).TrimStart();
+            return value.Substring(i);
         }
 
-        private static string ExtractFilenameFromLeadingText(string text)
+        /// <summary>
+        /// Reads the text preceding the hash backwards: whitespace, then an optional separator cluster
+        /// (which must be detached from the file name by whitespace), then the file name itself.
+        /// </summary>
+        private static string ExtractFilename(string text)
         {
-            if (string.IsNullOrWhiteSpace(text))
+            var end = SkipBackwards(text, text.Length, char.IsWhiteSpace);
+            var touchesTheHash = end == text.Length;
+
+            var separatorStart = SkipBackwards(text, end, SeparatorChars.Contains);
+            if (separatorStart < end)
+            {
+                if (touchesTheHash)
+                    throw new InvalidHashLineFormatException("A separator must be detached from a hash by whitespace");
+
+                if (separatorStart > 0 && !char.IsWhiteSpace(text[separatorStart - 1]))
+                    throw new InvalidHashLineFormatException("A separator must be detached from a file name by whitespace");
+
+                end = SkipBackwards(text, separatorStart, char.IsWhiteSpace);
+            }
+
+            if (end == 0)
                 return null;
 
-            var match = LeadingFilenameWithSeparatorRegex.Match(text);
-            if (!match.Success)
-                return null;
+            var filename = text.Substring(0, end);
 
-            var filename = match.Groups[GroupName.Filename].Value;
-            return filename.Length == 0 ? null : filename;
+            if (!filename.Any(char.IsLetterOrDigit))
+                throw new InvalidHashLineFormatException($"A file name must contain alphanumeric characters: \"{filename}\"");
+
+            return filename;
         }
 
-        private static string ExtractFilenameFromTrailingText(string text)
+        /// <summary>
+        /// Returns the index of the first char, going backwards from <paramref name="end"/>, that doesn't satisfy the <paramref name="predicate"/>.
+        /// </summary>
+        private static int SkipBackwards(string text, int end, Func<char, bool> predicate)
         {
-            if (string.IsNullOrWhiteSpace(text))
-                return null;
+            while (end > 0 && predicate(text[end - 1]))
+                end--;
 
-            var match = TrailingFilenameWithSeparatorRegex.Match(text);
-            if (!match.Success)
-                return null;
-
-            var filename = match.Groups[GroupName.Filename].Value;
-            return filename.Length == 0 ? null : filename;
+            return end;
         }
     }
 }

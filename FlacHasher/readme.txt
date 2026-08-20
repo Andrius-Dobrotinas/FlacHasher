@@ -36,25 +36,34 @@ Refer to the application's help page for info on required parameters.
 2. HASH VERIFICATION: HASHFILE STRUCTURE
 
 A "hashfile" stores previously-calculated file hashes for future verification.
-It may contain any other text, which gets ignored, as long as it's not intermingled with the lines that contain filename and hash value, and it doesn't contain hash-like values.
 
-- It can be either in "{filename} {hash}" or "{hash} {filename}" format
-- Filename and hash can be separated either by (white)space or by any combination of the following characters (surrounded by spaces): -, +, *, <, >, =, |, #, :
-- It can either contain just the hashes (with no file names) or filenames with hashes.
-- If the hash list doesn't have filenames, the order in which they are recorded matters.
+The file may contain lines with any other text, which gets ignored, as long as it's not intermingled with the lines that contain filename and hash value, and it doesn't contain hash-like values.
+- Expected format: `{file name} {hash}` OR `{hash}`: ie, it must contain a hash, and file name is optional.
 
-- A hash must be a hex char sequence without dashes; it can't have any chars touching it except for whitespace
-- Filename may contain all Linux-allowed characters except it can't start or end with line prefix or separator chars
+- A filename, when present, must precede the hash, not follow it.
+- Filename and hash have to be separated either by spaces (whitespace) or by any combination of the following characters (surrounded by spaces): -, +, *, <, >, =, |, #, :. Eg: `01 file name.flac 11223344AABBCCDD`, `01 file name.flac -> 11223344AABBCCDD`
+- Anything found after the hash on the same line is ignored.
+- If the hash list doesn't have filenames, the order in which they are recorded matters -- it must be the same that the files will be presented at verification time.
 
-- Each line can be prefixed by the following characters: #, -, +, *, <, =, >
+- A hash must be a hex char sequence without dashes (0-9, A-F, a-f), at least 16 characters long (8 bytes). Eg: 11223344AABBCCDD, 8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6
+- A hash may be wrapped in brackets (), [], {} or backticks ``. Eg: [11223344AABBCCDD], {11223344AABBCCDD}, (11223344AABBCCDD), `11223344AABBCCDD`, "file.flac [11223344AABBCCDD]", "file.flac `11223344AABBCCDD`"
+- A filename may contain all Linux-allowed characters except it can't start or end with any of the line prefix or separator chars
+- A filename can look like a hash, but in that case, it must have an extension. Eg: 11223344AABBCCDD.flac DEADBEAF00112233
+
+- Each line can be prefixed by any of the following characters, which get discarded: -, +, *, <, >, =, :, |, #
 
 Examples:
   file 1.flac 11223344AABBCCDD
   file 1.flac => 11223344AABBCCDD
   # file 1.flac : 11223344AABBCCDD
+  ++ file 1.flac : 11223344AABBCCDD
   file 1.flac : 11223344AABBCCDD some text
-  11223344AABBCCDD => file 1.flac
-  # 11223344AABBCCDD => file 1.flac
+  01 - file 1.flac - 11223344AABBCCDD # some text
+  01) file 1.flac 11223344AABBCCDD
+  file 1.flac [11223344AABBCCDD]
+  file 1.flac `11223344AABBCCDD`
+  11223344AABBCCDD
+  11223344AABBCCDD.flac DEADBEAF00112233
 
 ===========================================================
 3. COMMAND-LINE INTERFACE
