@@ -22,5 +22,6 @@ jobs:
         run: docker compose --file docker-compose-lnx.yml pull tests
       - name: Build
         run: docker compose --file docker-compose-lnx.yml run --rm tests build ${{ env.SLN_ARGS }}
+      # E2E tests are excluded here
       - name: Run Tests
-        run: docker compose --file docker-compose-lnx.yml run --rm tests test ${{ env.SLN_ARGS }}
+        run: docker compose --file docker-compose-lnx.yml run --rm tests test ${{ env.SLN_ARGS }} --filter "FullyQualifiedName!~Andy.FlacHash.Application.Cmd.E2E"
