@@ -15,6 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # For the reason it compiles the output on the host, not in the image, see the comment in the Linux workflow file
   tests:
     runs-on: windows-2022
     timeout-minutes: 20
