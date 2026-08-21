@@ -13,6 +13,10 @@ services:
     environment:
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+      # Use a different output folder - so it doesn't clash with the host's builds
+      # Put the build files on the host it gets reused between the `docker-compose run` in Workflow steps
+      UseArtifactsOutput: "true"
+      ArtifactsPath: /src/build-output
     volumes:
       - type: bind
         source: .

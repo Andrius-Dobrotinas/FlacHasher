@@ -10,6 +10,10 @@ permissions:
   contents: read
 
 jobs:
+
+  # This compiles the output on the host - it doesn't build an image with compiled output.
+  # That's because I want to have minimal differences between local and remote build set up,
+  # and locally, I want to be able to run these tests without copying source into the image.
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -20,6 +24,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Pull the image
         run: docker compose --file docker-compose-lnx.yml pull tests
+      
+      # Compiled output goes into a host's directory, so it's accessible in the next step (compose run )
       - name: Build
         run: docker compose --file docker-compose-lnx.yml run --rm tests build ${{ env.SLN_ARGS }}
       - name: Run Tests
