@@ -15,6 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # For the reason it compiles the output on the host, not in the image, see the comment in the Linux workflow file
   tests:
     runs-on: windows-2022
     timeout-minutes: 20
@@ -28,5 +29,5 @@ jobs:
       - name: Build
         run: docker compose --file docker-compose-win.yml run --rm tests build ${{ env.SLN_ARGS }}
       # E2E tests are excluded here
-      - name: Run Tests
+      - name: Run Unit Tests
         run: docker compose --file docker-compose-win.yml run --rm tests test ${{ env.SLN_ARGS }} --filter "FullyQualifiedName!~Andy.FlacHash.Application.Cmd.E2E"

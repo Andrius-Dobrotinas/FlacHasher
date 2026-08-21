@@ -19,9 +19,12 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v5
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
-      - run: dotnet build ./FlacHasher.sln --configuration Release
+      - name: Build
+        run: dotnet build ./FlacHasher.sln --configuration Release
       # E2E tests are excluded here
-      - run: dotnet test ./FlacHasher.sln --configuration Release --no-build --filter "FullyQualifiedName!~Andy.FlacHash.Application.Cmd.E2E"
+      - name: Run Unit Tests
+        run: dotnet test ./FlacHasher.sln --configuration Release --no-build --filter "FullyQualifiedName!~Andy.FlacHash.Application.Cmd.E2E"
