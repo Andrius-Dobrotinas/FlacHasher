@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Andy.Cmd.Parameter
 {
@@ -29,6 +30,37 @@ namespace Andy.Cmd.Parameter
 
         internal static string[] TrimValues(IEnumerable<string> values) =>
             values.Select(x => x?.Trim()).ToArray();
+
+        /// <summary>
+        /// Splits a string on the array value separator, ignoring escaped separators and unescaping them.
+        /// </summary>
+        internal static string[] SplitArrayValue(string value)
+        {
+            var items = new List<string>();
+            var item = new StringBuilder();
+
+            for (int i = 0; i < value.Length; i++)
+            {
+                var character = value[i];
+                if (character == ParameterValueResolver.ArrayValueSeparatorEscapeCharacter
+                    && i + 1 < value.Length
+                    && value[i + 1] == ParameterValueResolver.ArrayValueSeparator)
+                {
+                    item.Append(ParameterValueResolver.ArrayValueSeparator);
+                    i++;
+                }
+                else if (character == ParameterValueResolver.ArrayValueSeparator)
+                {
+                    items.Add(item.ToString());
+                    item.Clear();
+                }
+                else
+                    item.Append(character);
+            }
+            items.Add(item.ToString());
+
+            return items.ToArray();
+        }
 
         internal static void SetArrayValueTrimmed<TParams>(TParams paramsInstances, PropertyInfo property, string paramName, string[] values)
         {
