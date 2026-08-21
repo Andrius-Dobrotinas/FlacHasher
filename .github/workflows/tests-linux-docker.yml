@@ -11,8 +11,8 @@ permissions:
 
 jobs:
 
-  # This compiles the output on the host - doesn't build an image with compiled outout.
-  # That's because I want to have minimal differences between local and remote build definitions,
+  # This compiles the output on the host - it doesn't build an image with compiled output.
+  # That's because I want to have minimal differences between local and remote build set up,
   # and locally, I want to be able to run these tests without copying source into the image.
   tests:
     runs-on: ubuntu-latest
