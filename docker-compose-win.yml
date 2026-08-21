@@ -21,12 +21,3 @@ services:
       - type: bind
         source: .
         target: "c:\\src"
-
-  # Each test project writes a report in HTML
-  tests_report:
-    extends:
-      service: tests
-    # "/c" is a requirement for Cmd to execute run-tests-w-report.cmd
-    entrypoint: ["cmd", "/c"]
-    command:
-      - run-tests-w-report.cmd
