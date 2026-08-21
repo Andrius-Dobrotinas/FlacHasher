@@ -50,6 +50,19 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             return file;
         }
 
+        /// <summary>
+        /// Creates a fresh temp directory with a settings file for the application to run in.
+        /// </summary>
+        public static DirectoryInfo SetUpWorkingDirWithSettingsFile(string settingsFileContent = "")
+        {
+            var workingDirectory = Directory.CreateDirectory(
+                Path.Combine(Path.GetTempPath(), $"flachash-e2e-{Guid.NewGuid():N}"));
+
+            File.WriteAllText(Path.Combine(workingDirectory.FullName, "settings.ini"), settingsFileContent);
+
+            return workingDirectory;
+        }
+
         static string GetAssemblyMetadata(string key)
         {
             return Assembly.GetExecutingAssembly()

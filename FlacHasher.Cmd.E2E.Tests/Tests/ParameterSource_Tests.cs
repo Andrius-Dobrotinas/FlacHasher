@@ -12,12 +12,13 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         {
             var decoder = TestEnvironment.GetDecoderOrFailTest();
 
-            workingDirectory = Directory.CreateDirectory(
-                Path.Combine(Path.GetTempPath(), $"flachash-e2e-{Guid.NewGuid():N}"));
+            workingDirectory = TestEnvironment.SetUpWorkingDirWithSettingsFile(
+                $"""
+                ProcessTimeoutSec=30
 
-            File.WriteAllText(
-                Path.Combine(workingDirectory.FullName, "settings.ini"),
-                $"ProcessTimeoutSec=30\n\n[Decoder]\nDecoder={decoder.FullName}\n");
+                [Decoder]
+                Decoder={decoder.FullName}
+                """);
         }
 
         [TearDown]

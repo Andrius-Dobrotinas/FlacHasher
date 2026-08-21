@@ -14,13 +14,8 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         {
             decoder = TestEnvironment.GetDecoderOrFailTest();
 
-            workingDirectory = Directory.CreateDirectory(
-                Path.Combine(Path.GetTempPath(), $"flachash-e2e-{Guid.NewGuid():N}"));
-
-            // The application requires the settings file to exist, but I want to limit testing surface here - hence an empty file
-            File.WriteAllText(
-                Path.Combine(workingDirectory.FullName, "settings.ini"),
-                "");
+            // The application requires the settings file to exist, but I want to limit testing surface here - hence a directory with an empty settings file
+            workingDirectory = TestEnvironment.SetUpWorkingDirWithSettingsFile();
         }
 
         [TearDown]
