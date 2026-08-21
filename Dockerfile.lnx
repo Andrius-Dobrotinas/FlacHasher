@@ -1,5 +1,10 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS tests
 
-COPY . /src
+FROM tests AS tests-e2e
 
-WORKDIR /src
+# Install FLAC
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends flac \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV FLACHASH_TEST_DECODER=/usr/bin/flac

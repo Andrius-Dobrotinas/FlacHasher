@@ -24,11 +24,17 @@
     <None Include="TestAssets\*.flac" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-      <_Parameter1>AppOutputDirectory</_Parameter1>
-      <_Parameter2>$(MSBuildThisFileDirectory)..\FlacHasher.Cmd\bin\$(Configuration)\$(TargetFramework)</_Parameter2>
-    </AssemblyAttribute>
-  </ItemGroup>
+  <!-- Ask the CMD project where its output's at; writes to -> _AppTarget.FullPath -->
+  <Target Name="ResolveAppOutputDirectory" BeforeTargets="GetAssemblyAttributes">
+    <MSBuild Projects="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="_AppTarget" />
+    </MSBuild>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>AppOutputDirectory</_Parameter1>
+        <_Parameter2>$([System.IO.Path]::GetDirectoryName('%(_AppTarget.FullPath)'))</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
 
 </Project>
