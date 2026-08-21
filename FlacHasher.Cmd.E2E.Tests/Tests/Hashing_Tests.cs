@@ -17,13 +17,10 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             workingDirectory = Directory.CreateDirectory(
                 Path.Combine(Path.GetTempPath(), $"flachash-e2e-{Guid.NewGuid():N}"));
 
-            // The app requires this file to exist, but none of the settings used by this test come from it.
+            // The application requires the settings file to exist, but I want to limit testing surface here - hence an empty file
             File.WriteAllText(
                 Path.Combine(workingDirectory.FullName, "settings.ini"),
                 "");
-
-            TestEnvironment.GetTestAsset(SampleAsset.Flac1.FileName)
-                .CopyTo(Path.Combine(workingDirectory.FullName, SampleAsset.Flac1.FileName));
         }
 
         [TearDown]
@@ -35,10 +32,12 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         [Test]
         public async Task Must_Compute_Hash_For_A_File__And_Write_To_StdOut()
         {
+            var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Flac1.FileName);
+
             var result = await App.Run(
                 workingDirectory,
                 "hash",
-                $"--input={SampleAsset.Flac1.FileName}",
+                $"--input={inputFile.FullName}",
                 "--algorithm=MD5",
                 "--format={hash}",
                 $"--decoder={decoder.FullName}",

@@ -2,6 +2,8 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 {
     static class SampleAsset
     {
+        public const string Directory = "TestAssets";
+
         public static class Flac1
         {
             public const string FileName = "sample.flac";

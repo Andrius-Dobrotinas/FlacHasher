@@ -18,9 +18,6 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             File.WriteAllText(
                 Path.Combine(workingDirectory.FullName, "settings.ini"),
                 $"ProcessTimeoutSec=30\n\n[Decoder]\nDecoder={decoder.FullName}\n");
-
-            TestEnvironment.GetTestAsset(SampleAsset.Flac1.FileName)
-                .CopyTo(Path.Combine(workingDirectory.FullName, SampleAsset.Flac1.FileName));
         }
 
         [TearDown]
@@ -32,10 +29,12 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         [Test]
         public async Task Must_Use_Decoder_From_Settings_File__When_Not_Specified_On_Cmdline()
         {
+            var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Flac1.FileName);
+
             var result = await App.Run(
                 workingDirectory,
                 "hash",
-                $"--input={SampleAsset.Flac1.FileName}",
+                $"--input={inputFile.FullName}",
                 "--algorithm=MD5",
                 "--format={hash}",
                 "--decoder-verbose=false");

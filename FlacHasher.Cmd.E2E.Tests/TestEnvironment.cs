@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
         public static FileInfo GetTestAsset(string fileName)
         {
-            var file = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestAssets", fileName));
+            var file = new FileInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, SampleAsset.Directory, fileName));
 
             if (!file.Exists)
                 throw new FileNotFoundException($"Test asset not found. Generate it with TestAssets/make-test-assets.ps1.", file.FullName);
