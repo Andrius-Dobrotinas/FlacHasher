@@ -10,14 +10,15 @@ RUN mkdir c:\tools
 # format, so install the full 7-Zip (msi, silent) instead - it ships with 7z.dll, which has the extra
 # codecs (NSIS/Inno/etc.) needed to see into arbitrary installer executables.
 RUN curl --location --output c:\tools\7z-x64.msi https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.msi
-RUN msiexec /i c:\tools\7z-x64.msi /qn /norestart
+# Installed to a path without spaces so it doesn't need quoting in the RUN commands below
+RUN msiexec /i c:\tools\7z-x64.msi /qn /norestart INSTALLDIR=c:\7-zip
 RUN del c:\tools\7z-x64.msi
 
 # MAC.exe is assumed to be in the root dir of the installer
 RUN mkdir c:\decoder\ape-setup
 RUN curl --location --fail --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
 RUN dir c:\decoder\ape-setup\setup.exe
-RUN "c:\Program Files\7-Zip\7z.exe" x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
+RUN c:\7-zip\7z.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
 RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
 RUN rmdir /s /q c:\decoder\ape-setup
 
