@@ -6,16 +6,16 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022 AS tests
 FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS ape-decoder
 
 RUN mkdir c:\tools
-RUN curl --location --output c:\tools\7za.zip https://www.7-zip.org/a/7za920.zip
-RUN tar --extract --file c:\tools\7za.zip --directory c:\tools
-RUN del c:\tools\7za.zip
+RUN curl --location --output c:\tools\7zr.exe https://www.7-zip.org/a/7zr.exe
+RUN curl --location --output c:\tools\7z-extra.7z https://github.com/ip7z/7zip/releases/download/23.01/7z2301-extra.7z
+RUN c:\tools\7zr.exe x c:\tools\7z-extra.7z -oc:\tools\7z-extra -y
+RUN del c:\tools\7z-extra.7z
 
 # MAC.exe is assumed to be in the root dir of the installer
 RUN mkdir c:\decoder\ape-setup
 RUN curl --location --fail --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
 RUN dir c:\decoder\ape-setup\setup.exe
-RUN type c:\decoder\ape-setup\setup.exe
-RUN c:\tools\7za.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
+RUN c:\tools\7z-extra\x64\7za.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
 RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
 RUN rmdir /s /q c:\decoder\ape-setup
 
