@@ -10,19 +10,19 @@ RUN del c:\decoder\flac.zip
 
 ENV FLACHASH_TEST_DECODER=c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe
 
-# 7-Zip (standalone console build) -- needed to unpack the Monkey's Audio installer without running it:
-# nanoserver has no GUI subsystem (user32/gdi32) for a regular installer executable to launch against.
+# 7-Zip (standalone console build, x64) -- needed to unpack the Monkey's Audio installer without running it:
+# nanoserver has no GUI subsystem (user32/gdi32) for a regular installer executable to launch against
 RUN mkdir c:\tools
-RUN curl --location --output c:\tools\7za.zip https://www.7-zip.org/a/7za920.zip
-RUN tar --extract --file c:\tools\7za.zip --directory c:\tools
-RUN del c:\tools\7za.zip
+RUN curl --location --output c:\tools\7z-extra.7z https://github.com/ip7z/7zip/releases/download/23.01/7z2301-extra.7z
+RUN tar --extract --file c:\tools\7z-extra.7z --directory c:\tools
+RUN del c:\tools\7z-extra.7z
 
 # Install Monkey's Audio (APE decoder): unpack MAC.exe straight out of the installer with 7-Zip instead of running it
 # MAC.exe is assumed to be in the root dir of the installer
 RUN mkdir c:\decoder\ape-setup
 RUN curl --location --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
-RUN c:\tools\7za.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
-RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MACs.exe
+RUN c:\tools\x64\7za.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
+RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
 RUN rmdir /s /q c:\decoder\ape-setup
 
 ENV FLACHASH_TEST_DECODER_APE=c:\\decoder\\MAC.exe
