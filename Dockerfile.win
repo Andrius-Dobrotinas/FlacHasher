@@ -12,7 +12,9 @@ RUN del c:\tools\7za.zip
 
 # MAC.exe is assumed to be in the root dir of the installer
 RUN mkdir c:\decoder\ape-setup
-RUN curl --location --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
+RUN curl --location --fail --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
+RUN dir c:\decoder\ape-setup\setup.exe
+RUN type c:\decoder\ape-setup\setup.exe
 RUN c:\tools\7za.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
 RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
 RUN rmdir /s /q c:\decoder\ape-setup
