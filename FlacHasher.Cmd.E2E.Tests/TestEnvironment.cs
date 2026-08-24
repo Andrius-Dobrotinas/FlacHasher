@@ -6,6 +6,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
     static class TestEnvironment
     {
         public const string DecoderVariableName = "FLACHASH_TEST_DECODER";
+        public const string ApeDecoderVariableName = "FLACHASH_TEST_DECODER_APE";
 
         const string appExecutableName = "FlacHasher";
 
@@ -36,6 +37,18 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             if (!file.Exists)
                 Assert.Fail($"An audio decoder is required to run this test. Set {DecoderVariableName} to the full path of a FLAC decoder executable; none was found at the fallback location {file.FullName}");
+
+            return file;
+        }
+
+        public static FileInfo GetApeDecoderOrFailTest()
+        {
+            var path = Environment.GetEnvironmentVariable(ApeDecoderVariableName);
+
+            var file = new FileInfo(path);
+
+            if (!file.Exists)
+                Assert.Fail($"A Monkey's Audio decoder is required to run this test. Set {ApeDecoderVariableName} to the full path of MAC.exe; none was found at the fallback location {file.FullName}");
 
             return file;
         }
