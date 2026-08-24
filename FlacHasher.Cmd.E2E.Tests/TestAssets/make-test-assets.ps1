@@ -1,5 +1,5 @@
-# Generates sample.flac next to this script, then prints the MD5 of the
-# decoded output so it can be pinned as `expectedMd5` in Hashing_Tests.
+# Generates sample-input.wav and encodes it to sample.flac.
+# Computes an MD5 hash on the original WAV file and prints it.
 #
 # Usage: .\make-test-assets.ps1 -Flac 'C:\path\to\flac.exe'
 
@@ -13,12 +13,12 @@ $ErrorActionPreference = 'Stop'
 $sampleRate = 44100
 $channels = 2
 $bitsPerSample = 16
-$durationSeconds = 0.5
+$durationSeconds = 1
 $frequency = 440
 
 $assetsDir = $PSScriptRoot
 
-$wavPath = Join-Path ([System.IO.Path]::GetTempPath()) 'flachash-sample.wav'
+$wavPath = Join-Path $assetsDir 'sample-input.wav'
 $flacPath = Join-Path $assetsDir 'sample.flac'
 
 $frameCount = [int]($sampleRate * $durationSeconds)
@@ -56,20 +56,13 @@ finally {
     $stream.Dispose()
 }
 
+Write-Host "Created $wavPath ($((Get-Item $wavPath).Length) bytes)"
+
+$hash = (Get-FileHash -Path $wavPath -Algorithm MD5).Hash.ToLowerInvariant()
+Write-Host "expectedMd5 = `"$hash`""
+
 Remove-Item $flacPath -ErrorAction SilentlyContinue
 & $Flac --best --silent --output-name=$flacPath $wavPath
 if ($LASTEXITCODE -ne 0) { throw "flac encoding failed with exit code $LASTEXITCODE" }
-Remove-Item $wavPath
 
 Write-Host "Created $flacPath ($((Get-Item $flacPath).Length) bytes)"
-
-# The app hashes the decoder's stdout and feeds it the file via stdin, so the expected
-# value has to be produced exactly the same way
-$decodedPath = Join-Path ([System.IO.Path]::GetTempPath()) 'flachash-decoded.wav'
-& cmd.exe /c "`"$Flac`" --decode --silent - < `"$flacPath`" > `"$decodedPath`""
-if ($LASTEXITCODE -ne 0) { throw "flac decoding failed with exit code $LASTEXITCODE" }
-
-$hash = (Get-FileHash -Path $decodedPath -Algorithm MD5).Hash.ToLowerInvariant()
-Remove-Item $decodedPath
-
-Write-Host "expectedMd5 = `"$hash`""
