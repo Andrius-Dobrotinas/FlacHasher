@@ -1,11 +1,14 @@
-# Generates sample-input.wav and encodes it to sample.flac.
+# Generates sample-input.wav and encodes it to sample.flac and sample.ape.
 # Computes an MD5 hash on the original WAV file and prints it.
 #
-# Usage: .\make-test-assets.ps1 -Flac 'C:\path\to\flac.exe'
+# Usage: .\make-test-assets.ps1 -Flac 'C:\path\to\flac.exe' -Mac 'C:\path\to\MAC.exe'
 
 param(
     [Parameter(Mandatory = $true)]
-    [string]$Flac
+    [string]$Flac,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Mac
 )
 
 $ErrorActionPreference = 'Stop'
@@ -20,6 +23,7 @@ $assetsDir = $PSScriptRoot
 
 $wavPath = Join-Path $assetsDir 'sample-input.wav'
 $flacPath = Join-Path $assetsDir 'sample.flac'
+$apePath = Join-Path $assetsDir 'sample.ape'
 
 $frameCount = [int]($sampleRate * $durationSeconds)
 $blockAlign = $channels * ($bitsPerSample / 8)
@@ -66,3 +70,9 @@ Remove-Item $flacPath -ErrorAction SilentlyContinue
 if ($LASTEXITCODE -ne 0) { throw "flac encoding failed with exit code $LASTEXITCODE" }
 
 Write-Host "Created $flacPath ($((Get-Item $flacPath).Length) bytes)"
+
+Remove-Item $apePath -ErrorAction SilentlyContinue
+& $Mac $wavPath $apePath '-c2000'
+if ($LASTEXITCODE -ne 0) { throw "Monkey's Audio encoding failed with exit code $LASTEXITCODE" }
+
+Write-Host "Created $apePath ($((Get-Item $apePath).Length) bytes)"

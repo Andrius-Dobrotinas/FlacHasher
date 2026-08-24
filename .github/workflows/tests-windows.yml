@@ -48,6 +48,15 @@ jobs:
           Get-Item "$env:RUNNER_TEMP\flac.zip" | Select-Object Name, Length
           Expand-Archive -Path "$env:RUNNER_TEMP\flac.zip" -DestinationPath "$env:RUNNER_TEMP\flac"
           "FLACHASH_TEST_DECODER=$env:RUNNER_TEMP\flac\flac-1.5.0-win\Win64\flac.exe" >> $env:GITHUB_ENV
+      - name: Install an APE decoder (Monkey's Audio)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Invoke-WebRequest -Uri "https://monkeysaudio.com/x64" -OutFile "$env:RUNNER_TEMP\ape-setup.exe" -MaximumRetryCount 3 -RetryIntervalSec 2
+          Get-Item "$env:RUNNER_TEMP\ape-setup.exe" | Select-Object Name, Length
+          # 7-Zip is preinstalled on the windows-latest runner and available on PATH as `7z`
+          7z x "$env:RUNNER_TEMP\ape-setup.exe" "-o$env:RUNNER_TEMP\ape-extracted" -y
+          "FLACHASH_TEST_DECODER_APE=$env:RUNNER_TEMP\ape-extracted\MAC.exe" >> $env:GITHUB_ENV
       - name: Build
         run: dotnet build ./FlacHasher.Cmd.E2E.Tests/FlacHasher.Cmd.E2E.Tests.csproj --configuration Release
       - name: Run E2E Tests

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <None Include="TestAssets\*.flac" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="TestAssets\*.ape" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Ask the CMD project where its output's at; writes to -> _AppTarget.FullPath -->
