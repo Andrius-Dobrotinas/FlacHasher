@@ -3,6 +3,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022 AS tests
 FROM tests AS tests-e2e
 
 # Install FLAC
-RUN mkdir c:\decoder && curl --location --output c:\decoder\flac.zip https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip && tar --extract --file c:\decoder\flac.zip --directory c:\decoder && del c:\decoder\flac.zip
+RUN mkdir c:\decoder && curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\flac.zip https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip && tar --extract --file c:\decoder\flac.zip --directory c:\decoder && del c:\decoder\flac.zip
 
 ENV FLACHASH_TEST_DECODER=c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe

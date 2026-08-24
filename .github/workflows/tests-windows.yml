@@ -41,8 +41,11 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Install a FLAC decoder
+        shell: pwsh
         run: |
-          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip" -OutFile "$env:RUNNER_TEMP\flac.zip"
+          $ErrorActionPreference = "Stop"
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip" -OutFile "$env:RUNNER_TEMP\flac.zip" -MaximumRetryCount 3 -RetryIntervalSec 2
+          Get-Item "$env:RUNNER_TEMP\flac.zip" | Select-Object Name, Length
           Expand-Archive -Path "$env:RUNNER_TEMP\flac.zip" -DestinationPath "$env:RUNNER_TEMP\flac"
           "FLACHASH_TEST_DECODER=$env:RUNNER_TEMP\flac\flac-1.5.0-win\Win64\flac.exe" >> $env:GITHUB_ENV
       - name: Build
