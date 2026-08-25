@@ -10,7 +10,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         [SetUp]
         public void Setup()
         {
-            var decoder = TestEnvironment.GetDecoderOrFailTest();
+            var decoder = TestEnvironment.GetFlacDecoder();
 
             workingDirectory = TestEnvironment.SetUpWorkingDirWithSettingsFile(
                 $"""

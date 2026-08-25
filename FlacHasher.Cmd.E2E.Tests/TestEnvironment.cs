@@ -25,30 +25,29 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             }
         }
 
-        /// <summary>
-        /// A real audio decoder is an external dependency that can't be shipped with the source code,
-        /// so its location has to be supplied by whoever runs the tests.
-        /// </summary>
-        public static FileInfo GetDecoderOrFailTest()
+        public static FileInfo GetFlacDecoder()
         {
             var path = Environment.GetEnvironmentVariable(DecoderVariableName);
+            if (string.IsNullOrWhiteSpace(path))
+                throw new Exception($"Provide FLAC decoder's full path via {DecoderVariableName} env variable");
 
             var file = new FileInfo(path);
 
             if (!file.Exists)
-                Assert.Fail($"An audio decoder is required to run this test. Set {DecoderVariableName} to the full path of a FLAC decoder executable; none was found at the fallback location {file.FullName}");
+                throw new Exception($"FLAC decoder was does not exist at the specified path: {path}");
 
             return file;
         }
 
-        public static FileInfo GetApeDecoderOrFailTest()
+        public static FileInfo GetApeDecoder()
         {
             var path = Environment.GetEnvironmentVariable(ApeDecoderVariableName);
-
+            if (string.IsNullOrWhiteSpace(path))
+                throw new Exception($"Provide APE decoder's full path via {DecoderVariableName} env variable");
             var file = new FileInfo(path);
 
             if (!file.Exists)
-                Assert.Fail($"A Monkey's Audio decoder is required to run this test. Set {ApeDecoderVariableName} to the full path of MAC.exe; none was found at the fallback location {file.FullName}");
+                throw new Exception($"APE decoder was does not exist at the specified path: {path}");
 
             return file;
         }

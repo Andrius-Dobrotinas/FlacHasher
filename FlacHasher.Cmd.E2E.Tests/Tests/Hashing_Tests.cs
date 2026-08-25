@@ -7,13 +7,9 @@ namespace Andy.FlacHash.Application.Cmd.E2E
     {
         DirectoryInfo workingDirectory;
 
-        FileInfo decoder;
-
         [SetUp]
         public void Setup()
         {
-            decoder = TestEnvironment.GetDecoderOrFailTest();
-
             // The application requires the settings file to exist, but I want to limit testing surface here - hence a directory with an empty settings file
             workingDirectory = TestEnvironment.SetUpWorkingDirWithSettingsFile();
         }
@@ -27,6 +23,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         [Test]
         public async Task Must_Compute_Hash_For_A_File__And_Write_To_StdOut()
         {
+            var decoder = TestEnvironment.GetFlacDecoder();
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Flac1.FileName);
 
             var result = await App.Run(
@@ -47,7 +44,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         [Platform(Exclude = "Linux", Reason = "Monkey's Audio (APE) decoder is not available on Linux")]
         public async Task Must_Compute_Hash_For_An_Ape_File__And_Write_To_StdOut()
         {
-            var apeDecoder = TestEnvironment.GetApeDecoderOrFailTest();
+            var apeDecoder = TestEnvironment.GetApeDecoder();
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Ape1.FileName);
 
             var result = await App.Run(
