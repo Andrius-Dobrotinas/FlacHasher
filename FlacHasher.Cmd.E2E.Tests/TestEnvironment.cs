@@ -5,7 +5,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 {
     static class TestEnvironment
     {
-        public const string DecoderVariableName = "FLACHASH_TEST_DECODER";
+        public const string DecoderVariableName = "FLACHASH_TEST_DECODER_FLAC";
         public const string ApeDecoderVariableName = "FLACHASH_TEST_DECODER_APE";
 
         const string appExecutableName = "FlacHasher";
