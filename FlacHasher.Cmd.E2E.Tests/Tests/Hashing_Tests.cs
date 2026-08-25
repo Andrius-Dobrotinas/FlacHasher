@@ -1,3 +1,4 @@
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Andy.FlacHash.Application.Cmd.E2E
@@ -42,11 +43,11 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(expectedHash, result.StdOut.Take(expectedHash.Length).ToArray(), "Output the hash to Std-out");
-                Assert.AreEqual((byte)'\n', result.StdOut.Last(), "Indicate the end of the hash with a new-line");
-                Assert.AreEqual(expectedHash.Length + 1, result.StdOut.Length, "Not output anything else to the Std-out");
+                result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash, "Output the hash to Std-out");
+                result.StdOut.Last().Should().Be((byte)'\n', "Indicate the end of the hash with a new-line");
+                result.StdOut.Length.Should().Be(expectedHash.Length + 1, "Not output anything else to the Std-out");
 
-                Assert.AreEqual(0, result.ExitCode, $"Exit Code. Standard error output:\n{result.StdErr}");
+                result.ExitCode.Should().Be(0, $"Exit Code. Standard error output:\n{result.StdErr}");
             });
         }
 
@@ -71,11 +72,11 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(expectedHash, result.StdOut.Trim(), "Output the hash to Std-out");
-                Assert.That(result.StdOut.EndsWith(Environment.NewLine), "Append a new-line to the hash");
-                Assert.AreEqual(expectedHash.Length + Environment.NewLine.Length, result.StdOut.Length, "Not output anything else to the Std-out");
+                result.StdOut.Trim().Should().Be(expectedHash, "Output the hash to Std-out");
+                result.StdOut.Should().EndWith(Environment.NewLine, "Append a new-line to the hash");
+                result.StdOut.Length.Should().Be(expectedHash.Length + Environment.NewLine.Length, "Not output anything else to the Std-out");
 
-                Assert.AreEqual(0, result.ExitCode, $"Exit Code. Standard error output:\n{result.StdErr}");
+                result.ExitCode.Should().Be(0, $"Exit Code. Standard error output:\n{result.StdErr}");
             });
         }
 
@@ -101,8 +102,8 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(0, result.ExitCode, $"Exit Code. Standard error output:\n{result.StdErr}");
-                Assert.That(result.StdErr.Contains("MD5"));
+                result.ExitCode.Should().Be(0, $"Exit Code. Standard error output:\n{result.StdErr}");
+                result.StdErr.Should().Contain("MD5");
             });
         }
 
