@@ -133,8 +133,8 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             Assert.Multiple(() =>
             {
                 result.StdOut.Trim().Should().Be(expectedHash, "the hash must be written to std-out");
-                result.StdOut.Should().EndWith(Environment.NewLine, "the hash must end with a new-line");
-                result.StdOut.Length.Should().Be(expectedHash.Length + Environment.NewLine.Length, "nothing else should be written to std-out");
+                result.StdOut.Should().EndWith("\n", "the hash must end with a new-line");
+                result.StdOut.Length.Should().Be(expectedHash.Length + 1, "nothing else should be written to std-out");
 
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
             });
