@@ -1,3 +1,4 @@
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Andy.FlacHash.Application.Cmd.E2E
@@ -40,8 +41,8 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 "--format={hash}",
                 "--decoder-verbose=false");
 
-            Assert.AreEqual(0, result.ExitCode, $"Standard error:\n{result.StdErr}");
-            Assert.AreEqual(SampleAsset.Flac1.ExpectedMd5, result.StdOut.Trim());
+            result.ExitCode.Should().Be(0, $"the process must have run successfully for std-error to be meaningful; standard error was:\n{result.StdErr}");
+            result.StdOut.Trim().Should().Be(SampleAsset.Flac1.ExpectedMd5);
         }
     }
 }

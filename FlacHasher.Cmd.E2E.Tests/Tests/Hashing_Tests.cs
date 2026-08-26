@@ -43,11 +43,11 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             Assert.Multiple(() =>
             {
-                result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash, "Output the hash to Std-out");
-                result.StdOut.Last().Should().Be((byte)'\n', "Indicate the end of the hash with a new-line");
-                result.StdOut.Length.Should().Be(expectedHash.Length + 1, "Not output anything else to the Std-out");
+                result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash, "the hash must be written to std-out");
+                result.StdOut.Last().Should().Be((byte)'\n', "the hash must end with a new-line");
+                result.StdOut.Length.Should().Be(expectedHash.Length + 1, "nothing else should be written to std-out");
 
-                result.ExitCode.Should().Be(0, $"Exit Code. Standard error output:\n{result.StdErr}");
+                result.ExitCode.Should().Be(0, $"the must process return a non-error code; standard error was:\n{result.StdErr}");
             });
         }
 
@@ -72,11 +72,11 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             Assert.Multiple(() =>
             {
-                result.StdOut.Trim().Should().Be(expectedHash, "Output the hash to Std-out");
-                result.StdOut.Should().EndWith(Environment.NewLine, "Append a new-line to the hash");
-                result.StdOut.Length.Should().Be(expectedHash.Length + Environment.NewLine.Length, "Not output anything else to the Std-out");
+                result.StdOut.Trim().Should().Be(expectedHash, "the hash must be written to std-out");
+                result.StdOut.Should().EndWith(Environment.NewLine, "the hash must end with a new-line");
+                result.StdOut.Length.Should().Be(expectedHash.Length + Environment.NewLine.Length, "nothing else should be written to std-out");
 
-                result.ExitCode.Should().Be(0, $"Exit Code. Standard error output:\n{result.StdErr}");
+                result.ExitCode.Should().Be(0, $"the must process return a non-error code; standard error was:\n{result.StdErr}");
             });
         }
 
@@ -104,11 +104,8 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             var result = await App.Run(workingDirectory, arguments.ToArray());
 
-            Assert.Multiple(() =>
-            {
-                result.ExitCode.Should().Be(0, $"Exit Code. Standard error output:\n{result.StdErr}");
-                result.StdErr.Should().Contain("MD5");
-            });
+            result.ExitCode.Should().Be(0, $"the process must have run successfully for std-error to be meaningful; standard error was:\n{result.StdErr}");
+            result.StdErr.Should().Contain("MD5", "the hashing algorithm should be reported on std-error");
         }
 
         static IEnumerable<TestCaseData> GetHashingTestCases()
