@@ -81,31 +81,32 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         }
 
         [TestCase()]
-        [TestCase("--format={hash}")]
-        [TestCase("--format={hash} SHA256")]
-        [TestCase("--format={file}{hash}")]
-        [TestCase("--format=# {file}{hash}")]
-        [TestCase("--format={file}{hash} SHA256")]
-        public async Task Hashing_a_file__reflects_hashing_algorithm_in_std_Err__Regardless_of_formatting(params string[] decoderArguments)
+        [TestCase("{hash}")]
+        [TestCase("{hash} SHA256")]
+        [TestCase("{file}{hash}")]
+        [TestCase("# {file}{hash}")]
+        [TestCase("{file}{hash} SHA256")]
+        public async Task Hashing_a_file__reflects_hashing_algorithm_in_std_Err__Regardless_of_formatting(params string[] format)
         {
             var decoder = TestEnvironment.GetFlacDecoder();
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Flac1.FileName);
+            const string algo = "MD5";
 
             var arguments = new List<string>
             {
                 "hash",
                 $"--input={inputFile.FullName}",
                 $"--decoder={decoder.FullName}",
-                "--algorithm=MD5",
+                $"--algorithm={algo}",
                 "--process-timeout=30",
                 "--decoder-verbose=false"
             };
-            arguments.AddRange(decoderArguments);
+            arguments.AddRange(format.Select(x => $"--format={x}"));
 
             var result = await App.Run(workingDirectory, arguments.ToArray());
 
             result.ExitCode.Should().Be(0, $"the process must have run successfully for std-error to be meaningful; standard error was:\n{result.StdErr}");
-            result.StdErr.Should().Contain("MD5", "the hashing algorithm should be reported on std-error");
+            result.StdErr.Should().Contain(algo, "the hashing algorithm should be reported on std-error");
         }
 
         static IEnumerable<TestCaseData> GetHashingTestCases()
