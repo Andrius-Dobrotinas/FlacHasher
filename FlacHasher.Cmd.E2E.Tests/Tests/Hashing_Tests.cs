@@ -35,7 +35,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 "--process-timeout=30",
                 "--decoder-verbose=false"
             };
-            arguments.AddRange(decoderArguments);
+            arguments.AddRange(decoderArguments.Select(x => $"--params={x}"));
 
             var result = await App.RunRaw(workingDirectory, arguments.ToArray());
 
@@ -66,7 +66,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 "--process-timeout=30",
                 "--decoder-verbose=false"
             };
-            arguments.AddRange(decoderArguments);
+            arguments.AddRange(decoderArguments.Select(x => $"--params={x}"));
 
             var result = await App.Run(workingDirectory, arguments.ToArray());
 
@@ -126,7 +126,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                     SampleAsset.Ape1.FileName,
                     SampleAsset.Ape1.ExpectedMd5,
                     !isLinux ? TestEnvironment.GetApeDecoder() : null,
-                    new[] { "--params={file}", "--params=-", "--params=-d" })
+                    new[] { "{file}", "-", "-d" })
                 .SetName("{m}(APE)");
 
             yield return !isLinux ? apeCase : apeCase.Ignore("Monkey's Audio (APE) decoder is not available on Linux");
