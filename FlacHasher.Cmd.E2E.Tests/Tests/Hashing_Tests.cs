@@ -1,3 +1,4 @@
+using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -22,8 +23,9 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         }
 
         [TestCaseSource(nameof(GetHashingTestCases))]
-        public async Task Hashing_a_file_writes_the_Hash_to_StdOut(string fileToHash, string expectedHashString, FileInfo decoder, string[] decoderArguments)
+        public async Task Hashing_a_file__produces_the_hash(string fileToHash, string expectedHashString, FileInfo decoder, string[] decoderArguments)
         {
+            var expectedHash = Convert.FromHexString(expectedHashString);
             var inputFile = TestEnvironment.GetTestAsset(fileToHash);
 
             var arguments = new List<string>
@@ -39,20 +41,78 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             var result = await App.RunRaw(workingDirectory, arguments.ToArray());
 
-            var expectedHash = Convert.FromHexString(expectedHashString);
-
             Assert.Multiple(() =>
             {
                 result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash, "the hash must be written to std-out");
-                result.StdOut.Last().Should().Be((byte)'\n', "the hash must end with a new-line");
-                result.StdOut.Length.Should().Be(expectedHash.Length + 1, "nothing else should be written to std-out");
 
-                result.ExitCode.Should().Be(0, $"the must process return a non-error code; standard error was:\n{result.StdErr}");
+                result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
             });
         }
 
         [TestCaseSource(nameof(GetHashingTestCases))]
-        public async Task Hashing_a_file_writes_the_Hash_to_StdOut__in_the_requested_format(string fileToHash, string expectedHash, FileInfo decoder, string[] decoderArguments)
+        public async Task Hashing_a_file__keeps_user_messages_off_stdout(string fileToHash, string expectedHashString, FileInfo decoder, string[] decoderArguments)
+        {
+            var inputFile = TestEnvironment.GetTestAsset(fileToHash);
+            const string algo = "MD5";
+
+            var arguments = new List<string>
+            {
+                "hash",
+                $"--input={inputFile.FullName}",
+                $"--decoder={decoder.FullName}",
+                $"--algorithm={algo}",
+                "--process-timeout=30",
+                "--decoder-verbose=false"
+            };
+            arguments.AddRange(decoderArguments.Select(x => $"--params={x}"));
+
+            var result = await App.RunRaw(workingDirectory, arguments.ToArray());
+
+            // Decoding raw output is safe here because the assertions only look for the absence of ASCII text
+            var stdOut = Encoding.UTF8.GetString(result.StdOut);
+
+            Assert.Multiple(() =>
+            {
+                stdOut.Should().NotContain(algo, "user messaging must not pollute the stream consumers read the hash from");
+                stdOut.Should().NotContain("Done", "user messaging must not pollute the stream consumers read the hash from");
+
+                result.StdErr.Should().Contain(algo, "user messaging belongs on std-error");
+                result.StdErr.Should().Contain("Done", "user messaging belongs on std-error");
+
+                result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
+            });
+        }
+
+        [TestCaseSource(nameof(GetHashingTestCases))]
+        public async Task Hashing_a_file__marks_the_end_of_the_hash_with_a_newline(string fileToHash, string expectedHashString, FileInfo decoder, string[] decoderArguments)
+        {
+            var expectedHash = Convert.FromHexString(expectedHashString);
+            var inputFile = TestEnvironment.GetTestAsset(fileToHash);
+
+            var arguments = new List<string>
+            {
+                "hash",
+                $"--input={inputFile.FullName}",
+                $"--decoder={decoder.FullName}",
+                "--algorithm=MD5",
+                "--process-timeout=30",
+                "--decoder-verbose=false"
+            };
+            arguments.AddRange(decoderArguments.Select(x => $"--params={x}"));
+
+            var result = await App.RunRaw(workingDirectory, arguments.ToArray());
+
+            Assert.Multiple(() =>
+            {
+                result.StdOut.Last().Should().Be((byte)'\n', "consumers reading the stream need to know where the hash ends");
+                result.StdOut.Length.Should().Be(expectedHash.Length + 1, "the hash must be followed by exactly one line-terminator");
+
+                result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
+            });
+        }
+
+        [TestCaseSource(nameof(GetHashingTestCases))]
+        public async Task Hashing_a_file__writes_the_Hash_to_StdOut__in_the_requested_format(string fileToHash, string expectedHash, FileInfo decoder, string[] decoderArguments)
         {
             var inputFile = TestEnvironment.GetTestAsset(fileToHash);
 
@@ -76,7 +136,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 result.StdOut.Should().EndWith(Environment.NewLine, "the hash must end with a new-line");
                 result.StdOut.Length.Should().Be(expectedHash.Length + Environment.NewLine.Length, "nothing else should be written to std-out");
 
-                result.ExitCode.Should().Be(0, $"the must process return a non-error code; standard error was:\n{result.StdErr}");
+                result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
             });
         }
 
