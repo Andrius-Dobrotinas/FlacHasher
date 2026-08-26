@@ -108,7 +108,8 @@ namespace Andy.FlacHash.Application.Cmd
             else
             {
                 string formattedOutput = OutputFormatting.GetFormattedString(format, HashFormatting.GetInLowercase(hash), sourceFile);
-                Console.WriteLine(formattedOutput);
+                Console.Write(formattedOutput);
+                Console.Write(newlineChar);
             }
         }
 
