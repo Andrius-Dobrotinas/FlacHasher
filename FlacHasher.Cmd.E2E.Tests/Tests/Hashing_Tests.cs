@@ -8,14 +8,14 @@ namespace Andy.FlacHash.Application.Cmd.E2E
     {
         DirectoryInfo workingDirectory;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             // The application requires the settings file to exist, but I want to limit testing surface here - hence a directory with an empty settings file
             workingDirectory = TestEnvironment.SetUpWorkingDirWithSettingsFile();
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void Teardown()
         {
             workingDirectory?.Delete(recursive: true);
