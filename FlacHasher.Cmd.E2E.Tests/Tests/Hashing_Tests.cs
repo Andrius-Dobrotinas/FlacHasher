@@ -82,6 +82,10 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
         [TestCase()]
         [TestCase("--format={hash}")]
+        [TestCase("--format={hash} SHA256")]
+        [TestCase("--format={file}{hash}")]
+        [TestCase("--format=# {file}{hash}")]
+        [TestCase("--format={file}{hash} SHA256")]
         public async Task Hashing_a_file__reflects_hashing_algorithm_in_std_Err__Regardless_of_formatting(params string[] decoderArguments)
         {
             var decoder = TestEnvironment.GetFlacDecoder();
