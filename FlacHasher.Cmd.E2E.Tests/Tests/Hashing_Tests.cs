@@ -143,9 +143,9 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         [TestCase()]
         [TestCase("{hash}")]
         [TestCase("{hash} SHA256")]
-        [TestCase("{file}{hash}")]
-        [TestCase("# {file}{hash}")]
-        [TestCase("{file}{hash} SHA256")]
+        [TestCase("{name}{hash}")]
+        [TestCase("# {name}{hash}")]
+        [TestCase("{name}{hash} SHA256")]
         public async Task Hashing_a_file__reflects_hashing_algorithm_in_std_Err__Regardless_of_formatting(params string[] format)
         {
             var decoder = TestEnvironment.GetFlacDecoder();
