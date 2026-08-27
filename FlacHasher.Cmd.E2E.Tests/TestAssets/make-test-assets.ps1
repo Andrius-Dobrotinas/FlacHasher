@@ -1,17 +1,18 @@
 # Generates sample-input.wav and encodes it to sample.flac and sample.ape.
 # Computes an MD5 hash on the original WAV file and prints it.
 #
-# Usage: .\make-test-assets.ps1 -Flac 'C:\path\to\flac.exe' -Mac 'C:\path\to\MAC.exe'
+# Usage: .\make-test-assets.ps1 -FlacDecoderPath 'C:\path\to\flac.exe' -ApeDecoderPath 'C:\path\to\MAC.exe'
 
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$Flac,
-
-    [Parameter(Mandatory = $true)]
-    [string]$Mac
+    [string]$FlacDecoderPath,
+    [string]$ApeDecoderPath
 )
 
 $ErrorActionPreference = 'Stop'
+
+if (-not $FlacDecoderPath -and -not $ApeDecoderPath) {
+    throw "At least one of -FlacDecoderPath or -ApeDecoderPath must be provided."
+}
 
 $sampleRate = 44100
 $channels = 2
@@ -65,14 +66,18 @@ Write-Host "Created $wavPath ($((Get-Item $wavPath).Length) bytes)"
 $hash = (Get-FileHash -Path $wavPath -Algorithm MD5).Hash.ToLowerInvariant()
 Write-Host "expectedMd5 = `"$hash`""
 
+if ($FlacDecoderPath) {
 Remove-Item $flacPath -ErrorAction SilentlyContinue
-& $Flac --best --silent --output-name=$flacPath $wavPath
+    & $FlacDecoderPath --best --silent --output-name=$flacPath $wavPath
 if ($LASTEXITCODE -ne 0) { throw "flac encoding failed with exit code $LASTEXITCODE" }
 
 Write-Host "Created $flacPath ($((Get-Item $flacPath).Length) bytes)"
+}
 
+if ($ApeDecoderPath) {
 Remove-Item $apePath -ErrorAction SilentlyContinue
-& $Mac $wavPath $apePath '-c2000'
+    & $ApeDecoderPath $wavPath $apePath '-c2000'
 if ($LASTEXITCODE -ne 0) { throw "Monkey's Audio encoding failed with exit code $LASTEXITCODE" }
 
 Write-Host "Created $apePath ($((Get-Item $apePath).Length) bytes)"
+}
