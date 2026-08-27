@@ -1,11 +1,14 @@
-# Generates sample-input.wav and encodes it to sample.flac and sample.ape.
+# Generates <name>-source.wav and encodes it to <name>.flac and <name>.ape.
 # Computes an MD5 hash on the original WAV file and prints it.
 #
 # Usage: .\make-test-assets.ps1 -FlacDecoderPath 'C:\path\to\flac.exe' -ApeDecoderPath 'C:\path\to\MAC.exe'
 
 param(
     [string]$FlacDecoderPath,
-    [string]$ApeDecoderPath
+    [string]$ApeDecoderPath,
+    [int]$Frequency = 440,
+    [double]$DurationSec = 1,
+    [string]$Filename = 'sample'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -17,14 +20,14 @@ if (-not $FlacDecoderPath -and -not $ApeDecoderPath) {
 $sampleRate = 44100
 $channels = 2
 $bitsPerSample = 16
-$durationSeconds = 1
-$frequency = 440
+$durationSeconds = $DurationSec
+$frequency = $Frequency
 
 $assetsDir = $PSScriptRoot
 
-$wavPath = Join-Path $assetsDir 'sample-input.wav'
-$flacPath = Join-Path $assetsDir 'sample.flac'
-$apePath = Join-Path $assetsDir 'sample.ape'
+$wavPath = Join-Path $assetsDir "$Filename-source.wav"
+$flacPath = Join-Path $assetsDir "$Filename.flac"
+$apePath = Join-Path $assetsDir "$Filename.ape"
 
 $frameCount = [int]($sampleRate * $durationSeconds)
 $blockAlign = $channels * ($bitsPerSample / 8)
@@ -67,17 +70,17 @@ $hash = (Get-FileHash -Path $wavPath -Algorithm MD5).Hash.ToLowerInvariant()
 Write-Host "expectedMd5 = `"$hash`""
 
 if ($FlacDecoderPath) {
-Remove-Item $flacPath -ErrorAction SilentlyContinue
+    Remove-Item $flacPath -ErrorAction SilentlyContinue
     & $FlacDecoderPath --best --silent --output-name=$flacPath $wavPath
-if ($LASTEXITCODE -ne 0) { throw "flac encoding failed with exit code $LASTEXITCODE" }
+    if ($LASTEXITCODE -ne 0) { throw "flac encoding failed with exit code $LASTEXITCODE" }
 
-Write-Host "Created $flacPath ($((Get-Item $flacPath).Length) bytes)"
+    Write-Host "Created $flacPath ($((Get-Item $flacPath).Length) bytes)"
 }
 
 if ($ApeDecoderPath) {
-Remove-Item $apePath -ErrorAction SilentlyContinue
+    Remove-Item $apePath -ErrorAction SilentlyContinue
     & $ApeDecoderPath $wavPath $apePath '-c2000'
-if ($LASTEXITCODE -ne 0) { throw "Monkey's Audio encoding failed with exit code $LASTEXITCODE" }
+    if ($LASTEXITCODE -ne 0) { throw "Monkey's Audio encoding failed with exit code $LASTEXITCODE" }
 
-Write-Host "Created $apePath ($((Get-Item $apePath).Length) bytes)"
+    Write-Host "Created $apePath ($((Get-Item $apePath).Length) bytes)"
 }

@@ -149,7 +149,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         public async Task Hashing_a_file__reflects_hashing_algorithm_in_std_Err__Regardless_of_formatting(params string[] format)
         {
             var decoder = TestEnvironment.GetFlacDecoder();
-            var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Flac1.FileName);
+            var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
             const string algo = "MD5";
 
             var arguments = new List<string>
@@ -172,17 +172,24 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         static IEnumerable<TestCaseData> GetHashingTestCases()
         {
             yield return new TestCaseData(
-                    SampleAsset.Flac1.FileName,
-                    SampleAsset.Flac1.ExpectedMd5,
+                    SampleAsset.Sample1.Flac.FileName,
+                    SampleAsset.Sample1.Flac.ExpectedMd5,
                     TestEnvironment.GetFlacDecoder(),
                     Array.Empty<string>())
-                .SetName("{m}(FLAC)");
+                .SetName("{m}(FLAC)(File 1)");
+
+            yield return new TestCaseData(
+                    SampleAsset.Sample2.Flac.FileName,
+                    SampleAsset.Sample2.Flac.ExpectedMd5,
+                    TestEnvironment.GetFlacDecoder(),
+                    Array.Empty<string>())
+                .SetName("{m}(FLAC)(File 2)");
 
             var isLinux = OperatingSystem.IsLinux();
 
             var apeCase = new TestCaseData(
-                    SampleAsset.Ape1.FileName,
-                    SampleAsset.Ape1.ExpectedMd5,
+                    SampleAsset.Sample1.Ape.FileName,
+                    SampleAsset.Sample1.Ape.ExpectedMd5,
                     !isLinux ? TestEnvironment.GetApeDecoder() : null,
                     new[] { "{file}", "-", "-d" })
                 .SetName("{m}(APE)");
