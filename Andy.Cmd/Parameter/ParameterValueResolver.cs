@@ -13,6 +13,7 @@ namespace Andy.Cmd.Parameter
     public class ParameterValueResolver : IParameterValueResolver
     {
         public const char ArrayValueSeparator = ';';
+        public const char ArrayValueSeparatorEscapeCharacter = '\\';
 
         public void ReadParameter<T>(PropertyInfo property, IDictionary<string, string[]> arguments, T paramsInstances, bool inLowercase = false)
         {
@@ -151,7 +152,7 @@ namespace Andy.Cmd.Parameter
                     {
                         var split = optionalAttr.DefaultValue is string[]
                             ? (string[])optionalAttr.DefaultValue
-                            : ((string)optionalAttr.DefaultValue).Split(ArrayValueSeparator);
+                            : ParameterValueResolverFunctions.SplitArrayValue((string)optionalAttr.DefaultValue);
                         ParameterValueResolverFunctions.SetArrayValueTrimmed(paramsInstances, property, paramName, split);
                     }
                     return;
@@ -182,7 +183,7 @@ namespace Andy.Cmd.Parameter
                     }
                     else
                     {
-                        var split = value.Split(ArrayValueSeparator);
+                        var split = ParameterValueResolverFunctions.SplitArrayValue(value);
                         ParameterValueResolverFunctions.SetArrayValueTrimmed(paramsInstances, property, paramName, split);
                     }
                 }
