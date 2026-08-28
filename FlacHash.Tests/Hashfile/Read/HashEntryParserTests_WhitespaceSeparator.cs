@@ -17,7 +17,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var valueValue = valueQuoted ? @$"""{value}""" : value;
             var line = $"{keyValue}{whitespace}{valueValue}";
 
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(key, result.Key, "Key");
             Assert.AreEqual(value, result.Value, "Value");
@@ -30,7 +30,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var valueValue = valueQuoted ? @$"""san\tgo roku""" : "sangoroku";
             var line = $"{keyValue}{whitespace}{valueValue}";
 
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(keyValue.Trim('\"'), result.Key, "Key");
             Assert.AreEqual(valueValue.Trim('\"'), result.Value, "Value");
@@ -46,7 +46,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\" \"\tsegment", null, "segment")]
         public void When_Segments_are_wrapped_in_Quotes__Must_return_Empty_segments_within_a_line_as_Null(string line, string expectedKey, string expectedValue)
         {
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(expectedKey, result.Key, "Key");
             Assert.AreEqual(expectedValue, result.Value, "Value");
@@ -60,7 +60,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("     filehash    ")]
         public void When_Line_contains_No_Separator__Must_return_the_Whole_string_as_Value__Trimmed(string line)
         {
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(null, result.Key, "Key");
             Assert.AreEqual(line.Trim(), result.Value, "Value");
@@ -73,7 +73,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\"file=>hash\"   ", "file=>hash")]
         public void When_Line_contains_No_Separator_and_is_wrapped_in_Quotes__Must_return_the_Whole_string_sans_quotes_as_Value(string line, string expected)
         {
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(null, result.Key, "Key");
             Assert.AreEqual(expected, result.Value, "Value");
@@ -87,7 +87,7 @@ namespace Andy.FlacHash.Hashfile.Read
         [TestCase("\"ein\" \"zwei\" \"drei\" \"four\"", "ein", "zwei")]
         public void When_Line_contains_More_than_Two_segments__Must_return_FirstTwo_as_Key_and_Value__Dropping_the_rest(string line, string expectedKey, string expectedValue)
         {
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(expectedKey, result.Key, "Key");
             Assert.AreEqual(expectedValue, result.Value, "Value");
@@ -103,7 +103,7 @@ namespace Andy.FlacHash.Hashfile.Read
 
             var line = $"{whitespace}{keyValue}{whitespace}{valueValue}";
 
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(key, result.Key, "Key");
             Assert.AreEqual(value, result.Value, "Value");
@@ -115,7 +115,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var key = keyQuoted ? @"""ichi""" : "ichi";
             var value = valueQuoted ? @"""ni""" : "ni";
             var line = $"{key}{whitespace}{value}{whitespace}";
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual("ichi", result.Key, "Key");
             Assert.AreEqual("ni", result.Value, "Value");
@@ -130,7 +130,7 @@ namespace Andy.FlacHash.Hashfile.Read
             var valueValue = valueQuoted ? @$"""{value}""" : value;
             var line = $"{whitespace}{keyValue}{whitespace}{valueValue}{whitespace}";
 
-            var result = new HashEntryParser(" ").Parse(line);
+            var result = new HashEntryParser(" ").Parse(line).Value;
 
             Assert.AreEqual(key, result.Key, "Key");
             Assert.AreEqual(value, result.Value, "Value");
