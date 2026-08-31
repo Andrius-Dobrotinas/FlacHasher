@@ -38,7 +38,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash, "the hash must be written to std-out");
+                result.StdOut.Should().Equal(expectedHash, "the hash, and nothing else, must be written to std-out");
             });
         }
 
@@ -57,7 +57,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash);
+                result.StdOut.Should().Equal(expectedHash);
             });
         }
 
@@ -80,21 +80,23 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             });
         }
 
-        [TestCaseSource(nameof(GetOutputModeAndHashLengthCases_Flac_Md5))]
-        public async Task Hashing_a_file__marks_the_end_of_the_hash_with_a_newline(string fileToHash, string outputFormat, int expectedHashLength)
+        // Raw output carries no terminator at all, so this contract only applies to formatted text output
+        [TestCase("{hash}", SampleAsset.Sample1.ExpectedMd5)]
+        [TestCase("{name}:{hash}", $"{SampleAsset.Sample1.Flac.FileName}:{SampleAsset.Sample1.ExpectedMd5}")]
+        public async Task Hashing_a_file__terminates_the_formatted_hash_with_a_newline(string outputFormat, string expectedOutput)
         {
-            var inputFile = TestEnvironment.GetTestAsset(fileToHash);
+            var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
             var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", flacStreamDecoderParams, outputFormat);
 
-            var result = await App.RunRaw(workingDirectory, arguments);
+            var result = await App.Run(workingDirectory, arguments);
 
             Assert.Multiple(() =>
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdOut.Last().Should().Be((byte)'\n', "consumers reading the stream need to know where the hash ends");
-                result.StdOut.Length.Should().Be(expectedHashLength + 1, "the hash must be followed by exactly one line-terminator");
+                result.StdOut.Should().EndWith("\n", "consumers reading the stream need to know where the hash ends");
+                result.StdOut.Length.Should().Be(expectedOutput.Length + 1, "the hash must be followed by exactly one line-terminator");
             });
         }
 
@@ -166,19 +168,6 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 .SetName("{m}(APE)(File 1)");
 
             yield return !isLinux ? apeCase : apeCase.Ignore("Monkey's Audio (APE) decoder is not available on Linux");
-        }
-
-        // Without a format the application writes raw digest bytes; with a format, it writes rendered text - two distinct write paths
-        static IEnumerable<TestCaseData> GetOutputModeAndHashLengthCases_Flac_Md5()
-        {
-            var fileName = SampleAsset.Sample1.Flac.FileName;
-            var hash = SampleAsset.Sample1.ExpectedMd5;
-
-            yield return new TestCaseData(fileName, null, Convert.FromHexString(hash).Length)
-                .SetName("{m}(Raw Bytes)");
-
-            yield return new TestCaseData(fileName, "{hash}", hash.Length)
-                .SetName("{m}(Formatted)");
         }
     }
 }
