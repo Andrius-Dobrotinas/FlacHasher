@@ -10,7 +10,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             return Arguments(new[] { inputFile }, decoder, algorithm, decoderParams, outputFormat);
         }
 
-        public static string[] Arguments(IEnumerable<FileInfo> inputFiles, FileInfo decoder, string algorithm, string[] decoderParams, string outputFormat = null)
+        public static string[] Arguments(IEnumerable<FileInfo> inputFiles, FileInfo decoder, string algorithm, string[] decoderParams, string outputFormat = null, bool printProgress = false)
         {
             var arguments = new List<string>
             {
@@ -18,7 +18,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 $"--decoder={decoder.FullName}",
                 $"--algorithm={algorithm}",
                 "--process-timeout=30",
-                "--decoder-verbose=false"
+                $"--decoder-verbose={printProgress}"
             };
 
             arguments.AddRange(inputFiles.Select(x => $"--input={x.FullName}"));
