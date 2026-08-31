@@ -90,6 +90,23 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             });
         }
 
+        [Test]
+        public async Task Hashing_multiple_files__with_a_format__writes_every_hash_in_the_requested_format()
+        {
+            var arguments = BuildHashArguments(filesToHash, "{hash}");
+
+            var result = await App.Run(workingDirectory, arguments);
+
+            var lines = result.StdOut.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+            Assert.Multiple(() =>
+            {
+                result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
+
+                lines.Should().BeEquivalentTo(expectedHashes, options => options.WithStrictOrdering(), "every hash, not just the first one, must be rendered using the requested format");
+            });
+        }
+
         static string[] BuildHashArguments(string[] filesToHash, string outputFormat = null)
         {
             var inputFiles = filesToHash.Select(TestEnvironment.GetTestAsset);
