@@ -14,6 +14,9 @@ namespace Andy.FlacHash.Application.Cmd
     {
         const char newlineChar = '\n';
 
+        // The summary is text, so raw output - which has no format of its own - still needs one to be rendered with
+        const string defaultSummaryFormat = "{hash}";
+
         public static void ComputeHashes(IAudioFileDecoder audioFileDecoder, HashingParameters @params, bool printProcessProgress, IFileSearch fileSearch, CancellationToken cancellation)
         {
             IList<FileInfo> inputFiles = GetInputFiles(@params, fileSearch);
@@ -70,12 +73,14 @@ namespace Andy.FlacHash.Application.Cmd
             /* Summary at the end just for user's convenience.
              * Results get written to stdout without any clutter, but for those who read console output,
              * this presents the results in one place without having to go through the whole process' progress output.*/
-            if (printProcessProgress && !string.IsNullOrEmpty(outputFormat))
+            if (printProcessProgress)
             {
+                var summaryFormat = string.IsNullOrEmpty(outputFormat) ? defaultSummaryFormat : outputFormat;
+
                 WriteStdErrLine("\n======== Results =========");
                 foreach (var result in results)
                 {
-                    string formattedOutput = OutputFormatting.GetFormattedString(outputFormat, HashFormatting.GetInLowercase(result.Hash), result.File);
+                    string formattedOutput = OutputFormatting.GetFormattedString(summaryFormat, HashFormatting.GetInLowercase(result.Hash), result.File);
                     WriteStdErrLine(formattedOutput);
                 }
                 WriteStdErrLine("======== The End =========");

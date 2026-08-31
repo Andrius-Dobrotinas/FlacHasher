@@ -29,14 +29,15 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             workingDirectory?.Delete(recursive: true);
         }
 
-        [TestCaseSource(nameof(GetFileCountCases))]
-        public async Task Hashing_with_progress__with_a_format__lists_every_hash_on_stderr(SampleFile[] filesToHash)
+        [TestCaseSource(nameof(GetFileCountAndOutputModeCases))]
+        public async Task Hashing_with_progress__lists_every_hash_on_stderr(SampleFile[] filesToHash, string outputFormat)
         {
             var expectedHashes = filesToHash.Select(x => x.ExpectedMd5).ToArray();
 
-            var arguments = BuildHashArguments(filesToHash, "{hash}");
+            var arguments = BuildHashArguments(filesToHash, outputFormat);
 
-            var result = await App.Run(workingDirectory, arguments);
+            // Raw output isn't text, so std-out is read as bytes and left alone here
+            var result = await App.RunRaw(workingDirectory, arguments);
 
             Assert.Multiple(() =>
             {
@@ -53,14 +54,21 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             return HashCommand.Arguments(inputFiles, TestEnvironment.GetFlacDecoder(), "MD5", HashCommand.FlacStreamDecoderParams, outputFormat, printProgress: true);
         }
 
-        // The summary is meant for multiple files, but nothing in the application ties it to a file count
-        static IEnumerable<TestCaseData> GetFileCountCases()
+        // The summary is meant for multiple files, but nothing in the application ties it to a file count.
+        // Raw output has no format of its own, and yet its summary must still be rendered as text.
+        static IEnumerable<TestCaseData> GetFileCountAndOutputModeCases()
         {
-            yield return new TestCaseData((object)flacSet.Take(1).ToArray())
-                .SetName("{m}(One file)");
+            yield return new TestCaseData(flacSet.Take(1).ToArray(), null)
+                .SetName("{m}(One file)(Raw Bytes)");
 
-            yield return new TestCaseData((object)flacSet)
-                .SetName("{m}(Multiple files)");
+            yield return new TestCaseData(flacSet, null)
+                .SetName("{m}(Multiple files)(Raw Bytes)");
+
+            yield return new TestCaseData(flacSet.Take(1).ToArray(), "{hash}")
+                .SetName("{m}(One file)(Formatted)");
+
+            yield return new TestCaseData(flacSet, "{hash}")
+                .SetName("{m}(Multiple files)(Formatted)");
         }
     }
 }
