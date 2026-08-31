@@ -83,7 +83,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         // Raw output carries no terminator at all, so this contract only applies to formatted text output
         [TestCase("{hash}", SampleAsset.Sample1.ExpectedMd5)]
         [TestCase("{name}:{hash}", $"{SampleAsset.Sample1.Flac.FileName}:{SampleAsset.Sample1.ExpectedMd5}")]
-        public async Task Hashing_a_file__terminates_the_formatted_hash_with_a_newline(string outputFormat, string expectedOutput)
+        public async Task Hashing_a_file__with_a_format__terminates_the_with_a_newline(string outputFormat, string expectedOutput)
         {
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
