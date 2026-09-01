@@ -24,7 +24,7 @@ namespace Andy.FlacHash.Application.Cmd
             bool lowercaseParams = true;
             InitialParams initialCmdlineParams;
             MasterParameters settings;
-            
+
             var parameterReader = ParameterReader.Build();
             try
             {
@@ -128,6 +128,13 @@ namespace Andy.FlacHash.Application.Cmd
                 WriteUserLine(e.Message);
                 return (int)ReturnValue.ConfigurationError;
             }
+            catch (FlacHash.Audio.DecoderException e)
+            {
+                WriteUserLine($"Process exited with code {e.ActualException.ExitCode}");
+                if (!printProcessProgress)
+                    WriteUserLine($"Process output:\n{e.ActualException.ProcessErrorOutput}");
+                return (int)ReturnValue.ExecutionFailure;
+            }
             catch (FlacHash.Audio.IOException e)
             {
                 WriteUserLine(e.Message);
@@ -137,13 +144,6 @@ namespace Andy.FlacHash.Application.Cmd
             {
                 WriteUserLine("The operation was cancelled");
                 return (int)ReturnValue.Cancellation;
-            }
-            catch (ExecutionException e)
-            {
-                WriteUserLine($"Process exited with code {e.ExitCode}");
-                if (!printProcessProgress)
-                    WriteUserLine($"Process output:\n{e.ProcessErrorOutput}");
-                return (int)ReturnValue.ExecutionFailure;
             }
             catch (InputFileMissingException e)
             {
@@ -181,7 +181,7 @@ namespace Andy.FlacHash.Application.Cmd
 
             WriteUserLine(sb.ToString());
         }
-        
+
         static void WriteUserLine(string text)
         {
             if (printProcessProgress)
