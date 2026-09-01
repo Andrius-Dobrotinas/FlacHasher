@@ -65,7 +65,7 @@ namespace Andy.FlacHash.Application.Cmd
                         results.Add(result);
                     }
                     else
-                        if (!(result.Exception is ExecutionException) || printProcessProgress)
+                        if (!(result.Exception is DecoderException) || printProcessProgress)
                             WriteStdErrLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
                 }
             }
