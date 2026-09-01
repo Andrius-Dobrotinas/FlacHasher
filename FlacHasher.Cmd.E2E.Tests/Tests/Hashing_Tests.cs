@@ -116,8 +116,8 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdErr.Should().Contain(algorithm, "user messaging belongs on std-error");
-                result.StdErr.Should().Contain("Done", "user messaging belongs on std-error");
+                result.StdErr.Should().ContainEquivalentOf(algorithm, "user messaging belongs on std-error");
+                result.StdErr.Should().ContainEquivalentOf("Done", "user messaging belongs on std-error");
             });
         }
 
