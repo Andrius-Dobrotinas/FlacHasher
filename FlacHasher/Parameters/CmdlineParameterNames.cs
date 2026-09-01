@@ -21,7 +21,6 @@
         public const string FileLookupIncludeHidden = "--include-hidden";
         public const string ProcessExitTimeoutMs = "--process-exit-timeout";
         public const string ProcessTimeoutSec = "--process-timeout";
-        public const string FailOnError = "--fail-fast";
         public const string HashfileEntrySeparator = "--hashfile-separator";
 
         public const string ModeHash = "hash";
