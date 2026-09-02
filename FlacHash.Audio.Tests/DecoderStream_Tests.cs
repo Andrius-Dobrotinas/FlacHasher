@@ -1,4 +1,5 @@
 using Andy.ExternalProcess;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -24,8 +25,8 @@ namespace Andy.FlacHash.Audio
 
             var result = target.Seek(offset, origin);
 
-            Assert.AreEqual(expectedPosition, result, "Resulting position");
-            Assert.AreEqual(expectedPosition, source.Position, "Source stream position");
+            result.Should().Be(expectedPosition, "Resulting position");
+            source.Position.Should().Be(expectedPosition, "Source stream position");
         }
 
         /// <summary>
@@ -42,8 +43,8 @@ namespace Andy.FlacHash.Audio
 
             var result = target.Seek(offset, SeekOrigin.Current);
 
-            Assert.AreEqual(expectedPosition, result, "Resulting position");
-            Assert.AreEqual(expectedPosition, source.Position, "Source stream position");
+            result.Should().Be(expectedPosition, "Resulting position");
+            source.Position.Should().Be(expectedPosition, "Source stream position");
         }
 
         [TestCaseSource(nameof(GetExpectedExceptionMapping))]
@@ -71,8 +72,8 @@ namespace Andy.FlacHash.Audio
 
             var result = target.Read(buffer, offset, count);
 
-            Assert.AreEqual(expectedResult, result, "Number of bytes read");
-            Assert.AreEqual(expectedBuffer, buffer, "Buffer contents");
+            result.Should().Be(expectedResult, "Number of bytes read");
+            buffer.Should().Equal(expectedBuffer, "Buffer contents");
         }
 
         [Test]
@@ -85,8 +86,8 @@ namespace Andy.FlacHash.Audio
             target.Read(buffer, 0, 2);
             var result = target.Read(buffer, 0, 2);
 
-            Assert.AreEqual(2, result, "Number of bytes read");
-            Assert.AreEqual(new byte[] { 3, 4 }, buffer, "Buffer contents");
+            result.Should().Be(2, "Number of bytes read");
+            buffer.Should().Equal(new byte[] { 3, 4 }, "Buffer contents");
         }
 
         [Test]
@@ -98,7 +99,7 @@ namespace Andy.FlacHash.Audio
 
             var result = target.Read(new byte[3], 0, 3);
 
-            Assert.AreEqual(0, result);
+            result.Should().Be(0);
         }
 
         [Test]
@@ -111,7 +112,7 @@ namespace Andy.FlacHash.Audio
 
             var result = target.Read(buffer, 2, 5);
 
-            Assert.AreEqual(7, result, "Number of bytes read");
+            result.Should().Be(7, "Number of bytes read");
             source.Verify(x => x.Read(buffer, 2, 5), Times.Once);
         }
 
@@ -149,7 +150,8 @@ namespace Andy.FlacHash.Audio
 
             target.Dispose();
 
-            Assert.DoesNotThrow(() => target.Dispose());
+            Action act = () => target.Dispose();
+            act.Should().NotThrow();
         }
 
         [TestCaseSource(nameof(GetExpectedExceptionMapping))]
@@ -176,7 +178,7 @@ namespace Andy.FlacHash.Audio
             source.Setup(x => x.CanRead).Returns(sourceValue);
             var target = new DecoderStream(source.Object);
 
-            Assert.AreEqual(sourceValue, target.CanRead);
+            target.CanRead.Should().Be(sourceValue);
         }
 
         [TestCaseSource(nameof(GetExpectedExceptionMapping))]
@@ -203,7 +205,7 @@ namespace Andy.FlacHash.Audio
             source.Setup(x => x.CanSeek).Returns(sourceValue);
             var target = new DecoderStream(source.Object);
 
-            Assert.AreEqual(sourceValue, target.CanSeek);
+            target.CanSeek.Should().Be(sourceValue);
         }
 
         [TestCaseSource(nameof(GetExpectedExceptionMapping))]
@@ -229,7 +231,7 @@ namespace Andy.FlacHash.Audio
             Assume.That(source.CanWrite, Is.True);
             var target = new DecoderStream(source);
 
-            Assert.IsFalse(target.CanWrite);
+            target.CanWrite.Should().BeFalse();
         }
 
         [TestCase(0)]
@@ -238,7 +240,7 @@ namespace Andy.FlacHash.Audio
         {
             var target = new DecoderStream(new MemoryStream(new byte[length]));
 
-            Assert.AreEqual(length, target.Length);
+            target.Length.Should().Be(length);
         }
 
         [TestCaseSource(nameof(GetExpectedExceptionMapping))]
@@ -266,7 +268,7 @@ namespace Andy.FlacHash.Audio
             source.Position = position;
             var target = new DecoderStream(source);
 
-            Assert.AreEqual(position, target.Position);
+            target.Position.Should().Be(position);
         }
 
         [TestCase(0)]
@@ -279,8 +281,8 @@ namespace Andy.FlacHash.Audio
 
             target.Position = position;
 
-            Assert.AreEqual(position, source.Position, "Source stream position");
-            Assert.AreEqual(position, target.Position, "Resulting position");
+            source.Position.Should().Be(position, "Source stream position");
+            target.Position.Should().Be(position, "Resulting position");
         }
 
         [TestCaseSource(nameof(GetExpectedExceptionMapping))]
@@ -321,7 +323,8 @@ namespace Andy.FlacHash.Audio
             var source = new Mock<Stream>();
             var target = new DecoderStream(source.Object);
 
-            Assert.Throws<NotImplementedException>(() => target.SetLength(5));
+            Action act = () => target.SetLength(5);
+            act.Should().Throw<NotImplementedException>();
             source.VerifyNoOtherCalls();
         }
 
@@ -331,7 +334,8 @@ namespace Andy.FlacHash.Audio
             var source = new Mock<Stream>();
             var target = new DecoderStream(source.Object);
 
-            Assert.Throws<NotImplementedException>(() => target.Write(new byte[5], 0, 5));
+            Action act = () => target.Write(new byte[5], 0, 5);
+            act.Should().Throw<NotImplementedException>();
             source.VerifyNoOtherCalls();
         }
 
@@ -341,25 +345,27 @@ namespace Andy.FlacHash.Audio
             var source = new Mock<Stream>();
             var target = new DecoderStream(source.Object);
 
-            Assert.Throws<NotImplementedException>(() => target.Flush());
+            Action act = () => target.Flush();
+            act.Should().Throw<NotImplementedException>();
             source.VerifyNoOtherCalls();
         }
 
-        static void Assert_Wrapped(Exception thrownBySource, Type expectedExceptionType, TestDelegate action)
+        static void Assert_Wrapped(Exception thrownBySource, Type expectedExceptionType, Action action)
         {
-            var actual = Assert.Throws(expectedExceptionType, action);
+            var actual = action.Should().Throw<Exception>().Which;
 
-            Assert.AreSame(thrownBySource, actual.InnerException, nameof(Exception.InnerException));
+            actual.Should().BeOfType(expectedExceptionType);
+            actual.InnerException.Should().BeSameAs(thrownBySource, nameof(Exception.InnerException));
 
             if (actual is DecoderException decoderException)
-                Assert.AreSame(thrownBySource, decoderException.ActualException, nameof(DecoderException.ActualException));
+                decoderException.ActualException.Should().BeSameAs(thrownBySource, nameof(DecoderException.ActualException));
         }
 
-        static void Assert_Rethrown(Exception thrownBySource, TestDelegate action)
+        static void Assert_Rethrown(Exception thrownBySource, Action action)
         {
-            var actual = Assert.Throws(thrownBySource.GetType(), action);
+            var actual = action.Should().Throw<Exception>().Which;
 
-            Assert.AreSame(thrownBySource, actual, "Must rethrow the original exception as is");
+            actual.Should().BeSameAs(thrownBySource, "Must rethrow the original exception as is");
         }
 
         static DecoderStream Stream_Throwing_On_Read(Exception exception)
