@@ -11,7 +11,8 @@ namespace Andy.ExternalProcess
         TaskCompletionSource<bool> voluntaryExitCompletion;
         bool respondToExitRequest;
         bool closeStreamsOnExit;
-        
+        readonly int exitCode;
+
         /// <summary>
         /// Wraps <paramref name="stdout"/> and <paramref name="stderr"/> in <see cref="StdoutStream"/>
         /// to provide Process' stdout and stderr behavior when the process closes:
@@ -20,7 +21,8 @@ namespace Andy.ExternalProcess
         public ExternalProcessFake(Stream stdout = null, Stream stdin = null, Stream stderr = null,
             TaskCompletionSource<bool> voluntaryExitCompletion = null,
             bool respondToExitRequest = true,
-            bool closeStreamsOnExit = true)
+            bool closeStreamsOnExit = true,
+            int exitCode = 0)
         {
             if (stdin != null)
                 StandardInput = new StreamWriter(stdin);
@@ -31,10 +33,22 @@ namespace Andy.ExternalProcess
             this.voluntaryExitCompletion = voluntaryExitCompletion;
             this.respondToExitRequest = respondToExitRequest;
             this.closeStreamsOnExit = closeStreamsOnExit;
+            this.exitCode = exitCode;
         }
 
-        public virtual bool HasExited { get; set; }
-        public virtual int ExitCode { get; set; }
+        public virtual bool HasExited { get; private set; }
+
+        // Mirrors Process.ExitCode: unavailable until the process has actually exited (via WaitForExit or Kill)
+        public virtual int ExitCode
+        {
+            get
+            {
+                if (!HasExited)
+                    throw new InvalidOperationException("Process has not exited, so the exit code is not available");
+                return exitCode;
+            }
+        }
+
         public virtual StreamReader StandardOutput { get; set; }
         public virtual StreamWriter StandardInput { get; set; }
         public virtual StreamReader StandardError { get; set; }
@@ -62,6 +76,7 @@ namespace Andy.ExternalProcess
 
         public virtual void Kill(bool entireProcessTree)
         {
+            HasExited = true;
             if (closeStreamsOnExit)
                 CloseStreams();
             voluntaryExitCompletion?.SetResult(false);
@@ -83,6 +98,7 @@ namespace Andy.ExternalProcess
         {
             if (respondToExitRequest)
             {
+                HasExited = true;
                 if (closeStreamsOnExit)
                     CloseStreams();
                 voluntaryExitCompletion?.SetResult(true);

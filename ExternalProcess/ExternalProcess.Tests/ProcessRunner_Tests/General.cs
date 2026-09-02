@@ -125,13 +125,11 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             var target = new ProcessRunner(-1, 0, 0, false);
 
             var stdout = new MemoryStream(sourceBytes);
-            var process = new ExternalProcessFake(stdout: stdout, stdin: withInput ? new FakeWriteStream() : null);
+            var process = new ExternalProcessFake(stdout: stdout, stdin: withInput ? new FakeWriteStream() : null, exitCode: 0);
 
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input: withInput ? new MemoryStream(0) : null);
 
             Assert.False(process.IsDisposedOf, "Must not dispose of the process until the stream is read");
-
-            process.ExitCode = 0;
 
             Util.Read(outputStream);
 
@@ -146,11 +144,9 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             var voluntaryExitCompletion = new TaskCompletionSource<bool>();
 
             var stdout = new MemoryStream(Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!"));
-            var process = new ExternalProcessFake(stdout: stdout, stdin: null, voluntaryExitCompletion: voluntaryExitCompletion, respondToExitRequest: false);
+            var process = new ExternalProcessFake(stdout: stdout, stdin: null, voluntaryExitCompletion: voluntaryExitCompletion, respondToExitRequest: false, exitCode: 0);
 
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process);
-
-            process.ExitCode = 0;
 
             Assert.DoesNotThrow(() => Util.Read(outputStream));
 
