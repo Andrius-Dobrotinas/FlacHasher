@@ -48,7 +48,7 @@ namespace Andy.FlacHash.Audio
         {
             try
             {
-                return Seek(offset, origin);
+                return source.Seek(offset, origin);
             }
             catch (OperationCanceledException)
             {
