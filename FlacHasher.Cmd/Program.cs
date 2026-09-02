@@ -16,7 +16,7 @@ namespace Andy.FlacHash.Application.Cmd
     public class Program
     {
         const string settingsFileName = "settings.ini";
-        static bool printProcessProgress = false;
+        static bool showProcessRealtimeOutput = false;
         static string HelpMessage = $"For info on how to use this, run \"{CmdlineParameterNames.ModeHelp}\" command";
 
         static int Main(string[] args)
@@ -91,7 +91,7 @@ namespace Andy.FlacHash.Application.Cmd
             try
             {
                 // For console output, this is only relevant when the process is actually running
-                printProcessProgress = settings.PrintDecoderProgress;
+                showProcessRealtimeOutput = settings.PrintDecoderOutputInRealTime;
 
                 var cancellation = new CancellationTokenSource();
                 Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
@@ -108,7 +108,7 @@ namespace Andy.FlacHash.Application.Cmd
                     timeoutSec: settings.ProcessTimeoutSec,
                     exitTimeoutMs: settings.ProcessExitTimeoutMs,
                     startWaitMs: settings.ProcessStartDelayMs,
-                    printProcessProgress);
+                    showProcessRealtimeOutput);
 
                 var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderFile);
                 FlacHash.Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
@@ -120,7 +120,7 @@ namespace Andy.FlacHash.Application.Cmd
                 }
                 else
                 {
-                    Hashing.ComputeHashes(decoder, (HashingParameters)settings, printProcessProgress, fileSearch, cancellation.Token);
+                    Hashing.ComputeHashes(decoder, (HashingParameters)settings, showProcessRealtimeOutput, fileSearch, cancellation.Token);
                 }
             }
             catch (ConfigurationException e)
@@ -131,7 +131,7 @@ namespace Andy.FlacHash.Application.Cmd
             catch (FlacHash.Audio.DecoderException e)
             {
                 WriteUserLine($"Process exited with code {e.ActualException.ExitCode}");
-                if (!printProcessProgress)
+                if (!showProcessRealtimeOutput)
                     WriteUserLine($"Process output:\n{e.ActualException.ProcessErrorOutput}");
                 return (int)ReturnValue.ExecutionFailure;
             }
@@ -184,7 +184,7 @@ namespace Andy.FlacHash.Application.Cmd
 
         static void WriteUserLine(string text)
         {
-            if (printProcessProgress)
+            if (showProcessRealtimeOutput)
             {
                 Console.Error.WriteLine("");
                 Console.Error.WriteLine("");
