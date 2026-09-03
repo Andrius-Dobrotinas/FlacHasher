@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     /// <summary>
     /// The bytes the fake program is fed with.
@@ -24,7 +24,7 @@ namespace Andy.FakeCmdline
         public void Setup()
         {
             directory = Directory.CreateDirectory(
-                Path.Combine(Path.GetTempPath(), $"fakecmdline-tests-{Guid.NewGuid():N}"));
+                Path.Combine(Path.GetTempPath(), $"fakedecoder-tests-{Guid.NewGuid():N}"));
 
             SourceFile = Write("payload.bin", Bytes);
             EmptySourceFile = Write("empty.bin", Array.Empty<byte>());

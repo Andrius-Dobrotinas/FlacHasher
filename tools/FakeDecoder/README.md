@@ -1,4 +1,4 @@
-# FakeCmdline
+# FakeDecoder
 
 A fake external program for tests. It reads bytes from a source, writes them to stdout, prints progress to stderr, and can be told to fail, stall or linger after finishing the job. Everything it does is driven by command-line flags, so a test can reproduce whatever process behaviour it needs to assert on.
 

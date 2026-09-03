@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.Win32.SafeHandles;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     /// <summary>
     /// A fake external program for tests of process running. It reads bytes from a source, writes them to stdout,

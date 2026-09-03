@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.181
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37531.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlacHasher.Cmd", "FlacHasher.Cmd\FlacHasher.Cmd.csproj", "{BF8E272D-0A42-473A-90D9-6B38C6467E8B}"
 EndProject
@@ -53,9 +53,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHasher.Cmd.E2E.Tests", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{07C2787E-EAC7-C090-1BA3-A61EC2A24D84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeCmdline", "tools\FakeCmdline\FakeCmdline.csproj", "{75305394-32D7-4496-A1DB-AE0ECF5F149D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeDecoder", "tools\FakeDecoder\FakeDecoder.csproj", "{75305394-32D7-4496-A1DB-AE0ECF5F149D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeCmdline.Tests", "tools\FakeCmdline.Tests\FakeCmdline.Tests.csproj", "{89D8C96A-5095-44A1-8CB6-21C6463588CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeDecoder.Tests", "tools\FakeDecoder.Tests\FakeDecoder.Tests.csproj", "{89D8C96A-5095-44A1-8CB6-21C6463588CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

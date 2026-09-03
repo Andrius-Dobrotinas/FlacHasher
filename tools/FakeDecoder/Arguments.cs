@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     /// <summary>
     /// Command-line arguments of the fake program.
@@ -10,7 +10,7 @@ namespace Andy.FakeCmdline
     /// </summary>
     public class Arguments
     {
-        public const string UsageText = @"Usage: FakeCmdline <options>
+        public const string UsageText = @"Usage: FakeDecoder <options>
 
   --file <path>              read bytes from this file
   --stdin                    read bytes from standard input

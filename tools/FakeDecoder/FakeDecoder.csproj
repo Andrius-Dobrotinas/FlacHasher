@@ -5,8 +5,8 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<Nullable>disable</Nullable>
-    <RootNamespace>Andy.FakeCmdline</RootNamespace>
-    <AssemblyName>FakeCmdline</AssemblyName>
+    <RootNamespace>Andy.FakeDecoder</RootNamespace>
+    <AssemblyName>FakeDecoder</AssemblyName>
   </PropertyGroup>
 
 </Project>

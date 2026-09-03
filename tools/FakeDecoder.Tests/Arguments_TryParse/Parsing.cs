@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     public class Parsing
     {

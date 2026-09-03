@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     public class Output
     {

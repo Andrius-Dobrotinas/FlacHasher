@@ -3,11 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     static class TestEnvironment
     {
-        const string executableName = "FakeCmdline";
+        const string executableName = "FakeDecoder";
 
         /// <summary>
         /// The fake program is run as a real process, so the tests need its executable rather than its assembly.
@@ -17,7 +17,7 @@ namespace Andy.FakeCmdline
         {
             get
             {
-                var directory = GetAssemblyMetadata("FakeCmdlineOutputDirectory");
+                var directory = GetAssemblyMetadata("FakeDecoderOutputDirectory");
                 var fileName = OperatingSystem.IsWindows() ? $"{executableName}.exe" : executableName;
                 var file = new FileInfo(Path.Combine(directory, fileName));
 

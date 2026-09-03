@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     /// <summary>
     /// Runs the fake program while holding on to the live standard output stream, so that a test can observe

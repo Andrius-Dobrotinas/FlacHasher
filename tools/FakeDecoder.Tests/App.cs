@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     record AppResult(int ExitCode, byte[] StdOut, string StdErr);
 

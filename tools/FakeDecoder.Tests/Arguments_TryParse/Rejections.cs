@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System;
 using System.IO;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     public class Rejections
     {
@@ -74,7 +74,7 @@ namespace Andy.FakeCmdline
         [Test]
         public void When__TheSourceFileDoesNotExist__Must_Reject()
         {
-            var path = Path.Combine(Path.GetTempPath(), $"fakecmdline-no-such-file-{Guid.NewGuid():N}.bin");
+            var path = Path.Combine(Path.GetTempPath(), $"fakedecoder-no-such-file-{Guid.NewGuid():N}.bin");
 
             AssertRejected("--file", path);
         }

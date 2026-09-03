@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     public class Usage
     {
@@ -13,7 +13,7 @@ namespace Andy.FakeCmdline
 
         // Any file that certainly exists, so that the two-sources case is rejected for having two sources rather than for a missing file
         static readonly string existingFile = Assembly.GetExecutingAssembly().Location;
-        static readonly string missingFile = Path.Combine(Path.GetTempPath(), $"fakecmdline-no-such-file-{Guid.NewGuid():N}.bin");
+        static readonly string missingFile = Path.Combine(Path.GetTempPath(), $"fakedecoder-no-such-file-{Guid.NewGuid():N}.bin");
 
         [Test]
         public async Task When__NoArgumentsAreGiven__Must_Write_NothingToProcess_AndTheFlagList__And_Return_Zero()

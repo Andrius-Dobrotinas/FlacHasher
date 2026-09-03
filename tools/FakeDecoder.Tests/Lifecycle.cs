@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using System.Diagnostics;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     /// <summary>
     /// Everything here is about ordering and timing rather than content, so the runs must not compete for the machine.

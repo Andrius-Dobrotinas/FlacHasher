@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Andy.FakeCmdline
+namespace Andy.FakeDecoder
 {
     public class Exit
     {
