@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Andy.FakeCmdline</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.6.7" />
+    <PackageReference Include="nunit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The stub is both launched as a process and unit-tested, hence its assembly is referenced too -->
+    <ProjectReference Include="..\FakeCmdline\FakeCmdline.csproj" />
+  </ItemGroup>
+
+  <!-- Ask the stub project where its output's at; writes to -> _FakeCmdlineTarget.FullPath -->
+  <Target Name="ResolveFakeCmdlineOutputDirectory" BeforeTargets="GetAssemblyAttributes">
+    <MSBuild Projects="..\FakeCmdline\FakeCmdline.csproj" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="_FakeCmdlineTarget" />
+    </MSBuild>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>FakeCmdlineOutputDirectory</_Parameter1>
+        <_Parameter2>$([System.IO.Path]::GetDirectoryName('%(_FakeCmdlineTarget.FullPath)'))</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+</Project>
