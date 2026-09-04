@@ -12,7 +12,7 @@ namespace Andy.ExternalProcess
         private readonly int exitTimeoutMs;
         private readonly int startWaitMs;
         private readonly int timeoutMs;
-        private readonly bool showProcessWindowWithStdErrOutput;
+        private readonly bool showProcessOutput;
 
         private const int ExitCode_CtrlC = -1073741510;
         public const int NoTimeoutValue = -1;
@@ -21,14 +21,14 @@ namespace Andy.ExternalProcess
         /// <param name="exitTimeoutMs">Time to wait (in milliseconds) for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
         /// <param name="startWaitMs">Time to wait (in milliseconds) before starting interacting with the process' std streams.
         /// Sometimes (depending on the speed of the computer?) it doesn't have std streams available right away, which results in "Pipe ended" error.</param>
-        /// <param name="showProcessWindowWithStdErrOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
+        /// <param name="showProcessOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
         /// When off, captures stderr and includes in exceptions if the process fails</param>
-        public ProcessRunner(int timeoutSec, int exitTimeoutMs, int startWaitMs, bool showProcessWindowWithStdErrOutput)
+        public ProcessRunner(int timeoutSec, int exitTimeoutMs, int startWaitMs, bool showProcessOutput)
         {
             this.timeoutMs = timeoutSec == NoTimeoutValue ? NoTimeoutValue : timeoutSec * 1000;
             this.exitTimeoutMs = exitTimeoutMs;
             this.startWaitMs = startWaitMs;
-            this.showProcessWindowWithStdErrOutput = showProcessWindowWithStdErrOutput;
+            this.showProcessOutput = showProcessOutput;
         }
 
         public ProcessOutputStream RunAndReadOutput(
@@ -36,7 +36,7 @@ namespace Andy.ExternalProcess
             IEnumerable<string> arguments,
             CancellationToken cancellation = default)
         {
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessOutput);
 
             var process = new ExternalProcess { StartInfo = processSettings };
 
@@ -59,7 +59,7 @@ namespace Andy.ExternalProcess
         {
             if (inputData == null) throw new ArgumentNullException(nameof(inputData));
 
-            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessWindowWithStdErrOutput);
+            var processSettings = ProcessStartInfoFactory.GetStandardProcessSettings(executableFile, arguments, showProcessOutput);
             processSettings.RedirectStandardInput = true;
 
             var process = new ExternalProcess { StartInfo = processSettings };

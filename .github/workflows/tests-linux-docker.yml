@@ -28,9 +28,8 @@ jobs:
       # Compiled output goes into a host's directory, so it's accessible in the next step (compose run )
       - name: Build
         run: docker compose --file docker-compose-lnx.yml run --rm tests build ${{ env.SLN_ARGS }}
-      # E2E tests are excluded here
       - name: Run Unit Tests
-        run: docker compose --file docker-compose-lnx.yml run --rm tests test ${{ env.SLN_ARGS }} --filter "FullyQualifiedName!~Andy.FlacHash.Application.Cmd.E2E"
+        run: docker compose --file docker-compose-lnx.yml run --rm tests test ${{ env.SLN_ARGS }}
 
   # E2E tests only get to run once the unit tests have proven the code sound
   e2e-tests:
