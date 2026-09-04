@@ -214,7 +214,7 @@ namespace Andy.ExternalProcess
                     using (var stdError = WaitForErrorStream(stdErrorTask, exitTimeoutMs, errorReadCancellation))
                     {
                         string processErrorOutput = ReadErrorStreamOutput(stdError);
-                        throw new ExecutionException(process.ExitCode, processErrorOutput);
+                        throw new ExecutionException(process.ExitCode, processErrorOutput, isProcessOutputCaptured: true);
                     }
                 }
                 catch (ExecutionException)
@@ -223,7 +223,8 @@ namespace Andy.ExternalProcess
                 }
                 catch
                 {
-                    throw new ExecutionException(process.ExitCode);
+                    // Stderr had been redirected even though reading it failed, so output capture was still attempted
+                    throw new ExecutionException(process.ExitCode, processErrorOutput: null, isProcessOutputCaptured: true);
                 }
             }
         }

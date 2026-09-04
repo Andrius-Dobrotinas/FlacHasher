@@ -133,7 +133,13 @@ namespace Andy.FlacHash.Application.Cmd
                 WriteUserLine($"Couldn't Decode audio. Decoder returned code {e.ActualException.ExitCode}.");
                 WriteUserLine($"Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
                 if (!showProcessRealtimeOutput)
-                    WriteUserLine($"Process output:\n{e.ActualException.ProcessErrorOutput}");
+                {
+                    if (e.ActualException.IsProcessOutputCaptured)
+                        WriteUserLine($"Process output:\n{e.ActualException.ProcessErrorOutput}");
+                    else
+                        WriteUserLine($"Process output has not been captured");
+                }
+
                 return (int)ReturnValue.ExecutionFailure;
             }
             catch (FlacHash.Audio.IOException e)
