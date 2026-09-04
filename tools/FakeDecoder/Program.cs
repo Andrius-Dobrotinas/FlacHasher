@@ -178,8 +178,11 @@ namespace Andy.FakeDecoder
 
         static void WriteChunks(Stream source, Stream stdout, Arguments arguments)
         {
-            var buffer = new byte[arguments.OutputChunkSize];
-            int chunksWritten = 0;
+            int expansion = arguments.Expand ?? 1;
+            var buffer = new byte[arguments.ReadChunkSize];
+            // Without expansion the bytes go out exactly as they were read, so there's nothing for a second buffer to hold
+            var expandedBuffer = arguments.Expand != null ? new byte[buffer.Length * expansion] : null;
+            int readsMade = 0;
 
             while (true)
             {
@@ -187,16 +190,23 @@ namespace Andy.FakeDecoder
                 if (byteCount == 0)
                     return;
 
+                readsMade++;
+
                 if (arguments.OutputChunkDelayMs != null)
                     Thread.Sleep(arguments.OutputChunkDelayMs.Value);
 
+                var output = expandedBuffer ?? buffer;
+                int outputByteCount = expandedBuffer != null
+                    ? Expand(buffer, byteCount, expandedBuffer, expansion)
+                    : byteCount;
+
                 if (arguments.Xor != null)
-                    for (int i = 0; i < byteCount; i++)
-                        buffer[i] ^= arguments.Xor.Value;
+                    for (int i = 0; i < outputByteCount; i++)
+                        output[i] ^= arguments.Xor.Value;
 
                 try
                 {
-                    stdout.Write(buffer, 0, byteCount);
+                    stdout.Write(output, 0, outputByteCount);
                     // Flushing every chunk: buffering would otherwise merge the chunks and destroy the timing the tests observe
                     stdout.Flush();
                 }
@@ -207,14 +217,24 @@ namespace Andy.FakeDecoder
                     return;
                 }
 
-                chunksWritten++;
-
                 if (arguments.ProgressMessage != null)
                     WriteLineToStdErr(arguments.ProgressMessage);
 
-                if (chunksWritten == arguments.StopAfterChunks)
+                if (readsMade == arguments.FinishAfterReads)
                     return;
             }
+        }
+
+        /// <summary>
+        /// Repeats every byte, which is what makes the output bigger than the source, the way a real decoder's is.
+        /// </summary>
+        static int Expand(byte[] source, int byteCount, byte[] destination, int factor)
+        {
+            for (int i = 0; i < byteCount; i++)
+                for (int repeat = 0; repeat < factor; repeat++)
+                    destination[i * factor + repeat] = source[i];
+
+            return byteCount * factor;
         }
 
         static void WriteLineToStdErr(string message)

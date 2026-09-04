@@ -83,9 +83,10 @@ namespace Andy.FakeDecoder
             yield return Case("An unknown flag", "--decode-everything", "yes");
             yield return Case("A flag missing its value", "--exit-code");
             yield return Case("Both sources", "--stdin", "--file", existingFile);
-            yield return Case("An unparseable number", "--output-chunk-size", "quite a few");
+            yield return Case("An unparseable number", "--read-chunk-size", "quite a few");
             yield return Case("A source file that isn't there", "--file", missingFile);
             yield return Case("Keeping stdout open without a source", "--keep-stdout-open", "500");
+            yield return Case("A buffer bigger than the maximum", "--expand", (Arguments.MaxBufferBytes + 1).ToString());
             yield return Case("A repeated flag", "--exit-code", "1", "--exit-code", "2");
         }
 

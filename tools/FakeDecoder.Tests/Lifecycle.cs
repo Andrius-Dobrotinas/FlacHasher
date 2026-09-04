@@ -121,7 +121,7 @@ namespace Andy.FakeDecoder
 
             using (var run = LiveRun.Start(
                 "--file", TestPayload.SourceFile.FullName,
-                "--output-chunk-size", chunkSize.ToString(),
+                "--read-chunk-size", chunkSize.ToString(),
                 "--output-chunk-delay", delayMs.ToString()))
             {
                 Assert.IsTrue(run.WaitForOutput(generousWaitMs), "The first chunk has to come out");

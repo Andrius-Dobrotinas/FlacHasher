@@ -106,7 +106,7 @@ namespace Andy.FakeDecoder
             foreach (var argument in new[]
                 {
                     "--file", TestPayload.SourceFile.FullName,
-                    "--output-chunk-size", "1",
+                    "--read-chunk-size", "1",
                     "--output-chunk-delay", "50",
                     "--exit-code", exitCode.ToString()
                 })
@@ -133,7 +133,7 @@ namespace Andy.FakeDecoder
 
             var result = await App.Run(
                 "--file", TestPayload.SourceFile.FullName,
-                "--output-chunk-size", chunkSize.ToString(),
+                "--read-chunk-size", chunkSize.ToString(),
                 "--progress-message", progressMessage);
 
             var occurrences = result.StdErr.Split(progressMessage).Length - 1;
@@ -152,7 +152,7 @@ namespace Andy.FakeDecoder
 
             var result = await App.Run(
                 "--file", TestPayload.SourceFile.FullName,
-                "--output-chunk-size", "64",
+                "--read-chunk-size", "64",
                 "--progress-message", progressMessage,
                 "--success-message", successMessage);
 

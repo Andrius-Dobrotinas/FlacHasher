@@ -12,9 +12,10 @@ namespace Andy.FakeDecoder
             "--file",
             "--stdin",
             "--xor",
-            "--output-chunk-size",
+            "--expand",
+            "--read-chunk-size",
             "--output-chunk-delay",
-            "--stop-after-chunks",
+            "--finish-after-reads",
             "--progress-message",
             "--success-message",
             "--error-message",
@@ -51,11 +52,19 @@ namespace Andy.FakeDecoder
         }
 
         [Test]
-        public void When__OutputChunkSizeIsGiven__Must_ParseIt()
+        public void When__ExpandIsGiven__Must_ParseIt()
         {
-            var parsed = Parse("--output-chunk-size", "128");
+            var parsed = Parse("--expand", "3");
 
-            Assert.AreEqual(128, parsed.OutputChunkSize);
+            Assert.AreEqual(3, parsed.Expand);
+        }
+
+        [Test]
+        public void When__ReadChunkSizeIsGiven__Must_ParseIt()
+        {
+            var parsed = Parse("--read-chunk-size", "128");
+
+            Assert.AreEqual(128, parsed.ReadChunkSize);
         }
 
         [Test]
@@ -67,11 +76,11 @@ namespace Andy.FakeDecoder
         }
 
         [Test]
-        public void When__StopAfterChunksIsGiven__Must_ParseIt()
+        public void When__FinishAfterReadsIsGiven__Must_ParseIt()
         {
-            var parsed = Parse("--stop-after-chunks", "3");
+            var parsed = Parse("--finish-after-reads", "3");
 
-            Assert.AreEqual(3, parsed.StopAfterChunks);
+            Assert.AreEqual(3, parsed.FinishAfterReads);
         }
 
         [Test]
@@ -132,13 +141,14 @@ namespace Andy.FakeDecoder
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(Arguments.DefaultOutputChunkSize, parsed.OutputChunkSize, "chunk size");
+                Assert.AreEqual(Arguments.DefaultReadChunkSize, parsed.ReadChunkSize, "chunk size");
                 Assert.AreEqual(0, parsed.ExitCode, "exit code");
                 Assert.IsNull(parsed.SourceFile, "source file");
                 Assert.IsFalse(parsed.UseStdin, "stdin");
                 Assert.IsNull(parsed.Xor, "xor");
+                Assert.IsNull(parsed.Expand, "expand");
                 Assert.IsNull(parsed.OutputChunkDelayMs, "chunk delay");
-                Assert.IsNull(parsed.StopAfterChunks, "stop after chunks");
+                Assert.IsNull(parsed.FinishAfterReads, "finish after reads");
                 Assert.IsNull(parsed.ProgressMessage, "progress message");
                 Assert.IsNull(parsed.SuccessMessage, "success message");
                 Assert.IsNull(parsed.ErrorMessage, "error message");
@@ -156,9 +166,10 @@ namespace Andy.FakeDecoder
             {
                 Assert.IsTrue(parsed.UseStdin, "stdin");
                 Assert.AreEqual(0x5A, parsed.Xor, "xor");
-                Assert.AreEqual(16, parsed.OutputChunkSize, "chunk size");
+                Assert.AreEqual(2, parsed.Expand, "expand");
+                Assert.AreEqual(16, parsed.ReadChunkSize, "chunk size");
                 Assert.AreEqual(20, parsed.OutputChunkDelayMs, "chunk delay");
-                Assert.AreEqual(2, parsed.StopAfterChunks, "stop after chunks");
+                Assert.AreEqual(2, parsed.FinishAfterReads, "finish after reads");
                 Assert.AreEqual("progress", parsed.ProgressMessage, "progress message");
                 Assert.AreEqual("success", parsed.SuccessMessage, "success message");
                 Assert.AreEqual("error", parsed.ErrorMessage, "error message");
@@ -177,19 +188,27 @@ namespace Andy.FakeDecoder
         }
 
         [Test]
-        public void When__OutputChunkSizeIs_One__Must_Accept_It()
+        public void When__TheBufferIsExactly_TheMaximum__Must_Accept_It()
         {
-            var parsed = Parse("--output-chunk-size", "1");
+            var parsed = Parse("--read-chunk-size", (Arguments.MaxBufferBytes / 2).ToString(), "--expand", "2");
 
-            Assert.AreEqual(1, parsed.OutputChunkSize);
+            Assert.AreEqual(Arguments.MaxBufferBytes / 2, parsed.ReadChunkSize);
         }
 
         [Test]
-        public void When__StopAfterChunksIs_One__Must_Accept_It()
+        public void When__ReadChunkSizeIs_One__Must_Accept_It()
         {
-            var parsed = Parse("--stop-after-chunks", "1");
+            var parsed = Parse("--read-chunk-size", "1");
 
-            Assert.AreEqual(1, parsed.StopAfterChunks);
+            Assert.AreEqual(1, parsed.ReadChunkSize);
+        }
+
+        [Test]
+        public void When__FinishAfterReadsIs_One__Must_Accept_It()
+        {
+            var parsed = Parse("--finish-after-reads", "1");
+
+            Assert.AreEqual(1, parsed.FinishAfterReads);
         }
 
         /// <summary>
@@ -214,9 +233,10 @@ namespace Andy.FakeDecoder
             {
                 new[] { "--stdin" },
                 new[] { "--xor", "5A" },
-                new[] { "--output-chunk-size", "16" },
+                new[] { "--expand", "2" },
+                new[] { "--read-chunk-size", "16" },
                 new[] { "--output-chunk-delay", "20" },
-                new[] { "--stop-after-chunks", "2" },
+                new[] { "--finish-after-reads", "2" },
                 new[] { "--progress-message", "progress" },
                 new[] { "--success-message", "success" },
                 new[] { "--error-message", "error" },

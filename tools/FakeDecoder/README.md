@@ -8,9 +8,10 @@ A fake external program for tests. It reads bytes from a source, writes them to 
 --file <path>              read bytes from this file
 --stdin                    read bytes from standard input
 --xor <hex-byte>           XOR every byte read with this value before writing it out
---output-chunk-size <n>    bytes per stdout write (default 4096)
+--expand <n>               write every byte read n times over, so the output outgrows the source
+--read-chunk-size <n>      bytes read from the source per read; a write is this many times --expand (default 4096)
 --output-chunk-delay <ms>  pause before each stdout write; -1 = wait forever
---stop-after-chunks <n>    give up on the rest of the source after n writes
+--finish-after-reads <n>   leave the rest of the source unread and finish the run after n reads
 --progress-message <text>  written to stderr after each chunk
 --success-message <text>   written to stderr before exit, when the exit code is 0
 --error-message <text>     written to stderr before exit, when the exit code is non-zero
@@ -20,17 +21,17 @@ A fake external program for tests. It reads bytes from a source, writes them to 
 ```
 
 At most one source may be given, and each flag may be given at most once.
-An unrecognised flag, a repeated flag, a missing, unparseable or out-of-range value, a `--file` that doesn't exist, two sources, or `--keep-stdout-open` without a source are all usage errors: the flag list goes to stderr, stdout is left empty, and the exit code is 1. Keeping the help off stdout is what stops it from leaking into byte-for-byte assertions.
+An unrecognised flag, a repeated flag, a missing, unparseable or out-of-range value, a `--file` that doesn't exist, two sources, a read chunk that multiplied by the expansion exceeds 64 MiB, or `--keep-stdout-open` without a source are all usage errors: the flag list goes to stderr, stdout is left empty, and the exit code is 1. Keeping the help off stdout is what stops it from leaking into byte-for-byte assertions.
 
-The ranges: `--output-chunk-size` and `--stop-after-chunks` are 1 or more; `--output-chunk-delay`, `--keep-stdout-open` and `--linger` are -1 or more; `--exit-code` is any integer; `--xor` is a hexadecimal number that fits in a byte, written without a `0x` prefix.
+The ranges: `--read-chunk-size` and `--finish-after-reads` are 1 or more; `--expand` is 2 or more; `--output-chunk-delay`, `--keep-stdout-open` and `--linger` are -1 or more; `--exit-code` is any integer; `--xor` is a hexadecimal number that fits in a byte, written without a `0x` prefix.
 
-Apart from that one usage-error case, it never invents an exit code - whatever `--exit-code` says is what it returns. Unix keeps only the low byte of an exit status, so a negative code arrives at the caller wrapped round (-1 comes back as 255); Windows hands it over verbatim.
+Apart from that one usage-error case, it never invents an exit code - whatever `--exit-code` says is what it returns. The buffers are sized from the arguments and allocated before a byte is read, which is why a read chunk times an expansion is capped: an allocation that throws would cost the run its exit code, and a cap turns that into an ordinary usage error instead. Unix keeps only the low byte of an exit status, so a negative code arrives at the caller wrapped round (-1 comes back as 255); Windows hands it over verbatim.
 
 ## What it does, in order
 
 ### Given a source
 
-1. write the source to stdout in chunks, XORing it if asked, with `--progress-message` after each chunk
+1. write the source to stdout in chunks, expanded and XORed if asked, with `--progress-message` after each chunk
 2. wait `--keep-stdout-open` with stdout still open, so the consumer gets no EOF yet
 3. close stdout - this is what hands the consumer its EOF
 4. wait `--linger`
@@ -50,9 +51,17 @@ Stdout is never opened, so the consumer's EOF arrives with the exit rather than 
 
 ## Features worth noting
 
+### Transforming input into a longer output
+
+To simulate a compressed audio decoder, output must be longer than input.
+`--expand` makes the output outgrow the source: every byte read is written n times over. Which bytes get invented doesn't matter to anything - what matters is that the output is a constant multiple of the input, whatever the chunking, so a test can spell out what it expects with `bytes.SelectMany(x => Enumerable.Repeat(x, n))`.
+`--xor` still applies to everything on its way out, duplicates included.
+
+The reads are unaffected by expansion: `--read-chunk-size` sizes the read, and a write is simply that many bytes times n.
+
 ### Stopping before the source runs out
 
-Writing stops early in two cases: `--stop-after-chunks` is reached, or the consumer lets go of the read end and the pipe breaks. Neither counts as a failure - the run carries on to the exit routine and returns the `--exit-code` it was given, the same as any other run.
+Writing stops early in two cases: `--finish-after-reads` is reached, or the consumer lets go of the read end and the pipe breaks. Neither counts as a failure - the run carries on to the exit routine and returns the `--exit-code` it was given, the same as any other run. The consumer's EOF arrives on schedule too: stdout is closed at step 3 as always, so an early finish looks to it exactly like the source running out.
 
 Either way the source is left partly read. With `--stdin` that means whoever is writing to it is left with a reader that's gone, and their next write breaks - exactly what `head` does to the command feeding it in a shell pipeline. The remainder is deliberately not drained first: being able to produce that broken pipe is the point, and draining would hide it.
 

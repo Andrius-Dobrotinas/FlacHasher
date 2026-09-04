@@ -14,7 +14,7 @@ namespace Andy.FakeDecoder
 
         [TestCase("--file")]
         [TestCase("--xor")]
-        [TestCase("--output-chunk-size")]
+        [TestCase("--read-chunk-size")]
         [TestCase("--progress-message")]
         [TestCase("--linger")]
         [TestCase("--exit-code")]
@@ -23,9 +23,10 @@ namespace Andy.FakeDecoder
             AssertRejected(flag);
         }
 
-        [TestCase("--output-chunk-size")]
+        [TestCase("--read-chunk-size")]
         [TestCase("--output-chunk-delay")]
-        [TestCase("--stop-after-chunks")]
+        [TestCase("--finish-after-reads")]
+        [TestCase("--expand")]
         [TestCase("--keep-stdout-open")]
         [TestCase("--linger")]
         [TestCase("--exit-code")]
@@ -59,16 +60,24 @@ namespace Andy.FakeDecoder
 
         [TestCase("0")]
         [TestCase("-1")]
-        public void When__OutputChunkSizeIs_ZeroOrNegative__Must_Reject(string value)
+        public void When__ReadChunkSizeIs_ZeroOrNegative__Must_Reject(string value)
         {
-            AssertRejected("--output-chunk-size", value);
+            AssertRejected("--read-chunk-size", value);
         }
 
         [TestCase("0")]
         [TestCase("-1")]
-        public void When__StopAfterChunksIs_ZeroOrNegative__Must_Reject(string value)
+        public void When__FinishAfterReadsIs_ZeroOrNegative__Must_Reject(string value)
         {
-            AssertRejected("--stop-after-chunks", value);
+            AssertRejected("--finish-after-reads", value);
+        }
+
+        [TestCase("1")]
+        [TestCase("0")]
+        [TestCase("-1")]
+        public void When__ExpandIsBelow_Two__Must_Reject(string value)
+        {
+            AssertRejected("--expand", value);
         }
 
         [Test]
@@ -95,6 +104,22 @@ namespace Andy.FakeDecoder
         public void When__StdinIsRepeated__Must_Reject()
         {
             AssertRejected("--stdin", "--stdin");
+        }
+
+        /// <summary>
+        /// Allocating what these ask for throws, and an unhandled exception would cost the run the exit code it was given.
+        /// </summary>
+        [TestCase("--read-chunk-size", TestName = "{m}(In one flag)")]
+        [TestCase("--expand", TestName = "{m}(Multiplied by the default chunk size)")]
+        public void When__TheBufferWouldExceed_TheMaximum__Must_Reject(string flag)
+        {
+            AssertRejected(flag, (Arguments.MaxBufferBytes + 1).ToString());
+        }
+
+        [Test]
+        public void When__TheChunkSizeAndExpansion_Multiply_PastTheMaximum__Must_Reject()
+        {
+            AssertRejected("--read-chunk-size", (Arguments.MaxBufferBytes / 2).ToString(), "--expand", "3");
         }
 
         static void AssertRejected(params string[] arguments)

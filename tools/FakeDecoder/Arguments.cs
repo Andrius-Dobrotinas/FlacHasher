@@ -15,9 +15,10 @@ namespace Andy.FakeDecoder
   --file <path>              read bytes from this file
   --stdin                    read bytes from standard input
   --xor <hex-byte>           XOR every byte read with this value before writing it out (e.g. ""5A"")
-  --output-chunk-size <n>    bytes per stdout write (default 4096)
+  --expand <n>               write every byte read n times over, so the output outgrows the source (2 or more)
+  --read-chunk-size <n>      bytes read from the source per read; a write is this many times --expand (default 4096)
   --output-chunk-delay <ms>  pause before each stdout write; -1 = wait forever
-  --stop-after-chunks <n>    give up on the rest of the source after n writes
+  --finish-after-reads <n>   leave the rest of the source unread and finish the run after n reads
   --progress-message <text>  written to stderr after each chunk is written
   --success-message <text>   written to stderr just before exit, when exit code is 0
   --error-message <text>     written to stderr just before exit, when exit code is non-zero
@@ -26,17 +27,20 @@ namespace Andy.FakeDecoder
   --exit-code <n>            exit code to return (default 0)
 
 At most one source (--file or --stdin) may be given.
-Each flag may be given at most once.";
+Each flag may be given at most once.
+A read chunk multiplied by an expansion may not exceed 64 MiB.";
 
-        public const int DefaultOutputChunkSize = 4096;
+        public const int DefaultReadChunkSize = 4096;
+        public const int MaxBufferBytes = 64 * 1024 * 1024;
         const int waitForever = -1;
 
         public string SourceFile { get; private set; }
         public bool UseStdin { get; private set; }
         public byte? Xor { get; private set; }
-        public int OutputChunkSize { get; private set; } = DefaultOutputChunkSize;
+        public int? Expand { get; private set; }
+        public int ReadChunkSize { get; private set; } = DefaultReadChunkSize;
         public int? OutputChunkDelayMs { get; private set; }
-        public int? StopAfterChunks { get; private set; }
+        public int? FinishAfterReads { get; private set; }
         public string ProgressMessage { get; private set; }
         public string SuccessMessage { get; private set; }
         public string ErrorMessage { get; private set; }
@@ -78,20 +82,25 @@ Each flag may be given at most once.";
                             return false;
                         arguments.Xor = xor;
                         break;
-                    case "--output-chunk-size":
-                        if (!TryParseInt(value, minValue: 1, out int outputChunkSize))
+                    case "--expand":
+                        if (!TryParseInt(value, minValue: 2, out int expand))
                             return false;
-                        arguments.OutputChunkSize = outputChunkSize;
+                        arguments.Expand = expand;
+                        break;
+                    case "--read-chunk-size":
+                        if (!TryParseInt(value, minValue: 1, out int readChunkSize))
+                            return false;
+                        arguments.ReadChunkSize = readChunkSize;
                         break;
                     case "--output-chunk-delay":
                         if (!TryParseInt(value, minValue: waitForever, out int outputChunkDelayMs))
                             return false;
                         arguments.OutputChunkDelayMs = outputChunkDelayMs;
                         break;
-                    case "--stop-after-chunks":
-                        if (!TryParseInt(value, minValue: 1, out int stopAfterChunks))
+                    case "--finish-after-reads":
+                        if (!TryParseInt(value, minValue: 1, out int finishAfterReads))
                             return false;
-                        arguments.StopAfterChunks = stopAfterChunks;
+                        arguments.FinishAfterReads = finishAfterReads;
                         break;
                     case "--progress-message":
                         arguments.ProgressMessage = value;
@@ -131,6 +140,10 @@ Each flag may be given at most once.";
 
             // Without a source there's no stdout writing to hold off, so the wait would be silently ignored
             if (arguments.KeepStdoutOpenMs != null && arguments.SourceFile == null && !arguments.UseStdin)
+                return false;
+
+            // The buffers are allocated before a byte is read, so a demand this size would crash the run out of its requested exit code
+            if ((long)arguments.ReadChunkSize * (arguments.Expand ?? 1) > MaxBufferBytes)
                 return false;
 
             result = arguments;
