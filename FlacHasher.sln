@@ -51,6 +51,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Tests", "Common.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHasher.Cmd.E2E.Tests", "FlacHasher.Cmd.E2E.Tests\FlacHasher.Cmd.E2E.Tests.csproj", "{2B4F8351-B118-4FBD-90B1-E8403473FDAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacHash.Audio.Tests", "FlacHash.Audio.Tests\FlacHash.Audio.Tests.csproj", "{A8900BB2-2186-4EC4-B2ED-8BA451444939}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -313,6 +315,18 @@ Global
 		{2B4F8351-B118-4FBD-90B1-E8403473FDAF}.Release|x64.Build.0 = Release|Any CPU
 		{2B4F8351-B118-4FBD-90B1-E8403473FDAF}.Release|x86.ActiveCfg = Release|Any CPU
 		{2B4F8351-B118-4FBD-90B1-E8403473FDAF}.Release|x86.Build.0 = Release|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Debug|x64.Build.0 = Debug|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Debug|x86.Build.0 = Debug|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Release|x64.ActiveCfg = Release|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Release|x64.Build.0 = Release|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Release|x86.ActiveCfg = Release|Any CPU
+		{A8900BB2-2186-4EC4-B2ED-8BA451444939}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
