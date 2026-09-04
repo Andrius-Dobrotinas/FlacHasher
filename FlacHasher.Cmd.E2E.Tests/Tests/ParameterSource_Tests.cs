@@ -29,7 +29,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         }
 
         [Test]
-        public async Task Must_Use_Decoder_From_Settings_File__When_Not_Specified_On_Cmdline()
+        public async Task Hashing_a_file__uses_the_decoder_from_the_settings_file__when_none_is_specified_on_the_command_line()
         {
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
@@ -42,7 +42,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 "--decoder-verbose=false");
 
             result.ExitCode.Should().Be(0, $"the process must have run successfully for std-error to be meaningful; standard error was:\n{result.StdErr}");
-            result.StdOut.Trim().Should().Be(SampleAsset.Sample1.Flac.ExpectedMd5);
+            result.StdOut.Trim().Should().Be(SampleAsset.Sample1.ExpectedMd5);
         }
     }
 }
