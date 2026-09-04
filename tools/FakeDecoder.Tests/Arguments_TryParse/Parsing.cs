@@ -2,28 +2,12 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Andy.FakeDecoder
 {
     public class Parsing
     {
-        static readonly string[] allFlags =
-        {
-            "--file",
-            "--stdin",
-            "--xor",
-            "--expand",
-            "--read-chunk-size",
-            "--output-chunk-delay",
-            "--finish-after-reads",
-            "--progress-message",
-            "--success-message",
-            "--error-message",
-            "--keep-stdout-open",
-            "--linger",
-            "--exit-code"
-        };
-
         [Test]
         public void When__FileIsGiven__Must_ParseIt_AsTheSourceFile()
         {
@@ -42,11 +26,12 @@ namespace Andy.FakeDecoder
 
         [TestCase("5A", 0x5A)]
         [TestCase("5a", 0x5A)]
+        [TestCase("5", 0x05)]
         [TestCase("00", 0x00)]
         [TestCase("FF", 0xFF)]
         public void When__XorIsGiven__Must_ParseIt_AsAHexByte(string value, byte expected)
         {
-            var parsed = Parse("--xor", value);
+            var parsed = Parse("--stdin", "--xor", value);
 
             Assert.AreEqual(expected, parsed.Xor);
         }
@@ -54,7 +39,7 @@ namespace Andy.FakeDecoder
         [Test]
         public void When__ExpandIsGiven__Must_ParseIt()
         {
-            var parsed = Parse("--expand", "3");
+            var parsed = Parse("--stdin", "--expand", "3");
 
             Assert.AreEqual(3, parsed.Expand);
         }
@@ -62,23 +47,23 @@ namespace Andy.FakeDecoder
         [Test]
         public void When__ReadChunkSizeIsGiven__Must_ParseIt()
         {
-            var parsed = Parse("--read-chunk-size", "128");
+            var parsed = Parse("--stdin", "--read-chunk-size", "128");
 
             Assert.AreEqual(128, parsed.ReadChunkSize);
         }
 
         [Test]
-        public void When__OutputChunkDelayIsGiven__Must_ParseIt()
+        public void When__WriteDelayIsGiven__Must_ParseIt()
         {
-            var parsed = Parse("--output-chunk-delay", "250");
+            var parsed = Parse("--stdin", "--write-delay", "250");
 
-            Assert.AreEqual(250, parsed.OutputChunkDelayMs);
+            Assert.AreEqual(250, parsed.WriteDelayMs);
         }
 
         [Test]
         public void When__FinishAfterReadsIsGiven__Must_ParseIt()
         {
-            var parsed = Parse("--finish-after-reads", "3");
+            var parsed = Parse("--stdin", "--finish-after-reads", "3");
 
             Assert.AreEqual(3, parsed.FinishAfterReads);
         }
@@ -86,9 +71,9 @@ namespace Andy.FakeDecoder
         [Test]
         public void When__ProgressMessageIsGiven__Must_ParseIt()
         {
-            var parsed = Parse("--progress-message", "a chunk went out");
+            var parsed = Parse("--stdin", "--progress-message", "a write went out");
 
-            Assert.AreEqual("a chunk went out", parsed.ProgressMessage);
+            Assert.AreEqual("a write went out", parsed.ProgressMessage);
         }
 
         [Test]
@@ -147,7 +132,7 @@ namespace Andy.FakeDecoder
                 Assert.IsFalse(parsed.UseStdin, "stdin");
                 Assert.IsNull(parsed.Xor, "xor");
                 Assert.IsNull(parsed.Expand, "expand");
-                Assert.IsNull(parsed.OutputChunkDelayMs, "chunk delay");
+                Assert.IsNull(parsed.WriteDelayMs, "write delay");
                 Assert.IsNull(parsed.FinishAfterReads, "finish after reads");
                 Assert.IsNull(parsed.ProgressMessage, "progress message");
                 Assert.IsNull(parsed.SuccessMessage, "success message");
@@ -168,7 +153,7 @@ namespace Andy.FakeDecoder
                 Assert.AreEqual(0x5A, parsed.Xor, "xor");
                 Assert.AreEqual(2, parsed.Expand, "expand");
                 Assert.AreEqual(16, parsed.ReadChunkSize, "chunk size");
-                Assert.AreEqual(20, parsed.OutputChunkDelayMs, "chunk delay");
+                Assert.AreEqual(20, parsed.WriteDelayMs, "write delay");
                 Assert.AreEqual(2, parsed.FinishAfterReads, "finish after reads");
                 Assert.AreEqual("progress", parsed.ProgressMessage, "progress message");
                 Assert.AreEqual("success", parsed.SuccessMessage, "success message");
@@ -187,18 +172,33 @@ namespace Andy.FakeDecoder
             Assert.AreEqual(-1, getValue(parsed));
         }
 
+        /// <summary>
+        /// The read buffer counts towards the cap as well as the expanded one, so a chunk of a quarter the maximum
+        /// expanded three times over sits exactly on it: four buffers' worth in all.
+        /// </summary>
         [Test]
-        public void When__TheBufferIsExactly_TheMaximum__Must_Accept_It()
+        public void When__TheBuffersAreExactly_TheMaximum__Must_Accept_It()
         {
-            var parsed = Parse("--read-chunk-size", (Arguments.MaxBufferBytes / 2).ToString(), "--expand", "2");
+            var parsed = Parse("--stdin", "--read-chunk-size", (Arguments.MaxBufferBytes / 4).ToString(), "--expand", "3");
 
-            Assert.AreEqual(Arguments.MaxBufferBytes / 2, parsed.ReadChunkSize);
+            Assert.AreEqual(Arguments.MaxBufferBytes / 4, parsed.ReadChunkSize);
+        }
+
+        /// <summary>
+        /// Without an expansion there's no second buffer, so the whole maximum is the read chunk's to use.
+        /// </summary>
+        [Test]
+        public void When__TheReadBufferAlone_IsExactly_TheMaximum__Must_Accept_It()
+        {
+            var parsed = Parse("--stdin", "--read-chunk-size", Arguments.MaxBufferBytes.ToString());
+
+            Assert.AreEqual(Arguments.MaxBufferBytes, parsed.ReadChunkSize);
         }
 
         [Test]
         public void When__ReadChunkSizeIs_One__Must_Accept_It()
         {
-            var parsed = Parse("--read-chunk-size", "1");
+            var parsed = Parse("--stdin", "--read-chunk-size", "1");
 
             Assert.AreEqual(1, parsed.ReadChunkSize);
         }
@@ -206,18 +206,48 @@ namespace Andy.FakeDecoder
         [Test]
         public void When__FinishAfterReadsIs_One__Must_Accept_It()
         {
-            var parsed = Parse("--finish-after-reads", "1");
+            var parsed = Parse("--stdin", "--finish-after-reads", "1");
 
             Assert.AreEqual(1, parsed.FinishAfterReads);
         }
 
         /// <summary>
+        /// The other side of the source requirement: these four act on the run itself rather than on bytes,
+        /// so a sourceless run - one that starts, says it has nothing to do, and takes its time going - still needs them.
+        /// </summary>
+        [TestCase("--linger", "100", TestName = "{m}(--linger)")]
+        [TestCase("--success-message", "done", TestName = "{m}(--success-message)")]
+        [TestCase("--error-message", "oops", TestName = "{m}(--error-message)")]
+        [TestCase("--exit-code", "3", TestName = "{m}(--exit-code)")]
+        public void When__AFlagNeedingNoSource_IsGivenWithoutOne__Must_Accept_It(string flag, string value)
+        {
+            Assert.IsTrue(Arguments.TryParse(new[] { flag, value }, out _));
+        }
+
+        /// <summary>
         /// Driven off the flag list so that the help can't quietly rot as flags get added.
         /// </summary>
-        [TestCaseSource(nameof(allFlags))]
+        [TestCaseSource(typeof(Flags), nameof(Flags.All))]
         public void When__UsageText__Must_Document_EveryFlag(string flag)
         {
             Assert.That(Arguments.UsageText, Does.Contain(flag));
+        }
+
+        /// <summary>
+        /// And the other way about, so that the two can't drift apart from the far end either: a flag added to the
+        /// help but not to the list would leave the list no longer the flag list, and every test driven off it -
+        /// the missing-value cases among them - would silently stop covering that flag.
+        /// The help sits next to the parsing it describes, which makes it the closest thing to the real flag set
+        /// that a test can get at.
+        /// </summary>
+        [Test]
+        public void When__TheFlagList__Must_Hold_EveryFlag_TheUsageTextMentions()
+        {
+            var documented = Regex.Matches(Arguments.UsageText, "--[a-z][a-z-]*")
+                .Select(x => x.Value)
+                .Distinct();
+
+            Assert.That(documented, Is.EquivalentTo(Flags.All));
         }
 
         static Arguments Parse(params string[] arguments)
@@ -235,7 +265,7 @@ namespace Andy.FakeDecoder
                 new[] { "--xor", "5A" },
                 new[] { "--expand", "2" },
                 new[] { "--read-chunk-size", "16" },
-                new[] { "--output-chunk-delay", "20" },
+                new[] { "--write-delay", "20" },
                 new[] { "--finish-after-reads", "2" },
                 new[] { "--progress-message", "progress" },
                 new[] { "--success-message", "success" },
@@ -254,8 +284,8 @@ namespace Andy.FakeDecoder
 
         static IEnumerable<TestCaseData> GetWaitFlags()
         {
-            yield return new TestCaseData("--output-chunk-delay", (Func<Arguments, int?>)(x => x.OutputChunkDelayMs))
-                .SetName("{m}(--output-chunk-delay)");
+            yield return new TestCaseData("--write-delay", (Func<Arguments, int?>)(x => x.WriteDelayMs))
+                .SetName("{m}(--write-delay)");
 
             yield return new TestCaseData("--keep-stdout-open", (Func<Arguments, int?>)(x => x.KeepStdoutOpenMs))
                 .SetName("{m}(--keep-stdout-open)");

@@ -18,6 +18,12 @@ namespace Andy.FakeDecoder
         public static FileInfo SourceFile { get; private set; }
         public static FileInfo EmptySourceFile { get; private set; }
 
+        /// <summary>
+        /// A source file that certainly isn't there: the name is unique to the run and nothing ever writes it.
+        /// </summary>
+        public static FileInfo MissingSourceFile { get; } = new FileInfo(
+            Path.Combine(Path.GetTempPath(), $"fakedecoder-no-such-file-{Guid.NewGuid():N}.bin"));
+
         static DirectoryInfo directory;
 
         [OneTimeSetUp]

@@ -192,8 +192,8 @@ namespace Andy.FakeDecoder
 
                 readsMade++;
 
-                if (arguments.OutputChunkDelayMs != null)
-                    Thread.Sleep(arguments.OutputChunkDelayMs.Value);
+                if (arguments.WriteDelayMs != null)
+                    Thread.Sleep(arguments.WriteDelayMs.Value);
 
                 var output = expandedBuffer ?? buffer;
                 int outputByteCount = expandedBuffer != null

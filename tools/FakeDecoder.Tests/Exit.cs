@@ -107,7 +107,7 @@ namespace Andy.FakeDecoder
                 {
                     "--file", TestPayload.SourceFile.FullName,
                     "--read-chunk-size", "1",
-                    "--output-chunk-delay", "50",
+                    "--write-delay", "50",
                     "--exit-code", exitCode.ToString()
                 })
                 startInfo.ArgumentList.Add(argument);
@@ -125,15 +125,16 @@ namespace Andy.FakeDecoder
         }
 
         [Test]
-        public async Task When__AProgressMessageIsGiven__Must_Write_It_OncePerChunk()
+        public async Task When__AProgressMessageIsGiven__Must_Write_It_OncePerWrite()
         {
-            const string progressMessage = "CHUNK-WENT-OUT";
-            const int chunkSize = 64;
-            var expectedChunkCount = TestPayload.Bytes.Length / chunkSize;
+            const string progressMessage = "WRITE-WENT-OUT";
+            const int readChunkSize = 64;
+            // Every read makes exactly one write, so the read size gives the count
+            var expectedWriteCount = TestPayload.Bytes.Length / readChunkSize;
 
             var result = await App.Run(
                 "--file", TestPayload.SourceFile.FullName,
-                "--read-chunk-size", chunkSize.ToString(),
+                "--read-chunk-size", readChunkSize.ToString(),
                 "--progress-message", progressMessage);
 
             var occurrences = result.StdErr.Split(progressMessage).Length - 1;
@@ -141,14 +142,14 @@ namespace Andy.FakeDecoder
             Assert.Multiple(() =>
             {
                 Assert.AreEqual(0, result.ExitCode, result.StdErr);
-                Assert.AreEqual(expectedChunkCount, occurrences, "The progress message has to be written once per chunk");
+                Assert.AreEqual(expectedWriteCount, occurrences, "The progress message has to be written once per write");
             });
         }
 
         [Test]
         public async Task When__ProgressAndExitMessagesAreBothWritten__Must_Write_TheExitMessage_Last()
         {
-            const string progressMessage = "CHUNK-WENT-OUT";
+            const string progressMessage = "WRITE-WENT-OUT";
 
             var result = await App.Run(
                 "--file", TestPayload.SourceFile.FullName,

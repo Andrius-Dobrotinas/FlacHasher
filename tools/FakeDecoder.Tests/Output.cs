@@ -90,21 +90,21 @@ namespace Andy.FakeDecoder
         /// Held against the same run without expansion, since the read size is the one thing expansion has to leave alone.
         /// </summary>
         [Test]
-        public async Task When__ExpandIsGiven__Must_Not_Change_HowMuchIsRead_PerChunk()
+        public async Task When__ExpandIsGiven__Must_Not_Change_HowMuchIsRead_PerRead()
         {
-            const string progressMessage = "CHUNK-WENT-OUT";
-            const int chunkSize = 10;
+            const string progressMessage = "WRITE-WENT-OUT";
+            const int readChunkSize = 10;
             const int factor = 3;
 
             var unexpanded = await App.Run(
                 "--file", TestPayload.SourceFile.FullName,
-                "--read-chunk-size", chunkSize.ToString(),
+                "--read-chunk-size", readChunkSize.ToString(),
                 "--progress-message", progressMessage);
 
             var expanded = await App.Run(
                 "--file", TestPayload.SourceFile.FullName,
                 "--expand", factor.ToString(),
-                "--read-chunk-size", chunkSize.ToString(),
+                "--read-chunk-size", readChunkSize.ToString(),
                 "--progress-message", progressMessage);
 
             Assert.Multiple(() =>
@@ -168,18 +168,18 @@ namespace Andy.FakeDecoder
         [Test]
         public async Task When__FinishAfterReadsIsReached_WhileExpanding__Must_Read_ExactlyThatManyTimes()
         {
-            const int chunkSize = 10;
+            const int readChunkSize = 10;
             const int factor = 2;
             const int reads = 3;
             var expected = TestPayload.Bytes
-                .Take(reads * chunkSize)
+                .Take(reads * readChunkSize)
                 .SelectMany(x => Enumerable.Repeat(x, factor))
                 .ToArray();
 
             var result = await App.Run(
                 "--file", TestPayload.SourceFile.FullName,
                 "--expand", factor.ToString(),
-                "--read-chunk-size", chunkSize.ToString(),
+                "--read-chunk-size", readChunkSize.ToString(),
                 "--finish-after-reads", reads.ToString());
 
             Assert.Multiple(() =>
@@ -193,7 +193,7 @@ namespace Andy.FakeDecoder
         /// 7 doesn't divide 256, so a dropped remainder would show up as missing tail bytes.
         /// </summary>
         [Test]
-        public async Task When__TheChunkSizeDoesNotDivideTheSource__Must_Still_Write_EveryByte()
+        public async Task When__TheReadChunkSizeDoesNotDivideTheSource__Must_Still_Write_EveryByte()
         {
             var result = await App.Run("--file", TestPayload.SourceFile.FullName, "--read-chunk-size", "7");
 

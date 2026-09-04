@@ -1,5 +1,8 @@
 using NUnit.Framework;
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Andy.FakeDecoder
 {
@@ -34,6 +37,23 @@ namespace Andy.FakeDecoder
                 Assert.IsTrue(run.WaitForStdoutEof(generousWaitMs), "Standard output has to reach an EOF");
 
                 // Waiting rather than just looking at the task: an EOF handed over by the exit itself would look the same at that instant
+                Assert.IsFalse(run.ProcessTask.Wait(shortWaitMs), "The EOF has to arrive well before the process exits - an EOF that comes with the exit proves nothing");
+
+                Assert.IsTrue(run.ProcessTask.Wait(generousWaitMs), "The process has to exit once it's done lingering");
+            }
+        }
+
+        /// <summary>
+        /// Reading a pipe takes a different path through the program than reading a file, and the EOF has to come
+        /// ahead of the exit on that path too.
+        /// </summary>
+        [Test]
+        public void When__LingeringWhileReadingStdin__Must_Send_EOF_BeforeExiting()
+        {
+            using (var run = LiveRun.Start(TestPayload.Bytes, "--stdin", "--linger", holdMs))
+            {
+                Assert.IsTrue(run.WaitForStdoutEof(generousWaitMs), "Standard output has to reach an EOF");
+
                 Assert.IsFalse(run.ProcessTask.Wait(shortWaitMs), "The EOF has to arrive well before the process exits - an EOF that comes with the exit proves nothing");
 
                 Assert.IsTrue(run.ProcessTask.Wait(generousWaitMs), "The process has to exit once it's done lingering");
@@ -98,9 +118,9 @@ namespace Andy.FakeDecoder
         }
 
         [Test]
-        public void When__TheChunkDelayIsForever__Must_Not_Write_Anything()
+        public void When__TheWriteDelayIsForever__Must_Not_Write_Anything()
         {
-            using (var run = LiveRun.Start("--file", TestPayload.SourceFile.FullName, "--output-chunk-delay", "-1"))
+            using (var run = LiveRun.Start("--file", TestPayload.SourceFile.FullName, "--write-delay", "-1"))
             {
                 Assert.IsFalse(run.WaitForOutput(shortWaitMs), "Nothing has to come out of a write that never happens");
                 Assert.IsFalse(run.StdoutHasReachedEof, "Standard output has to stay open");
@@ -108,40 +128,103 @@ namespace Andy.FakeDecoder
         }
 
         /// <summary>
-        /// Coarse on purpose: the point is that the delay is paid for every chunk rather than once.
+        /// Coarse on purpose: the point is that the delay is paid for every write rather than once.
         /// </summary>
         [Test]
-        public void When__AChunkDelayIsGiven__Must_Apply_It_ToEveryChunk()
+        public void When__AWriteDelayIsGiven__Must_Apply_It_ToEveryWrite()
         {
             const int delayMs = 100;
-            const int chunkSize = 52; // 256 bytes make 5 chunks of this size, the last one short
-            const int chunkCount = 5;
+            const int readChunkSize = 52;
+            // 256 bytes make 5 reads of that size, the last one short, and every read makes a write
+            const int writeCount = 5;
 
             var stopwatch = Stopwatch.StartNew();
 
             using (var run = LiveRun.Start(
                 "--file", TestPayload.SourceFile.FullName,
-                "--read-chunk-size", chunkSize.ToString(),
-                "--output-chunk-delay", delayMs.ToString()))
+                "--read-chunk-size", readChunkSize.ToString(),
+                "--write-delay", delayMs.ToString()))
             {
-                Assert.IsTrue(run.WaitForOutput(generousWaitMs), "The first chunk has to come out");
-                var firstChunkAtMs = stopwatch.ElapsedMilliseconds;
+                Assert.IsTrue(run.WaitForOutput(generousWaitMs), "The first write has to come out");
+                var firstWriteAtMs = stopwatch.ElapsedMilliseconds;
 
-                Assert.IsTrue(run.WaitForStdoutEof(generousWaitMs), "Every chunk has to come out eventually");
-                var lastChunkAtMs = stopwatch.ElapsedMilliseconds;
+                Assert.IsTrue(run.WaitForStdoutEof(generousWaitMs), "Every write has to come out eventually");
+                var lastWriteAtMs = stopwatch.ElapsedMilliseconds;
 
                 Assert.Multiple(() =>
                 {
                     Assert.AreEqual(TestPayload.Bytes, run.Bytes, "Delaying must not cost any bytes");
 
-                    Assert.Greater(lastChunkAtMs, chunkCount * delayMs - delayMs,
-                        "The whole run has to take about one delay per chunk");
+                    Assert.Greater(lastWriteAtMs, writeCount * delayMs - delayMs,
+                        "The whole run has to take about one delay per write");
 
-                    // Measured from the first chunk, so that a slow start-up can't be mistaken for a delay
-                    Assert.Greater(lastChunkAtMs - firstChunkAtMs, (chunkCount - 1) * delayMs / 2,
-                        "The chunks after the first one have to be delayed too, not just the first");
+                    // Measured from the first write, so that a slow start-up can't be mistaken for a delay
+                    Assert.Greater(lastWriteAtMs - firstWriteAtMs, (writeCount - 1) * delayMs / 2,
+                        "The writes after the first one have to be delayed too, not just the first");
                 });
             }
+        }
+
+        /// <summary>
+        /// The rest of the source is deliberately left unread on an early finish, so that whoever is feeding stdin
+        /// is left writing into a pipe nobody holds - the broken pipe a real `head` hands the command feeding it.
+        /// Draining the remainder instead would take that away and nothing else would notice.
+        /// Run through System.Diagnostics.Process rather than <see cref="App"/>: this test has to own the write end
+        /// of the pipe and keep pushing at it, which CliWrap gives it no way to do.
+        /// </summary>
+        [Test]
+        public void When__FinishingEarly_WithStdin__Must_Break_TheProducersNextWrite()
+        {
+            var startInfo = new ProcessStartInfo(TestEnvironment.Executable.FullName)
+            {
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+
+            foreach (var argument in new[] { "--stdin", "--read-chunk-size", "1", "--finish-after-reads", "1" })
+                startInfo.ArgumentList.Add(argument);
+
+            using (var process = Process.Start(startInfo))
+            {
+                var producer = Task.Run(() => WriteUntilItBreaks(process.StandardInput.BaseStream));
+
+                // A write into a full pipe blocks instead of returning, so the byte cap inside the loop can't be the only guard
+                if (!producer.Wait(generousWaitMs))
+                {
+                    process.Kill();
+                    Assert.Fail("The program has to finish and let go of stdin rather than leave the producer blocked on a write");
+                }
+
+                Assert.IsInstanceOf<IOException>(
+                    producer.Result,
+                    "Writing to a program that has finished early and gone has to fail");            }
+        }
+
+        /// <summary>
+        /// The pipe swallows a bufferful before a write can fail, so it takes far more than one write to reach one.
+        /// The failure is handed back rather than thrown, so that waiting for the writing to end can't be tripped up by it.
+        /// </summary>
+        static IOException WriteUntilItBreaks(Stream producer)
+        {
+            // Well past any pipe's capacity, so that a program which drains its source runs out of rope rather than out of time
+            const int capBytes = 8 * 1024 * 1024;
+            var buffer = new byte[4096];
+
+            try
+            {
+                for (int written = 0; written < capBytes; written += buffer.Length)
+                {
+                    producer.Write(buffer, 0, buffer.Length);
+                    producer.Flush();
+                }
+            }
+            catch (IOException exception)
+            {
+                return exception;
+            }
+
+            return null;
         }
     }
 }

@@ -13,7 +13,6 @@ namespace Andy.FakeDecoder
 
         // Any file that certainly exists, so that the two-sources case is rejected for having two sources rather than for a missing file
         static readonly string existingFile = Assembly.GetExecutingAssembly().Location;
-        static readonly string missingFile = Path.Combine(Path.GetTempPath(), $"fakedecoder-no-such-file-{Guid.NewGuid():N}.bin");
 
         [Test]
         public async Task When__NoArgumentsAreGiven__Must_Write_NothingToProcess_AndTheFlagList__And_Return_Zero()
@@ -78,16 +77,49 @@ namespace Andy.FakeDecoder
             Assert.IsEmpty(result.StdOut);
         }
 
+        /// <summary>
+        /// The defect this fences: the file passed the existence check and then threw on the open, and the run died
+        /// with a runtime-chosen exit code in place of the one it was asked for.
+        /// </summary>
+        [Test]
+        public async Task When__TheSourceFileCannotBeOpened__Must_Write_TheFlagList_And_Return_One()
+        {
+            var path = Path.Combine(Path.GetTempPath(), $"fakedecoder-held-{Guid.NewGuid():N}.bin");
+            File.WriteAllBytes(path, new byte[] { 1, 2, 3 });
+
+            try
+            {
+                using (File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    var result = await App.Run("--file", path, "--exit-code", "5");
+
+                    Assert.Multiple(() =>
+                    {
+                        Assert.AreEqual(usageErrorExitCode, result.ExitCode, result.StdErr);
+                        Assert.That(result.StdErr, Does.Contain(Arguments.UsageText));
+                        Assert.IsEmpty(result.StdOut);
+                    });
+                }
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
         static IEnumerable<TestCaseData> GetInvalidArguments()
         {
             yield return Case("An unknown flag", "--decode-everything", "yes");
             yield return Case("A flag missing its value", "--exit-code");
             yield return Case("Both sources", "--stdin", "--file", existingFile);
             yield return Case("An unparseable number", "--read-chunk-size", "quite a few");
-            yield return Case("A source file that isn't there", "--file", missingFile);
-            yield return Case("Keeping stdout open without a source", "--keep-stdout-open", "500");
-            yield return Case("A buffer bigger than the maximum", "--expand", (Arguments.MaxBufferBytes + 1).ToString());
+            yield return Case("A source file that isn't there", "--file", TestPayload.MissingSourceFile.FullName);
+            yield return Case("An empty source path", "--file", "");
+            yield return Case("A flag that needs a source, without one", "--keep-stdout-open", "500");
+            // With a source, so that it's the size that's rejected rather than the missing source
+            yield return Case("A buffer bigger than the maximum", "--stdin", "--expand", (Arguments.MaxBufferBytes + 1).ToString());
             yield return Case("A repeated flag", "--exit-code", "1", "--exit-code", "2");
+            yield return Case("A value that is a flag name", "--progress-message", "--stdin");
         }
 
         static TestCaseData Case(string name, params string[] arguments)

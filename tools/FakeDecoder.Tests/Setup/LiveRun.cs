@@ -23,20 +23,30 @@ namespace Andy.FakeDecoder
         readonly MemoryStream stdout = new MemoryStream();
         readonly StringBuilder stderr = new StringBuilder();
 
-        LiveRun(string[] arguments)
+        LiveRun(byte[] stdin, string[] arguments)
         {
-            ProcessTask = App.BuildCommand(arguments)
+            var command = App.BuildCommand(arguments)
                 .WithStandardOutputPipe(PipeTarget.Create(Consume))
                 .WithStandardErrorPipe(PipeTarget.Merge(
                     PipeTarget.ToStringBuilder(stderr),
-                    PipeTarget.ToDelegate(_ => stderrStarted.Set())))
+                    PipeTarget.ToDelegate(_ => stderrStarted.Set())));
+
+            if (stdin != null)
+                command = command.WithStandardInputPipe(PipeSource.FromBytes(stdin));
+
+            ProcessTask = command
                 .ExecuteAsync(cancellation.Token)
                 .Task;
         }
 
         public static LiveRun Start(params string[] arguments)
         {
-            return new LiveRun(arguments);
+            return new LiveRun(stdin: null, arguments);
+        }
+
+        public static LiveRun Start(byte[] stdin, params string[] arguments)
+        {
+            return new LiveRun(stdin, arguments);
         }
 
         /// <summary>
