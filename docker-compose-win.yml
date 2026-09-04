@@ -15,6 +15,9 @@ services:
      - --configuration
      - Release
      - /p:EnableWindowsTargeting=true
+     # Ignore E2E tests
+     - --filter
+     - FullyQualifiedName!~Andy.FlacHash.Application.Cmd.E2E
     environment:
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
