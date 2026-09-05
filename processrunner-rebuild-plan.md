@@ -4,7 +4,13 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observables 0 to 7 are complete**, green on Windows and Linux, with no `[Platform(Exclude)]` markers left anywhere. Only ★ `startWaitMs` remains.
+**Observables 0 to 7 are complete**, green on Windows and Linux, with no `[Platform(Exclude)]` markers left anywhere. ★ `startWaitMs` has been probed and left untouched, as agreed; see below.
+
+### ★ `startWaitMs`: not reproduced, and no code changed
+
+About 3,600 runs per platform at `startWaitMs: 0`, against `100` as the control: sequential and 16-way concurrent, under heavy CPU load and without, feeding 1 byte, 256 bytes and 256 KiB through stdin, and a control with no input at all. **Not one failure at `0`, on either platform.**
+
+That is a negative result, not a verdict. The failure it guards against was real when it was met, and nothing here explains it away — only that it does not show up under these conditions on these machines. The parameter and its 100 ms default stay exactly as they are, to be looked at together.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -222,6 +228,19 @@ Three sections below collect everything deliberately deferred. Nothing here is s
 
 Findings that contradicted an assumption, and what was done about them.
 
+### Open question: "delivered" currently means written, not read
+
+**Not decided — this one needs you**, because it bears on what `PrematureExitException` was agreed to mean.
+
+A child launched with nothing to read from exits at once without touching its standard input. Feeding it 256 bytes gives two different answers on Linux depending only on timing: with `startWaitMs: 0` the write lands in the pipe's buffer before the child is gone and the run is reported a **success**; with `100` the child has already exited, the write breaks, and the run is reported as `PrematureExitException`. Same child, same input, same code. 99 runs out of 100 either way, so it is not a flaky race but a threshold. On Windows neither value fails.
+
+The cause is that delivery is recorded when the last byte has been **written to the pipe**, which is not the same as the process having **read** it. Anything smaller than a pipe will hold (~64 KiB) can be written to a child that never reads a byte of it, and the runner is none the wiser. Above that size the write blocks and then breaks, which is why the tests in `Feeding.cs` use a 256 KiB payload and catch it reliably.
+
+That sits against what was asked for: a process that decided it had all it needed is not good enough, because we know it did not read what we meant it to. As built, that holds for inputs bigger than a pipe buffer and not for smaller ones.
+
+Worth knowing before choosing: a real decoder is fed whole audio files, which are far larger than any pipe buffer, so the gap is not reachable in this application today. Closing it properly means the child confirming what it consumed, which a pipe gives no way to ask.
+
+<!-- Each entry: what was expected, what the probe actually showed, what was decided, and what would change if the decision were reversed. -->
 ### Letting go of the process' pipe interrupts a read in flight, on Unix only
 
 **Expected**: releasing the stdout stream on close would be housekeeping, since nothing else lets go of the process' end of the pipe — `Process.Close` deliberately leaves its stream readers alone.
