@@ -88,7 +88,11 @@ namespace Andy.ExternalProcess
             return GetOutputStream_WaitProcessExitInParallel(process, inputData, process.StartInfo.RedirectStandardError, cancellation);
         }
 
-        public ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IExternalProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
+        /// <summary>
+        /// Not part of the contract: the two <see cref="RunAndReadOutput"/> overloads are. This exists so that the
+        /// few behaviours no real process can be made to produce can be staged with a fake one.
+        /// </summary>
+        internal ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IExternalProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
         {
             process.Start();
             Task.Delay(startWaitMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...

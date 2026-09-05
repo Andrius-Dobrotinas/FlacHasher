@@ -11,6 +11,7 @@ namespace Andy.ExternalProcess
         private readonly Stream outputStream;
         private readonly TaskCompletionSource<object> outputReadTaskCompletion;
         private readonly Task processTask;
+        private volatile bool isClosed;
 
         public ProcessOutputStream(Stream outputStream, TaskCompletionSource<object> outputReadTaskCompletion, Task process)
         {
@@ -33,19 +34,13 @@ namespace Andy.ExternalProcess
             if (EndOfTheLine)
                 throw new InvalidOperationException("The stream has ended and all data has already been returned");
 
-            var readCount = outputStream.Read(buffer, offset, count);
+            var readCount = ReadFromProcess(buffer, offset, count);
             if (readCount == 0)
             {
                 EndOfTheLine = true;
-                try
-                {
-                    outputReadTaskCompletion.SetResult(null);
-                }
-                catch (InvalidOperationException)
-                {
-                    // This may get if Dispose has been called (can't set result on outputReadTaskCompletion twice).
-                    // In such case, I expect processTask to throw a cancellation exception, so it's all good.
-                }
+
+                // Losing this race means Close got in first and cancelled the run, which processTask is about to report
+                outputReadTaskCompletion.TrySetResult(null);
 
                 // intercept cancellation/timeout exception OR
                 // wait for the process to exit and throw an exception if there is one
@@ -54,8 +49,29 @@ namespace Andy.ExternalProcess
             return readCount;
         }
 
+        /// <summary>
+        /// Letting go of the process' end of the pipe while a read is outstanding tears that read down, and what
+        /// that looks like depends on the platform: Unix interrupts the system call and raises an IOException,
+        /// Windows reports the stream as disposed of. Neither is a fault worth passing on - this end was closed
+        /// because the caller asked for it - so both come back as an end of stream, and the cancellation is
+        /// reported from there.
+        /// </summary>
+        private int ReadFromProcess(byte[] buffer, int offset, int count)
+        {
+            try
+            {
+                return outputStream.Read(buffer, offset, count);
+            }
+            catch (Exception e) when (isClosed && (e is IOException || e is ObjectDisposedException))
+            {
+                return 0;
+            }
+        }
+
         public override void Close()
         {
+            isClosed = true;
+
             bool finishedPriorToThis = !outputReadTaskCompletion.TrySetCanceled();
             if (!finishedPriorToThis)
             {
@@ -69,6 +85,9 @@ namespace Andy.ExternalProcess
                     // Cancellation on closing has to be quiet
                 }
             }
+
+            // Nothing else lets go of the process' end of the pipe: disposing of the process leaves its streams alone
+            outputStream.Dispose();
 
             base.Close();
         }

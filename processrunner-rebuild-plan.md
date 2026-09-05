@@ -4,7 +4,7 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observables 0 to 5 are complete**, green on Windows and Linux.
+**Observables 0 to 6 are complete**, green on Windows and Linux, with no `[Platform(Exclude)]` markers left anywhere.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -220,7 +220,17 @@ Three sections below collect everything deliberately deferred. Nothing here is s
 
 ## Decisions taken alone
 
-Findings that contradicted an assumption, and what was done about them. Empty so far.
+Findings that contradicted an assumption, and what was done about them.
+
+### Letting go of the process' pipe interrupts a read in flight, on Unix only
+
+**Expected**: releasing the stdout stream on close would be housekeeping, since nothing else lets go of the process' end of the pipe — `Process.Close` deliberately leaves its stream readers alone.
+
+**Measured**: on Linux, disposing of that stream while a read is outstanding interrupts the system call: `IOException: Interrupted system call` wrapping `SocketException (4)`, out of `PipeStream.ReadCore`. Windows reports the stream as disposed of instead. The same difference is what the old `[Platform(Exclude = "Linux")]` markers were describing, except those blamed the platform while testing anonymous-pipe fakes; this is the real thing, and it only appeared once the stream was genuinely released.
+
+**Decided**: `ProcessOutputStream` notes that it is closing before it lets go, and a read torn down in that window comes back as an end of stream rather than a fault. The cancellation is then reported from the usual place. The caller asked for the close, so an I/O error is not the honest answer.
+
+**If reversed**: the alternative is not releasing the pipe at all, which is what leaked a handle per file hashed. Reporting the `IOException` as-is would be worse still — disposal would be quiet on Windows and an error on Linux.
 
 <!-- Each entry: what was expected, what the probe actually showed, what was decided, and what would change if the decision were reversed. -->
 

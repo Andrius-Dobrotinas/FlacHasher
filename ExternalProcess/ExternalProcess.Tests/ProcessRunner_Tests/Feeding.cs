@@ -102,7 +102,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         {
             using (var inputClosed = new ManualResetEventSlim(false))
             {
-                var input = new ReadSignallingMemoryStream(TestPayload.Bytes, closeSignal: inputClosed);
+                var input = new DisposeSignallingMemoryStream(TestPayload.Bytes, inputClosed);
 
                 var outputStream = Decoder.Run(DecoderArgs.ReadingStdin(), input);
                 Util.Read(outputStream);
