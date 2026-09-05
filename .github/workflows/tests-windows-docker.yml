@@ -37,13 +37,13 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     env:
-      PROJECT_ARGS: FlacHasher.Cmd.E2E.Tests/FlacHasher.Cmd.E2E.Tests.csproj --configuration Release /p:EnableWindowsTargeting=true
+      SLN_ARGS: FlacHasher.E2E.sln --configuration Release /p:EnableWindowsTargeting=true
 
     steps:
       - uses: actions/checkout@v4
       - name: Build the image
         run: docker compose --file docker-compose-win.yml build tests_e2e
       - name: Build
-        run: docker compose --file docker-compose-win.yml run --rm tests_e2e build ${{ env.PROJECT_ARGS }}
+        run: docker compose --file docker-compose-win.yml run --rm tests_e2e build ${{ env.SLN_ARGS }}
       - name: Run E2E Tests
-        run: docker compose --file docker-compose-win.yml run --rm tests_e2e test ${{ env.PROJECT_ARGS }}
+        run: docker compose --file docker-compose-win.yml run --rm tests_e2e test ${{ env.SLN_ARGS }}
