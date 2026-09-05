@@ -4,7 +4,7 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observables 0 to 4 are complete**, green on Windows and Linux.
+**Observables 0 to 5 are complete**, green on Windows and Linux.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -238,6 +238,8 @@ Seen by: the Win app's status box, the CLI's verification listing. The CLI's has
 > Couldn't Decode audio. The decoder produced its output but then stopped responding and had to be terminated, so there's no telling whether it finished the job.
 > Possible reasons: the decoder is waiting on something, or is misconfigured/given incorrect parameters.
 
+- A process that produces far more than it consumes does not deadlock against the feeding: both pipes are in play at once and neither wedges the other, at a 4x expansion over a 256 KiB input.
+
 **`ProcessTimeoutException`**
 
 > The process took longer than it is allowed and was terminated before it finished, so its output is incomplete. Process error output\n: {output}
@@ -245,6 +247,14 @@ Seen by: the Win app's status box, the CLI's verification listing. The CLI's has
 … or, when stderr was not redirected, `Process error output has not been captured`.
 
 Seen by: everywhere a decoder failure is reported. It replaces the bare `TimeoutException`, which carried no process output at all.
+
+**`PrematureExitException`**
+
+> The process stopped reading its input before all of it had been sent, and then exited with code {code}. Only part of the data reached it, so whatever it produced covers only that part. Process error output\n: {output}
+
+… or, when stderr was not redirected, `Process error output has not been captured`.
+
+Seen by: everywhere a decoder failure is reported. Unlike the two above, this one carries the code the process really did choose for itself, which is always `0` — a code of its own outranks it.
 
 ## FakeDecoder: capabilities not added
 

@@ -99,6 +99,8 @@ namespace Andy.ExternalProcess
             CancellationTokenSource errorReadCancellation = null;
             ErrorOutputBuffer errorOutput = null;
             Task stdErrorTask = null;
+            Task inputTask = null;
+            InputDelivery inputDelivery = null;
             if (readStderr)
             {
                 errorReadCancellation = new CancellationTokenSource();
@@ -108,7 +110,8 @@ namespace Andy.ExternalProcess
 
             if (input != null)
             {
-                BackgroundTask.StartBackgroundTask(() => WriteToStdInAndDisposeOf(process.StandardInput.BaseStream, input));
+                inputDelivery = new InputDelivery();
+                inputTask = BackgroundTask.StartBackgroundTask(() => WriteToStdInAndDisposeOf(process.StandardInput.BaseStream, input, inputDelivery));
             }
 
             //I don't need a return value, but there's no non-generic version of this
@@ -116,7 +119,7 @@ namespace Andy.ExternalProcess
 
             var processWaitTask = BackgroundTask.StartBackgroundTask(() =>
             {
-                WaitForOutputRead_AndProcessExitCode(process, outputReadTaskCompletion.Task, stdErrorTask, errorOutput, cancellation, errorReadCancellation);
+                WaitForOutputRead_AndProcessExitCode(process, outputReadTaskCompletion.Task, stdErrorTask, errorOutput, cancellation, errorReadCancellation, inputTask, inputDelivery);
             });
 
             return new ProcessOutputStream(process.StandardOutput.BaseStream, outputReadTaskCompletion, processWaitTask);
@@ -127,7 +130,7 @@ namespace Andy.ExternalProcess
         /// Also, handles cancellation and time-out.
         /// At the end, disposes of <paramref name="process"/>
         /// </summary>
-        private void WaitForOutputRead_AndProcessExitCode(IExternalProcess process, Task outputReadTask, Task stdErrorTask = null, ErrorOutputBuffer errorOutput = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
+        private void WaitForOutputRead_AndProcessExitCode(IExternalProcess process, Task outputReadTask, Task stdErrorTask = null, ErrorOutputBuffer errorOutput = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null, Task inputTask = null, InputDelivery inputDelivery = null)
         {
             try
             {
@@ -180,7 +183,7 @@ namespace Andy.ExternalProcess
                 // It hasn't been cancelled, and hasn't timed-out.
                 // Even if time-out had fired, it must've still finished before it got around to killing the process.
 
-                ProcessExitCode(process, exitTimeoutMs, stdErrorTask, errorOutput);
+                ProcessExitCode(process, exitTimeoutMs, stdErrorTask, errorOutput, inputTask, inputDelivery);
             }
             finally
             {
@@ -191,15 +194,25 @@ namespace Andy.ExternalProcess
             }
         }
 
-        private static void WriteToStdInAndDisposeOf(Stream target, Stream inputData)
+        private static void WriteToStdInAndDisposeOf(Stream target, Stream inputData, InputDelivery delivery)
         {
             try
             {
                 //This errors out when the process gets closed prematurely (timeout/cancellation) due to stdin getting closed/disposed of
                 inputData.CopyTo(target);
 
+                delivery.MarkFinished();
+
                 //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
                 target.Close();
+            }
+            // The process let go of the read end before it had everything. Nobody is waiting on this task,
+            // so the failure is recorded by the delivery going unmarked rather than by an exception no one would see.
+            catch (IOException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
             }
             finally
             {
@@ -239,7 +252,7 @@ namespace Andy.ExternalProcess
             }
         }
 
-        private static void ProcessExitCode(IExternalProcess process, int exitTimeoutMs, Task stdErrorTask = null, ErrorOutputBuffer errorOutput = null)
+        private static void ProcessExitCode(IExternalProcess process, int exitTimeoutMs, Task stdErrorTask = null, ErrorOutputBuffer errorOutput = null, Task inputTask = null, InputDelivery inputDelivery = null)
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
@@ -268,6 +281,34 @@ namespace Andy.ExternalProcess
                     HarvestErrorOutput(stdErrorTask, errorOutput, exitTimeoutMs),
                     isProcessOutputCaptured: true);
             }
+
+            /* Last of all: an exit code the process chose for itself outranks this, and every other way a run can end
+             * kills the process, which breaks the feeding as a matter of course rather than as a fault of its own. */
+            if (inputDelivery != null && !FinishedDelivering(inputTask, inputDelivery, exitTimeoutMs))
+            {
+                throw new PrematureExitException(
+                    process.ExitCode,
+                    HarvestErrorOutput(stdErrorTask, errorOutput, exitTimeoutMs),
+                    isProcessOutputCaptured: errorOutput != null);
+            }
+        }
+
+        /// <summary>
+        /// The process closing its input is what lets it exit, so by now the feeding has all but certainly finished
+        /// one way or the other; the wait is only to settle the last of the race.
+        /// </summary>
+        private static bool FinishedDelivering(Task inputTask, InputDelivery inputDelivery, int exitTimeoutMs)
+        {
+            try
+            {
+                inputTask?.Wait(exitTimeoutMs);
+            }
+            catch
+            {
+                // Whether it finished is recorded on the delivery itself, so the shape of the failure adds nothing here
+            }
+
+            return inputDelivery.Finished;
         }
 
         /// <summary>
