@@ -15,7 +15,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [Test]
         public void Must_StartWriting_To_StdIn_RightAway__WithoutWaiting_For_RetunedStream_ToGetConsumed()
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var inputBytes = Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!");
 
@@ -34,7 +34,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences))]
         public void Must_Write_TheWhole_InputStream_To_StdIn(byte[] sourceBytes)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             using (var readFinishSignal = new ManualResetEventSlim(false))
             {
@@ -54,7 +54,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences))]
         public void Must_Send_EndOfStream_To_StdIn_By_ClosingIt_When_Finishes_Writing_Input(byte[] sourceBytes)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             using (var readFinishSignal = new ManualResetEventSlim(false))
             using (var closeSignal = new ManualResetEventSlim(false))
@@ -75,7 +75,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences))]
         public void Must_Close_InputStream_When_Finishes_WritingTo_StdIn(byte[] sourceBytes)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             using (var inputCloseSignal = new ManualResetEventSlim(false))
             using (var stdinCloseSignal = new ManualResetEventSlim(false))
@@ -97,7 +97,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences))]
         public void When_InputIsNotAvailableYet_TheReturnedStream_Must_BeOpen(byte[] sourceBytes)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var input = new DelayingMemoryStream(sourceBytes, 500);
             var process = new ExternalProcessPiped();

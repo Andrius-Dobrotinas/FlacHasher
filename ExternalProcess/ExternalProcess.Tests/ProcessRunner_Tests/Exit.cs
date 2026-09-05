@@ -92,7 +92,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             var missing = new FileInfo(
                 Path.Combine(Path.GetTempPath(), $"no-such-decoder-{Guid.NewGuid():N}.exe"));
 
-            var target = new ProcessRunner(Decoder.NoTimeout, Decoder.ExitTimeoutMs, Decoder.StartWaitMs, showProcessOutput: false);
+            var target = new ProcessRunner(Decoder.NoTimeout, Decoder.ExitTimeoutMs, Decoder.StartWaitMs, ProcessRunner.DefaultMaxErrorOutputBytes, showProcessOutput: false);
 
             Assert.Throws<System.ComponentModel.Win32Exception>(
                 () => target.RunAndReadOutput(missing, Array.Empty<string>()));

@@ -104,11 +104,7 @@ namespace Andy.FlacHash.Application.Cmd
 
                 WriteUserLine($"Hash algorithm: {settings.HashAlgorithm}");
 
-                var processRunner = new ExternalProcess.ProcessRunner(
-                    timeoutSec: settings.ProcessTimeoutSec,
-                    exitTimeoutMs: settings.ProcessExitTimeoutMs,
-                    startWaitMs: settings.ProcessStartDelayMs,
-                    showProcessRealtimeOutput);
+                var processRunner = FlacHash.Application.Audio.ProcessRunnerFactory.Build(settings, showProcessRealtimeOutput);
 
                 var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderFile);
                 FlacHash.Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);

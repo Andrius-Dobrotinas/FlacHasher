@@ -35,6 +35,12 @@ namespace Andy.FlacHash.Application
         [ConfigurationFacet(ConfigurationFacet.Decoder)]
         public int ProcessStartDelayMs { get; set; }
 
+        [IniEntry(nameof(DecoderInfoOutputMaxSizeKb))]
+        [Optional(defaultValue: 64)]
+        [ParameterDescription("How much of the decoder's information output (which is where it reports errors) to keep, in KiB, for reporting a failure with. The most recent output is what's kept. -1 for no limit")]
+        [ConfigurationFacet(ConfigurationFacet.Decoder)]
+        public int DecoderInfoOutputMaxSizeKb { get; set; }
+
         [OperationInstanceConfiguration]
         [CmdLineParameter(CmdlineParameterNames.HashAlgorithm, Order = 0)]
         [IniEntry(nameof(HashAlgorithm), Order = 1)]

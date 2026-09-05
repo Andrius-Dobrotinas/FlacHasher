@@ -18,7 +18,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(500, 50, false)]
         public void When_CancellationIsRequested_WhileReadingProcessOutput__MustAbort_RightAway_KillTheProcess_And_ThrowCancellationException(int timeoutMs, int delayBetweenReads, bool redirectStdErr)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var sourceBytes = Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!");
             using (var cancellation = new CancellationTokenSource())
@@ -42,7 +42,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [Platform(Exclude = "Linux", Reason = "TODO: investigate. Is it a bad test set up? On Linux, closing the real anonymous pipe while a read is blocked on it surfaces as an IOException/SocketException (EINTR) rather than the expected OperationCanceledException.")]
         public void When_CancellationIsRequested_WhileReadingProcessOutput__MustAbort_RightAway_KillTheProcess_And_ThrowCancellationException__WhenUsingInput(int timeout, int delayBetweenReads, bool redirectStdErr)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var sourceBytes = Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!");
             using (var cancellation = new CancellationTokenSource())
@@ -65,7 +65,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(500, 50, false)]
         public void When_CancellationIsRequested_WhileStuckWaitingForMoreStdOut__Must_Do_the_CancellationRoutine(int timeout, int delayBetweenReads, bool redirectStdErr)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var sourceBytes = Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!");
             using (var cancellation = new CancellationTokenSource())

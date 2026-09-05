@@ -18,7 +18,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(300)]
         public void When_StdErrIsRedirected_But_NotResponding__And_ProcessExits_With_ErrorExitCode__UponReadingTheWholeOutputStream__Must_AbortReadingStdErr_AfterTimeout_And_DisposeOfTheProcess(int timoeut)
         {
-            var target = new ProcessRunner(-1, timoeut, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1, exitTimeoutMs: timoeut);
 
             using (var stderrReadSignal = new AutoResetEvent(false))
             {
@@ -42,7 +42,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [Test]
         public void When_Process_HasToBeKilledOnExit_But_StaysAlive_AfterBeingKilled__Must_Not_Ask_ForItsExitCode()
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var stdout = new MemoryStream(Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!"));
             var process = new ExternalProcessFake(stdout: stdout, stdin: null, respondToExitRequest: false, exitOnKillRequest: false);
@@ -60,7 +60,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [Test]
         public void When_StdErrIsRedirected_But_ReadingItThrows__And_ProcessExits_With_ErrorExitCode__UponReadingTheWholeOutputStream__Must_Throw_ExecutionException_With_IsProcessOutputCaptured_True()
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var stdout = new MemoryStream(Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!"));
             var stderr = new ThrowingReadStream(Encoding.UTF8.GetBytes("Here's some error for ya!"));

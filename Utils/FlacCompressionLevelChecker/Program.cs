@@ -40,7 +40,12 @@ namespace Andy.FlacHash.CompressionLevel
 
             var recoder = new FileRecoder(
                 flacExe,
-                new ExternalProcess.ProcessRunner(processTimeoutSec, processExitTimeoutMs, processStartDelayMs, showProcessOutput: true));
+                new ExternalProcess.ProcessRunner(
+                    ExternalProcess.ProcessRunner.TimeoutFromSeconds(processTimeoutSec),
+                    processExitTimeoutMs,
+                    processStartDelayMs,
+                    ExternalProcess.ProcessRunner.DefaultMaxErrorOutputBytes,
+                    showProcessOutput: true));
 
             using (Stream recodedAudio = recoder.Encode(sourceFile, compressionLevel))
             {

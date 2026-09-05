@@ -12,6 +12,7 @@ namespace Andy.ExternalProcess
         private readonly int exitTimeoutMs;
         private readonly int startWaitMs;
         private readonly int timeoutMs;
+        private readonly int maxErrorOutputBytes;
         private readonly bool showProcessOutput;
 
         private const int ExitCode_CtrlC_Windows = -1073741510;
@@ -23,18 +24,31 @@ namespace Andy.ExternalProcess
         private static int ExitCode_CtrlC => OperatingSystem.IsWindows() ? ExitCode_CtrlC_Windows : ExitCode_CtrlC_Unix;
 
         public const int NoTimeoutValue = -1;
+        public const int UnboundedErrorOutput = ErrorOutputBuffer.Unbounded;
+        public const int DefaultMaxErrorOutputBytes = 64 * 1024;
 
-        /// <param name="timeoutSec">If a process doesn't finish within a given time (in seconds), it will be termined without returning any result</param>
+        /// <summary>
+        /// The process timeout is configured in seconds but applied in milliseconds; this is the one place that knows both.
+        /// </summary>
+        public static int TimeoutFromSeconds(int timeoutSec)
+        {
+            return timeoutSec == NoTimeoutValue ? NoTimeoutValue : timeoutSec * 1000;
+        }
+
+        /// <param name="timeoutMs">If a process doesn't finish within a given time (in milliseconds), it will be termined without returning any result. <see cref="NoTimeoutValue"/> for no timeout</param>
         /// <param name="exitTimeoutMs">Time to wait (in milliseconds) for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
         /// <param name="startWaitMs">Time to wait (in milliseconds) before starting interacting with the process' std streams.
         /// Sometimes (depending on the speed of the computer?) it doesn't have std streams available right away, which results in "Pipe ended" error.</param>
+        /// <param name="maxErrorOutputBytes">How much of the process' error output to keep for reporting a failure with. The most recent bytes are the ones kept.
+        /// <see cref="UnboundedErrorOutput"/> to keep all of it, at the cost of a buffer that grows with the run</param>
         /// <param name="showProcessOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
         /// When off, captures stderr and includes in exceptions if the process fails</param>
-        public ProcessRunner(int timeoutSec, int exitTimeoutMs, int startWaitMs, bool showProcessOutput)
+        public ProcessRunner(int timeoutMs, int exitTimeoutMs, int startWaitMs, int maxErrorOutputBytes, bool showProcessOutput)
         {
-            this.timeoutMs = timeoutSec == NoTimeoutValue ? NoTimeoutValue : timeoutSec * 1000;
+            this.timeoutMs = timeoutMs;
             this.exitTimeoutMs = exitTimeoutMs;
             this.startWaitMs = startWaitMs;
+            this.maxErrorOutputBytes = maxErrorOutputBytes;
             this.showProcessOutput = showProcessOutput;
         }
 
@@ -83,11 +97,13 @@ namespace Andy.ExternalProcess
              * (probably depends on whether stderr and stdout writes sequence or in parallel in the program).
              * The bigger the input file, the more is written to the error stream as progress report */
             CancellationTokenSource errorReadCancellation = null;
-            Task<MemoryStream> stdErrorTask = null;
+            ErrorOutputBuffer errorOutput = null;
+            Task stdErrorTask = null;
             if (readStderr)
             {
                 errorReadCancellation = new CancellationTokenSource();
-                stdErrorTask = BackgroundTask.StartBackgroundTask(() => ReadStreamCancellable(process.StandardError.BaseStream, errorReadCancellation.Token));
+                errorOutput = new ErrorOutputBuffer(maxErrorOutputBytes);
+                stdErrorTask = BackgroundTask.StartBackgroundTask(() => ReadErrorOutput(process.StandardError.BaseStream, errorOutput, errorReadCancellation.Token));
             }
 
             if (input != null)
@@ -100,7 +116,7 @@ namespace Andy.ExternalProcess
 
             var processWaitTask = BackgroundTask.StartBackgroundTask(() =>
             {
-                WaitForOutputRead_AndProcessExitCode(process, outputReadTaskCompletion.Task, stdErrorTask, cancellation, errorReadCancellation);
+                WaitForOutputRead_AndProcessExitCode(process, outputReadTaskCompletion.Task, stdErrorTask, errorOutput, cancellation, errorReadCancellation);
             });
 
             return new ProcessOutputStream(process.StandardOutput.BaseStream, outputReadTaskCompletion, processWaitTask);
@@ -111,7 +127,7 @@ namespace Andy.ExternalProcess
         /// Also, handles cancellation and time-out.
         /// At the end, disposes of <paramref name="process"/>
         /// </summary>
-        private void WaitForOutputRead_AndProcessExitCode(IExternalProcess process, Task outputReadTask, Task<MemoryStream> stdErrorTask = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
+        private void WaitForOutputRead_AndProcessExitCode(IExternalProcess process, Task outputReadTask, Task stdErrorTask = null, ErrorOutputBuffer errorOutput = null, CancellationToken cancellation = default, CancellationTokenSource errorReadCancellation = null)
         {
             try
             {
@@ -159,10 +175,13 @@ namespace Andy.ExternalProcess
                 // It hasn't been cancelled, and hasn't timed-out.
                 // Even if time-out had fired, it must've still finished before it got around to killing the process.
 
-                ProcessExitCode(process, exitTimeoutMs, stdErrorTask, errorReadCancellation);
+                ProcessExitCode(process, exitTimeoutMs, stdErrorTask, errorOutput);
             }
             finally
             {
+                // The reader is of no further use on any path out of here, and it holds the process' error stream open
+                errorReadCancellation?.Cancel();
+                errorReadCancellation?.Dispose();
                 process.Dispose();
             }
         }
@@ -183,25 +202,39 @@ namespace Andy.ExternalProcess
             }
         }
 
-        private static MemoryStream ReadStreamCancellable(Stream outputStream, CancellationToken cancellation = default)
+        /// <summary>
+        /// Drains the process' error output for as long as there is any, keeping the tail of it.
+        /// Draining has to continue past the cap: a full pipe stops the process writing, and it writes to stdout through the same stalls.
+        /// </summary>
+        private static void ReadErrorOutput(Stream errorStream, ErrorOutputBuffer buffer, CancellationToken cancellation)
         {
-            var processOutput = new MemoryStream();
+            var chunk = new byte[4096];
 
-            //Just in case the stream freezes even after process exits (unlikely, but I've heard about such a problem).
-            //Whatever has been copied over, should be returned because it can be useful even if it's incomplete.
+            /* Whatever has been collected stays usable even if the reading ends badly, so every way out of here is quiet.
+             * On Unix, closing a pipe under a blocked read surfaces as an IOException rather than an end of stream. */
             try
             {
-                outputStream.CopyToAsync(processOutput, cancellation).GetAwaiter().GetResult();
+                while (!cancellation.IsCancellationRequested)
+                {
+                    int count = errorStream.Read(chunk, 0, chunk.Length);
+                    if (count == 0)
+                        return;
+
+                    buffer.Write(chunk, count);
+                }
             }
             catch (OperationCanceledException)
             {
             }
-
-            processOutput.Seek(0, SeekOrigin.Begin);
-            return processOutput;
+            catch (IOException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
+            }
         }
 
-        private static void ProcessExitCode(IExternalProcess process, int exitTimeoutMs, Task<MemoryStream> stdErrorTask = null, CancellationTokenSource errorReadCancellation = null)
+        private static void ProcessExitCode(IExternalProcess process, int exitTimeoutMs, Task stdErrorTask = null, ErrorOutputBuffer errorOutput = null)
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
@@ -211,7 +244,9 @@ namespace Andy.ExternalProcess
                 /* All of the output has been served by this point, but nothing has vouched for it.
                  * The exit code of a killed process is the one the OS terminated it with, never the one the program
                  * would have chosen, so there is nothing here to tell a finished job from an abandoned one. */
-                throw BuildNotRespondingException(stdErrorTask, exitTimeoutMs, errorReadCancellation);
+                throw new ProcessNotRespondingException(
+                    HarvestErrorOutput(stdErrorTask, errorOutput, exitTimeoutMs),
+                    isProcessOutputCaptured: errorOutput != null);
             }
 
             if (process.ExitCode != 0)
@@ -219,65 +254,38 @@ namespace Andy.ExternalProcess
                 // This happens when this is run by a cmd-line application and it gets Ctrl+C'd as it relays the command to the spawned process
                 if (process.ExitCode == ExitCode_CtrlC)
                     throw new OperationCanceledException("Process has been cancelled");
-                else if (stdErrorTask == null)
+
+                if (errorOutput == null)
                     throw new ExecutionException(process.ExitCode);
 
-                try
-                {
-                    // Wait for std-error read task to finish - or force-stop it on time-out
-                    using (var stdError = WaitForErrorStream(stdErrorTask, exitTimeoutMs, errorReadCancellation))
-                    {
-                        string processErrorOutput = ReadErrorStreamOutput(stdError);
-                        throw new ExecutionException(process.ExitCode, processErrorOutput, isProcessOutputCaptured: true);
-                    }
-                }
-                catch (ExecutionException)
-                {
-                    throw;
-                }
-                catch
-                {
-                    // Stderr had been redirected even though reading it failed, so output capture was still attempted
-                    throw new ExecutionException(process.ExitCode, processErrorOutput: null, isProcessOutputCaptured: true);
-                }
+                throw new ExecutionException(
+                    process.ExitCode,
+                    HarvestErrorOutput(stdErrorTask, errorOutput, exitTimeoutMs),
+                    isProcessOutputCaptured: true);
             }
         }
 
-        private static ProcessNotRespondingException BuildNotRespondingException(Task<MemoryStream> stdErrorTask, int exitTimeoutMs, CancellationTokenSource errorReadCancellation)
+        /// <summary>
+        /// Gives the reader a moment to catch up and then takes whatever it has, finished or not.
+        /// Waiting on it for real would be waiting on a stream that may never come to an end - a cancellation token
+        /// can't interrupt a read already in progress, so there would be nothing to break the wait.
+        /// </summary>
+        private static string HarvestErrorOutput(Task stdErrorTask, ErrorOutputBuffer errorOutput, int exitTimeoutMs)
         {
-            if (stdErrorTask == null)
-                return new ProcessNotRespondingException(processErrorOutput: null, isProcessOutputCaptured: false);
+            if (errorOutput == null)
+                return null;
 
             try
             {
-                using (var stdError = WaitForErrorStream(stdErrorTask, exitTimeoutMs, errorReadCancellation))
-                    return new ProcessNotRespondingException(ReadErrorStreamOutput(stdError), isProcessOutputCaptured: true);
+                stdErrorTask?.Wait(exitTimeoutMs);
             }
             catch
             {
-                // Stderr had been redirected even though reading it failed, so output capture was still attempted
-                return new ProcessNotRespondingException(processErrorOutput: null, isProcessOutputCaptured: true);
+                // The reader gave up on something unforeseen. Whatever it collected before that still stands,
+                // and is worth more here than the failure of the reading replacing the failure being reported.
             }
-        }
 
-        private static TStream WaitForErrorStream<TStream>(Task<TStream> stdErrorTask, int exitTimeoutMs, CancellationTokenSource errorReadCancellation)
-        {
-            bool finished = stdErrorTask.Wait(exitTimeoutMs);
-
-            //Shouldn't ever happen, but just in case the stars align right
-            if (!finished)
-                errorReadCancellation.Cancel();
-
-            //Even if cancelled, it will have captured stuff (anything up to cancellation)
-            return stdErrorTask.GetAwaiter().GetResult();
-        }
-
-        private static string ReadErrorStreamOutput(Stream stdError)
-        {
-            using (var reader = new StreamReader(stdError))
-            {
-                return reader.ReadToEnd();
-            }
+            return errorOutput.GetText();
         }
     }
 }

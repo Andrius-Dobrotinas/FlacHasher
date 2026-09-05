@@ -4,7 +4,7 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observables 0, 1 and 2 are complete**, green on Windows and Linux.
+**Observables 0, 1, 2 and 3 are complete**, green on Windows and Linux.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -17,6 +17,9 @@ Settled along the way:
 - `showProcessOutput: true` leaves `ProcessErrorOutput` null and `IsProcessOutputCaptured` false, and the child's stderr lands in the test runner's output. Harmless, but it is why a passing run is not silent.
 - **Reap latency does not trip a healthy process at any sane timeout.** A child that lingers 0 ms or 300 ms after closing stdout is reaped well inside a 2 s wait, and production allows 1000 ms. The reap check only fires on a process that genuinely will not exit, so turning it into a failure costs nothing in false positives.
 - Holding stdout open and refusing to exit are separate failures and report separately: no EOF is the timeout's business, EOF-then-hang is the reap check's.
+- **The unbounded drain wait is gone by construction, not by timing.** The reader now fills a shared buffer instead of returning one, so a report takes a snapshot and never joins the task. There is nothing left to hang on, which is worth more than a timeout would have been: a cancellation token cannot interrupt a read already in progress, so the old `Cancel()` had nothing to break the wait with.
+- The `IsProcessOutputCaptured: true` with null output contradiction is likewise structural now. Whatever the reader collected before it stopped is always available, so the flag means what it says: stderr was redirected.
+- `ProcessRunnerFactory` in the application layer is the single place that converts a user's seconds and kibibytes into the runner's milliseconds and bytes. Both applications go through it.
 
 - Nothing in the solution catches `TimeoutException`, so it can leave the contract without a single call-site change.
 - Executable resolution holds under `UseArtifactsOutput`. The Linux image builds to `/src/build-output` with a layout unlike the Windows one, and the `FakeDecoderOutputDirectory` assembly attribute still points at the executable.

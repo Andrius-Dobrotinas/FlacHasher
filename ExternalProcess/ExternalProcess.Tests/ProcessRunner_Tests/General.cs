@@ -17,7 +17,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(false)]
         public void Must_Return_OutputStream_RightAway_WithoutWaitingFor_StdOutToServeData__WhenUsingInput(bool redirectStderr)
         {
-            var target = new ProcessRunner(0, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(0);
             
             var input = new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500);
             var stderr = redirectStderr ? new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500) : null;
@@ -39,7 +39,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(false)]
         public void Must_Return_OutputStream_RightAway_WithoutWaitingFor_StdOutToServeData(bool redirectStderr)
         {
-            var target = new ProcessRunner(0, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(0);
             
             var input = new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500);
             var stderr = redirectStderr ? new DelayingMemoryStream(new byte[] { 1, 2, 3 }, delayMillis: 500) : null;
@@ -63,7 +63,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences_WithStdErrRedirectFlag))]
         public void TheStream_Must_ServeFrom_StdOut_OfTheProcess(byte[] sourceBytes, bool redirectStderr)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var stdout = new MemoryStream(sourceBytes);
             var stderr = redirectStderr ? new MemoryStream(Encoding.UTF8.GetBytes("E.r.r.o.r.")) : null;
@@ -79,7 +79,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences_WithStdErrRedirectFlag))]
         public void TheStream_Must_ServeDataFrom_StdOut_OfTheProcess__WhenUsingInput(byte[] sourceBytes, bool redirectStderr)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var stdout = new MemoryStream(sourceBytes);
             var stderr = redirectStderr ? new MemoryStream(Encoding.UTF8.GetBytes("E.r.r.o.r.")) : null;
@@ -97,7 +97,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(1000, false)]
         public void TheStream_UponReading_Must_WaitFor_StdOut_ToReturnSomeData(int stdoutResponseDelayMs, bool withInput)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             // Simulates delayed data availability and waits for a read operation to complete (within a generous 5 sec timeout)
             using (var stdoutReadSignal = new AutoResetEvent(false))
@@ -122,7 +122,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences_WithStdErrRedirectFlag))]
         public void Once_StdOut_IsFullyRead_And_ProcessExitedSuccessfully__Must_DisposeOf_TheProcess(byte[] sourceBytes, bool withInput)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var stdout = new MemoryStream(sourceBytes);
             var process = new ExternalProcessFake(stdout: stdout, stdin: withInput ? new FakeWriteStream() : null, exitCode: 0);
@@ -140,7 +140,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCaseSource(nameof(GetByteSequences_WithStdErrRedirectFlag))]
         public void When_Stderr_IsRedirected__Must_Start_ReadingIt_RightAway__SoAsNotToBlockTheProcess(byte[] sourceBytes, bool withInput)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             using (var readSignal = new AutoResetEvent(false))
             {
@@ -168,7 +168,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [Platform(Exclude = "Linux", Reason = "TODO: investigate. Is it a bad test set up? On Linux, closing the real anonymous pipe while a read is blocked on it surfaces as an IOException/SocketException (EINTR) rather than the expected OperationCanceledException.")]
         public void When_TheStream_IsDisposedOf_While_ProcessIsOutputtingData__Must_TriggerProcessCancellation_DisposeOfIt_AndReturnSuccessfully__WithInput(bool redirectStderr, bool respondToExitRequest)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var input = new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50);
             var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
@@ -198,7 +198,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(true, false)]
         public void When_TheStream_IsDisposedOf_While_ProcessIsOutputtingData__Must_TriggerProcessCancellation_DisposeOfIt_AndReturnSuccessfully(bool redirectStderr, bool respondToExitRequest)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var data = new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50);
             var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
@@ -234,7 +234,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(false)]
         public void When_TheStream_IsDisposedOf_After_ProcessExits__Must_ReturnSuccessfully(bool redirectStderr)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var data = new MemoryStream(new byte[] { 1,2,3,4});
             var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
@@ -261,7 +261,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         [TestCase(false)]
         public void When_TheStream_IsDisposedOf_After_ProcessExits__Must_ReturnSuccessfully__WithInput(bool redirectStderr)
         {
-            var target = new ProcessRunner(-1, 0, 0, false);
+            var target = TestRunner.WithTimeoutInSeconds(-1);
 
             var input = new MemoryStream(new byte[] { 1,2,3,4});
             var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;

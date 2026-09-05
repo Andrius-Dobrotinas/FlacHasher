@@ -27,9 +27,10 @@ namespace Andy.ExternalProcess
             int timeoutSec = NoTimeout,
             int exitTimeoutMs = ExitTimeoutMs,
             bool showProcessOutput = false,
+            int maxErrorOutputBytes = ProcessRunner.DefaultMaxErrorOutputBytes,
             CancellationToken cancellation = default)
         {
-            return Build(timeoutSec, exitTimeoutMs, showProcessOutput)
+            return Build(timeoutSec, exitTimeoutMs, showProcessOutput, maxErrorOutputBytes)
                 .RunAndReadOutput(TestEnvironment.DecoderExecutable, arguments.Build(), cancellation);
         }
 
@@ -39,15 +40,21 @@ namespace Andy.ExternalProcess
             int timeoutSec = NoTimeout,
             int exitTimeoutMs = ExitTimeoutMs,
             bool showProcessOutput = false,
+            int maxErrorOutputBytes = ProcessRunner.DefaultMaxErrorOutputBytes,
             CancellationToken cancellation = default)
         {
-            return Build(timeoutSec, exitTimeoutMs, showProcessOutput)
+            return Build(timeoutSec, exitTimeoutMs, showProcessOutput, maxErrorOutputBytes)
                 .RunAndReadOutput(TestEnvironment.DecoderExecutable, arguments.Build(), input, cancellation);
         }
 
-        static ProcessRunner Build(int timeoutSec, int exitTimeoutMs, bool showProcessOutput)
+        static ProcessRunner Build(int timeoutSec, int exitTimeoutMs, bool showProcessOutput, int maxErrorOutputBytes)
         {
-            return new ProcessRunner(timeoutSec, exitTimeoutMs, StartWaitMs, showProcessOutput);
+            return new ProcessRunner(
+                ProcessRunner.TimeoutFromSeconds(timeoutSec),
+                exitTimeoutMs,
+                StartWaitMs,
+                maxErrorOutputBytes,
+                showProcessOutput);
         }
     }
 }
