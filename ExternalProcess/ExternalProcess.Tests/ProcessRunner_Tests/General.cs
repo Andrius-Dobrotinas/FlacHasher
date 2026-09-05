@@ -136,25 +136,6 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             Assert.True(process.IsDisposedOf);
         }
 
-        [Test]
-        public void Once_StdOut_IsFullyRead_But_ProcessDoesNotExit__Must_Quietly_Kill_TheProcess_DisposeOfIt_And_Return()
-        {
-            var target = new ProcessRunner(-1, 0, 0, false);
-
-            var voluntaryExitCompletion = new TaskCompletionSource<bool>();
-
-            var stdout = new MemoryStream(Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!"));
-            var process = new ExternalProcessFake(stdout: stdout, stdin: null, voluntaryExitCompletion: voluntaryExitCompletion, respondToExitRequest: false, exitCode: 0);
-
-            var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process);
-
-            Assert.DoesNotThrow(() => Util.Read(outputStream));
-
-            Assert.IsTrue(voluntaryExitCompletion.Task.Wait(1000), "Process has to exit either way");
-            Assert.IsFalse(voluntaryExitCompletion.Task.Result, "Process has to have been killed");
-            Assert.True(process.IsDisposedOf, "Process has to be disposed of");
-        }
-
         // If a stream is redirected, once the process' buffer fills up, it stops and waits, so stdout freezes too
         [TestCaseSource(nameof(GetByteSequences_WithStdErrRedirectFlag))]
         public void When_Stderr_IsRedirected__Must_Start_ReadingIt_RightAway__SoAsNotToBlockTheProcess(byte[] sourceBytes, bool withInput)
@@ -284,7 +265,8 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             var input = new MemoryStream(new byte[] { 1,2,3,4});
             var errorStream = redirectStderr ? new EndlessFakeReadStream(maxReadSize: 1, delayMs: 50) : null;
-            var process = new ExternalProcessPiped(respondToExitRequest: false, stderr: errorStream);
+            // The premise is a process that has exited, so it has to be one that responds to being waited on
+            var process = new ExternalProcessPiped(stderr: errorStream);
             
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, input, readStderr: redirectStderr);
 

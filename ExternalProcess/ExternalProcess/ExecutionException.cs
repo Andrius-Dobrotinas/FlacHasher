@@ -26,5 +26,17 @@ namespace Andy.ExternalProcess
             ProcessErrorOutput = processErrorOutput;
             IsProcessOutputCaptured = isProcessOutputCaptured;
         }
+
+        /// <summary>
+        /// For failures that aren't an exit code: a terminated process never reports one of its own choosing,
+        /// so "exited with code N" would be a lie.
+        /// </summary>
+        protected ExecutionException(string message, int exitCode, string processErrorOutput, bool isProcessOutputCaptured)
+            : base(message)
+        {
+            ExitCode = exitCode;
+            ProcessErrorOutput = processErrorOutput;
+            IsProcessOutputCaptured = isProcessOutputCaptured;
+        }
     }
 }

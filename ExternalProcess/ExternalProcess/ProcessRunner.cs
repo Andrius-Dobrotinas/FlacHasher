@@ -207,14 +207,11 @@ namespace Andy.ExternalProcess
             if (process.WaitForExit(exitTimeoutMs) == false)
             {
                 process.Kill(true);
-                /* Killing is asynchronous, so the exit code isn't available upon returning from it.
-                 * And even once it is, it's the code the OS terminated the process with, not the one the process would have exited with,
-                 * so it will always be non-0, which means it would be treated as an error even if there was no error - there's no way to know.
-                 * All of the output has been served by this point anyway - the application did its job!
-                 * Stderr may have the error text if there was an error, but I can't just throw a process' normal output as an error.
-                 * It's just it is what it is... */
-                // NO! If it's not clear, then the output cannot be trusted! This must error out!
-                return;
+
+                /* All of the output has been served by this point, but nothing has vouched for it.
+                 * The exit code of a killed process is the one the OS terminated it with, never the one the program
+                 * would have chosen, so there is nothing here to tell a finished job from an abandoned one. */
+                throw BuildNotRespondingException(stdErrorTask, exitTimeoutMs, errorReadCancellation);
             }
 
             if (process.ExitCode != 0)
@@ -243,6 +240,23 @@ namespace Andy.ExternalProcess
                     // Stderr had been redirected even though reading it failed, so output capture was still attempted
                     throw new ExecutionException(process.ExitCode, processErrorOutput: null, isProcessOutputCaptured: true);
                 }
+            }
+        }
+
+        private static ProcessNotRespondingException BuildNotRespondingException(Task<MemoryStream> stdErrorTask, int exitTimeoutMs, CancellationTokenSource errorReadCancellation)
+        {
+            if (stdErrorTask == null)
+                return new ProcessNotRespondingException(processErrorOutput: null, isProcessOutputCaptured: false);
+
+            try
+            {
+                using (var stdError = WaitForErrorStream(stdErrorTask, exitTimeoutMs, errorReadCancellation))
+                    return new ProcessNotRespondingException(ReadErrorStreamOutput(stdError), isProcessOutputCaptured: true);
+            }
+            catch
+            {
+                // Stderr had been redirected even though reading it failed, so output capture was still attempted
+                return new ProcessNotRespondingException(processErrorOutput: null, isProcessOutputCaptured: true);
             }
         }
 

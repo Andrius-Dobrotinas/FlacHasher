@@ -4,7 +4,7 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observable 0 (harness) and observable 1 (output, exit codes, arguments) are complete**, green on Windows and Linux.
+**Observables 0, 1 and 2 are complete**, green on Windows and Linux.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -15,6 +15,8 @@ Settled along the way:
 - A Ctrl+C'd child reports `130` on Unix, and the Windows-only constant meant Linux reported a cancellation as a decoder failure. Fixed; the test failed on Linux before and passes now.
 - An executable that cannot be run throws `Win32Exception` synchronously, out of `RunAndReadOutput` itself, before any stream exists.
 - `showProcessOutput: true` leaves `ProcessErrorOutput` null and `IsProcessOutputCaptured` false, and the child's stderr lands in the test runner's output. Harmless, but it is why a passing run is not silent.
+- **Reap latency does not trip a healthy process at any sane timeout.** A child that lingers 0 ms or 300 ms after closing stdout is reaped well inside a 2 s wait, and production allows 1000 ms. The reap check only fires on a process that genuinely will not exit, so turning it into a failure costs nothing in false positives.
+- Holding stdout open and refusing to exit are separate failures and report separately: no EOF is the timeout's business, EOF-then-hang is the reap check's.
 
 - Nothing in the solution catches `TimeoutException`, so it can leave the contract without a single call-site change.
 - Executable resolution holds under `UseArtifactsOutput`. The Linux image builds to `/src/build-output` with a layout unlike the Windows one, and the `FakeDecoderOutputDirectory` assembly attribute still points at the executable.
@@ -220,9 +222,18 @@ Findings that contradicted an assumption, and what was done about them. Empty so
 
 ## Exception message wording
 
-`FormX.ReportExecutionError` and `Verification.cs` display nothing but `Message`, so for those users the message is the entire explanation. The three new messages are written to stand alone and are listed here to be adjusted to taste. Empty so far.
+`FormX.ReportExecutionError` and `Verification.cs` display nothing but `Message`, so for those users the message is the entire explanation. The three new messages are written to stand alone and are listed here to be adjusted to taste.
 
-<!-- Each entry: type name, the message as written, and where a user encounters it. -->
+**`ProcessNotRespondingException`**
+
+> The process stopped responding after writing all of its output and had to be terminated, so there is no knowing whether it finished the job. Process error output\n: {output}
+
+… or, when stderr was not redirected, `Process error output has not been captured`.
+
+Seen by: the Win app's status box, the CLI's verification listing. The CLI's hashing path prints its own wording instead:
+
+> Couldn't Decode audio. The decoder produced its output but then stopped responding and had to be terminated, so there's no telling whether it finished the job.
+> Possible reasons: the decoder is waiting on something, or is misconfigured/given incorrect parameters.
 
 ## FakeDecoder: capabilities not added
 

@@ -130,8 +130,18 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (FlacHash.Audio.DecoderException e)
             {
-                WriteUserLine($"Couldn't Decode audio. Decoder returned code {e.ActualException.ExitCode}.");
-                WriteUserLine($"Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
+                // A terminated process reports the code the OS killed it with, so there's no decoder exit code to name here
+                if (e.ActualException is ExternalProcess.ProcessNotRespondingException)
+                {
+                    WriteUserLine($"Couldn't Decode audio. The decoder produced its output but then stopped responding and had to be terminated, so there's no telling whether it finished the job.");
+                    WriteUserLine($"Possible reasons: the decoder is waiting on something, or is misconfigured/given incorrect parameters.");
+                }
+                else
+                {
+                    WriteUserLine($"Couldn't Decode audio. Decoder returned code {e.ActualException.ExitCode}.");
+                    WriteUserLine($"Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
+                }
+
                 if (!showProcessRealtimeOutput)
                 {
                     if (e.ActualException.IsProcessOutputCaptured)
