@@ -198,7 +198,17 @@ namespace Andy.ExternalProcess
         {
             //sometimes it takes the process a while to quit after closing the std-out
             if (process.WaitForExit(exitTimeoutMs) == false)
+            {
                 process.Kill(true);
+                /* Killing is asynchronous, so the exit code isn't available upon returning from it.
+                 * And even once it is, it's the code the OS terminated the process with, not the one the process would have exited with,
+                 * so it will always be non-0, which means it would be treated as an error even if there was no error - there's no way to know.
+                 * All of the output has been served by this point anyway - the application did its job!
+                 * Stderr may have the error text if there was an error, but I can't just throw a process' normal output as an error.
+                 * It's just it is what it is... */
+                // NO! If it's not clear, then the output cannot be trusted! This must error out!
+                return;
+            }
 
             if (process.ExitCode != 0)
             {

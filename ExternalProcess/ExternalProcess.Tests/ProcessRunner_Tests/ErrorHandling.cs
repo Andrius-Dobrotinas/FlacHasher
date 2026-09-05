@@ -53,9 +53,11 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             }
         }
 
+        /* A process that has to be killed reports the code the OS terminated it with, never the one it would have exited with,
+         * so there is no error to report on its behalf */
         [TestCase(-1)]
         [TestCase(224)]
-        public void When_Process_HasToBeKilledOnExit_AndReturns_ErrorExitCode__UponReadingTheWholeOutputStream__Must_Throw_ExecutionException_And_DisposeOfTheProcess(int exitCode)
+        public void When_Process_HasToBeKilledOnExit__Must_Not_Report_AnyExitCode_AsAnError__And_Must_DisposeOfTheProcess(int exitCode)
         {
             var target = new ProcessRunner(-1, 0, 0, false);
 
@@ -64,8 +66,27 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process);
 
-            Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            Assert.DoesNotThrow(() => Util.Read(outputStream));
 
+            Assert.True(process.IsKillRequested, "The process has to be killed");
+            Assert.True(process.IsDisposedOf);
+        }
+
+        /* Kill only requests termination; the process is still alive when it returns, and its exit code is unavailable until it actually dies */
+        [Test]
+        public void When_Process_HasToBeKilledOnExit_But_StaysAlive_AfterBeingKilled__Must_Not_Ask_ForItsExitCode()
+        {
+            var target = new ProcessRunner(-1, 0, 0, false);
+
+            var stdout = new MemoryStream(Encoding.UTF8.GetBytes("Alright, partner, you know what time it is. Let's keep on rolling!"));
+            var process = new ExternalProcessFake(stdout: stdout, stdin: null, respondToExitRequest: false, exitOnKillRequest: false);
+
+            var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process);
+
+            Assert.DoesNotThrow(() => Util.Read(outputStream));
+
+            Assert.True(process.IsKillRequested, "The process has to be killed");
+            Assert.False(process.HasExited, "The test has to keep the process alive for it to be meaningful");
             Assert.True(process.IsDisposedOf);
         }
 
