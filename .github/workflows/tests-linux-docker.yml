@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SLN_ARGS: FlacHasher.E2E.sln --configuration Release /p:EnableWindowsTargeting=true
+      SLN_ARGS: FlacHasher.E2E.sln --configuration Release
 
     steps:
       - uses: actions/checkout@v4
