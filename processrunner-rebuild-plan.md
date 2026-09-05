@@ -4,7 +4,7 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observables 0 to 6 are complete**, green on Windows and Linux, with no `[Platform(Exclude)]` markers left anywhere.
+**Observables 0 to 7 are complete**, green on Windows and Linux, with no `[Platform(Exclude)]` markers left anywhere. Only ★ `startWaitMs` remains.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -231,6 +231,20 @@ Findings that contradicted an assumption, and what was done about them.
 **Decided**: `ProcessOutputStream` notes that it is closing before it lets go, and a read torn down in that window comes back as an end of stream rather than a fault. The cancellation is then reported from the usual place. The caller asked for the close, so an I/O error is not the honest answer.
 
 **If reversed**: the alternative is not releasing the pipe at all, which is what leaked a handle per file hashed. Reporting the `IOException` as-is would be worse still — disposal would be quiet on Windows and an error on Linux.
+
+### Releasing the process' pipes has no portable observable, so it goes untested
+
+**Expected**: repeated runs would show the leak as a rising handle count, making a regression net straightforward.
+
+**Measured**, all on Windows, 30 runs, full assembly: with everything released, 31 handles added; with the stdout release taken out, 40. The two are indistinguishable, because an undisposed stream is finalizable and a collection landing inside the window reclaims exactly what the test is looking for. In isolation the same test read 241, so the numbers depend more on what ran before than on the code under test. `LongRunning` background tasks each spawn a real thread, whose handle is released on its own schedule, adding drift of about one per run on top.
+
+A deterministic substitute did not hold up either: `CanRead` on the returned stream goes false after disposal on Windows and stays true on Linux.
+
+**Decided**: the releases stay — nothing else lets go of those pipes, and `Process.Close` leaves its streams alone by design — but no test asserts them. A green test that cannot distinguish the fix from its absence is worse than none.
+
+**What the measuring did find**, and this was real: the error stream was never released either, and standard input was left open whenever the feeding failed. Both are fixed.
+
+**If reversed**: `/proc/self/fd` gives an exact descriptor list, so a Linux-only test could assert the count returns to its baseline after a run. That was left alone because the agreed definition of done rules out platform-conditional tests in this suite. Worth revisiting if this area changes again.
 
 <!-- Each entry: what was expected, what the probe actually showed, what was decided, and what would change if the decision were reversed. -->
 

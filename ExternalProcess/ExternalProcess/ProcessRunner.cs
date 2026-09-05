@@ -191,10 +191,35 @@ namespace Andy.ExternalProcess
             }
             finally
             {
-                // The reader is of no further use on any path out of here, and it holds the process' error stream open
+                /* Disposing of a Process leaves its streams alone, deliberately, so that a consumer can go on reading
+                 * one after the process is gone. Nothing else lets go of the error stream either - stdout belongs to
+                 * the stream handed to the caller, and stdin to whoever finished feeding it.
+                 * Asking for a stream that was never redirected throws, so only the one that was gets released. */
                 errorReadCancellation?.Cancel();
                 errorReadCancellation?.Dispose();
+
+                if (errorOutput != null)
+                    Release(process.StandardError);
+
                 process.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// A reader or writer still working on one of these ends its work on a closed stream, which it treats as the
+        /// end of the line rather than a fault - by this point there is nothing left for either of them to do.
+        /// </summary>
+        private static void Release(IDisposable stream)
+        {
+            try
+            {
+                stream?.Dispose();
+            }
+            catch (IOException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
             }
         }
 
@@ -206,9 +231,6 @@ namespace Andy.ExternalProcess
                 inputData.CopyTo(target);
 
                 delivery.MarkFinished();
-
-                //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
-                target.Close();
             }
             // The process let go of the read end before it had everything. Nobody is waiting on this task,
             // so the failure is recorded by the delivery going unmarked rather than by an exception no one would see.
@@ -220,6 +242,8 @@ namespace Andy.ExternalProcess
             }
             finally
             {
+                //it looks like either the stream has to be closed, or an "end of file" char (-1 in int language) must be written to the stream
+                Release(target);
                 inputData.Dispose();
             }
         }
