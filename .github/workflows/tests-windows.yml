@@ -25,5 +25,38 @@ jobs:
           dotnet-version: 8.0.x
       - name: Build
         run: dotnet build ./FlacHasher.sln --configuration Release
-      - name: Run Tests
+      - name: Run Unit Tests
         run: dotnet test ./FlacHasher.sln --configuration Release --no-build
+
+  # E2E tests only get to run once the unit tests have proven the code sound
+  e2e-tests:
+    needs: tests
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - name: Install a FLAC decoder
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip" -OutFile "$env:RUNNER_TEMP\flac.zip" -MaximumRetryCount 3 -RetryIntervalSec 2
+          Get-Item "$env:RUNNER_TEMP\flac.zip" | Select-Object Name, Length
+          Expand-Archive -Path "$env:RUNNER_TEMP\flac.zip" -DestinationPath "$env:RUNNER_TEMP\flac"
+          "FLACHASH_TEST_DECODER_FLAC=$env:RUNNER_TEMP\flac\flac-1.5.0-win\Win64\flac.exe" >> $env:GITHUB_ENV
+      - name: Install an APE decoder (Monkey's Audio)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Invoke-WebRequest -Uri "https://monkeysaudio.com/x64" -OutFile "$env:RUNNER_TEMP\ape-setup.exe" -MaximumRetryCount 3 -RetryIntervalSec 2
+          Get-Item "$env:RUNNER_TEMP\ape-setup.exe" | Select-Object Name, Length
+          # 7-Zip is preinstalled on the windows-latest runner and available on PATH as `7z`
+          7z x "$env:RUNNER_TEMP\ape-setup.exe" "-o$env:RUNNER_TEMP\ape-extracted" -y
+          "FLACHASH_TEST_DECODER_APE=$env:RUNNER_TEMP\ape-extracted\MAC.exe" >> $env:GITHUB_ENV
+      - name: Build
+        run: dotnet build ./FlacHasher.E2E.sln --configuration Release
+      - name: Run E2E Tests
+        run: dotnet test ./FlacHasher.E2E.sln --configuration Release --no-build

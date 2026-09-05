@@ -1,0 +1,35 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022 AS tests
+
+# Monkey's Audio is only available as an installer, and nanoserver can't run it or 7-Zip (no WOW64 for 32-bit exes,
+# no user32/gdi32 for a GUI installer, and its built-in tar doesn't support the LZMA/.7z format either).
+# So unpack it in a full Windows image instead, then copy just MAC.exe into the nanoserver stage.
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS ape-decoder
+
+RUN mkdir c:\tools
+
+# Install 7-Zip
+RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\tools\7z-x64.msi https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.msi
+RUN msiexec /i c:\tools\7z-x64.msi /qn /norestart /l*v c:\tools\7z-install.log INSTALLDIR=c:\7-zip || (type c:\tools\7z-install.log & exit /b 1)
+RUN del c:\tools\7z-x64.msi c:\tools\7z-install.log
+
+# Install MAC.exe - it's assumed to be in the root dir of the installer
+RUN mkdir c:\decoder\ape-setup
+RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
+RUN dir c:\decoder\ape-setup\setup.exe
+RUN c:\7-zip\7z.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
+RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
+RUN rmdir /s /q c:\decoder\ape-setup
+
+FROM tests AS tests-e2e
+
+RUN mkdir c:\decoder
+
+# Copy the Monkey Audio decoder
+COPY --from=ape-decoder c:\\decoder\\MAC.exe c:\\decoder\\MAC.exe
+ENV FLACHASH_TEST_DECODER_APE=c:\\decoder\\MAC.exe
+
+# Install FLAC decoder
+RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\flac.zip https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip
+RUN tar --extract --file c:\decoder\flac.zip --directory c:\decoder
+RUN del c:\decoder\flac.zip
+ENV FLACHASH_TEST_DECODER_FLAC=c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe

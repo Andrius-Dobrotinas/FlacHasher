@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Andy.FlacHash.Application.Cmd.E2E</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.6.7" />
+    <PackageReference Include="FluentAssertions" Version="8.10.0" />
+    <PackageReference Include="nunit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The app is exercised as a process, so only the build order matters here -->
+    <ProjectReference Include="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="TestAssets\*.flac" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="TestAssets\*.ape" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Ask the CMD project where its output's at; writes to -> _AppTarget.FullPath -->
+  <Target Name="ResolveAppOutputDirectory" BeforeTargets="GetAssemblyAttributes">
+    <MSBuild Projects="..\FlacHasher.Cmd\FlacHasher.Cmd.csproj" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="_AppTarget" />
+    </MSBuild>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>AppOutputDirectory</_Parameter1>
+        <_Parameter2>$([System.IO.Path]::GetDirectoryName('%(_AppTarget.FullPath)'))</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+</Project>
