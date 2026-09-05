@@ -90,7 +90,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
                 timeoutSec: 1,
                 exitTimeoutMs: 300);
 
-            Assert.Throws<TimeoutException>(() => Util.Read(outputStream));
+            Assert.Throws<ProcessTimeoutException>(() => Util.Read(outputStream));
         }
     }
 }

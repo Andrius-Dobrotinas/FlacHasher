@@ -4,7 +4,7 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observables 0, 1, 2 and 3 are complete**, green on Windows and Linux.
+**Observables 0 to 4 are complete**, green on Windows and Linux.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -20,6 +20,7 @@ Settled along the way:
 - **The unbounded drain wait is gone by construction, not by timing.** The reader now fills a shared buffer instead of returning one, so a report takes a snapshot and never joins the task. There is nothing left to hang on, which is worth more than a timeout would have been: a cancellation token cannot interrupt a read already in progress, so the old `Cancel()` had nothing to break the wait with.
 - The `IsProcessOutputCaptured: true` with null output contradiction is likewise structural now. Whatever the reader collected before it stopped is always available, so the flag means what it says: stderr was redirected.
 - `ProcessRunnerFactory` in the application layer is the single place that converts a user's seconds and kibibytes into the runner's milliseconds and bytes. Both applications go through it.
+- **Killing a real process unblocks a blocked read cleanly on Linux, as an end of stream.** Every cancellation and timeout test passes there against a real process. The `[Platform(Exclude = "Linux")]` markers were describing the anonymous-pipe fakes, not the platform: closing one of those under a blocked read raises `IOException`/EINTR, which a real child's exit does not. One marker is left, on a disposal test in `General.cs`, and belongs to observable 6.
 
 - Nothing in the solution catches `TimeoutException`, so it can leave the contract without a single call-site change.
 - Executable resolution holds under `UseArtifactsOutput`. The Linux image builds to `/src/build-output` with a layout unlike the Windows one, and the `FakeDecoderOutputDirectory` assembly attribute still points at the executable.
@@ -228,7 +229,6 @@ Findings that contradicted an assumption, and what was done about them. Empty so
 `FormX.ReportExecutionError` and `Verification.cs` display nothing but `Message`, so for those users the message is the entire explanation. The three new messages are written to stand alone and are listed here to be adjusted to taste.
 
 **`ProcessNotRespondingException`**
-
 > The process stopped responding after writing all of its output and had to be terminated, so there is no knowing whether it finished the job. Process error output\n: {output}
 
 … or, when stderr was not redirected, `Process error output has not been captured`.
@@ -237,6 +237,14 @@ Seen by: the Win app's status box, the CLI's verification listing. The CLI's has
 
 > Couldn't Decode audio. The decoder produced its output but then stopped responding and had to be terminated, so there's no telling whether it finished the job.
 > Possible reasons: the decoder is waiting on something, or is misconfigured/given incorrect parameters.
+
+**`ProcessTimeoutException`**
+
+> The process took longer than it is allowed and was terminated before it finished, so its output is incomplete. Process error output\n: {output}
+
+… or, when stderr was not redirected, `Process error output has not been captured`.
+
+Seen by: everywhere a decoder failure is reported. It replaces the bare `TimeoutException`, which carried no process output at all.
 
 ## FakeDecoder: capabilities not added
 

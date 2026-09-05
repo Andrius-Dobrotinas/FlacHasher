@@ -155,7 +155,9 @@ namespace Andy.ExternalProcess
                 catch (OperationCanceledException)
                 {
                     // When exiting/getting killed, the process (normally) sends EOF to stdout and closes all streams 
-                    process.Kill(true);
+                    if (!process.HasExited)
+                        process.Kill(true);
+
                     throw new OperationCanceledException("Process has been cancelled");
                 }
 
@@ -166,7 +168,10 @@ namespace Andy.ExternalProcess
                     {
                         // When exiting/getting killed, the process (normally) sends EOF to stdout and closes all streams 
                         process.Kill(true);
-                        throw new TimeoutException("The process took taken longer than allowed and has been cancelled");
+
+                        throw new ProcessTimeoutException(
+                            HarvestErrorOutput(stdErrorTask, errorOutput, exitTimeoutMs),
+                            isProcessOutputCaptured: errorOutput != null);
                     }
                     // The process exited before there was a chance to kill it (lucky)
                 }
