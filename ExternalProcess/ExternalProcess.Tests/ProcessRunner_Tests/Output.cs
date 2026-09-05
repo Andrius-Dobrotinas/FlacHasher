@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Diagnostics;
 using System.IO;
 
 namespace Andy.ExternalProcess.ProcessRunner_Tests
@@ -60,6 +61,22 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             var result = Util.Read(outputStream);
 
             Assert.IsEmpty(result);
+        }
+
+        /// <summary>
+        /// The stream stands for output still to come, so it has to be handed over before there is any.
+        /// Reading it does wait for data - that's what the content tests above rely on.
+        /// </summary>
+        [Test]
+        public void Must_Return_TheStream_WithoutWaitingFor_TheProcess_ToWrite_Anything()
+        {
+            const int writeDelayMs = 4000;
+
+            var start = Stopwatch.StartNew();
+
+            Decoder.Run(DecoderArgs.Reading(TestPayload.SourceFile).WriteDelay(writeDelayMs));
+
+            Assert.Less(start.ElapsedMilliseconds, writeDelayMs / 4);
         }
 
         /// <summary>

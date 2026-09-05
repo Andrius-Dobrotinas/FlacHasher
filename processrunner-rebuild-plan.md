@@ -4,14 +4,37 @@ Temporary working document. Delete once the work lands.
 
 ## Status
 
-**Observable 0 (harness) is complete**, green on Windows and Linux: 6 tests in `ProcessRunner_Tests/Output.cs` driving a real FakeDecoder process through `RunAndReadOutput`.
+**Observable 0 (harness) and observable 1 (output, exit codes, arguments) are complete**, green on Windows and Linux.
+
+**Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
+
+**The Linux gate always exits 1.** `docker compose -f docker-compose-lnx.yml run --rm tests` filters out every E2E test, so the E2E assembly matches none and vstest returns 1 for "no test matches the given testcase filter". Judge that run by the absence of `Failed!` lines, not by its exit code. Worth a separate look: any CI step that trusts this exit code has been failing or is being ignored.
 
 Settled along the way:
 
+- A Ctrl+C'd child reports `130` on Unix, and the Windows-only constant meant Linux reported a cancellation as a decoder failure. Fixed; the test failed on Linux before and passes now.
+- An executable that cannot be run throws `Win32Exception` synchronously, out of `RunAndReadOutput` itself, before any stream exists.
+- `showProcessOutput: true` leaves `ProcessErrorOutput` null and `IsProcessOutputCaptured` false, and the child's stderr lands in the test runner's output. Harmless, but it is why a passing run is not silent.
+
 - Nothing in the solution catches `TimeoutException`, so it can leave the contract without a single call-site change.
 - Executable resolution holds under `UseArtifactsOutput`. The Linux image builds to `/src/build-output` with a layout unlike the Windows one, and the `FakeDecoderOutputDirectory` assembly attribute still points at the executable.
+- Adding a setting is cheap: help text (`Help.cs`) and the Win settings form (`SettingsForm.BuildDynamicControls`) are both reflection-driven off the attributes, so one decorated property propagates everywhere.
+- Removing a setting is silent: `ParameterReader.GetParameters` only walks the target class's properties, so an unknown INI key is never examined — no error, no warning, and the user loses the setting without being told.
+- `ProcessRunner` has four construction sites: `FlacHasher.Cmd/Program.cs`, `FlacHasher.Win/Program.cs`, and both Utils apps.
 
-Still open in observable 1, all of it on failure paths rather than the happy one: exit-code mapping, `ExitCode_CtrlC` on Unix, a missing or unrunnable executable, and what `showProcessOutput: true` with `CreateNoWindow = false` does under the test runner.
+Still open in observable 2 onwards. Observable 1 is done: `Output.cs` (7 tests) and `Exit.cs` (7 tests) cover expanded output fidelity, chunking, an empty source, streaming laziness, argument quoting, exit-code mapping, stderr capture and its absence, the Ctrl+C mapping on both platforms, and an unrunnable executable.
+
+---
+
+## Working agreement
+
+- **Commit per observable**, in the established message style. **No pushing**, no interaction with PR #58.
+- **Gate before every commit**: the full suite on **Windows and Linux**, excluding E2E. E2E is checked once at the end, if it can run locally at all.
+- **Old tests are deleted as they are superseded**, in the same commit as their replacement, so the diff shows the swap and no window exists where two suites assert contradictory things about the same behaviour.
+- **This document is kept current** as each observable lands.
+- **Autonomy**: a finding that contradicts an assumption is decided, implemented and flagged in *Decisions taken alone*. The exception hierarchy, the precedence order and the public contract are not mine to change — a finding that would alter any of those stops for review.
+- **FakeDecoder is not modified.** Anything it cannot produce is recorded in *FakeDecoder: capabilities not added*.
+- **Delegated**: the ★ `startWaitMs` reproduction, and observable 7. Everything else stays in the main thread: a test that asserts the wrong thing fails by passing, and reviewing for that costs as much as writing it.
 
 ---
 
@@ -21,16 +44,19 @@ Still open in observable 1, all of it on failure paths rather than the happy one
 
 `ExecutionException` gains a `protected` constructor taking message + stderr + `IsProcessOutputCaptured`, so derived types supply their own text.
 
-| Situation | Type |
-|---|---|
-| Caller cancels | `OperationCanceledException` — outside the hierarchy |
-| Consumer disposes the stream | nothing thrown |
-| Timed out, killed before EOF (**output unusable**) | `ProcessTimeoutException : ExecutionException` |
-| EOF reached, child won't reap (**output complete**) | `ProcessNotRespondingException : ExecutionException` |
+| Situation | Type | `ExitCode` |
+|---|---|---|
+| Caller cancels | `OperationCanceledException` — outside the hierarchy | — |
+| Consumer disposes the stream | nothing thrown | — |
+| Timed out, killed before EOF (**output unusable**) | `ProcessTimeoutException : ExecutionException` | `0` |
+| EOF reached, child won't reap (**output complete**) | `ProcessNotRespondingException : ExecutionException` | `0` |
+| Child exited `0` with input left undelivered | `PrematureExitException : ExecutionException` | the child's real `0` |
 
-Both report `ExitCode = 0`. The BCL `TimeoutException` is not part of the contract.
+The BCL `TimeoutException` is not part of the contract.
 
 Cancellation stays an `OperationCanceledException` because `DecoderStream` and `MultiFileHasher` both place `catch (OperationCanceledException) { throw; }` ahead of everything else.
+
+`PrematureExitException` fires **only** when the exit code is `0`. A child that decided it had all the input it needed is not good enough: we know it did not read what we meant it to.
 
 ### Invariant
 
@@ -40,11 +66,47 @@ After a kill, the exit code belongs to the OS. It is never reported as the progr
 
 cancellation → timeout → won't-reap → non-zero exit → stdin-not-delivered.
 
-Stdin failure surfaces only when the run is otherwise clean: every kill breaks that pipe, so without the rule a stdin error races every cancellation.
+Stdin failure surfaces only when the run is otherwise clean: every kill breaks that pipe, so without the rule a stdin error races every cancellation. A child that exits non-zero *and* left input undelivered reports the plain `ExecutionException`.
+
+### Ctrl+C exit codes
+
+The check gets a Unix counterpart: `0xC000013A` (−1073741510) on Windows, `130` on Unix, platform-conditional. Without it a Ctrl+C on Linux tells the user their file is corrupt. It stays a backstop — `Console.CancelKeyPress` cancels the token, so the cancellation path usually wins the race.
+
+### Error output capture
+
+- Retention is **bounded, keeping the tail**: errors land at the end, progress spam at the front. Draining continues past the cap, discarding oldest, so the child never blocks on a full pipe.
+- New setting **`DecoderInfoOutputMaxSizeKb`**, INI-only, default **64**. `-1` means no limit. `0` means use the default. Any other negative is rejected as invalid.
+- The library takes **bytes** (`maxErrorOutputBytes`); KiB is a human convenience that belongs with the rest of the configuration.
+- The drain timeout keeps deriving from `exitTimeoutMs`, but the wait becomes **bounded** — the unbounded `GetAwaiter().GetResult()` after `Cancel()` goes.
+- On a partial capture, `IsProcessOutputCaptured` stays **`true`**. The flag answers "was stderr redirected at all", which is what the CLI branches on, and truncated output beats none.
+
+### Constructor
+
+```csharp
+public ProcessRunner(
+    int timeoutMs,          // was timeoutSec
+    int exitTimeoutMs,
+    int startWaitMs,
+    int maxErrorOutputBytes,
+    bool showProcessOutput)
+```
+
+`ProcessTimeoutSec` stays in seconds as the user-facing setting; a static helper does seconds→milliseconds, so the conversion is written once for all four construction sites.
+
+**Hazard**: four consecutive `int` parameters, and `timeoutMs` changes units without changing type. An un-updated call site still compiles and silently means something 1000× smaller. All four are in this repo; nothing guards a fifth.
+
+### An abandoned stream is already covered
+
+A consumer that reads part of the output and neither reaches EOF nor disposes does **not** leak. `outputReadTask` never completes, so the timeout wait expires, kills the process and disposes it in the `finally` — 180 s at the production default. The `TimeoutException` lands on a task nobody observes and is swallowed, which does not matter: the kill and the dispose both happen.
+
+The only gap is `timeoutSec: -1`, which forgoes the safety net by definition, exactly as it does for a decoder that genuinely hangs. Documentation only; no code change, no test.
 
 ### Testing
 
-Tests drive the two `RunAndReadOutput` overloads. `--expand` by default; plain output only where the stdout pipe buffer is load-bearing.
+- Tests drive the two `RunAndReadOutput` overloads. `--expand` by default; plain output only where the stdout pipe buffer is load-bearing.
+- `GetOutputStream_WaitProcessExitInParallel` becomes `internal` with `[assembly: InternalsVisibleTo("ExternalProcess.Tests")]`. The retained fake-process tests need it — it is the only injection point for `IExternalProcess` — and the shipped surface becomes exactly the two `RunAndReadOutput` overloads.
+- **Sequential use only.** Nothing in the app runs two decoders at once, so observable 7 asserts that repeated sequential runs stay clean and claims no concurrency contract.
+- Budget: under ~60 s on Windows. Deliberate waits stay in the low hundreds of milliseconds except where semantics demand seconds. `[NonParallelizable]` comes off wherever tests do not contend for a shared resource.
 
 ---
 
@@ -57,14 +119,14 @@ Refer to work by observable number. "Observable 2" is the reap/teardown block, a
 | # | Observable | Contains | Parallel |
 |---|---|---|---|
 | 0 | **Harness** | see below | serial |
-| 1 | **Output, exit codes, arguments** | expanded output fidelity, streaming laziness, `ArgumentList` quoting (a two-word `--progress-message`), exit-code mapping, a missing or unrunnable executable (`Start()` throws synchronously, before any stream exists). Gives `ExitCode_CtrlC` a Unix counterpart or an explicitly Windows-only scope. No fixes expected elsewhere — proves the harness before anything trusts it. Probe: `ExitCode_CtrlC` on Unix | hand off |
+| 1 | **Output, exit codes, arguments** | expanded output fidelity, streaming laziness, `ArgumentList` quoting (a two-word `--progress-message`), exit-code mapping, a missing or unrunnable executable (`Start()` throws synchronously, before any stream exists), and `ExitCode_CtrlC` gaining its Unix counterpart. Probe: `ExitCode_CtrlC` on Unix | hand off |
 | 2 | **Reap / teardown** | `ProcessNotRespondingException`, the kill-code invariant, the `Program.cs` branch. Probe: real reap latency (`--linger`) | serial |
-| 3 | **Stderr lifetime** | bounded harvest with its own timeout, a bound on how much stderr is buffered (today the whole run's progress output accumulates in a `MemoryStream`), `IOException` on Linux, disposal on every path, the contradictory `IsProcessOutputCaptured: true` with null output. Probe: the unbounded wait after `Cancel()` | alongside 2 |
+| 3 | **Stderr lifetime** | the bounded tail buffer and `DecoderInfoOutputMaxSizeKb`, the bounded drain wait, `IOException` on Linux, disposal on every path, the contradictory `IsProcessOutputCaptured: true` with null output. **Carries the constructor change** — `maxErrorOutputBytes` arrives here, so `timeoutSec`→`timeoutMs` and the four call sites land in the same commit. Probe: the unbounded wait after `Cancel()` | alongside 2 |
 | 4 | **Cancellation + timeout** | `ProcessTimeoutException`, `Kill` guard symmetry. Probes: does killing unblock a blocked read, and as `0` or `IOException` — what the `[Platform(Exclude)]` markers hide; and whether `process.Dispose()` on this path leaves an in-flight consumer read working, which the whole design rests on | after 2 |
-| 5 | **Stdin delivery** | delivery failure as an error, under the precedence rule; the runner's ownership of the caller's input stream, which it disposes. Probes: broken pipe via `--finish-after-reads`, >64 KiB, **no expansion**; and mutual stdin/stdout block — a child emitting far more than it consumes (`--expand`) against a slow or absent consumer | after 4 |
-| 6 | **Stream + handle contract** | `TrySetResult` (a successful read racing `Close` currently reports a cancellation), release the stdout stream on close, and a consumer that abandons the stream without reaching EOF or disposing — today nothing kills or disposes the process | any time |
-| 7 | **Repeat + concurrent runs** | the net under everything above, and the only way the handle leak is observable | last |
-| ★ | **`startWaitMs`** | default 100 ms, blocking the *caller's* thread every run — 30 s of pure sleep on a 300-track batch. Probe whether it is needed at all, or only on the stdin path | early, independent |
+| 5 | **Stdin delivery** | `PrematureExitException`, under the precedence rule; the runner's ownership of the caller's input stream, which it disposes. Probes: broken pipe via `--finish-after-reads`, >64 KiB, **no expansion**; and mutual stdin/stdout block — a child emitting far more than it consumes (`--expand`) against a slow or absent consumer | after 4 |
+| 6 | **Stream + handle contract** | `TrySetResult` (a successful read racing `Close` currently reports a cancellation), and releasing the stdout stream on close. An abandoned stream is *not* in scope — see the decision above | any time |
+| 7 | **Repeat runs** | the net under everything above, and the only way the handle leak is observable. Sequential only | last, delegated |
+| ★ | **`startWaitMs`** | default 100 ms, blocking the *caller's* thread every run — 30 s of pure sleep on a 300-track batch. **Attempt to reproduce** the failure it guards against, at `0`, over many iterations, both platforms. **No code change either way**: reproduced or not, the finding is recorded and we revisit it together. The original problem was real — something about the child's stdin not being open yet | early, independent, delegated |
 
 `startWaitMs` sits outside the sequence: it depends on nothing else and is plausibly the largest user-visible win here.
 
@@ -143,3 +205,33 @@ Refer to work by observable number. "Observable 2" is the reap/teardown block, a
 - Every process-behaviour assertion driven by a real FakeDecoder process.
 - `Unit/` limited to what a real process physically cannot do.
 - `GetOutputStream_WaitProcessExitInParallel` demoted to `internal`.
+
+---
+
+# For review
+
+Three sections below collect everything deliberately deferred. Nothing here is settled; all of it is waiting on a read-through once the work is done.
+
+## Decisions taken alone
+
+Findings that contradicted an assumption, and what was done about them. Empty so far.
+
+<!-- Each entry: what was expected, what the probe actually showed, what was decided, and what would change if the decision were reversed. -->
+
+## Exception message wording
+
+`FormX.ReportExecutionError` and `Verification.cs` display nothing but `Message`, so for those users the message is the entire explanation. The three new messages are written to stand alone and are listed here to be adjusted to taste. Empty so far.
+
+<!-- Each entry: type name, the message as written, and where a user encounters it. -->
+
+## FakeDecoder: capabilities not added
+
+Behaviours a test wanted that the stub cannot currently produce, recorded rather than built, to be revisited together. Empty so far.
+
+<!-- Each entry: the behaviour, the test that wanted it, and how the test was written instead. -->
+
+### Known already
+
+- **A child that refuses to die.** SIGKILL cannot be refused and `TerminateProcess` cannot be declined, so no real program can produce this. Stays a fake-process test in `Unit/`.
+- **Stderr reads that throw.** A property of the reading code, not of the child. Stays a fake-process test in `Unit/`.
+- **A genuine Ctrl+C.** The stub cannot raise one, and Unix truncates exit status to a byte so the Windows constant is unreachable there. Exercised through `--exit-code` on Windows, and as a fake-process test for the mapping itself.

@@ -14,7 +14,14 @@ namespace Andy.ExternalProcess
         private readonly int timeoutMs;
         private readonly bool showProcessOutput;
 
-        private const int ExitCode_CtrlC = -1073741510;
+        private const int ExitCode_CtrlC_Windows = -1073741510;
+        private const int ExitCode_CtrlC_Unix = 130; // SIGINT, reported as 128 + the signal number
+
+        /// <summary>
+        /// Unix keeps only the low byte of an exit status, so the Windows value can never turn up there.
+        /// </summary>
+        private static int ExitCode_CtrlC => OperatingSystem.IsWindows() ? ExitCode_CtrlC_Windows : ExitCode_CtrlC_Unix;
+
         public const int NoTimeoutValue = -1;
 
         /// <param name="timeoutSec">If a process doesn't finish within a given time (in seconds), it will be termined without returning any result</param>
@@ -212,7 +219,7 @@ namespace Andy.ExternalProcess
 
             if (process.ExitCode != 0)
             {
-                // This happens when this is run by a cmd-line application and it gets Ctrl+C'd as it relays the command to the spawned process (so far, return code was only confirmed on Windows)
+                // This happens when this is run by a cmd-line application and it gets Ctrl+C'd as it relays the command to the spawned process
                 if (process.ExitCode == ExitCode_CtrlC)
                     throw new OperationCanceledException("Process has been cancelled");
                 else if (stdErrorTask == null)
