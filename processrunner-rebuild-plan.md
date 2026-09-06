@@ -8,9 +8,33 @@ Temporary working document. Delete once the work lands.
 
 ### ★ `startWaitMs`: not reproduced, and no code changed
 
-About 3,600 runs per platform at `startWaitMs: 0`, against `100` as the control: sequential and 16-way concurrent, under heavy CPU load and without, feeding 1 byte, 256 bytes and 256 KiB through stdin, and a control with no input at all. **Not one failure at `0`, on either platform.**
+About 3,600 runs per platform against the stub at `startWaitMs: 0`, with `100` as the control: sequential and 16-way concurrent, under heavy CPU load and without, feeding 1 byte, 256 bytes and 256 KiB through stdin, and a control with no input at all.
 
-That is a negative result, not a verdict. The failure it guards against was real when it was met, and nothing here explains it away — only that it does not show up under these conditions on these machines. The parameter and its 100 ms default stay exactly as they are, to be looked at together.
+Then the same against **a real `flac.exe`**, invoked the way the application invokes it (`--decode -`, fed through stdin): about 1,470 runs across **1.3.2 and 1.5.0, win32 and win64**, sequential, 16-way concurrent, under load, with a 46 KB file and a 2.8 MB one, at `0` and `100`. Decoded output was byte-identical on every single run.
+
+**Not one failure at `0`.** But the machine is **Windows 11 build 26200**, and the failure was met on **Windows 10** — so the platform it was seen on has not been tested, and this is not evidence that it cannot happen there. The parameter and its 100 ms default stay exactly as they are.
+
+### Measured: how long a child takes to start and die
+
+A do-nothing .NET child, timed from `Process.Start` returning to the process being gone, 30 runs each:
+
+| | min | median | max |
+|---|---|---|---|
+| Windows | 210 ms | **260 ms** | 298 ms |
+| Linux (container) | 102 ms | **119 ms** | 147 ms |
+
+This is what makes a 100 ms delay land on different sides of the same race on the two platforms. It is not a difference in how the platforms treat pipes.
+
+### Measured: how much fits in a pipe before a write blocks
+
+Bytes written to a child that never reads a single one of them, before the write blocks:
+
+| | buffer |
+|---|---|
+| Windows | **4 KiB** (4096 bytes) |
+| Linux (container) | **64 KiB** (65536 bytes) |
+
+The buffer belongs to the operating system, not to the child: bytes sitting in it have been written but not read, and the writer cannot tell the difference.
 
 **Baseline**: 1,427 tests across 9 projects, green on Windows, E2E excluded. `FlacHasher.Win.Tests` is in the solution but holds no source files at all, so it contributes nothing to any gate.
 
@@ -234,11 +258,13 @@ Findings that contradicted an assumption, and what was done about them.
 
 A child launched with nothing to read from exits at once without touching its standard input. Feeding it 256 bytes gives two different answers on Linux depending only on timing: with `startWaitMs: 0` the write lands in the pipe's buffer before the child is gone and the run is reported a **success**; with `100` the child has already exited, the write breaks, and the run is reported as `PrematureExitException`. Same child, same input, same code. 99 runs out of 100 either way, so it is not a flaky race but a threshold. On Windows neither value fails.
 
-The cause is that delivery is recorded when the last byte has been **written to the pipe**, which is not the same as the process having **read** it. Anything smaller than a pipe will hold (~64 KiB) can be written to a child that never reads a byte of it, and the runner is none the wiser. Above that size the write blocks and then breaks, which is why the tests in `Feeding.cs` use a 256 KiB payload and catch it reliably.
+The cause is that delivery is recorded when the last byte has been **written to the pipe**, which is not the same as the process having **read** it. The buffer belongs to the operating system rather than to the child, and it holds **4 KiB on Windows and 64 KiB on Linux** (measured). Anything smaller than that can be written in full to a child that never reads a byte, and the write succeeds, so it looks delivered. Above that size the write blocks and then breaks, which is why the tests in `Feeding.cs` use a 256 KiB payload and catch it every time.
+
+The same holds for the tail of any transfer: the last few bytes go into the buffer and the write returns, whether or not the process ever reads them. A write is never an acknowledgement. Only the child's own exit code says it was satisfied, which is why a non-zero one outranks this.
 
 That sits against what was asked for: a process that decided it had all it needed is not good enough, because we know it did not read what we meant it to. As built, that holds for inputs bigger than a pipe buffer and not for smaller ones.
 
-Worth knowing before choosing: a real decoder is fed whole audio files, which are far larger than any pipe buffer, so the gap is not reachable in this application today. Closing it properly means the child confirming what it consumed, which a pipe gives no way to ask.
+Worth knowing before choosing: a real decoder is fed whole audio files, which are orders of magnitude larger than either buffer, so the gap is not reachable in this application. Closing it properly means the child confirming what it consumed, which a pipe gives no way to ask.
 
 <!-- Each entry: what was expected, what the probe actually showed, what was decided, and what would change if the decision were reversed. -->
 ### Letting go of the process' pipe interrupts a read in flight, on Unix only
