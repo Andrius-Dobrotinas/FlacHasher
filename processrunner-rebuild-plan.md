@@ -131,6 +131,12 @@ public ProcessRunner(
 
 **Hazard**: four consecutive `int` parameters, and `timeoutMs` changes units without changing type. An un-updated call site still compiles and silently means something 1000× smaller. All four are in this repo; nothing guards a fifth.
 
+### Start-up wait
+
+`startWaitMs` applies **only when the process is being fed through its standard input**, which covers draining its error stream too, since that starts in the same place. A process with nothing to receive has nothing to be too early for, so the file-based decoding path waits not at all rather than paying 100 ms a track.
+
+The wait itself is untouched: same duration, same position, same default. Only its scope is now stated.
+
 ### An abandoned stream is already covered
 
 A consumer that reads part of the output and neither reaches EOF nor disposes does **not** leak. `outputReadTask` never completes, so the timeout wait expires, kills the process and disposes it in the `finally` — 180 s at the production default. The `TimeoutException` lands on a task nobody observes and is swallowed, which does not matter: the kill and the dispose both happen.
@@ -252,19 +258,13 @@ Three sections below collect everything deliberately deferred. Nothing here is s
 
 Findings that contradicted an assumption, and what was done about them.
 
-### Open question: "delivered" currently means written, not read
+### Delivery means written, and that is the contract
 
-**Not decided — this one needs you**, because it bears on what `PrematureExitException` was agreed to mean.
+The caller knows it has written everything; from there the process is expected to play fairly and report an honest exit code. `PrematureExitException` is raised only when the process has exited **and** we know for a fact that the writing did not finish. That is the whole of the guarantee, and it is deliberate.
 
-A child launched with nothing to read from exits at once without touching its standard input. Feeding it 256 bytes gives two different answers on Linux depending only on timing: with `startWaitMs: 0` the write lands in the pipe's buffer before the child is gone and the run is reported a **success**; with `100` the child has already exited, the write breaks, and the run is reported as `PrematureExitException`. Same child, same input, same code. 99 runs out of 100 either way, so it is not a flaky race but a threshold. On Windows neither value fails.
+What it does not cover: the buffer belongs to the operating system rather than to the child, and it holds **4 KiB on Windows and 64 KiB on Linux** (measured). Anything smaller than that can be written in full to a child that never reads a byte, and the write succeeds. The same goes for the tail of any transfer — the last few bytes go into the buffer and the write returns whether or not they are ever read. A write is never an acknowledgement; only the child's exit code says it was satisfied, which is why a non-zero one outranks this.
 
-The cause is that delivery is recorded when the last byte has been **written to the pipe**, which is not the same as the process having **read** it. The buffer belongs to the operating system rather than to the child, and it holds **4 KiB on Windows and 64 KiB on Linux** (measured). Anything smaller than that can be written in full to a child that never reads a byte, and the write succeeds, so it looks delivered. Above that size the write blocks and then breaks, which is why the tests in `Feeding.cs` use a 256 KiB payload and catch it every time.
-
-The same holds for the tail of any transfer: the last few bytes go into the buffer and the write returns, whether or not the process ever reads them. A write is never an acknowledgement. Only the child's own exit code says it was satisfied, which is why a non-zero one outranks this.
-
-That sits against what was asked for: a process that decided it had all it needed is not good enough, because we know it did not read what we meant it to. As built, that holds for inputs bigger than a pipe buffer and not for smaller ones.
-
-Worth knowing before choosing: a real decoder is fed whole audio files, which are orders of magnitude larger than either buffer, so the gap is not reachable in this application. Closing it properly means the child confirming what it consumed, which a pipe gives no way to ask.
+Not reachable in this application in any case: a decoder is fed whole audio files, orders of magnitude past either buffer, so a child that stops reading always blocks the write and gets caught. That is why the tests in `Feeding.cs` use a 256 KiB payload.
 
 <!-- Each entry: what was expected, what the probe actually showed, what was decided, and what would change if the decision were reversed. -->
 ### Letting go of the process' pipe interrupts a read in flight, on Unix only

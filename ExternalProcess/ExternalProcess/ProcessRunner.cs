@@ -38,7 +38,8 @@ namespace Andy.ExternalProcess
         /// <param name="timeoutMs">If a process doesn't finish within a given time (in milliseconds), it will be termined without returning any result. <see cref="NoTimeoutValue"/> for no timeout</param>
         /// <param name="exitTimeoutMs">Time to wait (in milliseconds) for the process to exit after all of its stdout has been read. Shouldn't be a large value because most processes exit right after finishing to write to stdout.</param>
         /// <param name="startWaitMs">Time to wait (in milliseconds) before starting interacting with the process' std streams.
-        /// Sometimes (depending on the speed of the computer?) it doesn't have std streams available right away, which results in "Pipe ended" error.</param>
+        /// Sometimes (depending on the speed of the computer?) it doesn't have std streams available right away, which results in "Pipe ended" error.
+        /// Only applies when the process is being fed through its standard input, which is the only thing that has ever run into it.</param>
         /// <param name="maxErrorOutputBytes">How much of the process' error output to keep for reporting a failure with. The most recent bytes are the ones kept.
         /// <see cref="UnboundedErrorOutput"/> to keep all of it, at the cost of a buffer that grows with the run</param>
         /// <param name="showProcessOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
@@ -95,7 +96,12 @@ namespace Andy.ExternalProcess
         internal ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IExternalProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
         {
             process.Start();
-            Task.Delay(startWaitMs).GetAwaiter().GetResult(); //throws a "Pipe ended" error when trying to write to std right away. Waiting a bit before writing seems to solve the problem, but this could be problematic if the system is slower...
+
+            /* Only a process being fed has ever needed this: it's writing to a process that isn't ready to receive yet that fails.
+             * Draining its error stream starts here too, so the wait covers that as well.
+             * A process with nothing to receive has nothing to be too early for, and waiting on it is dead time on every run. */
+            if (input != null)
+                Task.Delay(startWaitMs).GetAwaiter().GetResult();
 
             /* Error (progress) stream has to be actively read as when the buffer fills up, the process stops writing to std-out
              * (probably depends on whether stderr and stdout writes sequence or in parallel in the program).
