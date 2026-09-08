@@ -1,6 +1,11 @@
 services:
   tests:
-    image: mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022
+    # Dockerfile used here simply to have base image specified in one place (between this and e2e tests)
+    build:
+      context: .
+      dockerfile: Dockerfile.win
+      target: tests
+    image: flachasher-tests-win
     working_dir: "c:\\src"
     entrypoint:
      - dotnet
@@ -21,3 +26,12 @@ services:
       - type: bind
         source: .
         target: "c:\\src"
+
+  tests_e2e:
+    extends:
+      service: tests
+    build:
+      context: .
+      dockerfile: Dockerfile.win
+      target: tests-e2e
+    image: flachasher-tests-e2e-win
