@@ -32,7 +32,7 @@ namespace Andy.ExternalProcess
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (EndOfTheLine)
-                throw new InvalidOperationException("The stream has ended and all data has already been returned");
+                return 0;
 
             var readCount = ReadFromProcess(buffer, offset, count);
             if (readCount == 0)
@@ -108,7 +108,6 @@ namespace Andy.ExternalProcess
 
         public override void Flush()
         {
-            throw new NotSupportedException();
         }
     }
 }

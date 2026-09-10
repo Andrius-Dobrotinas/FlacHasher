@@ -64,6 +64,30 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         }
 
         /// <summary>
+        /// Stream's contract: once a read returns 0, further reads keep returning 0 rather than throwing.
+        /// </summary>
+        [Test]
+        public void TheStream_Must_KeepReturning_Zero_OnReads_AfterTheEnd()
+        {
+            var outputStream = Decoder.Run(DecoderArgs.Reading(TestPayload.SourceFile));
+
+            Util.Read(outputStream);
+
+            Assert.AreEqual(0, outputStream.Read(new byte[1], 0, 1));
+            Assert.AreEqual(0, outputStream.Read(new byte[1], 0, 1));
+        }
+
+        [Test]
+        public void Flush_MustNot_Throw()
+        {
+            var outputStream = Decoder.Run(DecoderArgs.Reading(TestPayload.SourceFile));
+
+            Util.Read(outputStream);
+
+            Assert.DoesNotThrow(() => outputStream.Flush());
+        }
+
+        /// <summary>
         /// The stream stands for output still to come, so it has to be handed over before there is any.
         /// Reading it does wait for data - that's what the content tests above rely on.
         /// </summary>
