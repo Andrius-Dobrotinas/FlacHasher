@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -95,7 +96,14 @@ namespace Andy.ExternalProcess
         /// </summary>
         internal ProcessOutputStream GetOutputStream_WaitProcessExitInParallel(IExternalProcess process, Stream input = null, bool readStderr = false, CancellationToken cancellation = default)
         {
-            process.Start();
+            try
+            {
+                process.Start();
+            }
+            catch (Win32Exception e)
+            {
+                throw new LaunchException(e);
+            }
 
             /* Only a process being fed has ever needed this: it's writing to a process that isn't ready to receive yet that fails.
              * Draining its error stream starts here too, so the wait covers that as well.

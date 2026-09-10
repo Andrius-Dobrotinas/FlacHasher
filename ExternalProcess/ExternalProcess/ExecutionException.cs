@@ -11,8 +11,8 @@ namespace Andy.ExternalProcess
         public string ProcessErrorOutput { get; }
         public bool IsProcessOutputCaptured { get; }
 
-        protected ExecutionException(string message, string processErrorOutput, bool isProcessOutputCaptured)
-            : base(message)
+        protected ExecutionException(string message, string processErrorOutput, bool isProcessOutputCaptured, Exception innerException = null)
+            : base(message, innerException)
         {
             ProcessErrorOutput = processErrorOutput;
             IsProcessOutputCaptured = isProcessOutputCaptured;

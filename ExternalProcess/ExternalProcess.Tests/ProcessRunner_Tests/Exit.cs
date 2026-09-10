@@ -91,8 +91,12 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             var target = new ProcessRunner(Decoder.NoTimeout, Decoder.ExitTimeoutMs, Decoder.StartWaitMs, ProcessRunner.DefaultMaxErrorOutputBytes, showProcessOutput: false);
 
-            Assert.Throws<System.ComponentModel.Win32Exception>(
+            var exception = Assert.Throws<LaunchException>(
                 () => target.RunAndReadOutput(missing, Array.Empty<string>()));
+
+            Assert.IsInstanceOf<System.ComponentModel.Win32Exception>(exception.InnerException);
+            Assert.AreEqual(exception.InnerException.Message, exception.Message);
+            Assert.False(exception.IsProcessOutputCaptured);
         }
     }
 }
