@@ -601,7 +601,19 @@ namespace Andy.FlacHash.Application.Win.UI
         private void ReportExecutionError(Exception exception, FileInfo file)
         {
             finishedWithErrors = true;
-            LogMessage($"Error processing file: {file.Name}", exception.Message);
+
+            if (exception is DecoderException decoderException)
+            {
+                LogMessage(
+                    $"Error processing file: {file.Name}",
+                    $"Couldn't Decode audio. Decoder returned code {decoderException.ActualException.ExitCode}.",
+                    "Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
+
+                if (!settings.ShowProcessWindowWithOutput)
+                    LogMessage($"Process output:\n{decoderException.ActualException.ProcessErrorOutput}");
+            }
+            else
+                LogMessage($"Error processing file: {file.Name}", exception.Message);
         }
 
         void LogMessage(params string[] message)
