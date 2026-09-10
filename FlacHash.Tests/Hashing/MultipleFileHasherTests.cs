@@ -220,7 +220,7 @@ namespace Andy.FlacHash.Hashing
                 new (FileInfo, byte[], Exception)[]
                 {
                     (new FileInfo("path1"), new byte[] { 1, 2, 1, 0 }, null),
-                    (new FileInfo("path2"), null, new DecoderException(new Exception("error'd out"))),
+                    (new FileInfo("path2"), null, new GenericDecoderException(new Exception("error'd out"))),
                     (new FileInfo("path3"), new byte[] { 3, 2, 3, 1 }, null )
                 });
 

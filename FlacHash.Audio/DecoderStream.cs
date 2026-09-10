@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Andy.ExternalProcess;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -6,7 +7,7 @@ namespace Andy.FlacHash.Audio
 {
     /// <summary>
     /// Read-only.
-    /// On any error, throws <see cref="DecoderException"/>.
+    /// On any error, throws <see cref="GenericDecoderException"/> or a more specific <see cref="DecoderException"/>.
     /// </summary>
     public class DecoderStream : Stream
     {
@@ -33,9 +34,13 @@ namespace Andy.FlacHash.Audio
             {
                 throw;
             }
-            catch (Exception e)
+            catch (ExecutionException e)
             {
                 throw new DecoderException(e);
+            }
+            catch (Exception e)
+            {
+                throw new GenericDecoderException(e);
             }
         }
 
@@ -49,9 +54,13 @@ namespace Andy.FlacHash.Audio
             {
                 throw;
             }
-            catch (Exception e)
+            catch (ExecutionException e)
             {
                 throw new DecoderException(e);
+            }
+            catch (Exception e)
+            {
+                throw new GenericDecoderException(e);
             }
         }
 
@@ -65,9 +74,13 @@ namespace Andy.FlacHash.Audio
             {
                 throw;
             }
-            catch (Exception e)
+            catch (ExecutionException e)
             {
                 throw new DecoderException(e);
+            }
+            catch (Exception e)
+            {
+                throw new GenericDecoderException(e);
             }
 
             base.Dispose(disposing);
