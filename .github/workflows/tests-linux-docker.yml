@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      PROJECT_ARGS: FlacHasher.Cmd.E2E.Tests/FlacHasher.Cmd.E2E.Tests.csproj --configuration Release /p:EnableWindowsTargeting=true
+      PROJECT_ARGS: FlacHasher.Cmd.E2E.Tests/FlacHasher.Cmd.E2E.Tests.csproj --configuration Release
 
     steps:
       - uses: actions/checkout@v4
