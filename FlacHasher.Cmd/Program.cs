@@ -126,21 +126,26 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (FlacHash.Audio.DecoderException e)
             {
-                // A terminated process reports the code the OS killed it with, so there's no decoder exit code to name here
-                if (e.ActualException is ExternalProcess.ProcessNotRespondingException)
-                {
-                    WriteUserLine($"Couldn't Decode audio. The decoder produced its output but then stopped responding and had to be terminated; so it's not clear whether it finished the job.");
-                    WriteUserLine($"It could be due to misconfigation/incorrect parameters.");
-                }
+                var actual = e.ActualException;
+
+                WriteUserLine($"Couldn't Decode audio. {actual.Message}");
+
+                // A terminated process reports the code the OS killed it with, never one of its own choosing, so there's nothing worth naming here
+                if (!(actual is ExternalProcess.ProcessNotRespondingException || actual is ExternalProcess.ProcessTimeoutException))
+                    WriteUserLine($"Decoder returned code {actual.ExitCode}.");
+
+                if (actual is ExternalProcess.ProcessNotRespondingException)
+                    WriteUserLine("Possible reasons: misconfiguration/incorrect parameters, or a problem with the operating system.");
+                else if (actual is ExternalProcess.ProcessTimeoutException)
+                    WriteUserLine("Possible reasons: the file is unusually large, the decoder is misconfigured/using incorrect parameters or stopped responding.");
+                else if (actual is ExternalProcess.PrematureExitException)
+                    WriteUserLine("Possible reasons: the decoder is misconfigured/using incorrect parameters, or the input file is corrupt.");
                 else
-                {
-                    WriteUserLine($"Couldn't Decode audio. Decoder returned code {e.ActualException.ExitCode}.");
-                    WriteUserLine($"Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
-                }
+                    WriteUserLine("Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
 
                 // With the process' own output on show it has already been seen as it happened, so there's nothing to repeat here
-                if (!showProcessRealtimeOutput && e.ActualException.IsProcessOutputCaptured)
-                    WriteUserLine($"Decoder output:\n{e.ActualException.ProcessErrorOutput}");
+                if (!showProcessRealtimeOutput && actual.IsProcessOutputCaptured)
+                    WriteUserLine($"Decoder output:\n{actual.ProcessErrorOutput}");
 
                 return (int)ReturnValue.ExecutionFailure;
             }

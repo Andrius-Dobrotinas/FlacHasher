@@ -9,17 +9,8 @@ namespace Andy.ExternalProcess
     public class PrematureExitException : ExecutionException
     {
         public PrematureExitException(int exitCode, string processErrorOutput, bool isProcessOutputCaptured)
-            : base(BuildMessage(exitCode, processErrorOutput, isProcessOutputCaptured), exitCode, processErrorOutput, isProcessOutputCaptured)
+            : base($"The process stopped reading the input before all of it had been written and exited with code {exitCode}. The result is not complete and may be corrupt.", exitCode, processErrorOutput, isProcessOutputCaptured)
         {
-        }
-
-        static string BuildMessage(int exitCode, string processErrorOutput, bool isProcessOutputCaptured)
-        {
-            string what = $"The process stopped reading the input before all of it had been written and exited with code {exitCode}. The result is not complete and may be corrupt.";
-
-            return isProcessOutputCaptured
-                ? $"{what}. Process error output\n: {processErrorOutput}"
-                : what;
         }
     }
 

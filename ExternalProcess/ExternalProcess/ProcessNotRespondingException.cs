@@ -8,8 +8,9 @@ namespace Andy.ExternalProcess
     /// </summary>
     public class ProcessNotRespondingException : ExecutionException
     {
+        // Some callers show nothing but the message, so it has to explain itself without any help
         public ProcessNotRespondingException(string processErrorOutput, bool isProcessOutputCaptured)
-            : base(BuildMessage(processErrorOutput, isProcessOutputCaptured), NoExitCode, processErrorOutput, isProcessOutputCaptured)
+            : base("The process stopped responding after writing all of its output (closing the std-out pipe). It had to be terminated. There is no way of knowing whether it finished the job.", NoExitCode, processErrorOutput, isProcessOutputCaptured)
         {
         }
 
@@ -18,15 +19,5 @@ namespace Andy.ExternalProcess
         /// so there is no exit code of the program's own to report here.
         /// </summary>
         public const int NoExitCode = 0;
-
-        static string BuildMessage(string processErrorOutput, bool isProcessOutputCaptured)
-        {
-            // Some callers show nothing but the message, so it has to explain itself without any help
-            const string what = "The process stopped responding after writing all of its output (closing the std-out pipe). It had to be terminated. There is no way of knowing whether it finished the job.";
-
-            return isProcessOutputCaptured
-                ? $"{what}. Process error output\n: {processErrorOutput}"
-                : what;
-        }
     }
 }

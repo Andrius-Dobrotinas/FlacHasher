@@ -8,8 +8,9 @@ namespace Andy.ExternalProcess
     /// </summary>
     public class ProcessTimeoutException : ExecutionException
     {
+        // Some callers show nothing but the message, so it has to explain itself without any help
         public ProcessTimeoutException(string processErrorOutput, bool isProcessOutputCaptured)
-            : base(BuildMessage(processErrorOutput, isProcessOutputCaptured), NoExitCode, processErrorOutput, isProcessOutputCaptured)
+            : base("The process took longer than it is allowed and was terminated before it finished; its output may be incomplete", NoExitCode, processErrorOutput, isProcessOutputCaptured)
         {
         }
 
@@ -17,15 +18,5 @@ namespace Andy.ExternalProcess
         /// A terminated process reports the code the OS killed it with, never the one it would have chosen.
         /// </summary>
         public const int NoExitCode = 0;
-
-        static string BuildMessage(string processErrorOutput, bool isProcessOutputCaptured)
-        {
-            // Some callers show nothing but the message, so it has to explain itself without any help
-            const string what = "The process took longer than it is allowed and was terminated before it finished; its output may be incomplete";
-
-            return isProcessOutputCaptured
-                ? $"{what}. Process error output\n: {processErrorOutput}"
-                : what;
-        }
     }
 }
