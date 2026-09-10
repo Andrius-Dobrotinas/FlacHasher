@@ -1,4 +1,5 @@
 ﻿using Andy.FlacHash.Audio;
+using Andy.FlacHash.Application.Audio;
 using Andy.FlacHash.Crypto;
 using Andy.FlacHash.Hashfile.Read;
 using Andy.FlacHash.Hashing;
@@ -604,13 +605,12 @@ namespace Andy.FlacHash.Application.Win.UI
 
             if (exception is DecoderException decoderException)
             {
-                LogMessage(
-                    $"Error processing file: {file.Name}",
-                    $"Couldn't Decode audio. Decoder returned code {decoderException.ActualException.ExitCode}.",
-                    "Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
+                var processOutput = DecoderException.GetProcessOutput(decoderException);
 
-                if (!settings.ShowProcessWindowWithOutput)
-                    LogMessage($"Process output:\n{decoderException.ActualException.ProcessErrorOutput}");
+                LogMessage($"Error processing file: {file.Name}", $"{decoderException.Message}\nPossible reasons: {DecoderExceptionReporting.GetPossibleReason(decoderException)}");
+
+                if (!settings.ShowProcessWindowWithOutput && processOutput != null)
+                    LogMessage($"Process output:\n{processOutput}");
             }
             else
                 LogMessage($"Error processing file: {file.Name}", exception.Message);

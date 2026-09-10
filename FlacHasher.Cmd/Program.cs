@@ -126,26 +126,13 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (FlacHash.Audio.DecoderException e)
             {
-                var actual = e.ActualException;
+                var processOutput = FlacHash.Audio.DecoderException.GetProcessOutput(e);
 
-                WriteUserLine($"Couldn't Decode audio. {actual.Message}");
-
-                // A terminated process reports the code the OS killed it with, never one of its own choosing, so there's nothing worth naming here
-                if (!(actual is ExternalProcess.ProcessNotRespondingException || actual is ExternalProcess.ProcessTimeoutException))
-                    WriteUserLine($"Decoder returned code {actual.ExitCode}.");
-
-                if (actual is ExternalProcess.ProcessNotRespondingException)
-                    WriteUserLine("Possible reasons: misconfiguration/incorrect parameters, or a problem with the operating system.");
-                else if (actual is ExternalProcess.ProcessTimeoutException)
-                    WriteUserLine("Possible reasons: the file is unusually large, the decoder is misconfigured/using incorrect parameters or stopped responding.");
-                else if (actual is ExternalProcess.PrematureExitException)
-                    WriteUserLine("Possible reasons: the decoder is misconfigured/using incorrect parameters, or the input file is corrupt.");
-                else
-                    WriteUserLine("Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
+                WriteUserLine($"{e.Message}\nPossible reasons: {DecoderExceptionReporting.GetPossibleReason(e)}");
 
                 // With the process' own output on show it has already been seen as it happened, so there's nothing to repeat here
-                if (!showProcessRealtimeOutput && actual.IsProcessOutputCaptured)
-                    WriteUserLine($"Decoder output:\n{actual.ProcessErrorOutput}");
+                if (!showProcessRealtimeOutput && processOutput != null)
+                    WriteUserLine($"Decoder output:\n{processOutput}");
 
                 return (int)ReturnValue.ExecutionFailure;
             }

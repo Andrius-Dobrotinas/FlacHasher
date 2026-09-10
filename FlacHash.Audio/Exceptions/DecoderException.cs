@@ -10,7 +10,12 @@ namespace Andy.FlacHash.Audio
     public class GenericDecoderException : IOException
     {
         public GenericDecoderException(Exception exception)
-            : base($"Error decoding audio: {exception.Message}", exception)
+            : base($"Error when decoding audio: {exception.Message}", exception)
+        {
+        }
+
+        protected GenericDecoderException(string message, Exception exception)
+            : base(message, exception)
         {
         }
     }
@@ -23,9 +28,27 @@ namespace Andy.FlacHash.Audio
         public ExecutionException ActualException { get; init; }
 
         public DecoderException(ExecutionException exception)
-            : base(exception)
+            : base(BuildMessage(exception), exception)
         {
-            ActualException = exception;    
+            ActualException = exception;
+        }
+
+        /// <summary>
+        /// Null when it wasn't captured (stderr wasn't redirected).
+        /// </summary>
+        public static string GetProcessOutput(DecoderException exception) =>
+            exception.ActualException.IsProcessOutputCaptured ? exception.ActualException.ProcessErrorOutput : null;
+
+        static string BuildMessage(ExecutionException exception)
+        {
+            // null where one could not be reliably determined from the process - naming it would be a lie
+            int? exitCode = exception is ProcessNotRespondingException || exception is ProcessTimeoutException
+                ? (int?)null
+                : exception.ExitCode;
+
+            var exitCodeText = exitCode.HasValue ? $" (exit code {exitCode})" : "";
+
+            return $"Couldn't decode audio. {exception.Message}{exitCodeText}";
         }
     }
 }
