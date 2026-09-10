@@ -347,6 +347,9 @@ namespace Andy.ExternalProcess
 
         /// <summary>
         /// Gives the reader a moment to catch up and then takes whatever it has, finished or not.
+        /// The reader fills a buffer owned out here rather than handing one back at the end, so the text is
+        /// there either way and the wait only decides how much of it made it in. That is why the wait is
+        /// capped and how it went is of no interest.
         /// Waiting on it for real would be waiting on a stream that may never come to an end - a cancellation token
         /// can't interrupt a read already in progress, so there would be nothing to break the wait.
         /// </summary>

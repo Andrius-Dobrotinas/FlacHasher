@@ -66,6 +66,31 @@ namespace Andy.ExternalProcess.Unit
         }
 
         /// <summary>
+        /// On Unix, releasing the error stream while a read is in progress makes that read fail rather than end,
+        /// which leaves the reading half-done. What the process said before that is the only explanation of the
+        /// failure anyone gets, so it has to reach them.
+        /// </summary>
+        [Test]
+        public void When_ReadingStdErr_Throws_PartWayThrough__TheException_Must_Carry_WhatWasRead_UpToThatPoint()
+        {
+            const int deliveredBytes = 8;
+            var target = TestRunner.WithTimeoutInSeconds(-1, exitTimeoutMs: 2000);
+
+            var process = new ExternalProcessFake(
+                stdout: new MemoryStream(Encoding.UTF8.GetBytes(outputText)),
+                stdin: null,
+                stderr: new ThrowingReadStream(Encoding.UTF8.GetBytes(errorText), readsBeforeThrowing: 1, maxReadSize: deliveredBytes),
+                exitCode: -1);
+
+            var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, readStderr: true);
+
+            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+
+            Assert.True(exception.IsProcessOutputCaptured);
+            Assert.AreEqual(errorText.Substring(0, deliveredBytes), exception.ProcessErrorOutput);
+        }
+
+        /// <summary>
         /// A stream that never answers a read. A real process' error stream comes to an end when it exits,
         /// so nothing a real one does leaves the reading outstanding at the point of reporting.
         /// </summary>
