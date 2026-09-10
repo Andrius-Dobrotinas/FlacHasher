@@ -59,7 +59,7 @@ namespace Andy.ExternalProcess.Unit
 
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, readStderr: true);
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             // Stderr was redirected and would have been reported; that the reading of it came to nothing doesn't change what the flag says
             Assert.True(exception.IsProcessOutputCaptured);
@@ -84,7 +84,7 @@ namespace Andy.ExternalProcess.Unit
 
             var outputStream = target.GetOutputStream_WaitProcessExitInParallel(process, readStderr: true);
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             Assert.True(exception.IsProcessOutputCaptured);
             Assert.AreEqual(errorText.Substring(0, deliveredBytes), exception.ProcessErrorOutput);
@@ -113,7 +113,7 @@ namespace Andy.ExternalProcess.Unit
 
                 stderrReadSignal.Set();
 
-                Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+                Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
                 Assert.True(process.IsDisposedOf, "Still must dispose of the process");
             }
         }

@@ -41,12 +41,9 @@ namespace Andy.FlacHash.Audio
 
         static string BuildMessage(ExecutionException exception)
         {
-            // null where one could not be reliably determined from the process - naming it would be a lie
-            int? exitCode = exception is ProcessNotRespondingException || exception is ProcessTimeoutException
-                ? (int?)null
-                : exception.ExitCode;
-
-            var exitCodeText = exitCode.HasValue ? $" (exit code {exitCode})" : "";
+            var exitCodeText = exception is ExecutionWithExitCodeException withExitCode
+                ? $" (exit code {withExitCode.ExitCode})"
+                : "";
 
             return $"Couldn't decode audio. {exception.Message}{exitCodeText}";
         }

@@ -308,9 +308,9 @@ namespace Andy.ExternalProcess
                     throw new OperationCanceledException("Process has been cancelled");
 
                 if (errorOutput == null)
-                    throw new ExecutionException(process.ExitCode);
+                    throw new ExecutionWithExitCodeException(process.ExitCode);
 
-                throw new ExecutionException(
+                throw new ExecutionWithExitCodeException(
                     process.ExitCode,
                     HarvestErrorOutput(stdErrorTask, errorOutput, exitTimeoutMs),
                     isProcessOutputCaptured: true);

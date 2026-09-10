@@ -41,7 +41,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             var exception = Assert.Throws<ProcessTimeoutException>(() => Util.Read(outputStream));
 
-            Assert.AreEqual(0, exception.ExitCode, "A terminated process has no exit code of its own to report");
+            Assert.IsNotInstanceOf<ExecutionWithExitCodeException>(exception, "A terminated process has no exit code of its own to report");
         }
 
         [Test]

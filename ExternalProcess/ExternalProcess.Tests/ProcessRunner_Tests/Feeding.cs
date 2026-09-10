@@ -43,7 +43,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
                 GivesUpOnItsInput().ExitCode(4).ErrorMessage(errorText),
                 new MemoryStream(TestPayload.LargeBytes));
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             Assert.IsNotInstanceOf<PrematureExitException>(exception);
             Assert.AreEqual(4, exception.ExitCode);

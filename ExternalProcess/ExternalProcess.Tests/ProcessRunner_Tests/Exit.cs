@@ -25,7 +25,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
             var outputStream = Decoder.Run(
                 DecoderArgs.Reading(TestPayload.SourceFile).ExitCode(exitCode));
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             Assert.AreEqual(exitCode, exception.ExitCode);
         }
@@ -46,7 +46,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
                 DecoderArgs.Reading(TestPayload.SourceFile).ExitCode(3).ErrorMessage(errorText),
                 showProcessOutput: false);
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             Assert.True(exception.IsProcessOutputCaptured);
             Assert.That(exception.ProcessErrorOutput, Does.Contain(errorText));
@@ -62,7 +62,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
                 DecoderArgs.Reading(TestPayload.SourceFile).ExitCode(3).ErrorMessage(errorText),
                 showProcessOutput: true);
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             Assert.False(exception.IsProcessOutputCaptured);
             Assert.IsNull(exception.ProcessErrorOutput);

@@ -33,7 +33,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         {
             var outputStream = Decoder.Run(Chatty(), maxErrorOutputBytes: limitBytes);
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             Assert.LessOrEqual(
                 Encoding.UTF8.GetByteCount(exception.ProcessErrorOutput), limitBytes,
@@ -48,7 +48,7 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         {
             var outputStream = Decoder.Run(Chatty(), maxErrorOutputBytes: ProcessRunner.UnboundedErrorOutput);
 
-            var exception = Assert.Throws<ExecutionException>(() => Util.Read(outputStream));
+            var exception = Assert.Throws<ExecutionWithExitCodeException>(() => Util.Read(outputStream));
 
             Assert.Greater(
                 Encoding.UTF8.GetByteCount(exception.ProcessErrorOutput), limitBytes,

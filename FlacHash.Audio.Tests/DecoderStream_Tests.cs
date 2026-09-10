@@ -426,8 +426,8 @@ namespace Andy.FlacHash.Audio
 
         static IEnumerable<TestCaseData> GetExpectedExceptionMapping()
         {
-            yield return ExceptionCase(new ExecutionException(-1), typeof(DecoderException), "Without_ProcessErrorOutput");
-            yield return ExceptionCase(new ExecutionException(2, "decoder error output", isProcessOutputCaptured: false), typeof(DecoderException), "With_ProcessErrorOutput");
+            yield return ExceptionCase(new ExecutionWithExitCodeException(-1), typeof(DecoderException), "Without_ProcessErrorOutput");
+            yield return ExceptionCase(new ExecutionWithExitCodeException(2, "decoder error output", isProcessOutputCaptured: false), typeof(DecoderException), "With_ProcessErrorOutput");
             yield return ExceptionCase(new System.IO.IOException("Failure"), typeof(GenericDecoderException));
             yield return ExceptionCase(new ObjectDisposedException("source"), typeof(GenericDecoderException));
             yield return ExceptionCase(new NotSupportedException(), typeof(GenericDecoderException));
