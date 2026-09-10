@@ -101,9 +101,10 @@ namespace Andy.FlacHash.Application.Cmd
         {
             if (string.IsNullOrEmpty(format))
             {
+                // No terminator: a digest byte can itself be a line-break, so any delimiter would be ambiguous.
+                // Consumers frame records by the digest length of the algorithm they asked for.
                 var stdout = Console.OpenStandardOutput();
                 stdout.Write(hash, 0, hash.Length);
-                stdout.Write(stackalloc byte[] { (byte)newlineChar });
             }
             else
             {
