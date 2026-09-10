@@ -50,11 +50,10 @@ namespace Andy.ExternalProcess
         }
 
         /// <summary>
-        /// Letting go of the process' end of the pipe while a read is outstanding tears that read down, and what
-        /// that looks like depends on the platform: Unix interrupts the system call and raises an IOException,
-        /// Windows reports the stream as disposed of. Neither is a fault worth passing on - this end was closed
-        /// because the caller asked for it - so both come back as an end of stream, and the cancellation is
-        /// reported from there.
+        /// Releasing the process' end of the pipe while a read is waiting on it interrupts that read, and how it
+        /// surfaces depends on the platform: Unix raises an IOException on the interrupted system call, Windows
+        /// reports the stream as disposed of. Neither is a fault worth passing on - this end was closed because the
+        /// caller asked for it - so both come back as an end of stream, and the cancellation is reported from there.
         /// </summary>
         private int ReadFromProcess(byte[] buffer, int offset, int count)
         {

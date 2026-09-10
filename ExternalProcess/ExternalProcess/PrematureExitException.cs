@@ -15,12 +15,11 @@ namespace Andy.ExternalProcess
 
         static string BuildMessage(int exitCode, string processErrorOutput, bool isProcessOutputCaptured)
         {
-            // Some callers show nothing but the message, so it has to explain itself without any help
-            string what = $"The process stopped reading its input before all of it had been sent, and then exited with code {exitCode}. Only part of the data reached it, so whatever it produced covers only that part.";
+            string what = $"The process stopped reading the input before all of it had been written and exited with code {exitCode}. The result is not complete and may be corrupt.";
 
             return isProcessOutputCaptured
-                ? $"{what} Process error output\n: {processErrorOutput}"
-                : $"{what} Process error output has not been captured";
+                ? $"{what}. Process error output\n: {processErrorOutput}"
+                : what;
         }
     }
 

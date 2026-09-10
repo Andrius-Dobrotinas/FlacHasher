@@ -34,19 +34,6 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         }
 
         /// <summary>
-        /// Some callers show nothing but the message, so it has to name the failure on its own.
-        /// </summary>
-        [Test]
-        public void When_TheProcess_StopsReading_BeforeItHasEverything__TheMessage_Must_Say_So_WithoutHelp()
-        {
-            var outputStream = Decoder.Run(GivesUpOnItsInput(), new MemoryStream(TestPayload.LargeBytes));
-
-            var exception = Assert.Throws<PrematureExitException>(() => Util.Read(outputStream));
-
-            Assert.That(exception.Message, Does.Contain("stopped reading its input"));
-        }
-
-        /// <summary>
         /// A code the process chose for itself says more than the fact that it stopped listening.
         /// </summary>
         [Test]

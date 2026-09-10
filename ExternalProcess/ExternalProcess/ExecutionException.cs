@@ -13,18 +13,25 @@ namespace Andy.ExternalProcess
         public bool IsProcessOutputCaptured { get; }
 
         public ExecutionException(int exitCode)
-            : base($"The process exited with code {exitCode}. Process error output has not been captured")
+            : this(exitCode, processErrorOutput: null, isProcessOutputCaptured: false)
         {
-            ExitCode = exitCode;
-            IsProcessOutputCaptured = false;
         }
 
         public ExecutionException(int exitCode, string processErrorOutput, bool isProcessOutputCaptured)
-            : base($"The process exited with code {exitCode}. Process error output\n: {processErrorOutput}")
+            : base(BuildMessage(exitCode, processErrorOutput, isProcessOutputCaptured))
         {
             ExitCode = exitCode;
             ProcessErrorOutput = processErrorOutput;
             IsProcessOutputCaptured = isProcessOutputCaptured;
+        }
+
+        static string BuildMessage(int exitCode, string processErrorOutput, bool isProcessOutputCaptured)
+        {
+            string what = $"The process exited with code {exitCode}";
+
+            return isProcessOutputCaptured
+                ? $"{what}. Process error output\n: {processErrorOutput}"
+                : what;
         }
 
         /// <summary>

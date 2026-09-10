@@ -21,11 +21,11 @@ namespace Andy.ExternalProcess
         static string BuildMessage(string processErrorOutput, bool isProcessOutputCaptured)
         {
             // Some callers show nothing but the message, so it has to explain itself without any help
-            const string what = "The process took longer than it is allowed and was terminated before it finished, so its output is incomplete.";
+            const string what = "The process took longer than it is allowed and was terminated before it finished; its output may be incomplete";
 
             return isProcessOutputCaptured
-                ? $"{what} Process error output\n: {processErrorOutput}"
-                : $"{what} Process error output has not been captured";
+                ? $"{what}. Process error output\n: {processErrorOutput}"
+                : what;
         }
     }
 }

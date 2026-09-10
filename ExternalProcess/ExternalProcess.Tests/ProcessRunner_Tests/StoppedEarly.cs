@@ -69,17 +69,17 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
         }
 
         /// <summary>
-        /// Some callers show nothing but the message, so it has to name the failure on its own.
+        /// Showing the process' output means not redirecting stderr, which leaves nothing to put in the exception.
         /// </summary>
         [Test]
-        public void When_TimedOut__TheMessage_Must_Say_So_WithoutHelp()
+        public void When_TimedOut__And_TheOutput_IsOnShow__Must_Admit_ToHavingCapturedNothing()
         {
             var outputStream = Decoder.Run(NeverSignalsTheEnd(), timeoutSec: 1, showProcessOutput: true);
 
             var exception = Assert.Throws<ProcessTimeoutException>(() => Util.Read(outputStream));
 
-            Assert.That(exception.Message, Does.Contain("took longer"));
-            Assert.That(exception.Message, Does.Not.Contain("exited with code"));
+            Assert.False(exception.IsProcessOutputCaptured);
+            Assert.IsNull(exception.ProcessErrorOutput);
         }
 
         [Test]

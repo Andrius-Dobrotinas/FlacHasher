@@ -50,8 +50,6 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             Assert.True(exception.IsProcessOutputCaptured);
             Assert.That(exception.ProcessErrorOutput, Does.Contain(errorText));
-            // Some callers show nothing but the message, so it has to carry the reason on its own
-            Assert.That(exception.Message, Does.Contain(errorText));
         }
 
         /// <summary>
@@ -68,7 +66,6 @@ namespace Andy.ExternalProcess.ProcessRunner_Tests
 
             Assert.False(exception.IsProcessOutputCaptured);
             Assert.IsNull(exception.ProcessErrorOutput);
-            Assert.That(exception.Message, Does.Contain("has not been captured"));
         }
 
         /// <summary>

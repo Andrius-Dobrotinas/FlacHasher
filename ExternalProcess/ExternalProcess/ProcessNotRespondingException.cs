@@ -22,11 +22,11 @@ namespace Andy.ExternalProcess
         static string BuildMessage(string processErrorOutput, bool isProcessOutputCaptured)
         {
             // Some callers show nothing but the message, so it has to explain itself without any help
-            const string what = "The process stopped responding after writing all of its output and had to be terminated, so there is no knowing whether it finished the job.";
+            const string what = "The process stopped responding after writing all of its output (closing the std-out pipe). It had to be terminated. There is no way of knowing whether it finished the job.";
 
             return isProcessOutputCaptured
-                ? $"{what} Process error output\n: {processErrorOutput}"
-                : $"{what} Process error output has not been captured";
+                ? $"{what}. Process error output\n: {processErrorOutput}"
+                : what;
         }
     }
 }
