@@ -8,6 +8,25 @@ using System.Threading.Tasks;
 
 namespace Andy.ExternalProcess
 {
+    /// <summary>
+    /// Runs an external process and hands back its stanrdard-output as a live <see cref="ProcessOutputStream"/>.
+    /// Optionally captures the process's standard-error (<see cref="showProcessOutput"/>) and includes that in exceptions.
+    /// Throws <see cref="LaunchException"/> when the process cannot be launched and stream cannot be created.
+    /// For everything else, exceptions are thrown out of the returned stream.
+    /// </summary>
+    /// <remarks>
+    /// The following exceptions can be thrown:
+    /// <list type="number">
+    /// <item>cancellation requested by the caller - <see cref="OperationCanceledException"/>;</item>
+    /// <item>timed out (<see cref="timeoutMs"/>), killed before stdout EOF, output unusable - <see cref="ProcessTimeoutException"/>;</item>
+    /// <item>Stdout EOF reached but the process won't exit (after a <see cref="exitTimeoutMs"/>) - <see cref="ProcessNotRespondingException"/>;</item>
+    /// <item>process exited with a non-zero exit code - <see cref="ExecutionWithExitCodeException"/>, carrying the exit code;</item>
+    /// <item>exited with <c>0</c> before data was fully written to stdin - <see cref="PrematureExitException"/>;
+    /// reached only once every check above has passed, since every kill breaks the input pipe as well.</item>
+    /// </list>
+    /// - Disposing of the stream before the run is over results in the process to be stopped and doesn't produce an error.
+    /// - Captured stderr is bounded and keeps the tail (<see cref="maxErrorOutputBytes"/>), draining continuously so a full pipe never stalls the process;
+    /// </remarks>
     public class ProcessRunner : IIOProcessRunner, IOutputOnlyProcessRunner
     {
         private readonly int exitTimeoutMs;
@@ -41,9 +60,9 @@ namespace Andy.ExternalProcess
         /// <param name="startWaitMs">Time to wait (in milliseconds) before starting interacting with the process' std streams.
         /// Sometimes (depending on the speed of the computer?) it doesn't have std streams available right away, which results in "Pipe ended" error.
         /// Only applies when the process is being fed through its standard input, which is the only thing that has ever run into it.</param>
-        /// <param name="maxErrorOutputBytes">How much of the process' error output to keep for reporting a failure with. The most recent bytes are the ones kept.
+        /// <param name="maxErrorOutputBytes">How much of the process' error output to keep for reporting a failure with. Keeps the most recent data.
         /// <see cref="UnboundedErrorOutput"/> to keep all of it, at the cost of a buffer that grows with the run</param>
-        /// <param name="showProcessOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in window.
+        /// <param name="showProcessOutput">When on, doesn't capture the process' stderror and therefore can't report errors - but the info is there for the user to see in the window.
         /// When off, captures stderr and includes in exceptions if the process fails</param>
         public ProcessRunner(int timeoutMs, int exitTimeoutMs, int startWaitMs, int maxErrorOutputBytes, bool showProcessOutput)
         {
@@ -54,6 +73,10 @@ namespace Andy.ExternalProcess
             this.showProcessOutput = showProcessOutput;
         }
 
+        /// <summary>
+        /// Starts <paramref name="executableFile"/> and returns its output right away, without waiting for it to write anything.
+        /// </summary>
+        /// <exception cref="LaunchException">The executable couldn't be started.</exception>
         public ProcessOutputStream RunAndReadOutput(
             FileInfo executableFile,
             IEnumerable<string> arguments,
@@ -74,6 +97,12 @@ namespace Andy.ExternalProcess
         * 
         * In addition to this, it also listens to cancellations and for time-out, which forces the killing of the process
         */
+        /// <summary>
+        /// Starts <paramref name="executableFile"/> and returns its output right away, without waiting for it to write anything.
+        /// Feeds <paramref name="inputData"/> to the process' standard input in the background while the caller reads its output,
+        /// so that writing and reading can happen independently.
+        /// </summary>
+        /// <exception cref="LaunchException">The executable couldn't be started.</exception>
         public ProcessOutputStream RunAndReadOutput(
             FileInfo executableFile,
             IEnumerable<string> arguments,

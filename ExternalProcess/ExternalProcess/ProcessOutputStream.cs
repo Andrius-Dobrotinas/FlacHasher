@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace Andy.ExternalProcess
 {
+    /// <summary>
+    /// A live view of the process' standard output: handed back before the process has written anything,
+    /// readable as the process returns data.
+    /// When the process finishes writing, subsequent reads return <c>0</c>-bytes.
+    /// The process' exit code is checked only after reading the final chunk, which results in an exception if
+    /// the process exits with an error code or if other problems occur.
+    /// </summary>
     public class ProcessOutputStream : Stream
     {
         private readonly Stream outputStream;
@@ -20,6 +27,10 @@ namespace Andy.ExternalProcess
             processTask = process;
         }
 
+        /// <summary>
+        /// Tells whether the stream has been fully read.
+        /// Every read from there on returns <c>0</c> without asking the process anything again.
+        /// </summary>
         public bool EndOfTheLine { get; private set; }
         public override bool CanRead => outputStream.CanRead;
         public override bool CanSeek => outputStream.CanSeek;
@@ -29,6 +40,9 @@ namespace Andy.ExternalProcess
         public override bool CanTimeout => outputStream.CanTimeout;
         public override int ReadTimeout { get => outputStream.ReadTimeout; set => outputStream.ReadTimeout = value; }
 
+        /// <summary>
+        /// When the output ends, returns <c>0</c> bytes, unless the process exited with an error code - in which case it throws an exception.
+        /// </summary>
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (EndOfTheLine)
@@ -50,10 +64,11 @@ namespace Andy.ExternalProcess
         }
 
         /// <summary>
-        /// Releasing the process' end of the pipe while a read is waiting on it interrupts that read, and how it
-        /// surfaces depends on the platform: Unix raises an IOException on the interrupted system call, Windows
-        /// reports the stream as disposed of. Neither is a fault worth passing on - this end was closed because the
-        /// caller asked for it - so both come back as an end of stream, and the cancellation is reported from there.
+        /// Releasing the process' end of the pipe while a read is waiting on it interrupts that read.
+        /// The way this surfaces depends on the platform: Unix raises an IOException on the interrupted system call,
+        /// Windows reports the stream as disposed of.
+        /// Neither is a fault worth passing on - this end was closed because the caller asked for it - 
+        /// so both come back as an end of stream, and the cancellation is reported from there.
         /// </summary>
         private int ReadFromProcess(byte[] buffer, int offset, int count)
         {
@@ -67,6 +82,12 @@ namespace Andy.ExternalProcess
             }
         }
 
+        /// <summary>
+        /// Disposes of the stream without waiting for the process to finish.
+        /// If the run is still in process, this cancels it.
+        /// Waits for the process to actually exit before returning.
+        /// Safe to call more than once.
+        /// </summary>
         public override void Close()
         {
             isClosed = true;
