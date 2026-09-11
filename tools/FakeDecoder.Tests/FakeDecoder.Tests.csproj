@@ -1,29 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net8.0</TargetFramework>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>disable</Nullable>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Andy.ExternalProcess</RootNamespace>
+    <RootNamespace>Andy.FakeDecoder</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Moq" Version="4.13.1" />
-	<PackageReference Include="nunit" Version="3.14.0" />
+    <PackageReference Include="CliWrap" Version="3.6.7" />
+    <PackageReference Include="nunit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExternalProcess\ExternalProcess.csproj" />
-    <!-- Run as a real process, so only its executable is wanted, not its assembly -->
-    <ProjectReference Include="..\..\tools\FakeDecoder\FakeDecoder.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\FakeDecoder\FakeDecoder.csproj" />
   </ItemGroup>
 
   <!-- Ask the stub project where its output's at; writes to -> _FakeDecoderTarget.FullPath -->
   <Target Name="ResolveFakeDecoderOutputDirectory" BeforeTargets="GetAssemblyAttributes">
-    <MSBuild Projects="..\..\tools\FakeDecoder\FakeDecoder.csproj" Targets="GetTargetPath">
+    <MSBuild Projects="..\FakeDecoder\FakeDecoder.csproj" Targets="GetTargetPath">
       <Output TaskParameter="TargetOutputs" ItemName="_FakeDecoderTarget" />
     </MSBuild>
     <ItemGroup>
