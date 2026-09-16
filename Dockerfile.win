@@ -38,6 +38,6 @@ RUN mkdir c:\decoder
 COPY --from=decoder-setup c:\\decoder\\MAC.exe c:\\decoder\\MAC.exe
 ENV FLACHASH_TEST_DECODER_APE=c:\\decoder\\MAC.exe
 
-# Copy the FLAC decoder
-COPY --from=decoder-setup c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe c:\\decoder\\flac.exe
-ENV FLACHASH_TEST_DECODER_FLAC=c:\\decoder\\flac.exe
+# Copy the FLAC decoder (whole folder - flac.exe needs its sibling DLLs from the same zip)
+COPY --from=decoder-setup c:\\decoder\\flac-1.5.0-win c:\\decoder\\flac-1.5.0-win
+ENV FLACHASH_TEST_DECODER_FLAC=c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe
