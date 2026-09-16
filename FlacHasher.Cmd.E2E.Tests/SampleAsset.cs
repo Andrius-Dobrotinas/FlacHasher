@@ -36,5 +36,21 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 public const string FileName = "sample2-800.ape";
             }
         }
+
+        public static class Sample3
+        {
+            public const string ExpectedMd5 = "41f09add8ff144d2540d4b18cae73c1f";
+            public const string ExpectedSha256 = "1b9a3e2fadaab761fdccf91661d09aef2fbcd1c9474f88e9352a9ba168bc946c";
+
+            public static class Flac
+            {
+                public const string FileName = "sample3-1200.flac";
+            }
+
+            public static class Ape
+            {
+                public const string FileName = "sample3-1200.ape";
+            }
+        }
     }
 }

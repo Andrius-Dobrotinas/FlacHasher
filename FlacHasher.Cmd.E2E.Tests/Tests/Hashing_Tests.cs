@@ -6,9 +6,6 @@ namespace Andy.FlacHash.Application.Cmd.E2E
     [TestFixture]
     public class Hashing_Tests
     {
-        // Decode to std-out, reading the file from std-in
-        static readonly string[] flacStreamDecoderParams = { "--decode", "-" };
-
         DirectoryInfo workingDirectory;
 
         [OneTimeSetUp]
@@ -30,7 +27,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             var expectedHash = Convert.FromHexString(expectedHashString);
             var inputFile = TestEnvironment.GetTestAsset(fileToHash);
 
-            var arguments = BuildHashArguments(inputFile, decoder, "MD5", decoderParams);
+            var arguments = HashCommand.Arguments(inputFile, decoder, "MD5", decoderParams);
 
             var result = await App.RunRaw(workingDirectory, arguments);
 
@@ -49,7 +46,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             var expectedHash = Convert.FromHexString(expectedHashString);
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, flacStreamDecoderParams);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, HashCommand.FlacStreamDecoderParams);
 
             var result = await App.RunRaw(workingDirectory, arguments);
 
@@ -68,7 +65,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         {
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", flacStreamDecoderParams, format);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", HashCommand.FlacStreamDecoderParams, format);
 
             var result = await App.Run(workingDirectory, arguments);
 
@@ -87,7 +84,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         {
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", flacStreamDecoderParams, outputFormat);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", HashCommand.FlacStreamDecoderParams, outputFormat);
 
             var result = await App.Run(workingDirectory, arguments);
 
@@ -108,7 +105,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, flacStreamDecoderParams, outputFormat);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, HashCommand.FlacStreamDecoderParams, outputFormat);
 
             var result = await App.Run(workingDirectory, arguments);
 
@@ -121,26 +118,6 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             });
         }
 
-        static string[] BuildHashArguments(FileInfo inputFile, FileInfo decoder, string algorithm, string[] decoderParams, string outputFormat = null)
-        {
-            var arguments = new List<string>
-            {
-                "hash",
-                $"--input={inputFile.FullName}",
-                $"--decoder={decoder.FullName}",
-                $"--algorithm={algorithm}",
-                "--process-timeout=30",
-                "--decoder-verbose=false"
-            };
-
-            arguments.AddRange(decoderParams.Select(x => $"--params={x}"));
-
-            if (outputFormat != null)
-                arguments.Add($"--format={outputFormat}");
-
-            return arguments.ToArray();
-        }
-
         static IEnumerable<TestCaseData> GetDecodeAndHashCases()
         {
             var flac = TestEnvironment.GetFlacDecoder();
@@ -148,14 +125,14 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                     SampleAsset.Sample1.Flac.FileName,
                     SampleAsset.Sample1.ExpectedMd5,
                     flac,
-                    flacStreamDecoderParams)
+                    HashCommand.FlacStreamDecoderParams)
                 .SetName("{m}(FLAC)(File 1)");
 
             yield return new TestCaseData(
                     SampleAsset.Sample2.Flac.FileName,
                     SampleAsset.Sample2.ExpectedMd5,
                     flac,
-                    flacStreamDecoderParams)
+                    HashCommand.FlacStreamDecoderParams)
                 .SetName("{m}(FLAC)(File 2)");
 
             var isLinux = OperatingSystem.IsLinux();

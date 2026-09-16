@@ -14,6 +14,9 @@ namespace Andy.FlacHash.Application.Cmd
     {
         const char newlineChar = '\n';
 
+        // The summary is text, so raw output - which has no format of its own - still needs one to be rendered with
+        const string defaultSummaryFormat = "{hash}";
+
         public static void ComputeHashes(IAudioFileDecoder audioFileDecoder, HashingParameters @params, bool printProcessProgress, IFileSearch fileSearch, CancellationToken cancellation)
         {
             IList<FileInfo> inputFiles = GetInputFiles(@params, fileSearch);
@@ -45,28 +48,39 @@ namespace Andy.FlacHash.Application.Cmd
                     .ComputeHashes(inputFiles, cancellation);
 
             var results = new List<FileHashResult>();
-            // The hashes should be computed on this enumeration, and therefore will be output as they're computed
-            foreach (var result in computations)
+
+            // Only raw output goes to the byte stream
+            using (var rawStdout = string.IsNullOrEmpty(outputFormat) ? Console.OpenStandardOutput() : null)
             {
-                if (result.Exception == null)
+                // The hashes should be computed on this enumeration, and therefore will be output as they're computed
+                foreach (var result in computations)
                 {
-                    WriteHashToStdout(result.Hash, outputFormat, result.File);
-                    results.Add(result);
+                    if (result.Exception == null)
+                    {
+                        if (rawStdout != null)
+                            WriteRawHashToStdout(rawStdout, result.Hash);
+                        else
+                            WriteFormattedHashToStdout(outputFormat, result.Hash, result.File);
+
+                        results.Add(result);
+                    }
+                    else
+                        if (!(result.Exception is DecoderException) || printProcessProgress)
+                            WriteStdErrLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
                 }
-                else
-                    if (!(result.Exception is ExecutionException) || printProcessProgress)
-                        WriteStdErrLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
-            };
+            }
 
             /* Summary at the end just for user's convenience.
              * Results get written to stdout without any clutter, but for those who read console output,
              * this presents the results in one place without having to go through the whole process' progress output.*/
-            if (printProcessProgress && !string.IsNullOrEmpty(outputFormat))
+            if (printProcessProgress)
             {
+                var summaryFormat = string.IsNullOrEmpty(outputFormat) ? defaultSummaryFormat : outputFormat;
+
                 WriteStdErrLine("\n======== Results =========");
                 foreach (var result in results)
                 {
-                    string formattedOutput = OutputFormatting.GetFormattedString(outputFormat, HashFormatting.GetInLowercase(result.Hash), result.File);
+                    string formattedOutput = OutputFormatting.GetFormattedString(summaryFormat, HashFormatting.GetInLowercase(result.Hash), result.File);
                     WriteStdErrLine(formattedOutput);
                 }
                 WriteStdErrLine("======== The End =========");
@@ -94,24 +108,19 @@ namespace Andy.FlacHash.Application.Cmd
         }
 
         /// <summary>
-        /// Write hash to stdout: either raw hash bytes or, if <paramref name="format"/> is specified,
-        /// a formatted string.
+        /// Writes the digest bytes with no terminator: a digest byte can itself be a line-break so any delimiter would be ambiguous.
+        /// Consumers frame records by the digest length of the algorithm they asked for.
         /// </summary>
-        static void WriteHashToStdout(byte[] hash, string format, FileInfo sourceFile)
+        static void WriteRawHashToStdout(Stream stdout, byte[] hash)
         {
-            if (string.IsNullOrEmpty(format))
-            {
-                // No terminator: a digest byte can itself be a line-break, so any delimiter would be ambiguous.
-                // Consumers frame records by the digest length of the algorithm they asked for.
-                var stdout = Console.OpenStandardOutput();
-                stdout.Write(hash, 0, hash.Length);
-            }
-            else
-            {
-                string formattedOutput = OutputFormatting.GetFormattedString(format, HashFormatting.GetInLowercase(hash), sourceFile);
-                Console.Write(formattedOutput);
-                Console.Write(newlineChar);
-            }
+            stdout.Write(hash, 0, hash.Length);
+        }
+
+        static void WriteFormattedHashToStdout(string format, byte[] hash, FileInfo sourceFile)
+        {
+            string formattedOutput = OutputFormatting.GetFormattedString(format, HashFormatting.GetInLowercase(hash), sourceFile);
+            Console.Write(formattedOutput);
+            Console.Write(newlineChar);
         }
 
         static void WriteStdErrLine(string text)
