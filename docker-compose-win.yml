@@ -30,8 +30,16 @@ services:
   tests_e2e:
     extends:
       service: tests
+    # Build args come from decoder-versions-win.env - pass `docker compose --env-file decoder-versions-win.env ...` when building this service
     build:
       context: .
       dockerfile: Dockerfile.win
       target: tests-e2e
+      args:
+        SEVENZIP_URL: ${SEVENZIP_URL}
+        SEVENZIP_SHA256: ${SEVENZIP_SHA256}
+        APE_URL: ${APE_URL}
+        APE_SHA256: ${APE_SHA256}
+        FLAC_URL: ${FLAC_URL}
+        FLAC_SHA256: ${FLAC_SHA256}
     image: flachasher-tests-e2e-win
