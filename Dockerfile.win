@@ -9,12 +9,15 @@ RUN mkdir c:\tools
 
 # Install 7-Zip
 RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\tools\7z-x64.msi https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.msi
+RUN certutil -hashfile c:\tools\7z-x64.msi SHA256 | findstr /i /c:"db407a4f6d4999e5c7bc00ce8a882be94717b56e7fa68140fe3f12605d91643e" || (echo 7-Zip installer checksum mismatch & exit /b 1)
 RUN msiexec /i c:\tools\7z-x64.msi /qn /norestart /l*v c:\tools\7z-install.log INSTALLDIR=c:\7-zip || (type c:\tools\7z-install.log & exit /b 1)
 RUN del c:\tools\7z-x64.msi c:\tools\7z-install.log
 
 # Install MAC.exe - it's assumed to be in the root dir of the installer
 RUN mkdir c:\decoder\ape-setup
 RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
+# monkeysaudio.com/x64 is an unversioned "latest" link with no published checksum; hash pinned on first use below - bump it deliberately if the upstream file legitimately changes
+RUN certutil -hashfile c:\decoder\ape-setup\setup.exe SHA256 | findstr /i /c:"9941ecc7138cda99004c831df906a343b763df95819272a9dc40d1e2c127a3ad" || (echo Monkey's Audio installer checksum mismatch & exit /b 1)
 RUN dir c:\decoder\ape-setup\setup.exe
 RUN c:\7-zip\7z.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
 RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
@@ -30,6 +33,7 @@ ENV FLACHASH_TEST_DECODER_APE=c:\\decoder\\MAC.exe
 
 # Install FLAC decoder
 RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\flac.zip https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip
+RUN certutil -hashfile c:\decoder\flac.zip SHA256 | findstr /i /c:"53f1500f0d6e7c61379d7fee50d4a9f7f504c650009506d9ba015530d76c0dde" || (echo FLAC download checksum mismatch & exit /b 1)
 RUN tar --extract --file c:\decoder\flac.zip --directory c:\decoder
 RUN del c:\decoder\flac.zip
 ENV FLACHASH_TEST_DECODER_FLAC=c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe
