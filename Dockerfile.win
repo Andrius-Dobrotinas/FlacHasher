@@ -2,8 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022 AS tests
 
 # Monkey's Audio is only available as an installer, and nanoserver can't run it or 7-Zip (no WOW64 for 32-bit exes,
 # no user32/gdi32 for a GUI installer, and its built-in tar doesn't support the LZMA/.7z format either).
-# So unpack it in a full Windows image instead, then copy just MAC.exe into the nanoserver stage.
-FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS ape-decoder
+# nanoserver also has no certutil to verify checksums with.
+# So download, verify and unpack everything in a full Windows image instead, then copy just the resulting exes into the nanoserver stage.
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS decoder-setup
 
 RUN mkdir c:\tools
 
@@ -23,17 +24,21 @@ RUN c:\7-zip\7z.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extr
 RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
 RUN rmdir /s /q c:\decoder\ape-setup
 
-FROM tests AS tests-e2e
-
-RUN mkdir c:\decoder
-
-# Copy the Monkey Audio decoder
-COPY --from=ape-decoder c:\\decoder\\MAC.exe c:\\decoder\\MAC.exe
-ENV FLACHASH_TEST_DECODER_APE=c:\\decoder\\MAC.exe
-
 # Install FLAC decoder
 RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\flac.zip https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip
 RUN certutil -hashfile c:\decoder\flac.zip SHA256 | findstr /i /c:"53f1500f0d6e7c61379d7fee50d4a9f7f504c650009506d9ba015530d76c0dde" || (echo FLAC download checksum mismatch & exit /b 1)
 RUN tar --extract --file c:\decoder\flac.zip --directory c:\decoder
 RUN del c:\decoder\flac.zip
+
+FROM tests AS tests-e2e
+
+RUN mkdir c:\decoder
+
+# Copy the Monkey Audio decoder
+COPY --from=decoder-setup c:\\decoder\\MAC.exe c:\\decoder\\MAC.exe
+ENV FLACHASH_TEST_DECODER_APE=c:\\decoder\\MAC.exe
+
+# Copy the FLAC decoder
+COPY --from=decoder-setup c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe c:\\decoder\\flac.exe
+ENV FLACHASH_TEST_DECODER_FLAC=c:\\decoder\\flac.exe
 ENV FLACHASH_TEST_DECODER_FLAC=c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe
