@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the image
-        run: docker compose --file docker-compose-win.yml build tests_e2e
+        run: docker compose --file docker-compose-win.yml --env-file decoder-versions-win.env build tests_e2e
       - name: Build
         run: docker compose --file docker-compose-win.yml run --rm tests_e2e build ${{ env.PROJECT_ARGS }}
       - name: Run E2E Tests

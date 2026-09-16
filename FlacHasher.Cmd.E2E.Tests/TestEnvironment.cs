@@ -34,7 +34,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             var file = new FileInfo(path);
 
             if (!file.Exists)
-                throw new Exception($"FLAC decoder was does not exist at the specified path: {path}");
+                throw new Exception($"FLAC decoder does not exist at the specified path: {path}");
 
             return file;
         }
@@ -43,11 +43,11 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         {
             var path = Environment.GetEnvironmentVariable(ApeDecoderVariableName);
             if (string.IsNullOrWhiteSpace(path))
-                throw new Exception($"Provide APE decoder's full path via {DecoderVariableName} env variable");
+                throw new Exception($"Provide APE decoder's full path via {ApeDecoderVariableName} env variable");
             var file = new FileInfo(path);
 
             if (!file.Exists)
-                throw new Exception($"APE decoder was does not exist at the specified path: {path}");
+                throw new Exception($"APE decoder does not exist at the specified path: {path}");
 
             return file;
         }
