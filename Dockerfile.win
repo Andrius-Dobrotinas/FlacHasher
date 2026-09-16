@@ -2,34 +2,48 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022 AS tests
 
 # Monkey's Audio is only available as an installer, and nanoserver can't run it or 7-Zip (no WOW64 for 32-bit exes,
 # no user32/gdi32 for a GUI installer, and its built-in tar doesn't support the LZMA/.7z format either).
-# So unpack it in a full Windows image instead, then copy just MAC.exe into the nanoserver stage.
-FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS ape-decoder
+# nanoserver also has no certutil to verify checksums with.
+# So download, verify and unpack everything in a full Windows image instead, then copy just the resulting exes into the nanoserver stage.
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS decoder-setup
 
 RUN mkdir c:\tools
 
 # Install 7-Zip
-RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\tools\7z-x64.msi https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.msi
+# URL/hash come from decoder-versions-win.env (passed in as build args - see docker-compose-win.yml)
+ARG SEVENZIP_URL
+ARG SEVENZIP_SHA256
+RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\tools\7z-x64.msi %SEVENZIP_URL%
+RUN certutil -hashfile c:\tools\7z-x64.msi SHA256 | findstr /i /c:"%SEVENZIP_SHA256%" || (echo 7-Zip installer checksum mismatch & exit /b 1)
 RUN msiexec /i c:\tools\7z-x64.msi /qn /norestart /l*v c:\tools\7z-install.log INSTALLDIR=c:\7-zip || (type c:\tools\7z-install.log & exit /b 1)
 RUN del c:\tools\7z-x64.msi c:\tools\7z-install.log
 
 # Install MAC.exe - it's assumed to be in the root dir of the installer
 RUN mkdir c:\decoder\ape-setup
-RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\ape-setup\setup.exe https://monkeysaudio.com/x64
+ARG APE_URL
+ARG APE_SHA256
+RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\ape-setup\setup.exe %APE_URL%
+RUN certutil -hashfile c:\decoder\ape-setup\setup.exe SHA256 | findstr /i /c:"%APE_SHA256%" || (echo Monkey's Audio installer checksum mismatch & exit /b 1)
 RUN dir c:\decoder\ape-setup\setup.exe
 RUN c:\7-zip\7z.exe x c:\decoder\ape-setup\setup.exe -oc:\decoder\ape-setup\extracted -y
 RUN copy c:\decoder\ape-setup\extracted\MAC.exe c:\decoder\MAC.exe
 RUN rmdir /s /q c:\decoder\ape-setup
+
+# Install FLAC decoder
+ARG FLAC_URL
+ARG FLAC_SHA256
+RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\flac.zip %FLAC_URL%
+RUN certutil -hashfile c:\decoder\flac.zip SHA256 | findstr /i /c:"%FLAC_SHA256%" || (echo FLAC download checksum mismatch & exit /b 1)
+RUN tar --extract --file c:\decoder\flac.zip --directory c:\decoder
+RUN del c:\decoder\flac.zip
 
 FROM tests AS tests-e2e
 
 RUN mkdir c:\decoder
 
 # Copy the Monkey Audio decoder
-COPY --from=ape-decoder c:\\decoder\\MAC.exe c:\\decoder\\MAC.exe
+COPY --from=decoder-setup c:\\decoder\\MAC.exe c:\\decoder\\MAC.exe
 ENV FLACHASH_TEST_DECODER_APE=c:\\decoder\\MAC.exe
 
-# Install FLAC decoder
-RUN curl --location --fail --retry 3 --retry-delay 2 --output c:\decoder\flac.zip https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.5.0-win.zip
-RUN tar --extract --file c:\decoder\flac.zip --directory c:\decoder
-RUN del c:\decoder\flac.zip
+# Copy the FLAC decoder (whole folder - flac.exe needs its sibling DLLs from the same zip)
+COPY --from=decoder-setup c:\\decoder\\flac-1.5.0-win c:\\decoder\\flac-1.5.0-win
 ENV FLACHASH_TEST_DECODER_FLAC=c:\\decoder\\flac-1.5.0-win\\Win64\\flac.exe
