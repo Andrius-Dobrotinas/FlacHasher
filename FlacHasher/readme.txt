@@ -65,7 +65,7 @@ for example:
   flachasher hash --input=c:\muzak\slts.flac --algorithm=md5
 
 Where value is "true"/"false", the value can be completely omitted to provide "true", eg:
-  flachash --fail-fast
+  flachash --decoder-verbose
 
 ===========================================================
 3.2. GENERAL PARAMETER/CONFIGURATION INFO

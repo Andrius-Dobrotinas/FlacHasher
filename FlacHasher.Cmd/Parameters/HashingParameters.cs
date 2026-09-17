@@ -29,11 +29,5 @@ namespace Andy.FlacHash.Application.Cmd
         [EitherOr("input")]
         [FrontAndCenterParam]
         public override string InputDirectory { get; set; }
-
-        [ParameterDescription("Whether to process the rest of the files in a batch if there's a problem processing one")]
-        [CmdLineParameter(CmdlineParameterNames.FailOnError, Order = 0)]
-        [IniEntry(nameof(FailOnError), Order = 1)]
-        [Optional]
-        public bool FailOnError { get; set; }
     }
 }

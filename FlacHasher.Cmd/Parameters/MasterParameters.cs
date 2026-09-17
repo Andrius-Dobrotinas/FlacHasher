@@ -38,10 +38,10 @@ namespace Andy.FlacHash.Application.Cmd
         public string[] TargetFileExtensions { get; set; }
 
         [ConfigurationFacet(ApplicationSettings.ConfigurationFacet.Decoder)]
-        [CmdLineParameter(CmdlineParameterNames.DecoderPrintProgress, Order = 0)]
-        [IniEntry(nameof(PrintDecoderProgress), Order = 1)]
+        [CmdLineParameter(CmdlineParameterNames.DecoderPrintRealtimeOutput, Order = 0)]
+        [IniEntry(nameof(PrintDecoderOutputInRealTime), Order = 1)]
         [Optional(defaultValue: true)]
-        [ParameterDescription("Tells whether the whole Audio Decoder informational output has to be redirected to the window or kept hidden for less noise")]
-        public bool PrintDecoderProgress { get; set; }
+        [ParameterDescription("Tells whether the whole Audio Decoder informational/progress output has to be reflected in the window in real time or kept hidden for less noise")]
+        public bool PrintDecoderOutputInRealTime { get; set; }
     }
 }
