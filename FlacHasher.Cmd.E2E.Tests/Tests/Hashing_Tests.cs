@@ -6,9 +6,6 @@ namespace Andy.FlacHash.Application.Cmd.E2E
     [TestFixture]
     public class Hashing_Tests
     {
-        // Decode to std-out, reading the file from std-in
-        static readonly string[] flacStreamDecoderParams = { "--decode", "-" };
-
         DirectoryInfo workingDirectory;
 
         [OneTimeSetUp]
@@ -30,7 +27,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             var expectedHash = Convert.FromHexString(expectedHashString);
             var inputFile = TestEnvironment.GetTestAsset(fileToHash);
 
-            var arguments = BuildHashArguments(inputFile, decoder, "MD5", decoderParams);
+            var arguments = HashCommand.Arguments(inputFile, decoder, "MD5", decoderParams);
 
             var result = await App.RunRaw(workingDirectory, arguments);
 
@@ -38,7 +35,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash, "the hash must be written to std-out");
+                result.StdOut.Should().Equal(expectedHash, "the hash, and nothing else, must be written to std-out");
             });
         }
 
@@ -49,7 +46,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             var expectedHash = Convert.FromHexString(expectedHashString);
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, flacStreamDecoderParams);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, HashCommand.FlacStreamDecoderParams);
 
             var result = await App.RunRaw(workingDirectory, arguments);
 
@@ -57,7 +54,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdOut.Take(expectedHash.Length).ToArray().Should().Equal(expectedHash);
+                result.StdOut.Should().Equal(expectedHash);
             });
         }
 
@@ -68,7 +65,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         {
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", flacStreamDecoderParams, format);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", HashCommand.FlacStreamDecoderParams, format);
 
             var result = await App.Run(workingDirectory, arguments);
 
@@ -80,21 +77,23 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             });
         }
 
-        [TestCaseSource(nameof(GetOutputModeAndHashLengthCases_Flac_Md5))]
-        public async Task Hashing_a_file__marks_the_end_of_the_hash_with_a_newline(string fileToHash, string outputFormat, int expectedHashLength)
+        // Raw output carries no terminator at all, so this contract only applies to formatted text output
+        [TestCase("{hash}", SampleAsset.Sample1.ExpectedMd5)]
+        [TestCase("{name}:{hash}", $"{SampleAsset.Sample1.Flac.FileName}:{SampleAsset.Sample1.ExpectedMd5}")]
+        public async Task Hashing_a_file__with_a_format__terminates_the_with_a_newline(string outputFormat, string expectedOutput)
         {
-            var inputFile = TestEnvironment.GetTestAsset(fileToHash);
+            var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", flacStreamDecoderParams, outputFormat);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), "MD5", HashCommand.FlacStreamDecoderParams, outputFormat);
 
-            var result = await App.RunRaw(workingDirectory, arguments);
+            var result = await App.Run(workingDirectory, arguments);
 
             Assert.Multiple(() =>
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdOut.Last().Should().Be((byte)'\n', "consumers reading the stream need to know where the hash ends");
-                result.StdOut.Length.Should().Be(expectedHashLength + 1, "the hash must be followed by exactly one line-terminator");
+                result.StdOut.Should().EndWith("\n", "consumers reading the stream need to know where the hash ends");
+                result.StdOut.Length.Should().Be(expectedOutput.Length + 1, "the hash must be followed by exactly one line-terminator");
             });
         }
 
@@ -106,7 +105,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
 
-            var arguments = BuildHashArguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, flacStreamDecoderParams, outputFormat);
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFlacDecoder(), algorithm, HashCommand.FlacStreamDecoderParams, outputFormat);
 
             var result = await App.Run(workingDirectory, arguments);
 
@@ -114,29 +113,9 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.ExitCode.Should().Be(0, $"the process must return a non-error code; standard error was:\n{result.StdErr}");
 
-                result.StdErr.Should().Contain(algorithm, "user messaging belongs on std-error");
-                result.StdErr.Should().Contain("Done", "user messaging belongs on std-error");
+                result.StdErr.Should().ContainEquivalentOf(algorithm, "user messaging belongs on std-error");
+                result.StdErr.Should().ContainEquivalentOf("Done", "user messaging belongs on std-error");
             });
-        }
-
-        static string[] BuildHashArguments(FileInfo inputFile, FileInfo decoder, string algorithm, string[] decoderParams, string outputFormat = null)
-        {
-            var arguments = new List<string>
-            {
-                "hash",
-                $"--input={inputFile.FullName}",
-                $"--decoder={decoder.FullName}",
-                $"--algorithm={algorithm}",
-                "--process-timeout=30",
-                "--decoder-verbose=false"
-            };
-
-            arguments.AddRange(decoderParams.Select(x => $"--params={x}"));
-
-            if (outputFormat != null)
-                arguments.Add($"--format={outputFormat}");
-
-            return arguments.ToArray();
         }
 
         static IEnumerable<TestCaseData> GetDecodeAndHashCases()
@@ -146,14 +125,14 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                     SampleAsset.Sample1.Flac.FileName,
                     SampleAsset.Sample1.ExpectedMd5,
                     flac,
-                    flacStreamDecoderParams)
+                    HashCommand.FlacStreamDecoderParams)
                 .SetName("{m}(FLAC)(File 1)");
 
             yield return new TestCaseData(
                     SampleAsset.Sample2.Flac.FileName,
                     SampleAsset.Sample2.ExpectedMd5,
                     flac,
-                    flacStreamDecoderParams)
+                    HashCommand.FlacStreamDecoderParams)
                 .SetName("{m}(FLAC)(File 2)");
 
             var isLinux = OperatingSystem.IsLinux();
@@ -166,19 +145,6 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 .SetName("{m}(APE)(File 1)");
 
             yield return !isLinux ? apeCase : apeCase.Ignore("Monkey's Audio (APE) decoder is not available on Linux");
-        }
-
-        // Without a format the application writes raw digest bytes; with a format, it writes rendered text - two distinct write paths
-        static IEnumerable<TestCaseData> GetOutputModeAndHashLengthCases_Flac_Md5()
-        {
-            var fileName = SampleAsset.Sample1.Flac.FileName;
-            var hash = SampleAsset.Sample1.ExpectedMd5;
-
-            yield return new TestCaseData(fileName, null, Convert.FromHexString(hash).Length)
-                .SetName("{m}(Raw Bytes)");
-
-            yield return new TestCaseData(fileName, "{hash}", hash.Length)
-                .SetName("{m}(Formatted)");
         }
     }
 }
