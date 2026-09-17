@@ -24,7 +24,7 @@ namespace Andy.Cmd.Parameter
                         else
                         {
                             var value = optionalAttr.DefaultValue is string[]? (string[])optionalAttr.DefaultValue
-                                : ((string)optionalAttr.DefaultValue).Split(ParameterValueResolver.ArrayValueSeparator);
+                                : ParameterValueResolverFunctions.SplitArrayValue((string)optionalAttr.DefaultValue);
                             property.SetValue(settings, value);
                         }
                     else

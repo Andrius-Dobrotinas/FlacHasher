@@ -38,6 +38,24 @@ namespace Andy.Cmd.Parameter.ParameterValueResolver_Tests.TypeSpecific
             Assert.AreEqual(expectedValue, prop.GetValue(result));
         }
 
+        [TestCase(nameof(TestParams.Regular), @"ok\;", new[] { "ok;" })]
+        [TestCase(nameof(TestParams.Regular), @"\;ok", new[] { ";ok" })]
+        [TestCase(nameof(TestParams.Regular), @"0;two\;three;four", new[] { "0", "two;three", "four" })]
+        [TestCase(nameof(TestParams.Regular), @"0;two\;;three;four", new[] { "0", "two;", "three", "four" })]
+        public void When_SplittingAnArrayValue_Must_Omit_Escaped_Semicolon__And_UnescapeIt(string propertyName, string value, string[] expectedValue)
+        {
+            var argvs = new Dictionary<string, string[]>
+            {
+                { "arg", new [] { value } }
+            };
+            var prop = typeof(TestParams).GetProperties().First(x => x.Name == propertyName);
+
+            var result = new TestParams();
+            target.ReadParameter(prop, argvs, result);
+
+            Assert.AreEqual(expectedValue, prop.GetValue(result));
+        }
+
         [TestCase(nameof(TestParams.Regular), new[] { "0", "One", "three" }, new[] { "0", "One", "three" })]
         [TestCase(nameof(TestParams.Regular), new[] { "2" }, new[] { "2" })]
         [TestCase(nameof(TestParams.Regular), new[] { "First", "Se Cond" }, new[] { "First", "Se Cond" })]
