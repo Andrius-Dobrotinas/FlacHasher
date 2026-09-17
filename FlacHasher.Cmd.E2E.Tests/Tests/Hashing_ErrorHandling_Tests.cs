@@ -33,7 +33,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.StdOut.Should().BeEmpty();
                 result.StdErr.Should().ContainEquivalentOf("File not found", "the user has to be told what went wrong to be able to act on it");
-                result.ExitCode.Should().Be(-200);
+                result.ExitCode.Should().Be(20);
             });
         }
 
@@ -47,7 +47,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 result.StdOut.Should().BeEmpty("no valid hash can be calculated for the input");
                 result.StdErr.Should().ContainEquivalentOf("Couldn't Decode audio", "the user needs to know roughly what went wrong");
                 result.StdErr.Should().ContainEquivalentOf("Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters");
-                result.ExitCode.Should().Be(-100, "Indicates audio decoder error");
+                result.ExitCode.Should().Be(10, "Indicates audio decoder error");
             });
         }
 
@@ -73,7 +73,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.StdOut.Should().BeEmpty();
                 Normalize(result.StdErr).Should().Contain(Normalize(decoderComplaint), "only the decoder knows what went wrong - that must be relayed to the user");
-                result.ExitCode.Should().Be(-100, "Indicates audio decoder error");
+                result.ExitCode.Should().Be(10, "Indicates audio decoder error");
             });
         }
 
