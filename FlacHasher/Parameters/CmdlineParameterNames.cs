@@ -22,6 +22,7 @@
         public const string ProcessExitTimeoutMs = "--process-exit-timeout";
         public const string ProcessTimeoutSec = "--process-timeout";
         public const string HashfileEntrySeparator = "--hashfile-separator";
+        public const string IgnoreNonhashLines = "--ignore-invalid-lines";
 
         public const string ModeHash = "hash";
         public const string ModeVerify = "verify";

@@ -35,19 +35,34 @@ Refer to the application's help page for info on required parameters.
 ===========================================================
 2. HASH VERIFICATION: HASHFILE STRUCTURE
 
-A "hashfile" stores previously calculated file hashes for future verification.
-It can either contain just the hashes (with no file names) or filenames with hashes.
-If it's just hash values, the order in which they are recorded matters.
-If a hashfile contains file names, then HashfileEntrySeparator must be configured (tells where file name ends and hash value starts).
+A "hashfile" stores previously-calculated file hashes for future verification.
+The file should only contain file-hash entries. However, when `IgnoreNonhashLines` is switched on, the file may contain any other text -- which gets ignored, as long as it's not intermingled with the lines that contain filename and hash value, and it doesn't contain hash-like values.
 
-Any character sequence can be used as a separator between filename-hash, except for quote and new-line chars. However, if filename and/or hash value contains said separator char sequence, then these values must be presented in quotes. For example:
-  "file 1.flac" 34579878657567543 -- separator is Space char (" ") and filename contains a space, therefore filename must be in quotes
-  "file-1.flac"-34579878657567543 -- separator is a dash and filename contains a dash, therefore filename must be in quotes
-There's no harm in always putting filenames in quotes.
+Expected format: `{file name} {hash}` OR `{hash}`: ie, it must contain a hash, and file name is optional.
+- A filename, when present, must precede the hash, not follow it.
+- Filename and hash have to be separated either by spaces (whitespace) or by any combination of the following characters (surrounded by spaces): -, +, *, <, >, =, |, #, :. Eg: `01 file name.flac 11223344AABBCCDD`, `01 file name.flac -> 11223344AABBCCDD`
+- Anything found after the hash on the same line is ignored.
+- If the hash list doesn't have filenames, the order in which they are recorded matters -- it must be the same that the files will be presented at verification time.
 
-A single space char " " for separator means any amount of space and tab chars are treated as separator. For example, both of these work when separator is a single space " ":
-  file1.flac 34579878657567543
-  "file1 1.flac"	34579878657567543
+- A hash must be a hex char sequence without dashes (0-9, A-F, a-f), at least 16 characters long (8 bytes). Eg: 11223344AABBCCDD, 8c6c0210e16e3853ff1bd8eb52917243e2706fc5057692d0f560f066045523f6
+- A hash may be wrapped in brackets (), [], {} or backticks ``. Eg: [11223344AABBCCDD], {11223344AABBCCDD}, (11223344AABBCCDD), `11223344AABBCCDD`, "file.flac [11223344AABBCCDD]", "file.flac `11223344AABBCCDD`"
+- A filename may contain all Linux-allowed characters except it can't start or end with any of the line prefix or separator chars
+- A filename can look like a hash, but in that case, it must have an extension. Eg: 11223344AABBCCDD.flac DEADBEAF00112233
+
+- Each line can be prefixed by any of the following characters, which get discarded: -, +, *, <, >, =, :, |, #
+
+Examples:
+  file 1.flac 11223344AABBCCDD
+  file 1.flac => 11223344AABBCCDD
+  # file 1.flac : 11223344AABBCCDD
+  ++ file 1.flac : 11223344AABBCCDD
+  file 1.flac : 11223344AABBCCDD some text
+  01 - file 1.flac - 11223344AABBCCDD # some text
+  01) file 1.flac 11223344AABBCCDD
+  file 1.flac [11223344AABBCCDD]
+  file 1.flac `11223344AABBCCDD`
+  11223344AABBCCDD
+  11223344AABBCCDD.flac DEADBEAF00112233
 
 ===========================================================
 3. COMMAND-LINE INTERFACE
