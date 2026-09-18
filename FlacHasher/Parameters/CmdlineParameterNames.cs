@@ -8,7 +8,7 @@
         public const string OutputFormat = "--format";
         public const string Decoder = "--decoder";
         public const string DecoderParams = "--params";
-        public const string DecoderPrintProgress = "--decoder-verbose";
+        public const string DecoderPrintRealtimeOutput = "--decoder-verbose";
         public const string HashAlgorithm = "--algorithm";
 
         /// <summary>
@@ -21,7 +21,6 @@
         public const string FileLookupIncludeHidden = "--include-hidden";
         public const string ProcessExitTimeoutMs = "--process-exit-timeout";
         public const string ProcessTimeoutSec = "--process-timeout";
-        public const string FailOnError = "--fail-fast";
         public const string HashfileEntrySeparator = "--hashfile-separator";
 
         public const string ModeHash = "hash";

@@ -59,7 +59,7 @@ namespace Andy.FlacHash.Application.Win
                     settings.ProcessTimeoutSec,
                     settings.ProcessExitTimeoutMs,
                     settings.ProcessStartDelayMs,
-                    showProcessWindowWithStdErrOutput: settings.ShowProcessWindowWithOutput);
+                    showProcessOutput: settings.ShowProcessWindowWithOutput);
 
                 var hasherFactory = new HasherFactory(processRunner, fileReadProgressReporter, settings);
                 var hashFormatter = new PlainLowercaseHashFormatter();

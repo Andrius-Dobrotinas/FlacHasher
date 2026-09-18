@@ -26,19 +26,19 @@ namespace Andy.FlacHash.Application.Cmd
             if (!inputFiles.Any())
                 throw new InputFileMissingException("No files provided/found");
 
-            Hashing.ComputeHashes(inputFiles, @params.OutputFormat, audioFileDecoder, !@params.FailOnError, printProcessProgress, @params.HashAlgorithm, cancellation);
+            Hashing.ComputeHashes(inputFiles, @params.OutputFormat, audioFileDecoder, printProcessProgress, @params.HashAlgorithm, cancellation);
         }
 
-        public static void ComputeHashes(IList<FileInfo> inputFiles, string outputFomat, IAudioFileDecoder audioFileDecoder, bool continueOnError, bool printProcessProgress, Algorithm hashAlgorithm, CancellationToken cancellation)
+        public static void ComputeHashes(IList<FileInfo> inputFiles, string outputFomat, IAudioFileDecoder audioFileDecoder, bool printProcessProgress, Algorithm hashAlgorithm, CancellationToken cancellation)
         {
-            var hasher = BuildHasher(audioFileDecoder, continueOnError, hashAlgorithm);
+            var hasher = BuildHasher(audioFileDecoder, hashAlgorithm);
             ComputeHashes(hasher, inputFiles, outputFomat, printProcessProgress, cancellation);
         }
 
-        static MultiFileHasher BuildHasher(IAudioFileDecoder decoder, bool continueOnError, Algorithm hashAlgorithm)
+        static MultiFileHasher BuildHasher(IAudioFileDecoder decoder, Algorithm hashAlgorithm)
         {
             var hasher = new FileHasher(decoder, new Hasher(hashAlgorithm));
-            return new MultiFileHasher(hasher, continueOnError);
+            return new MultiFileHasher(hasher, continueOnError: false);
         }
 
         static void ComputeHashes(MultiFileHasher multiHasher, IEnumerable<FileInfo> inputFiles, string outputFormat, bool printProcessProgress, CancellationToken cancellation)
@@ -55,18 +55,13 @@ namespace Andy.FlacHash.Application.Cmd
                 // The hashes should be computed on this enumeration, and therefore will be output as they're computed
                 foreach (var result in computations)
                 {
-                    if (result.Exception == null)
-                    {
-                        if (rawStdout != null)
-                            WriteRawHashToStdout(rawStdout, result.Hash);
-                        else
-                            WriteFormattedHashToStdout(outputFormat, result.Hash, result.File);
-
-                        results.Add(result);
-                    }
+                    // BuildHasher always sets continueOnError: false, so ComputeHashes throws on failure instead of ever returning a result with a non-null Exception here
+                    if (rawStdout != null)
+                        WriteRawHashToStdout(rawStdout, result.Hash);
                     else
-                        if (!(result.Exception is DecoderException) || printProcessProgress)
-                            WriteStdErrLine($"Error processing file {result.File.Name}: {result.Exception.Message}");
+                        WriteFormattedHashToStdout(outputFormat, result.Hash, result.File);
+
+                    results.Add(result);
                 }
             }
 
