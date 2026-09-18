@@ -22,7 +22,7 @@ namespace Andy.ExternalProcess
             return settings;
         }
 
-        internal static ProcessStartInfo GetStandardProcessSettings(FileInfo fileToRun, bool showProcessWindowWithStdErrOutput)
+        internal static ProcessStartInfo GetStandardProcessSettings(FileInfo fileToRun, bool showProcessOutput)
         {
             if (fileToRun == null) throw new ArgumentNullException(nameof(fileToRun));
 
@@ -46,7 +46,7 @@ namespace Andy.ExternalProcess
             return new ProcessStartInfo
             {
                 FileName = fileToRun.FullName,
-                RedirectStandardError = showProcessWindowWithStdErrOutput ? false : true,
+                RedirectStandardError = showProcessOutput ? false : true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false, // Required for stream redirection to work. With Shell execution, it launches a new process (with or without a window, depending on CreateNoWindow), which means it won't write to my console and won't support redirecting streams
                 CreateNoWindow = false,
