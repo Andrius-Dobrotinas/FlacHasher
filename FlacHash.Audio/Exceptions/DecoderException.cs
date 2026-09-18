@@ -28,24 +28,9 @@ namespace Andy.FlacHash.Audio
         public ExecutionException ActualException { get; init; }
 
         public DecoderException(ExecutionException exception)
-            : base(BuildMessage(exception), exception)
+            : base($"Couldn't decode audio. {exception.Message}. See {nameof(ActualException)} for more details", exception)
         {
             ActualException = exception;
-        }
-
-        /// <summary>
-        /// Null when it wasn't captured (stderr wasn't redirected).
-        /// </summary>
-        public static string GetProcessOutput(DecoderException exception) =>
-            exception.ActualException.IsProcessOutputCaptured ? exception.ActualException.ProcessErrorOutput : null;
-
-        static string BuildMessage(ExecutionException exception)
-        {
-            var exitCodeText = exception is ExecutionWithExitCodeException withExitCode
-                ? $" (exit code {withExitCode.ExitCode})"
-                : "";
-
-            return $"Couldn't decode audio. {exception.Message}{exitCodeText}";
         }
     }
 }

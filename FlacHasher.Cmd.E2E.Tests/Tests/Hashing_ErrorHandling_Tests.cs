@@ -1,5 +1,3 @@
-using System.Text;
-using CliWrap;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -54,7 +52,9 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             Assert.Multiple(() =>
             {
                 result.StdOut.Should().BeEmpty("no valid hash can be calculated for the input");
-                result.StdErr.Should().ContainEquivalentOf("Couldn't Decode audio", "the user needs to know roughly what went wrong");
+                result.StdErr.Should().ContainEquivalentOf("Audio decoding failed", "the user needs to know roughly what went wrong");
+                result.StdErr.Should().Contain("Decoder output:", "the decoder's own output has to be relayed to the user");
+                GetRelayedDecoderOutput(result.StdErr).Should().NotBeNullOrWhiteSpace("the decoder's own output is the only account of what went wrong - it must reach the user");
                 result.StdErr.Should().ContainEquivalentOf("Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters");
                 result.ExitCode.Should().Be(10, "Indicates audio decoder error");
             });
@@ -63,25 +63,40 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         [Test]
         public async Task Hashing_with_invalid_decoder_parameters__exits_with_error__and_relays_the_decoders_complaint()
         {
-            const string invalidFlag = "--andy-flag";
-
             var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
-            var decoderParams = HashCommand.FlacStreamDecoderParams.Append(invalidFlag).ToArray();
-
-            // Whatever the decoder has to say about the parameters is the reference - hard-coding it would tie the test
-            // to one decoder version, and would pass just as well if the application had rejected the parameters itself
-            var (decoderExitCode, decoderComplaint) = await RunDecoder(decoderParams);
-
-            if (decoderExitCode != 1 || string.IsNullOrEmpty(decoderComplaint))
-                throw new InvalidOperationException(
-                    $"This test needs the decoder to reject {invalidFlag} and say why, but it exited with {decoderExitCode} and wrote: {decoderComplaint}");
+            var decoderParams = HashCommand.FlacStreamDecoderParams.Append("--andy-flag").ToArray();
 
             var result = await RunHashing(inputFile, decoderParams);
 
             Assert.Multiple(() =>
             {
                 result.StdOut.Should().BeEmpty();
-                Normalize(result.StdErr).Should().Contain(Normalize(decoderComplaint), "only the decoder knows what went wrong - that must be relayed to the user");
+                result.StdErr.Should().Contain("Decoder output:", "only the decoder knows what the problem with parameters is - that must be relayed to the user");
+                
+                // What the decoder says is not pinned down - that would tie the test to one decoder version
+                GetRelayedDecoderOutput(result.StdErr).Should().NotBeNullOrWhiteSpace("the decoder's complaint is the only account of what went wrong");
+                result.ExitCode.Should().Be(10, "Indicates audio decoder error");
+            });
+        }
+
+        [Test]
+        public async Task Hashing_a_file__when_the_decoder_process_fails__relays_its_exit_code_and_error_output()
+        {
+            const int decoderExitCode = 5;
+            const string decoderErrorMessage = "simulated decoder failure";
+
+            var inputFile = TestEnvironment.GetTestAsset(SampleAsset.Sample1.Flac.FileName);
+            var decoderParams = new[] { "--stdin", "--exit-code", decoderExitCode.ToString(), "--error-message", decoderErrorMessage };
+
+            var arguments = HashCommand.Arguments(inputFile, TestEnvironment.GetFakeDecoder(), "MD5", decoderParams);
+            var result = await App.RunRaw(workingDirectory, arguments);
+
+            Assert.Multiple(() =>
+            {
+                result.StdOut.Should().BeEmpty("no valid hash can be calculated when the decoder itself failed");
+                result.StdErr.Should().ContainEquivalentOf($"exited with code {decoderExitCode}", "the decoder's exit code has to be relayed to the user");
+                result.StdErr.Should().Contain(decoderErrorMessage, "the decoder's error output has to be relayed to the user");
+                result.StdErr.Should().NotContainEquivalentOf("ActualException", "the user must not be pointed at an internal exception member - the actual error message is relayed instead");
                 result.ExitCode.Should().Be(10, "Indicates audio decoder error");
             });
         }
@@ -102,7 +117,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             Assert.Multiple(() =>
             {
                 result.ExitCode.Should().Be(10, "Indicates audio decoder error");
-                result.StdErr.Should().ContainEquivalentOf("Couldn't Decode audio");
+                result.StdErr.Should().ContainEquivalentOf("Audio decoding failed");
                 result.StdOut.Length.Should().Be(expectedHashes.Length * md5Length,
                     "processing must stop at the failing file - none of the files after it may be reached");
                 actualHashes.Should().BeEquivalentTo(expectedHashes, options => options.WithStrictOrdering());
@@ -121,7 +136,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             Assert.Multiple(() =>
             {
                 result.ExitCode.Should().Be(10, "Indicates audio decoder error");
-                result.StdErr.Should().ContainEquivalentOf("Couldn't Decode audio");
+                result.StdErr.Should().ContainEquivalentOf("Audio decoding failed");
                 lines.Should().BeEquivalentTo(expectedHashesProduced,
                     "processing must stop at the failing file - the formatted-output path must honor that too, not just the raw one");
             });
@@ -147,24 +162,12 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
         static FileInfo GetAsset(string fileName) => TestEnvironment.GetTestAsset(fileName);
 
-
-        static async Task<(int ExitCode, string StdErr)> RunDecoder(string[] decoderParams)
+        static string GetRelayedDecoderOutput(string stdErr)
         {
-            var decoder = TestEnvironment.GetFlacDecoder();
-            var stdErr = new StringBuilder();
+            const string marker = "Decoder output:";
+            var markerIndex = stdErr.IndexOf(marker, StringComparison.Ordinal);
 
-            var result = await Cli.Wrap(decoder.FullName)
-                .WithArguments(decoderParams)
-                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErr))
-                .WithValidation(CommandResultValidation.None)
-                .ExecuteAsync();
-
-            return (result.ExitCode, stdErr.ToString().Trim());
-        }
-
-        static string Normalize(string text)
-        {
-            return text.Replace("\r\n", "\n");
+            return markerIndex < 0 ? string.Empty : stdErr[(markerIndex + marker.Length)..];
         }
 
         Task<AppRawResult> RunHashing(FileInfo inputFile, string[] decoderParams)

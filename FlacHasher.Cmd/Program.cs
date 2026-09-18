@@ -126,13 +126,13 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (FlacHash.Audio.DecoderException e)
             {
-                var processOutput = FlacHash.Audio.DecoderException.GetProcessOutput(e);
+                WriteUserLine($"Audio decoding failed: {DecoderExceptionReporting.GetFailureMessage(e)}");
 
-                WriteUserLine($"{e.Message}\nPossible reasons: {DecoderExceptionReporting.GetPossibleReason(e)}");
+                // With the process' own output already relayed to the console, it has already been seen as it happened
+                if (!showProcessRealtimeOutput)
+                    WriteUserLine($"Decoder output:\n{e.ActualException.ProcessErrorOutput}");
 
-                // With the process' own output on show it has already been seen as it happened, so there's nothing to repeat here
-                if (!showProcessRealtimeOutput && processOutput != null)
-                    WriteUserLine($"Decoder output:\n{processOutput}");
+                WriteUserLine($"Possible reasons: {DecoderExceptionReporting.GetPossibleReason(e)}");
 
                 return (int)ReturnValue.ExecutionFailure;
             }

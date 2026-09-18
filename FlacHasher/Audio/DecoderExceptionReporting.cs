@@ -8,6 +8,11 @@ namespace Andy.FlacHash.Application.Audio
     /// </summary>
     public static class DecoderExceptionReporting
     {
+        public static string GetFailureMessage(DecoderException exception)
+            => exception.ActualException is ExecutionWithExitCodeException withExitCode
+                ? $"{exception.ActualException.Message} (exit code {withExitCode.ExitCode})"
+                : exception.ActualException.Message;
+
         public static string GetPossibleReason(DecoderException exception) => exception.ActualException switch
         {
             ProcessNotRespondingException _ => "misconfiguration/incorrect parameters, or a problem with the operating system.",

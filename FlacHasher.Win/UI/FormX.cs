@@ -605,12 +605,12 @@ namespace Andy.FlacHash.Application.Win.UI
 
             if (exception is DecoderException decoderException)
             {
-                var processOutput = DecoderException.GetProcessOutput(decoderException);
+                LogMessage($"Error processing file: {file.Name}", DecoderExceptionReporting.GetFailureMessage(decoderException));
 
-                LogMessage($"Error processing file: {file.Name}", $"{decoderException.Message}\nPossible reasons: {DecoderExceptionReporting.GetPossibleReason(decoderException)}");
-
-                if (!settings.ShowProcessWindowWithOutput && processOutput != null)
-                    LogMessage($"Process output:\n{processOutput}");
+                if (!settings.ShowProcessWindowWithOutput)
+                    LogMessage($"Decoder output:\n{decoderException.ActualException.ProcessErrorOutput}");
+                
+                LogMessage($"Possible reasons: {DecoderExceptionReporting.GetPossibleReason(decoderException)}");
             }
             else
                 LogMessage($"Error processing file: {file.Name}", exception.Message);
