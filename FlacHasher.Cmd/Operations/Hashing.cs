@@ -55,22 +55,13 @@ namespace Andy.FlacHash.Application.Cmd
                 // The hashes should be computed on this enumeration, and therefore will be output as they're computed
                 foreach (var result in computations)
                 {
-                    if (result.Exception == null)
-                    {
-                        if (rawStdout != null)
-                            WriteRawHashToStdout(rawStdout, result.Hash);
-                        else
-                            WriteFormattedHashToStdout(outputFormat, result.Hash, result.File);
-
-                        results.Add(result);
-                    }
+                    // BuildHasher always sets continueOnError: false, so ComputeHashes throws on failure instead of ever returning a result with a non-null Exception here
+                    if (rawStdout != null)
+                        WriteRawHashToStdout(rawStdout, result.Hash);
                     else
-                    {
-                        if (!(result.Exception is GenericDecoderException) || printProcessProgress)
-                        {
-                            WriteStdErrLine($"\nError processing file {result.File.Name}: {result.Exception.Message}");
-                        }
-                    }
+                        WriteFormattedHashToStdout(outputFormat, result.Hash, result.File);
+
+                    results.Add(result);
                 }
             }
 

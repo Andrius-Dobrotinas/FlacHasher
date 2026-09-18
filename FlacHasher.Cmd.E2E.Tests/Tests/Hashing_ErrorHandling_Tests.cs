@@ -8,6 +8,15 @@ namespace Andy.FlacHash.Application.Cmd.E2E
     [TestFixture]
     public class Hashing_ErrorHandling_Tests
     {
+        const int md5Length = 16;
+
+        static readonly (string FileName, string ExpectedMd5)[] goodFiles =
+        {
+            (SampleAsset.Sample1.Flac.FileName, SampleAsset.Sample1.ExpectedMd5),
+            (SampleAsset.Sample2.Flac.FileName, SampleAsset.Sample2.ExpectedMd5),
+            (SampleAsset.Sample3.Flac.FileName, SampleAsset.Sample3.ExpectedMd5)
+        };
+
         DirectoryInfo workingDirectory;
 
         [OneTimeSetUp]
@@ -33,7 +42,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.StdOut.Should().BeEmpty();
                 result.StdErr.Should().ContainEquivalentOf("File not found", "the user has to be told what went wrong to be able to act on it");
-                result.ExitCode.Should().Be(-200);
+                result.ExitCode.Should().Be(20);
             });
         }
 
@@ -47,7 +56,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
                 result.StdOut.Should().BeEmpty("no valid hash can be calculated for the input");
                 result.StdErr.Should().ContainEquivalentOf("Couldn't Decode audio", "the user needs to know roughly what went wrong");
                 result.StdErr.Should().ContainEquivalentOf("Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters");
-                result.ExitCode.Should().Be(-100, "Indicates audio decoder error");
+                result.ExitCode.Should().Be(10, "Indicates audio decoder error");
             });
         }
 
@@ -73,9 +82,71 @@ namespace Andy.FlacHash.Application.Cmd.E2E
             {
                 result.StdOut.Should().BeEmpty();
                 Normalize(result.StdErr).Should().Contain(Normalize(decoderComplaint), "only the decoder knows what went wrong - that must be relayed to the user");
-                result.ExitCode.Should().Be(-100, "Indicates audio decoder error");
+                result.ExitCode.Should().Be(10, "Indicates audio decoder error");
             });
         }
+
+        [TestCaseSource(nameof(GetFailurePositionCases))]
+        public async Task Hashing_multiple_files__stops_at_the_file_that_fails_to_decode__never_processing_the_ones_after(
+            FileInfo[] filesToHash, string[] expectedHashesProduced)
+        {
+            var expectedHashes = expectedHashesProduced.Select(Convert.FromHexString).ToArray();
+
+            var arguments = HashCommand.Arguments(filesToHash, TestEnvironment.GetFlacDecoder(), "MD5", HashCommand.FlacStreamDecoderParams);
+            var result = await App.RunRaw(workingDirectory, arguments);
+
+            var actualHashes = Enumerable.Range(0, expectedHashes.Length)
+                .Select(x => result.StdOut.Skip(x * md5Length).Take(md5Length).ToArray())
+                .ToArray();
+
+            Assert.Multiple(() =>
+            {
+                result.ExitCode.Should().Be(10, "Indicates audio decoder error");
+                result.StdErr.Should().ContainEquivalentOf("Couldn't Decode audio");
+                result.StdOut.Length.Should().Be(expectedHashes.Length * md5Length,
+                    "processing must stop at the failing file - none of the files after it may be reached");
+                actualHashes.Should().BeEquivalentTo(expectedHashes, options => options.WithStrictOrdering());
+            });
+        }
+
+        [TestCaseSource(nameof(GetFailurePositionCases))]
+        public async Task Hashing_multiple_files__with_a_format__stops_at_the_file_that_fails_to_decode__never_processing_the_ones_after(
+            FileInfo[] filesToHash, string[] expectedHashesProduced)
+        {
+            var arguments = HashCommand.Arguments(filesToHash, TestEnvironment.GetFlacDecoder(), "MD5", HashCommand.FlacStreamDecoderParams, outputFormat: "{hash}");
+            var result = await App.Run(workingDirectory, arguments);
+
+            var lines = result.StdOut.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+            Assert.Multiple(() =>
+            {
+                result.ExitCode.Should().Be(10, "Indicates audio decoder error");
+                result.StdErr.Should().ContainEquivalentOf("Couldn't Decode audio");
+                lines.Should().BeEquivalentTo(expectedHashesProduced,
+                    "processing must stop at the failing file - the formatted-output path must honor that too, not just the raw one");
+            });
+        }
+
+        static IEnumerable<TestCaseData> GetFailurePositionCases()
+        {
+            yield return new TestCaseData(
+                    new[] { GetAsset(SampleAsset.TruncatedFlac.FileName), GetAsset(goodFiles[0].FileName), GetAsset(goodFiles[1].FileName), GetAsset(goodFiles[2].FileName) },
+                    Array.Empty<string>())
+                .SetName("{m}(Failing file is first - none of the files get hashed)");
+
+            yield return new TestCaseData(
+                    new[] { GetAsset(goodFiles[0].FileName), GetAsset(SampleAsset.TruncatedFlac.FileName), GetAsset(goodFiles[1].FileName), GetAsset(goodFiles[2].FileName) },
+                    new[] { goodFiles[0].ExpectedMd5 })
+                .SetName("{m}(Failing file is in the middle - the file after it never gets reached)");
+
+            yield return new TestCaseData(
+                    new[] { GetAsset(goodFiles[0].FileName), GetAsset(goodFiles[1].FileName), GetAsset(goodFiles[2].FileName), GetAsset(SampleAsset.TruncatedFlac.FileName) },
+                    new[] { goodFiles[0].ExpectedMd5, goodFiles[1].ExpectedMd5, goodFiles[2].ExpectedMd5 })
+                .SetName("{m}(Failing file is last - every file before it was already hashed)");
+        }
+
+        static FileInfo GetAsset(string fileName) => TestEnvironment.GetTestAsset(fileName);
+
 
         static async Task<(int ExitCode, string StdErr)> RunDecoder(string[] decoderParams)
         {
