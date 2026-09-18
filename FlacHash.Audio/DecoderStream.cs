@@ -18,57 +18,38 @@ namespace Andy.FlacHash.Audio
             this.source = source;
         }
 
-        public override bool CanRead => source.CanRead;
-        public override bool CanSeek => source.CanSeek;
+        public override bool CanRead => Try(() => source.CanRead);
+        public override bool CanSeek => Try(() => source.CanSeek);
         public override bool CanWrite => false;
-        public override long Length => source.Length;
-        public override long Position { get => source.Position; set => source.Position = value; }
+        public override long Length => Try(() => source.Length);
+        public override long Position
+        {
+            get => Try(() => source.Position);
+            set => Try(() => { source.Position = value; return true; });
+        }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            try
-            {
-                return source.Read(buffer, offset, count);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (ExecutionException e)
-            {
-                throw new DecoderException(e);
-            }
-            catch (Exception e)
-            {
-                throw new GenericDecoderException(e);
-            }
+            return Try(() => source.Read(buffer, offset, count));
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            try
-            {
-                return Seek(offset, origin);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (ExecutionException e)
-            {
-                throw new DecoderException(e);
-            }
-            catch (Exception e)
-            {
-                throw new GenericDecoderException(e);
-            }
+            return Try(() => source.Seek(offset, origin));
         }
 
         protected override void Dispose(bool disposing)
         {
+            Try(() => { source.Dispose(); return true; });
+
+            base.Dispose(disposing);
+        }
+
+        private static TResult Try<TResult>(Func<TResult> operation)
+        {
             try
             {
-                source.Dispose();
+                return operation();
             }
             catch (OperationCanceledException)
             {
@@ -82,8 +63,6 @@ namespace Andy.FlacHash.Audio
             {
                 throw new GenericDecoderException(e);
             }
-
-            base.Dispose(disposing);
         }
 
         public override void SetLength(long value)
