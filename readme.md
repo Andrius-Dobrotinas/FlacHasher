@@ -18,3 +18,11 @@
 ### printProcessProgress
 `true` -> process' `RedirectStandardError = false`, which results in it writing straight to my application's terminal.
 `false` -> process' `RedirectStandardError = true`, which means the application captures the process' stderr and only outputs it when there's an error.
+
+## Code
+### Settings / Parameters
+> - **Adding a setting is cheap**: help text (`Help.cs`) and the Win settings form (`SettingsForm.BuildDynamicControls`) are both reflection-driven off the attributes, so one decorated property propagates everywhere on one of the Parameters class.
+> - **Removing a setting is silent**: `ParameterReader.GetParameters` only walks the target class's properties, so an unknown INI key is never examined — no error, no warning, and the user loses the setting without being told.
+
+### External Process (Decoder) Execution
+See [Process Runner documentation](./ExternalProcess/doc.md).

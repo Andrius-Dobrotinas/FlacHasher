@@ -104,11 +104,7 @@ namespace Andy.FlacHash.Application.Cmd
 
                 WriteUserLine($"Hash algorithm: {settings.HashAlgorithm}");
 
-                var processRunner = new ExternalProcess.ProcessRunner(
-                    timeoutSec: settings.ProcessTimeoutSec,
-                    exitTimeoutMs: settings.ProcessExitTimeoutMs,
-                    startWaitMs: settings.ProcessStartDelayMs,
-                    showProcessRealtimeOutput);
+                var processRunner = FlacHash.Application.Audio.ProcessRunnerFactory.Build(settings, showProcessRealtimeOutput);
 
                 var decoderParams = AudioDecoder.GetDefaultDecoderParametersIfEmpty(settings.DecoderParameters, decoderFile);
                 FlacHash.Audio.IAudioFileDecoder decoder = AudioDecoder.Build(decoderFile, processRunner, decoderParams);
@@ -130,10 +126,14 @@ namespace Andy.FlacHash.Application.Cmd
             }
             catch (FlacHash.Audio.DecoderException e)
             {
-                WriteUserLine($"Couldn't Decode audio. Decoder returned code {e.ActualException.ExitCode}.");
-                WriteUserLine($"Possible reasons: the file may be corrupt, wrong format or decoder is misconfigured/incorrect parameters.");
+                WriteUserLine($"Audio decoding failed: {DecoderExceptionReporting.GetFailureMessage(e)}");
+
+                // With the process' own output already relayed to the console, it has already been seen as it happened
                 if (!showProcessRealtimeOutput)
-                    WriteUserLine($"Process output:\n{e.ActualException.ProcessErrorOutput}");
+                    WriteUserLine($"Decoder output:\n{e.ActualException.ProcessErrorOutput}");
+
+                WriteUserLine($"Possible reasons: {DecoderExceptionReporting.GetPossibleReason(e)}");
+
                 return (int)ReturnValue.ExecutionFailure;
             }
             catch (FlacHash.Audio.IOException e)

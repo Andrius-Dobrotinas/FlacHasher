@@ -1,6 +1,6 @@
 ﻿namespace Andy.FlacHash.Application.Cmd
 {
-    // Codes must fit in 1-127: POSIX exit statuses are an unsigned byte, and 128+ is conventionally "killed by signal".
+    // Codes must fit in 0-127: POSIX exit statuses are an unsigned byte, and 128+ is conventionally "killed by signal".
     public enum ReturnValue
     {
         Success = 0,

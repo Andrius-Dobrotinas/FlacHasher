@@ -55,10 +55,8 @@ namespace Andy.FlacHash.Application.Win
             using (var directoryResolver = Build_InteractiveDirectoryResolverGetter())
             {
                 var fileReadProgressReporter = new FileReadProgressReporter();
-                var processRunner = new ExternalProcess.ProcessRunner(
-                    settings.ProcessTimeoutSec,
-                    settings.ProcessExitTimeoutMs,
-                    settings.ProcessStartDelayMs,
+                var processRunner = FlacHash.Application.Audio.ProcessRunnerFactory.Build(
+                    settings,
                     showProcessOutput: settings.ShowProcessWindowWithOutput);
 
                 var hasherFactory = new HasherFactory(processRunner, fileReadProgressReporter, settings);

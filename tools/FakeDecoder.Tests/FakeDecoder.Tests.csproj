@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Andy.FakeDecoder</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.6.7" />
+    <PackageReference Include="nunit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FakeDecoder\FakeDecoder.csproj" />
+  </ItemGroup>
+
+  <!-- Ask the stub project where its output's at; writes to -> _FakeDecoderTarget.FullPath -->
+  <Target Name="ResolveFakeDecoderOutputDirectory" BeforeTargets="GetAssemblyAttributes">
+    <MSBuild Projects="..\FakeDecoder\FakeDecoder.csproj" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="_FakeDecoderTarget" />
+    </MSBuild>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>FakeDecoderOutputDirectory</_Parameter1>
+        <_Parameter2>$([System.IO.Path]::GetDirectoryName('%(_FakeDecoderTarget.FullPath)'))</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+</Project>

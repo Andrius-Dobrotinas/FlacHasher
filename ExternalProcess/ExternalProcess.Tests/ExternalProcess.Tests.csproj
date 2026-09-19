@@ -17,6 +17,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExternalProcess\ExternalProcess.csproj" />
+    <!-- Run as a real process, so only its executable is wanted, not its assembly -->
+    <ProjectReference Include="..\..\tools\FakeDecoder\FakeDecoder.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <!-- Ask the stub project where its output's at; writes to -> _FakeDecoderTarget.FullPath -->
+  <Target Name="ResolveFakeDecoderOutputDirectory" BeforeTargets="GetAssemblyAttributes">
+    <MSBuild Projects="..\..\tools\FakeDecoder\FakeDecoder.csproj" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="_FakeDecoderTarget" />
+    </MSBuild>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>FakeDecoderOutputDirectory</_Parameter1>
+        <_Parameter2>$([System.IO.Path]::GetDirectoryName('%(_FakeDecoderTarget.FullPath)'))</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
 
 </Project>

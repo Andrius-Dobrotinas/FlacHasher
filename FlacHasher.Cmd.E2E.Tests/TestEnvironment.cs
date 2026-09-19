@@ -9,6 +9,7 @@ namespace Andy.FlacHash.Application.Cmd.E2E
         public const string ApeDecoderVariableName = "FLACHASH_TEST_DECODER_APE";
 
         const string appExecutableName = "FlacHasher";
+        const string fakeDecoderExecutableName = "FakeDecoder";
 
         public static FileInfo AppExecutable
         {
@@ -23,6 +24,21 @@ namespace Andy.FlacHash.Application.Cmd.E2E
 
                 return file;
             }
+        }
+
+        /// <summary>
+        /// A fake decoder whose behavior and output can be controlled by the test, run as a real process.
+        /// </summary>
+        public static FileInfo GetFakeDecoder()
+        {
+            var directory = GetAssemblyMetadata("FakeDecoderOutputDirectory");
+            var fileName = OperatingSystem.IsWindows() ? $"{fakeDecoderExecutableName}.exe" : fakeDecoderExecutableName;
+            var file = new FileInfo(Path.Combine(directory, fileName));
+
+            if (!file.Exists)
+                throw new FileNotFoundException($"The fake decoder's executable hasn't been found. Build {fakeDecoderExecutableName} first.", file.FullName);
+
+            return file;
         }
 
         public static FileInfo GetFlacDecoder()

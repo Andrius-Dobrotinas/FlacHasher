@@ -8,4 +8,11 @@
     <AssemblyName>ExternalProcess.Lib</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- The fake-process entry point isn't part of the contract, but the handful of tests that need a fake process can't be written without it -->
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>ExternalProcess.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>
