@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Andy.FlacHash.Application.Cmd
 {
-    static class Hashing
+    public static class Hashing
     {
         const char newlineChar = '\n';
 
@@ -55,7 +55,10 @@ namespace Andy.FlacHash.Application.Cmd
                 // The hashes should be computed on this enumeration, and therefore will be output as they're computed
                 foreach (var result in computations)
                 {
-                    // BuildHasher always sets continueOnError: false, so ComputeHashes throws on failure instead of ever returning a result with a non-null Exception here
+                    // BuildHasher always sets continueOnError: false, so a per-file failure must throw rather than land here
+                    if (result.Exception != null)
+                        throw new InvalidOperationException($"File processing failure must throw an exception instead of quietly returning - {nameof(BuildHasher)} is expected to be configured with continueOnError: false", result.Exception);
+
                     if (rawStdout != null)
                         WriteRawHashToStdout(rawStdout, result.Hash);
                     else
