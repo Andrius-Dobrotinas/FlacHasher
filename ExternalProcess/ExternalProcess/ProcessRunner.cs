@@ -407,5 +407,21 @@ namespace Andy.ExternalProcess
 
             return errorOutput.GetText();
         }
+
+        /// <summary>
+        /// Whether the whole of the caller's input made it to the process. Written by the task doing the feeding
+        /// and read by the one reporting on the outcome, so it is deliberately the smallest thing that can carry the answer.
+        /// </summary>
+        private class InputDelivery
+        {
+            volatile bool finished;
+
+            public bool Finished => finished;
+
+            public void MarkFinished()
+            {
+                finished = true;
+            }
+        }
     }
 }
